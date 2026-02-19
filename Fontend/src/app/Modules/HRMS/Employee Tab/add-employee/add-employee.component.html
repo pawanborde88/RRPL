@@ -1,0 +1,486 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item">HRMS </li>
+    <li class="breadcrumb-item"><a routerLink="/employee-list">Employee's</a></li>
+    <li class="breadcrumb-item active">Add Employee</li>
+  </app-breadcrumb>
+  <mat-card appearance="outlined">
+    <mat-card-content>
+
+      <form [formGroup]="employeeForm" class="container" (ngSubmit)="onSubmit()">
+        <div class="row d-flex">
+          <div class="col-auto ms-auto mb-2">
+            <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+              <span *ngIf="loading">Loading...</span>
+              <span *ngIf="!loading">Submit</span>
+            </button>
+          </div>
+        </div>
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title> Personal Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row">
+              <div class="col-md-4" style="padding-bottom: 10px; padding-top:10px; border-radius:10%;">
+                <div class="div">
+
+
+
+                  <div style="display: flex; align-items: center; justify-content: center;">
+
+
+                    <!-- <img class="profile-image img-fluid" [src]="profilePicture || dummyImagePath" alt="Profile Picture"> -->
+
+                    <img class="profile-image img-fluid" style="width:190px; margin-right: 10px;"
+                      [src]="previewUrl || (logoSet ? PartnerLogoPath : (employeeForm.controls['emp_photo'].value ? storageUrl + '/' + employeeForm.controls['emp_photo'].value : 'assets/Images/avatar.png'))"
+                      alt="Employee Photo">
+                  </div>
+                  <h3 class="fw-bold text-center">Upload Employee Photo</h3>
+                  <!-- <button class="mt-3" type="button" (click)="openProfilePictureDialog()" mat-button color="primary">
+                    <mat-icon class="small-icon">edit</mat-icon>
+                    Profile
+                    Picture
+                  </button> -->
+
+
+                  <div class="file-info ">
+                    <input type="file" (change)="onChangeFile($event, 'emp_photo')"
+                      style="border:1px solid black; border-radius:6px; width: 100%;" accept=".jpg, .jpeg, .png, .webp">
+                    <span>(.jpg, .jpeg, .png, .webp) | max:500 KB</span>
+                    <ng-container *ngIf="previewUrl || employeeForm.controls['emp_photo'].value">
+                      <button mat-icon-button color="warn" (click)="onDeleteFile('emp_photo')" class="delete-icon">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </ng-container>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="col-md-8">
+                <mat-card-content>
+                  <div class="row">
+                    <!-- Employee ID -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Employee ID</mat-label>
+                      <input matInput formControlName="emp_id" type="text" />
+                    </mat-form-field>
+
+                    <!-- Employee ID -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>First Name</mat-label>
+                      <input matInput formControlName="first_name" type="text" />
+                    </mat-form-field>
+
+                    <!-- Employee ID -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Last Name</mat-label>
+                      <input matInput formControlName="last_name" type="text" />
+                    </mat-form-field>
+                    <!-- Employee ID -->
+
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Role ID</mat-label>
+                      <mat-select formControlName="role_id">
+                        <mat-option *ngFor="let role of RoleList" [value]="role.role_id">
+                          {{ role.role_name || '--' }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="col-md-4"
+                      *ngIf="this.employeeForm.controls['role_id'].value == '3'">
+                      <mat-label>Loan Type</mat-label>
+                      <mat-select formControlName="loan_type_id">
+                        <mat-option *ngFor="let type of Products" [value]="type.loan_type_id">{{ type.loan_type
+                          }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Employee Type -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Employee Type</mat-label>
+                      <mat-select formControlName="employee_type_id">
+                        <mat-option *ngFor="let empType of employeeTypes" [value]="empType.employment_type_id">
+                          {{ empType.employment_type }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Designation -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Designation</mat-label>
+                      <mat-select formControlName="designation_id">
+                        <mat-option *ngFor="let designation of designationList" [value]="designation.designation_id">
+                          {{ designation.designation }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Department -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Department</mat-label>
+                      <mat-select formControlName="department">
+                        <mat-option *ngFor="let department of departmentList" [value]="department.department_id">
+                          {{ department.department }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Reporting Manager -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Reporting Manager</mat-label>
+                      <mat-select formControlName="reporting_manager_id">
+                        <mat-option *ngFor="let manager of managerList" [value]="manager.employee_id">
+                          {{ manager.employee_name }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Active Status -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Active Status</mat-label>
+                      <mat-select formControlName="active_status_id">
+                        <mat-option *ngFor="let status of statusList" [value]="status.active_status_id">
+                          {{ status.status }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Select Gender -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Select Gender</mat-label>
+                      <mat-select formControlName="gender">
+                        <mat-option *ngFor="let gender of genderList" [value]="gender.gender_id">
+                          {{ gender.gender }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <!-- Date of Birth -->
+                    <mat-form-field appearance="outline" class="col-md-4">
+                      <mat-label>Date of Birth</mat-label>
+                      <input matInput [matDatepicker]="picker" formControlName="date_of_birth" />
+                      <mat-hint>MM/DD/YYYY</mat-hint>
+                      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                      <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </mat-card-content>
+              </div>
+            </div>
+
+            <!-- <app-employee-details></app-employee-details> -->
+
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Personal Details Section -->
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Contact Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row">
+
+              <mat-form-field appearance="outline" class="col-md-3">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone" type="text" />
+                <mat-error *ngIf="employeeForm.get('phone')?.hasError('pattern')">
+                  Phone number must contain only digits.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-3">
+                <mat-label>Alternate Phone</mat-label>
+                <input matInput formControlName="alternate_phone" type="text" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-3">
+                <mat-label>Personal Email</mat-label>
+                <input matInput formControlName="personal_email" type="email" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-3">
+                <mat-label>Official Email</mat-label>
+                <input matInput formControlName="official_email" type="email" />
+              </mat-form-field>
+
+
+            </div>
+            <div class="row">
+              <H3 class="my-0 py-0"> Emergency Contact Details </H3>
+              <!-- New Relation Field -->
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Relation</mat-label>
+                <input matInput formControlName="relation" type="text" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Person Name</mat-label>
+                <input matInput formControlName="emergency_contact_person" type="text" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Contact Number</mat-label>
+                <input matInput formControlName="emergency_contact_no" type="text" />
+              </mat-form-field>
+
+              <!-- Existing Email and Date of Birth Fields -->
+
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+
+        <!-- Address Section -->
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Address Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+
+            <div class="row">
+              <h3>Permanent Address</h3>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Address</mat-label>
+                <textarea matInput formControlName="permanent_address" rows="5"></textarea>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>PIN</mat-label>
+                <input matInput formControlName="perm_add_pin" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="perm_add_city" type="text" />
+              </mat-form-field>
+            </div>
+            <div class="row">
+              <h3>Current Address</h3>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Address</mat-label>
+                <textarea matInput formControlName="current_address" rows="5"></textarea>
+              </mat-form-field>
+
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>PIN</mat-label>
+                <input matInput formControlName="curr_add_pin" type="text" />
+              </mat-form-field>
+
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="curr_add_city" type="text" />
+              </mat-form-field>
+
+            </div>
+
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Bank Details Section -->
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Bank Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row">
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Bank Name</mat-label>
+                <input matInput formControlName="bank_name" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Branch</mat-label>
+                <input matInput formControlName="branch" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>IFSC Code</mat-label>
+                <input matInput formControlName="ifsc_no" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Account Number</mat-label>
+                <input matInput formControlName="account_no" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Aadhaar No.</mat-label>
+                <input matInput formControlName="aadhaar_no" type="text" />
+                <mat-error *ngIf="employeeForm.get('aadhaar_no')?.hasError('pattern')">
+                  Aadhaar number must be exactly 12 digits.
+                </mat-error>
+                <mat-error *ngIf="employeeForm.get('aadhaar_no')?.hasError('maxlength')">
+                  Aadhaar number must be a maximum of 12 digits.
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>PAN No.</mat-label>
+                <input matInput formControlName="pan_no" type="text" />
+                <mat-error *ngIf="employeeForm.get('pan_no')?.hasError('pattern')">
+                  PAN number must be in the format ABCDE1234F.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Educational Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <div class="row">
+
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Qualification</mat-label>
+                <input matInput formControlName="qualification" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Work Experience</mat-label>
+                <input matInput formControlName="work_exp" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-12">
+                <mat-label>Other</mat-label>
+                <input matInput formControlName="other" type="text" />
+              </mat-form-field>
+            </div>
+            <!-- <div class="row">
+
+
+              Uploaded Files Section
+               <div class="col-md-6">
+                <div class="row">
+                  <div class="col-md-6" style="padding-bottom: 10px; padding-top:10px; border-radius:10%;">
+                    <div class="div">
+                      <h3 class="fw-bold text-center">Upload Education Documents</h3>
+                      <div style="display: flex; align-items: center; justify-content: center;">
+                        <img style="width:150px; margin-right: 10px;"
+                          [src]="previewEducationDocUrl || (logoSet ? PartnerLogoPath : (employeeForm.controls['education_doc'].value ? storageUrl + '/' + employeeForm.controls['education_doc'].value : 'assets/Images/fileimage_13.png'))"
+                          alt="Education Document">
+                      </div>
+                      <div class="file-info">
+                        <input type="file" (change)="onChangeFile($event, 'education_doc')"
+                          style="border:1px solid black; border-radius:6px; width: 100%;"
+                          accept=".jpg, .jpeg, .png, .webp">
+                        <span>(.jpg, .jpeg, .png, .webp) | max:500 KB</span>
+                        <ng-container *ngIf="previewEducationDocUrl || employeeForm.controls['education_doc'].value">
+                          <button mat-icon-button color="warn" (click)="onDeleteFile('education_doc')"
+                            class="delete-icon">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6" style="padding-bottom: 10px; padding-top:10px; border-radius:10%;">
+                    <div class="div">
+                      <h3 class="fw-bold text-center">Upload Education Certificates</h3>
+                      <div style="display: flex; align-items: center; justify-content: center;">
+                        <img style="width:150px; margin-right: 10px;"
+                          [src]="previewCertificateUrl || (logoSet ? PartnerLogoPath : (employeeForm.controls['certificates'].value ? storageUrl + '/' + employeeForm.controls['certificates'].value : 'assets/Images/fileimage_13.png'))"
+                          alt="Education Certificate">
+                      </div>
+                      <div class="file-info">
+                        <input type="file" (change)="onChangeFile($event, 'certificates')"
+                          style="border:1px solid black; border-radius:6px; width: 100%;"
+                          accept=".jpg, .jpeg, .png, .webp">
+                        <span>(.jpg, .jpeg, .png, .webp) | max:500 KB</span>
+                        <ng-container *ngIf="previewCertificateUrl || employeeForm.controls['certificates'].value">
+                          <button mat-icon-button color="warn" (click)="onDeleteFile('certificates')"
+                            class="delete-icon">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div> -->
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Experiance Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <div class="row">
+
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Qualification</mat-label>
+                <input matInput formControlName="qualification" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Work Experience</mat-label>
+                <input matInput formControlName="work_exp" type="text" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="col-md-12">
+                <mat-label>Other</mat-label>
+                <input matInput formControlName="other" type="text" />
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="mt-3">
+          <mat-card-header>
+            <mat-card-title>Additional Information</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="row">
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Anniversary Date</mat-label>
+                <input matInput [matDatepicker]="anniversaryDatePicker" formControlName="anniversary_date" />
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="anniversaryDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #anniversaryDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Join Date</mat-label>
+                <input matInput [matDatepicker]="joinDatePicker" formControlName="join_date" />
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="joinDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #joinDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Exit Date</mat-label>
+                <input matInput [matDatepicker]="exitDatePicker" formControlName="exit_date" />
+                <mat-datepicker-toggle matIconSuffix [for]="exitDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #exitDatePicker></mat-datepicker>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Exit Reason</mat-label>
+                <input matInput formControlName="exit_reason" type="text" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Blood Group</mat-label>
+                <input matInput formControlName="blood_group" type="text" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="col-md-4">
+                <mat-label>Allergy</mat-label>
+                <input matInput formControlName="allergy" type="text" />
+              </mat-form-field>
+
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+
+
+
+    </mat-card-content>
+  </mat-card>
+</app-template>

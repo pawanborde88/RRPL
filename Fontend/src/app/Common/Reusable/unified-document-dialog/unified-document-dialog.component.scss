@@ -1,0 +1,28 @@
+.print-dialog-container {
+  position: relative;
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.pdf-generating-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+}
+
+.pdf-generating-text {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.7);
+}

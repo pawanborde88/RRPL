@@ -1,0 +1,54 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a routerLink="/role-permission">Role Permission</a></li>
+    <li class="breadcrumb-item active">Add Role Permission</li>
+
+  </app-breadcrumb>
+
+  <form [formGroup]="addPermissionForm" (ngSubmit)="onSubmit()">
+    <div class="row gx-4 my-5">
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Roles </mat-label>
+        <mat-select formControlName="role_id">
+          <mat-option *ngFor="let item of  RoleList" [value]="item.role_id">{{ item.role_name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Roles Permission</mat-label>
+        <mat-select multiple formControlName="permission_id">
+          <mat-option *ngFor="let item of RolePermission" [value]="item.permission_id">{{ item.permission_name
+            }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Valid From</mat-label>
+        <input matInput formControlName="valid_from" [matDatepicker]="valid_from_picker" placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle matSuffix [for]="valid_from_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_from_picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Valid To</mat-label>
+        <input matInput formControlName="valid_till" [matDatepicker]="valid_till_picker" placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle matSuffix [for]="valid_till_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_till_picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="2">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-auto ms-auto">
+        <button color="primary" type="submit" [disabled]="addPermissionForm.invalid " mat-raised-button>Add</button>
+      </div>
+    </div>
+  </form>
+
+</app-template>

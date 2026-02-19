@@ -1,0 +1,38 @@
+<form [formGroup]="addpaymentStages" class="d-flex flex-wrap align-items-center gap-3 w-100">
+    <!-- Project dropdown -->
+    <div style="flex: 1 1 200px; min-width: 200px;">
+        <app-autocomplete-reusable-component [options]="projectsList" formControlName="project_id"
+            displayKey="property_name" idKey="project_id" placeholder="Select Project" class="w-100">
+        </app-autocomplete-reusable-component>
+    </div>
+
+    <!-- Wing dropdown -->
+    <div style="flex: 1 1 200px; min-width: 200px;">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Select Wing</mat-label>
+            <mat-select formControlName="wing_id">
+                <mat-option *ngFor="let allwings of allWingsList" [value]="allwings.wing_id">
+                    {{ allwings.wing_name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <!-- Stage dropdown -->
+    <div style="flex: 1 1 200px; min-width: 200px;">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Select Stages</mat-label>
+            <mat-select formControlName="stage_id">
+                <mat-option *ngFor="let stagesList of allStatusList" [value]="stagesList.payment_stage_id">
+                    {{ stagesList.payment_stage }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+</form>
+
+<app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="floorUnitDisplayedColumns"
+    [showFooter]="true">
+
+</app-reusable-custom-table>

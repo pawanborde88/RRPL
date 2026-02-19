@@ -1,0 +1,445 @@
+<div class="reusable-table-container flex flex-col h-[calc(100vh-140px)]" [class.fullscreen-mode]="isFullscreen"
+  [class.h-screen]="isFullscreen">
+
+  <!-- Enhanced Table Controls - Compact -->
+  <div class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm flex-shrink-0"
+    style="contain: layout style paint;">
+    <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
+      <!-- Search Section -->
+      <div class="flex-1 min-w-[120px] max-w-sm">
+        <div
+          class="relative flex items-center h-8 bg-white border border-slate-200 rounded-md shadow-sm transition-all duration-200 hover:shadow focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
+          <mat-icon class="absolute left-2 text-slate-400 pointer-events-none"
+            style="font-size: 16px; width: 16px; height: 16px;">search</mat-icon>
+          <input
+            class="w-full h-full pl-7 pr-7 text-xs text-slate-700 bg-transparent border-0 outline-none placeholder-slate-400"
+            placeholder="Search..." [(ngModel)]="globalSearchTerm" (ngModelChange)="applyGlobalFilter()"
+            (input)="applyGlobalFilter()" aria-label="Global search" autocomplete="off" spellcheck="false">
+          <button *ngIf="globalSearchTermSignal()" (click)="clearGlobalSearch()"
+            class="absolute right-2 p-0.5 text-slate-400 transition-colors duration-150 rounded hover:text-slate-600 hover:bg-slate-100"
+            aria-label="Clear search">
+            <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons Section - Compact -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <!-- Dynamic Header Buttons -->
+        <ng-container *ngFor="let button of headerButtons; trackBy: trackByButton">
+          <button *ngIf="shouldShowButton(button)" mat-raised-button [color]="getButtonColor(button)"
+            [disabled]="isButtonDisabled(button)" (click)="handleButtonAction(button)"
+            [matTooltip]="getButtonTooltip(button) || ''"
+            class="!h-8 !px-2.5 !text-xs !font-medium !rounded-md !shadow-xs hover:!shadow-sm transition-all duration-200 !min-w-0"
+            [attr.aria-label]="getButtonLabel(button) || ''">
+            <mat-icon class="!text-xs !w-3.5 !h-3.5 !leading-3.5 mr-1">{{getButtonIcon(button)}}</mat-icon>
+            <span class="hidden sm:inline">{{getButtonLabel(button)}}</span>
+          </button>
+        </ng-container>
+
+        <!-- Export Button -->
+        <button *ngIf="canExport() && showExportButton" mat-raised-button color="primary" (click)="exportToExcel()"
+          class="!h-8 !px-2.5 !text-xs !font-medium !rounded-md !shadow-xs hover:!shadow-sm transition-all duration-200 !min-w-0">
+          <mat-icon class="!text-xs !w-3.5 !h-3.5 !leading-3.5 mr-1">download</mat-icon>
+          <span class="hidden sm:inline">Download</span>
+        </button>
+
+        <!-- Column Selector -->
+        <button color="accent" (click)="openColumnSelector($event)" mat-icon-button class="!w-8 !h-8"
+          aria-label="Column selector">
+          <mat-icon class="!text-base">view_column</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Table Area -->
+  <div class="table-content-wrapper flex flex-col flex-1 gap-1.5 rounded-lg bg-white h-full">
+    <div
+      class="table-wrapper flex flex-col flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs"
+      style="contain: layout;">
+
+      <div class="table-container relative flex flex-1 flex-col bg-white" [class.loading]="loading"
+        [class.has-footer]="showFooter" style="contain: layout style;">
+
+        <app-costom-loading *ngIf="loading" [loading]="loading" text="Loading"></app-costom-loading>
+
+        <div class="table-body flex-1 overflow-hidden">
+          <div class="table-scroll relative h-full overflow-hidden" [ngClass]="{'pb-12': !showFooter}">
+
+            <!-- OPTIMIZED Virtual Scroll with Reduced Row Height -->
+            <cdk-virtual-scroll-viewport [itemSize]="optimizedItemSize()"
+              (scrolledIndexChange)="onScrollIndexChange($event)" [style.height]="'100%'"
+              [minBufferPx]="optimizedMinBufferPx()" [maxBufferPx]="optimizedMaxBufferPx()"
+              class="w-full overflow-x-auto bg-white will-change-transform virtual-scroll-viewport"
+              #virtualScrollViewport (scroll)="handleHorizontalScroll($event)">
+
+              <table mat-table [dataSource]="virtualData()" matSort cdkDropList cdkDropListOrientation="horizontal"
+                (cdkDropListDropped)="drop($event)"
+                class="w-full min-w-[700px] border-collapse text-xs leading-snug text-slate-700 compact-table"
+                style="contain: layout style paint;">
+
+                <!-- Column Definitions -->
+                <ng-container *ngFor="let column of activeColumns(); trackBy: trackByColumn"
+                  [matColumnDef]="column.key">
+
+                  <!-- Header Cell -->
+                  <ng-container *ngIf="column.key !== 'actions'">
+                    <th mat-header-cell *matHeaderCellDef [mat-sort-header]="column.key"
+                      [class.sticky-column-left]="column.sticky" [class.text-center]="column.alignCenter"
+                      appColumnResize [minWidth]="column.minWidth || 70" cdkDrag [cdkDragData]="column.key"
+                      [cdkDragDisabled]="column.type === 'index'"
+                      [style.text-align]="column.isAmount || column.alignRight ? 'right' : null"
+                      class="!text-slate-700 !font-semibold !text-[11px] !tracking-wide !px-3 !py-2 !whitespace-nowrap hover:!bg-slate-50 !transition-colors !duration-150 group/header header-cell">
+                      <div class="flex flex-col h-full justify-between gap-0.5">
+                        <!-- Header Label -->
+                        <div class="flex items-center justify-between gap-1.5">
+                          <div class="flex items-center gap-1 flex-1 min-w-0">
+                            <span class="font-semibold text-slate-800 truncate text-[11px]">{{ column.label }}</span>
+                            <mat-icon *ngIf="column.tooltip" [matTooltip]="column.tooltip"
+                              class="!text-xs !w-3.5 !h-3.5 text-slate-400 cursor-help flex-shrink-0"
+                              aria-label="Column information">
+                              info_outline
+                            </mat-icon>
+                          </div>
+
+                          <!-- Drag Handle -->
+                          <mat-icon *ngIf="column.draggable !== false && column.type !== 'index'"
+                            (click)="openColumnSelector($event)" cdkDragHandle
+                            class="!text-sm !w-4 !h-4 text-slate-300 hover:text-slate-600 cursor-move opacity-0 group-hover/header:opacity-100 transition-opacity duration-200 flex-shrink-0"
+                            aria-hidden="true">
+                            drag_indicator
+                          </mat-icon>
+                        </div>
+
+                        <!-- Column Filter - Optimized Integration -->
+                        <div *ngIf="column.type !== 'index'" class="mt-0.5">
+                          <app-column-wise-filter [placeholder]="'Filter...'" [(value)]="columnFilters[column.key]"
+                            (filterChange)="applyFilter()" [debounceTime]="100">
+                          </app-column-wise-filter>
+                        </div>
+                      </div>
+                    </th>
+                  </ng-container>
+
+                  <!-- Actions Header Cell -->
+                  <ng-container *ngIf="column.key === 'actions'">
+                    <th mat-header-cell *matHeaderCellDef
+                      [class.sticky-column-left]="column.sticky || column.key === 'actions'"
+                      [class.action-column]="column.key === 'actions'" [class.text-center]="column.alignCenter"
+                      appColumnResize [minWidth]="column.minWidth || 70"
+                      [style.text-align]="column.isAmount || column.alignRight ? 'right' : null"
+                      class="!text-slate-700 !font-semibold !text-[11px] !tracking-wide !px-3 !py-2 !whitespace-nowrap hover:!bg-slate-50 !transition-colors !duration-150 header-cell">
+                      <div class="flex flex-col h-full justify-between gap-0.5">
+                        <div class="flex items-center justify-between gap-1.5">
+                          <div class="flex items-center gap-1 flex-1 min-w-0">
+                            <span class="font-semibold text-slate-800 truncate text-[11px]">{{ column.label }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Checkbox for Actions Column -->
+                        <ng-container *ngIf="showCheckbox">
+                          <mat-checkbox [indeterminate]="isSomeSelected()" [checked]="isAllItemsSelected()"
+                            (change)="toggleAllSelection($event.checked)" class="!scale-75 !m-0"
+                            [attr.aria-label]="'Select all rows'" [disableRipple]="true">
+                          </mat-checkbox>
+                        </ng-container>
+                      </div>
+                    </th>
+                  </ng-container>
+
+                  <!-- Data Cell - COMPACT HEIGHT -->
+                  <td mat-cell *matCellDef="let element; let i = index"
+                    [class.sticky-column-left]="column.sticky || column.key === 'actions'"
+                    [class.action-column]="column.key === 'actions'" [class.text-center]="column.alignCenter"
+                    [class.highlight-cell]="column.highlight"
+                    [class.warning-cell]="column.warningCondition && column.warningCondition(element)"
+                    [class.success-cell]="getColorConditionResult(column, element) === 'green'"
+                    [class.error-cell]="getColorConditionResult(column, element) === 'red'"
+                    [class.bg-light-yellow]="hasBgLightYellow(element)" [class.clickable-cell]="column.clickable"
+                    (click)="handleCellClick(column, element)"
+                    [style.text-align]="column.isAmount || column.alignRight ? 'right' : null"
+                    class="!px-3 !py-1.5 !text-xs !text-slate-700 !transition-colors !duration-150 data-cell"
+                    style="contain: content;">
+
+                    <ng-container [ngSwitch]="column.type">
+                      <!-- Photo Type -->
+                      <ng-container *ngSwitchCase="'photo'">
+                        <img (click)="handleCellClick(column, element)"
+                          [src]="element[column.key] ? (storageUrl + '/' + element[column.key]) : column.nullImage"
+                          alt="Profile photo" loading="lazy" decoding="async"
+                          class="w-7 h-7 rounded-full object-cover ring-1 ring-slate-200 hover:ring-blue-400 transition-colors duration-150 cursor-pointer"
+                          style="contain: layout style paint;">
+                      </ng-container>
+
+                      <!-- Sensitive Data -->
+                      <ng-container *ngSwitchCase="'sensitive'">
+                        <button mat-icon-button
+                          (click)="openSensitiveDataDialog(column.label, element[column.key], element)"
+                          class="!w-6 !h-6 !text-slate-500 hover:!text-blue-600 hover:!bg-blue-50 !transition-all !duration-200"
+                          aria-label="View sensitive data">
+                          <mat-icon class="!text-sm">lock</mat-icon>
+                        </button>
+                      </ng-container>
+
+                      <!-- Attachment -->
+                      <ng-container *ngSwitchCase="'attachment'">
+                        <button *ngIf="element[column.key]" mat-button (click)="openReceiptDialog(element[column.key])"
+                          matTooltip="View Receipt"
+                          class="!text-xs !px-2 !py-0.5 !min-w-0 !h-6 !bg-blue-50 !text-blue-600 hover:!bg-blue-100 !rounded-sm !transition-all !duration-200"
+                          aria-label="View receipt">
+                          <span>View</span>
+                        </button>
+                        <span *ngIf="!element[column.key]" class="text-slate-400 text-xs">-</span>
+                      </ng-container>
+
+                      <!-- File -->
+                      <ng-container *ngSwitchCase="'file'">
+                        <button *ngIf="element[column.key]" mat-button (click)="openReceiptDialog(element[column.key])"
+                          class="!text-xs !px-2 !py-0.5 !min-w-0 !h-6 !bg-green-50 !text-green-600 hover:!bg-green-100 !rounded-sm !transition-all !duration-200"
+                          aria-label="View file">
+                          <span>Download</span>
+                        </button>
+                        <span *ngIf="!element[column.key]" class="text-slate-400 text-xs">-</span>
+                      </ng-container>
+
+                      <!-- Date Types -->
+                      <ng-container *ngSwitchCase="'date'">
+                        <span class="text-slate-600 font-mono text-xs">
+                          <span *ngIf="shouldHighlightColumn(column.key)"
+                            [innerHTML]="highlightDateText(element[column.key], 'short', getSearchTermForColumn(column.key))">
+                          </span>
+                          <span *ngIf="!shouldHighlightColumn(column.key)">
+                            {{ element[column.key] | date:'short' }}
+                          </span>
+                        </span>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'short_date'">
+                        <span class="text-slate-600 font-mono text-xs">
+                          <span *ngIf="shouldHighlightColumn(column.key)"
+                            [innerHTML]="highlightDateText(element[column.key], 'dd-MMM-yy', getSearchTermForColumn(column.key))">
+                          </span>
+                          <span *ngIf="!shouldHighlightColumn(column.key)">
+                            {{ element[column.key] | date:'dd-MMM-yy' }}
+                          </span>
+                        </span>
+                      </ng-container>
+
+                      <!-- Truncated Text -->
+                      <ng-container *ngSwitchCase="'truncate'">
+                        <span [matTooltip]="element[column.key]"
+                          class="block truncate max-w-[180px] text-slate-700 hover:text-blue-600 cursor-help text-xs">
+                          <span *ngIf="shouldHighlightColumn(column.key)"
+                            [innerHTML]="highlightTruncateText(element[column.key], 35, getSearchTermForColumn(column.key))">
+                          </span>
+                          <span *ngIf="!shouldHighlightColumn(column.key)">
+                            {{ element[column.key] | truncate:35 }}
+                          </span>
+                        </span>
+                      </ng-container>
+
+                      <!-- Index Column -->
+                      <ng-container *ngSwitchCase="'index'">
+                        <span class="inline-flex items-center justify-center  font-medium text-slate-600 bg-slate-100">
+                          {{ getSerialNumber(i) }}
+                        </span>
+                      </ng-container>
+
+                      <!-- Actions Column - Direct Display Implementation -->
+                      <ng-container *ngSwitchCase="'actions'">
+                        <div class="actions-container-inline flex items-center gap-1.5 justify-center">
+                          <!-- Checkbox -->
+                          <mat-checkbox *ngIf="showCheckbox" [checked]="isRowSelected(element)"
+                            (click)="$event.stopPropagation()"
+                            (change)="handleCheckboxChange({ checked: $event.checked, row: element })"
+                            class="!scale-75 !m-0" [attr.aria-label]="'Select row'" [disableRipple]="true">
+                          </mat-checkbox>
+
+                          <!-- Actions Buttons - Direct Display -->
+                          <div class="actions-buttons-inline flex items-center gap-1" role="group">
+                            <ng-container *ngFor="let act of getVisibleActionsForRow(element); trackBy: trackByButton">
+                              <button mat-icon-button [disabled]="isActionDisabledForRow(act, element)"
+                                [attr.aria-label]="getActionTooltipForRow(act, element)"
+                                [matTooltip]="getActionTooltipForRow(act, element)"
+                                (click)="triggerActionForRow(act.action, element, $event)" [color]="act.color"
+                                [disableRipple]="true">
+                                <mat-icon class="!text-base !w-5 !h-5">{{ act.icon }}</mat-icon>
+                              </button>
+                            </ng-container>
+                          </div>
+                        </div>
+                      </ng-container>
+
+                      <!-- Default (text/number) -->
+                      <ng-container *ngSwitchDefault>
+                        <div class="relative min-h-[1.5rem] transition-colors duration-150"
+                          [class.bg-blue-50]="editingRow === element && editingField === column.key"
+                          [class.rounded-sm]="editingRow === element && editingField === column.key"
+                          style="contain: layout style;">
+
+                          <!-- Display Mode -->
+                          <div *ngIf="!(editingRow === element && editingField === column.key)"
+                            (dblclick)="column.editable ? startEditing(element, column.key, $event) : null"
+                            [class.cursor-pointer]="column.editable" [class.hover:bg-slate-50]="column.editable"
+                            [class.font-semibold]="column.isAmount" [class.text-slate-900]="column.isAmount"
+                            [class.text-right]="column.isAmount"
+                            class="px-1.5 py-0.5 rounded-sm transition-colors duration-150 text-xs"
+                            [title]="element[column.key]"
+                            [attr.aria-label]="column.editable ? 'Double-click to edit' : null">
+                            <span *ngIf="shouldHighlightColumn(column.key) && !column.isAmount"
+                              [innerHTML]="highlightText(element[column.key] || column.default || '-', getSearchTermForColumn(column.key))">
+                            </span>
+                            <span *ngIf="shouldHighlightColumn(column.key) && column.isAmount"
+                              [innerHTML]="highlightAmountText(element[column.key], getSearchTermForColumn(column.key))">
+                            </span>
+                            <span *ngIf="!shouldHighlightColumn(column.key)">
+                              {{ column.isAmount ? (element[column.key] | indianCurrency:false) : (element[column.key]
+                              ||
+                              column.default || '-') }}
+                            </span>
+                          </div>
+
+                          <!-- Edit Mode -->
+                          <div *ngIf="editingRow === element && editingField === column.key"
+                            class="flex items-center gap-1 p-0.5" style="contain: layout;">
+                            <input *ngIf="column.editType !== 'select'" [type]="column.isAmount ? 'number' : 'text'"
+                              [(ngModel)]="editValue" (keydown.enter)="saveEditing()" (keydown.escape)="cancelEditing()"
+                              autofocus [class.text-right]="column.isAmount"
+                              class="flex-1 px-1.5 py-0.5 text-xs border border-blue-300 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                              aria-label="Edit field">
+
+                            <div class="flex items-center gap-0.5">
+                              <button mat-icon-button (click)="saveEditing()" title="Save"
+                                class="!w-6 !h-6 !bg-green-500 hover:!bg-green-600 !text-white !rounded-sm !transition-colors !duration-200"
+                                aria-label="Save changes">
+                                <mat-icon class="!text-xs">check</mat-icon>
+                              </button>
+                              <button mat-icon-button (click)="cancelEditing()" title="Cancel"
+                                class="!w-6 !h-6 !bg-red-500 hover:!bg-red-600 !text-white !rounded-sm !transition-colors !duration-200"
+                                aria-label="Cancel editing">
+                                <mat-icon class="!text-xs">close</mat-icon>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-container>
+                    </ng-container>
+                  </td>
+
+                  <!-- Footer Cell -->
+                  <ng-container *ngIf="showFooter">
+                    <td mat-footer-cell *matFooterCellDef
+                      [class.sticky-column-left]="column.sticky || column.key === 'actions'"
+                      [class.action-column]="column.key === 'actions'" [class.text-center]="column.alignCenter"
+                      [style.text-align]="column.isAmount || column.alignRight ? 'right' : null"
+                      class="!px-3 !py-1.5 !text-xs !font-semibold !text-slate-700 footer-cell">
+
+                      <ng-container *ngIf="column.isAmount && column.key !== 'reg_per' && column.key !== 'sd_per'">
+                        <span class="inline-block px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-bold">
+                          {{ getTotal(column.key) | indianCurrency:false }}
+                        </span>
+                      </ng-container>
+
+                      <ng-container *ngIf="column.key === 'reg_per' || column.key === 'sd_per'">
+                        <span class="inline-block px-1.5 py-0.5 bg-green-50 text-green-700 rounded text-xs font-bold">
+                          {{ getAverage(column.key) | number:'1.2-2' }}%
+                        </span>
+                      </ng-container>
+
+                      <ng-container *ngIf="column.key === 'actions'">
+                        <div class="flex items-center gap-1.5">
+                          <mat-icon class="!text-sm text-slate-600">assessment</mat-icon>
+                          <span class="font-bold text-slate-800 text-xs">Total:</span>
+                          <span class="px-1.5 py-0.5 bg-slate-200 text-slate-800 rounded text-xs font-bold">
+                            {{ filteredTotalCount() }}
+                          </span>
+                        </div>
+                      </ng-container>
+                    </td>
+                  </ng-container>
+                </ng-container>
+
+                <!-- Header Row - Use virtualized columns for better performance with many columns -->
+                <tr mat-header-row
+                  *matHeaderRowDef="(activeColumns().length >= 15 ? virtualizedColumnKeys() : activeColumnKeys()); sticky: true"
+                  class="!h-8 !bg-slate-50 !text-[10px] !font-semibold !tracking-[0.06em] !uppercase !text-slate-500 compact-header-row">
+                </tr>
+
+                <!-- Data Row - REDUCED HEIGHT (from h-12 to h-8) - Use virtualized columns for better performance -->
+                <tr mat-row
+                  *matRowDef="let row; columns: (activeColumns().length >= 15 ? virtualizedColumnKeys() : activeColumnKeys()); let i = index"
+                  [routerLink]="getRouterLink(row)" [class.clickable]="getRouterLink(row)"
+                  [ngClass]="getRowClassWithHover(row)" [ngStyle]="getRowStyle(row)"
+                  [class.hover-blue-bg]="!hasBgLightYellow(row)"
+                  class="!h-8 !text-xs !text-slate-700 transition-colors duration-150 hover:bg-slate-50 cursor-pointer compact-data-row">
+                </tr>
+
+                <!-- Footer Row - Usborder border-slate-200/60e virtualized columns for better performance -->
+                <tr mat-footer-row
+                  *matFooterRowDef="(activeColumns().length >= 15 ? virtualizedColumnKeys() : activeColumnKeys()); sticky: true"
+                  [hidden]="!showFooter || allDataSignal().length === 0" class="!h-8 !bg-slate-100 compact-footer-row">
+                </tr>
+
+                <!-- No Data Row -->
+                <tr class="!h-64" *matNoDataRow>
+                  <td
+                    [attr.colspan]="(activeColumns().length >= 15 ? virtualizedColumnKeys().length : activeColumns().length)"
+                    class="!p-0">
+                    <div
+                      class="flex flex-col items-center justify-center min-h-[16rem] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 rounded-lg mx-3 my-3 ">
+                      <div class="relative mb-4">
+                        <div
+                          class="absolute inset-0 bg-blue-100 rounded-full blur-xl opacity-30 scale-125 animate-pulse">
+                        </div>
+                        <div
+                          class="relative flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full shadow-sm ring-2 ring-white ring-opacity-50">
+                          <mat-icon class="!text-4xl !w-12 !h-12 text-slate-400">inbox</mat-icon>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-col items-center gap-1.5 max-w-md px-4 text-center">
+                        <h3 class="text-lg font-bold text-slate-700">No Data Found</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                          No matching records. Try adjusting your filters or search.
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Loading Indicator for Infinite Scroll -->
+              <div *ngIf="isLoadingMoreSignal() || (enableInfiniteScroll && infiniteScrollIsLoadingSignal())"
+                [class]="'flex items-center justify-center gap-2 py-2 bg-blue-50/50 border-t border-blue-100 sticky z-10 ' + (showFooter ? 'bottom-8' : 'bottom-0')">
+                <mat-spinner diameter="16" color="accent"></mat-spinner>
+                <span class="text-xs font-medium text-blue-600">Loading more data...</span>
+              </div>
+            </cdk-virtual-scroll-viewport>
+          </div>
+        </div>
+
+        <!-- Sticky Footer -->
+        <div *ngIf="!showFooter && allDataSignal().length > 0"
+          class="table-footer-sticky absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-2 shadow-sm z-20">
+          <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-600">
+            <mat-icon class="!text-base text-blue-600">assessment</mat-icon>
+            <span>Showing</span>
+            <span class="rounded bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">{{
+              loadedItemCountSignal() }}</span>
+            <span>of</span>
+            <span class="rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-800">{{
+              enableInfiniteScroll ? infiniteScrollTotalCount() : filteredTotalCount() }}</span>
+            <span>records</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginator - Compact -->
+    <div *ngIf="showPaginator" class="flex-shrink-0 mt-1 rounded-lg border border-slate-200 bg-white p-2 shadow-xs">
+      <app-custom-pagination [pageSize]="pageSize" [currentPage]="currentPage" [totalItems]="allDataSignal().length"
+        [pageSizeOptions]="[10,30,50, 100, 200, 500]" [showAllOption]="true" (pageChange)="onPageChange($event)">
+      </app-custom-pagination>
+    </div>
+  </div>
+</div>

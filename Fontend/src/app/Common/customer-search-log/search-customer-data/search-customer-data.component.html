@@ -1,0 +1,17 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a>Customer Search Log</a></li>
+
+  </app-breadcrumb>
+
+
+
+
+
+  <app-configurable-ag-grid-data [loading]="loading()" [columns]="agreementDetailsColumnsNames"
+    [apiEndpoint]="'fetch_project_enquiries'" [apiMethod]="'POST'" [apiPayload]="agGridPayload()">
+  </app-configurable-ag-grid-data>
+
+
+
+</app-template>

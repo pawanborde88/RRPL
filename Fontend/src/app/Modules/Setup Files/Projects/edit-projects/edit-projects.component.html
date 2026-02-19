@@ -1,0 +1,647 @@
+<app-template>
+  <!-- Breadcrumb -->
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a routerLink="/all-projects">All Projects</a></li>
+    <li class="breadcrumb-item active">Edit Project</li>
+    <li class="breadcrumb-item active">{{ projectData()?.property_name }}</li>
+  </app-breadcrumb>
+
+  <mat-card appearance="outlined" class="mat-elevation-z4 rounded-2xl border border-gray-200 bg-white">
+    <div class="container-fluid p-0">
+      <!-- Header Section -->
+      <mat-card-header
+        class="sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full bg-gray-200  backdrop-blur-md shadow-sm border-b border-gray-100 rounded-t-2xl">
+        <!-- Left Section -->
+        <div class="flex items-center gap-4 mb-4 sm:mb-0">
+
+          <div class="flex flex-col">
+            <mat-card-title class="text-gray-900 ">
+              {{ projectData()?.property_name }}
+            </mat-card-title>
+
+          </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
+          <button mat-stroked-button
+            class="flex-1 sm:flex-none h-11 px-6 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-bold transition-all rounded-xl"
+            routerLink="/all-projects">
+            <mat-icon class="mr-2 !w-5 !h-5">arrow_back</mat-icon>
+            Back
+          </button>
+
+          <button mat-stroked-button color="warn"
+            class="flex-1 sm:flex-none h-11 px-6 border-red-200 hover:bg-red-50 hover:border-red-400 text-red-600 font-bold transition-all rounded-xl"
+            (click)="discardChanges()" [disabled]="!editProjectForm.dirty">
+            <mat-icon class="mr-2 !w-5 !h-5">refresh</mat-icon>
+            Discard
+          </button>
+
+          <button mat-raised-button color="primary"
+            class="flex-1 sm:flex-none h-11 px-8 bg-primary-600 hover:bg-primary-700 shadow-lg hover:shadow-xl transition-all font-black rounded-xl text-white"
+            (click)="onSubmit()">
+            <mat-icon class="mr-2 !w-5 !h-5">save</mat-icon>
+            Save Changes
+          </button>
+        </div>
+      </mat-card-header>
+
+      <!-- Form Content -->
+      <div class="p-4 sm:p-6">
+        <form [formGroup]="editProjectForm" class="space-y-6">
+
+
+          <!-- Expansion Panels -->
+          <mat-accordion multi class="space-y-4">
+            <!-- Section 1: Project Images -->
+            <mat-expansion-panel [expanded]="true"
+              class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-primary-200 transition-all duration-300 overflow-hidden">
+              <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+                <mat-panel-title class="flex items-center gap-4">
+                  <div class="p-2.5 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl shadow-sm">
+                    <mat-icon class="text-primary-600 text-xl">photo_library</mat-icon>
+                  </div>
+                  <div>
+                    <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Visuals</h5>
+                  </div>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <div class="px-6 pb-6 pt-2">
+                <!-- Image Upload Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                  <!-- Company Logo -->
+                  <div class="space-y-4">
+
+
+                    <input #thumbnailInput type="file" accept="image/*" class="hidden"
+                      (change)="onImageChange($event, 'thumbnail', 'project_thumbnail_img')" />
+
+                    <div class="relative group mt-2">
+                      <div
+                        *ngIf="imagePreview()?.thumbnail || projectData()?.project_thumbnail_img; else thumbnailUpload"
+                        class="relative rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden hover:border-primary-400 hover:shadow-lg transition-all duration-300 aspect-video w-full bg-white flex items-center justify-center p-4">
+                        <img class="max-w-full max-h-full object-contain drop-shadow-sm"
+                          (click)="previewImages(projectData()?.project_thumbnail_img)"
+                          [src]="imagePreview()?.thumbnail || (storageUrl + '/' + projectData()?.project_thumbnail_img)"
+                          alt="Company Logo" loading="lazy" />
+
+                        <!-- Always Visible Action Buttons (Glass Design) -->
+                        <div class="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                          <button mat-mini-fab
+                            class="!w-10 !h-10 !bg-white !text-primary-600 shadow-xl hover:!bg-primary-600 hover:!text-white transition-all duration-300 flex items-center justify-center"
+                            (click)="thumbnailInput.click(); $event.stopPropagation()" matTooltip="Update Logo">
+                            <mat-icon class="!text-xl">edit</mat-icon>
+                          </button>
+                          <button *ngIf="projectData()?.project_thumbnail_img || imagePreview()?.thumbnail" mat-mini-fab
+                            class="!w-10 !h-10 !bg-white !text-red-600 shadow-xl hover:!bg-red-600 hover:!text-white transition-all duration-300 flex items-center justify-center"
+                            (click)="deleteProjectImage(projectData()?.project_id, 'thumbnail'); $event.stopPropagation()"
+                            matTooltip="Delete Logo">
+                            <mat-icon class="!text-xl">delete</mat-icon>
+                          </button>
+                        </div>
+
+                        <!-- Image Status Badge -->
+                        <div
+                          class="absolute bottom-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full border border-gray-100 shadow-sm z-10 pointer-events-none">
+                          <span class="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Company
+                            Logo</span>
+                        </div>
+                      </div>
+
+                      <ng-template #thumbnailUpload>
+                        <div
+                          class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-primary-200 rounded-2xl cursor-pointer hover:border-primary-500 hover:bg-primary-50/30 transition-all duration-300 aspect-video w-full group"
+                          (click)="thumbnailInput.click()">
+                          <div
+                            class="p-4 bg-primary-100/50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+                            <mat-icon class="text-primary-600 text-3xl !w-8 !h-8">cloud_upload</mat-icon>
+                          </div>
+                          <span class="text-sm font-bold text-gray-800">Upload Company Logo</span>
+                          <span class="text-xs text-gray-500 mt-2 text-center font-medium leading-relaxed">Recommended
+                            size<br><span class="text-primary-600">500 x 500 px</span></span>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+
+                  <!-- Project Logo -->
+                  <div class="space-y-4">
+
+
+                    <input #logo type="file" accept="image/*" class="hidden"
+                      (change)="onImageChange($event, 'logo', 'project_logo')" />
+
+                    <div class="relative group mt-2">
+                      <div *ngIf="imagePreview()['logo'] || projectData()?.project_logo; else logoUpload"
+                        class="relative rounded-2xl border-2 border-dashed border-gray-200 overflow-hidden hover:border-indigo-400 hover:shadow-lg transition-all duration-300 aspect-video w-full bg-white flex items-center justify-center p-4">
+                        <img class="max-w-full max-h-full object-contain drop-shadow-sm"
+                          (click)="previewImages(projectData()?.project_logo)"
+                          [src]="imagePreview()['logo'] || (storageUrl + '/' + projectData()?.project_logo)"
+                          alt="Project Logo" loading="lazy" />
+
+                        <!-- Always Visible Action Buttons (Glass Design) -->
+                        <div class="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                          <button mat-mini-fab
+                            class="!w-10 !h-10 !bg-white !text-indigo-600 shadow-xl hover:!bg-indigo-600 hover:!text-white transition-all duration-300 flex items-center justify-center"
+                            (click)="logo.click(); $event.stopPropagation()" matTooltip="Update Brand Logo">
+                            <mat-icon class="!text-xl">edit</mat-icon>
+                          </button>
+                          <button *ngIf="projectData()?.project_logo || imagePreview()['logo']" mat-mini-fab
+                            class="!w-10 !h-10 !bg-white !text-red-600 shadow-xl hover:!bg-red-600 hover:!text-white transition-all duration-300 flex items-center justify-center"
+                            (click)="deleteProjectImage(projectData()?.project_id, 'logo'); $event.stopPropagation()"
+                            matTooltip="Delete Brand Logo">
+                            <mat-icon class="!text-xl">delete</mat-icon>
+                          </button>
+                        </div>
+
+                        <!-- Image Status Badge -->
+                        <div
+                          class="absolute bottom-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full border border-gray-100 shadow-sm z-10 pointer-events-none">
+                          <span class="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Project
+                            Logo</span>
+                        </div>
+                      </div>
+
+                      <ng-template #logoUpload>
+                        <div
+                          class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-indigo-200 rounded-2xl cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/30 transition-all duration-300 aspect-video w-full group overflow-hidden"
+                          (click)="logo.click()">
+                          <div class="relative">
+                            <div
+                              class="p-4 bg-indigo-100/50 rounded-2xl mb-4 group-hover:scale-110 transition-transform shadow-inner">
+                              <mat-icon class="text-indigo-600 text-3xl !w-8 !h-8">add_photo_alternate</mat-icon>
+                            </div>
+                            <div class="absolute -top-1 -right-1 flex h-3 w-3">
+                              <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                              <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                            </div>
+                          </div>
+                          <span class="text-sm font-bold text-gray-800">Upload Project Logo</span>
+                          <span class="text-xs text-gray-500 mt-2 text-center font-medium leading-relaxed">Recommended
+                            size<br><span class="text-indigo-600">300 x 100 px</span></span>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+
+                  <!-- Gallery -->
+                  <div class="space-y-4">
+
+
+                    <input #fileInput type="file" (change)="selectFile($event)" formControlName="project_image"
+                      class="hidden" multiple accept="image/*" />
+
+                    <div class="aspect-video">
+                      <!-- Upload Area -->
+                      <div *ngIf="allProjectImages().length === 0 && selectedFiles().length === 0; else galleryContent"
+                        class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-purple-200 rounded-2xl cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-all duration-300 h-full w-full group"
+                        (click)="triggerFileInputClick()">
+
+                        <div class="p-4 bg-purple-100/50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+                          <mat-icon class="text-purple-600 text-3xl !w-8 !h-8">add_photo_alternate</mat-icon>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800">Add Gallery Images</span>
+                        <span class="text-xs text-gray-500 mt-2 text-center font-medium leading-relaxed">Multiple images
+                          OK<br><span class="text-purple-600">Max 10MB per file</span></span>
+                      </div>
+
+                      <ng-template #galleryContent>
+                        <div
+                          class="h-full flex flex-col bg-white rounded-2xl border-2 border-gray-100 overflow-hidden shadow-sm">
+                          <!-- Gallery Header -->
+                          <div
+                            class="px-4 py-2 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                              <span
+                                class="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest">Gallery</span>
+                              <span class="text-[10px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded-full">
+                                {{ totalImages() }}
+                              </span>
+                            </div>
+                            <button mat-flat-button color="primary"
+                              class="!h-7 !text-[10px] !px-3 !font-black !rounded-lg" (click)="triggerFileInputClick()">
+                              <mat-icon class="!w-4 !h-4 mr-1">add</mat-icon>
+                              Add Images
+                            </button>
+                          </div>
+
+                          <!-- Gallery Grid -->
+                          <div class="flex-1 p-2 overflow-y-auto custom-scrollbar">
+                            <div class="grid grid-cols-3 gap-2">
+                              <!-- Existing Images -->
+                              <ng-container
+                                *ngFor="let img of allProjectImages(); let i = index; trackBy: trackByProjectImage">
+                                <div
+                                  class="relative aspect-square rounded-lg overflow-hidden group cursor-pointer shadow-sm border border-gray-100"
+                                  (click)="previewGalleryImage(img, i)">
+                                  <img
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    [src]="img?.project_image ? (storageUrl + '/' + img.project_image) : 'assets/Images/dummy.png'"
+                                    [alt]="'Gallery image ' + (i + 1)" loading="lazy" />
+                                  <div class="absolute top-1 right-1 flex gap-1 items-center z-10 transition-opacity">
+                                    <button mat-mini-fab color="warn"
+                                      class="!w-6 !h-6 !bg-red-500/90 !text-white shadow-sm hover:!bg-red-600 backdrop-blur-sm transition-all flex items-center justify-center"
+                                      (click)="deleteGalleryImage(img); $event.stopPropagation()"
+                                      matTooltip="Delete Image">
+                                      <mat-icon class="!text-xs">delete</mat-icon>
+                                    </button>
+                                  </div>
+                                </div>
+                              </ng-container>
+
+                              <!-- Selected Files (Pending) -->
+                              <ng-container
+                                *ngFor="let file of selectedFiles(); let i = index; trackBy: trackBySelectedFile">
+                                <div
+                                  class="relative aspect-square rounded-lg overflow-hidden group shadow-md border-2 border-yellow-400">
+                                  <img class="w-full h-full object-cover opacity-60" [src]="file.preview"
+                                    [alt]="file.name" loading="lazy" />
+                                  <div class="absolute inset-0 flex items-center justify-center p-2">
+                                    <div
+                                      class="bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-sm flex items-center gap-1 border border-yellow-200">
+                                      <mat-icon
+                                        class="text-yellow-600 text-xs animate-pulse !w-3 !h-3">cloud_upload</mat-icon>
+                                      <span class="text-[8px] font-bold text-yellow-700 uppercase">Pending</span>
+                                    </div>
+                                  </div>
+                                  <button mat-icon-button color="warn"
+                                    class="absolute top-1 right-1 !w-6 !h-6 !bg-red-500 !text-white shadow-lg hover:!bg-red-600 transition-colors flex items-center justify-center"
+                                    (click)="removeFile(i); $event.stopPropagation()" matTooltip="Cancel Upload">
+                                    <mat-icon class="!text-xs">close</mat-icon>
+                                  </button>
+                                </div>
+                              </ng-container>
+                            </div>
+                          </div>
+
+                          <!-- Batch Upload Button if pending -->
+                          <div *ngIf="selectedFiles().length > 0"
+                            class="p-3 bg-gradient-to-r from-yellow-50 to-amber-50 border-t border-yellow-100">
+                            <button mat-flat-button color="accent" (click)="addProjectImages()"
+                              class="w-full !h-10 !text-xs !font-black !rounded-xl !shadow-md uppercase tracking-wider hover:!shadow-lg transition-all"
+                              [disabled]="uploadInProgress()">
+                              <mat-icon class="mr-2">cloud_upload</mat-icon>
+                              Upload {{ selectedFiles().length }} {{ selectedFiles().length === 1 ? 'Image' : 'Images'
+                              }}
+                            </button>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-expansion-panel>
+
+            <!-- Section 2: Basic Information -->
+            <mat-expansion-panel
+              class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-blue-200 transition-all duration-300 overflow-hidden">
+              <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+                <mat-panel-title class="flex items-center gap-4">
+                  <div class="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm">
+                    <mat-icon class="text-blue-600 text-xl">info</mat-icon>
+                  </div>
+                  <div>
+                    <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Details</h5>
+                  </div>
+                </mat-panel-title>
+                <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">
+                      {{ countFilledFields(basicInfoFields) }} / {{ basicInfoFields.length }} fields
+                    </span>
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="p-6 md:p-8">
+                <!-- Grid Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                  <!-- Row 1 -->
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Project Name</mat-label>
+                    <input matInput formControlName="property_name" placeholder="Enter Project Name" />
+                    <mat-error *ngIf="editProjectForm.get('property_name')?.hasError('required')">Name is
+                      required</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Builder</mat-label>
+                    <input matInput formControlName="builder" placeholder="Enter Builder Name" />
+
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Project Status</mat-label>
+                    <mat-select formControlName="project_status_id">
+                      <mat-select-trigger>
+                        <div class="flex items-center gap-2">
+                          <div *ngIf="editProjectForm.get('project_status_id')?.value" class="w-2 h-2 rounded-full"
+                            [ngClass]="{
+                            'bg-green-500': editProjectForm.get('project_status_id')?.value === 1,
+                            'bg-yellow-500': editProjectForm.get('project_status_id')?.value === 2,
+                            'bg-red-500': editProjectForm.get('project_status_id')?.value === 3,
+                            'bg-blue-500': editProjectForm.get('project_status_id')?.value === 4,
+                            'bg-purple-500': editProjectForm.get('project_status_id')?.value === 5
+                          }"></div>
+                          <span>{{ getStatusName(editProjectForm.get('project_status_id')?.value) }}</span>
+                        </div>
+                      </mat-select-trigger>
+                      <mat-option *ngFor="let status of allProjectStatus()" [value]="status.project_status_id">
+                        <div class="flex items-center gap-2">
+                          <div class="w-2.5 h-2.5 rounded-full" [ngClass]="{
+                            'bg-green-500': status.project_status_id === 1,
+                            'bg-yellow-500': status.project_status_id === 2,
+                            'bg-red-500': status.project_status_id === 3,
+                            'bg-blue-500': status.project_status_id === 4,
+                            'bg-purple-500': status.project_status_id === 5
+                          }"></div>
+                          <span class="text-sm font-medium">{{ status.project_status }}</span>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Min Cost (₹)</mat-label>
+                    <input matInput formControlName="min_cost" placeholder="0" appAmount />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Max Cost (₹)</mat-label>
+                    <input matInput formControlName="max_cost" placeholder="0" appAmount />
+                  </mat-form-field>
+
+                  <!-- Row 2 -->
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Pricing Details</mat-label>
+                    <input matInput formControlName="pricing_desc" placeholder="e.g. Including all taxes" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>City</mat-label>
+                    <mat-select formControlName="city_id">
+                      <mat-option *ngFor="let city of allCities()" [value]="city.city_id">
+                        {{ city.city_name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Sub Region</mat-label>
+                    <mat-select formControlName="sub_region_id">
+                      <mat-option *ngFor="let region of allSubregions()" [value]="region.sub_region_id">
+                        {{ region.sub_region }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <!-- Row 3 -->
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Map Location URL</mat-label>
+                    <input matInput formControlName="map_location" placeholder="Google Maps Link" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Active Status</mat-label>
+                    <mat-select formControlName="active_status_id">
+                      <mat-option [value]="1">Active</mat-option>
+                      <mat-option [value]="2">Inactive</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full" *ngIf="roleId === 2">
+                    <mat-label>Call Masking</mat-label>
+                    <mat-select formControlName="call_masking_id">
+                      <mat-option [value]="1">Enabled</mat-option>
+                      <mat-option [value]="0">Disabled</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <!-- Row 4 -->
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Receipt Start No</mat-label>
+                    <input matInput type="number" formControlName="receipt_no_start" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Event Date</mat-label>
+                    <input matInput [matDatepicker]="dob_1" formControlName="event_date" (click)="dob_1.open()" />
+                    <mat-datepicker #dob_1></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Event Time</mat-label>
+                    <input matInput formControlName="event_time" type="time" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Event Status</mat-label>
+                    <mat-select formControlName="event_status_id">
+                      <mat-option [value]="1">Active</mat-option>
+                      <mat-option [value]="0">Inactive</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <!-- Row 5: Text Areas -->
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Project Address</mat-label>
+                    <input matInput formControlName="address" rows="2" placeholder="Full site address">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Project Description</mat-label>
+                    <input matInput formControlName="description" rows="2" placeholder="Brief project overview">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                    <mat-label>Microsite Footer Text</mat-label>
+                    <input matInput formControlName="footer_description" placeholder="Disclaimer or copyright text" />
+                  </mat-form-field>
+
+                  <div>
+                    <mat-checkbox formControlName="is_featured" color="primary">
+                      <div>
+                        <span class="text-sm font-bold text-gray-800">Featured Project</span>
+                      </div>
+                    </mat-checkbox>
+
+                    <mat-checkbox formControlName="is_retro" color="primary">
+                      <div>
+                        <span class="text-sm font-bold text-gray-800">Retro Project</span>
+                      </div>
+                    </mat-checkbox>
+                  </div>
+                </div>
+
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </form>
+      </div>
+
+      <!-- Additional Sections Accordion -->
+      <div class="px-4 sm:px-6 pb-6">
+        <mat-accordion multi class="space-y-4">
+          <!-- Section 6: Phases -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-teal-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm">
+                  <mat-icon class="text-teal-600 text-xl">layers</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Phases</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full uppercase tracking-tighter">Manage</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <app-all-phases [projectID]="projectID()"></app-all-phases>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Section 7: Project Wings -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-indigo-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl shadow-sm">
+                  <mat-icon class="text-indigo-600 text-xl">apartment</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Wings</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-tighter">Configure</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <app-all-project-wings [projectID]="projectID()"></app-all-project-wings>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Section 8: Configurations -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-pink-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl shadow-sm">
+                  <mat-icon class="text-pink-600 text-xl">grid_view</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Configurations</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full uppercase tracking-tighter">Edit</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <app-all-configuration [projectID]="projectID()"></app-all-configuration>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Section 9: Specifications -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-amber-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-sm">
+                  <mat-icon class="text-amber-600 text-xl">checklist</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Specifications</h5>
+
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-tighter">Define</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <app-all-specifications [projectID]="projectID()"></app-all-specifications>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Section 10: Amenities & Signatures -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-cyan-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl shadow-sm">
+                  <mat-icon class="text-cyan-600 text-xl">home_work</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Amenities & Signatures</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full uppercase tracking-tighter">Review</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Amenities -->
+                <div class="space-y-4">
+                  <div class="flex items-center gap-2">
+                  </div>
+                  <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                    <app-all-aminities [projectID]="projectID()"></app-all-aminities>
+                  </div>
+                </div>
+
+                <!-- Signatures -->
+                <div class="space-y-4">
+                  <div class="flex items-center gap-2">
+                  </div>
+                  <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                    <app-fetch-all-project-signature [projectID]="projectID()"></app-fetch-all-project-signature>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-expansion-panel>
+
+          <!-- Section 11: Documents -->
+          <mat-expansion-panel
+            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-gray-300 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-2.5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl shadow-sm">
+                  <mat-icon class="text-gray-600 text-xl">folder</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Documents</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-tighter">Browse</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-6">
+              <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <app-all-documents [projectID]="projectID()"></app-all-documents>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+
+
+    </div>
+  </mat-card>
+</app-template>

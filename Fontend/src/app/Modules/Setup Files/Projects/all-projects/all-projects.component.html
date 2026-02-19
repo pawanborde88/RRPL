@@ -1,0 +1,227 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a routerLink="/all-setupDashboard">Setup Dashboard</a></li>
+
+    <li class="breadcrumb-item active">All Projects</li>
+  </app-breadcrumb>
+
+  <section class="space-y-6 px-3 pb-10 lg:px-0">
+    <!-- Enhanced Sticky Header -->
+    <div class="sticky top-0 z-50  rounded-3xl border border-white/40 bg-white/70 px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.04)] backdrop-blur-xl transition-all duration-300
+    hover:bg-white/80 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)]
+    [&.scrolled]:top-0 [&.scrolled]:mt-0 [&.scrolled]:rounded-none [&.scrolled]:border-x-0 [&.scrolled]:bg-white/95 
+    [&.scrolled]:shadow-[0_8px_20px_rgba(0,0,0,0.12)] [&.scrolled]:backdrop-blur-2xl">
+
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
+        <!-- Search Field -->
+        <div class="relative flex-1 w-full lg:max-w-2xl">
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+              <mat-icon
+                class="text-indigo-500 transition-transform duration-300 group-focus-within:scale-110">search</mat-icon>
+            </div>
+            <input type="text" [(ngModel)]="searchText" (input)="onSearchInput($any($event.target)?.value ?? '')"
+              placeholder="Search projects by name, code, or location..." class="w-full pl-12 pr-12 py-3.5 text-sm font-medium border border-slate-200 rounded-2xl 
+              focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 
+              transition-all duration-300 bg-white/50 backdrop-blur-sm text-slate-900 
+              placeholder-slate-400 shadow-sm
+              [&.scrolled]:py-3 [&.scrolled]:rounded-xl" />
+            <button *ngIf="searchText" (click)="clearSearch()" type="button"
+              class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-indigo-600 transition-colors">
+              <mat-icon class="!text-xl">cancel</mat-icon>
+            </button>
+          </div>
+          <p *ngIf="searchText"
+            class="mt-2.5 text-[11px] font-bold uppercase tracking-widest text-indigo-500 flex items-center gap-2">
+            <span class="h-1 w-1 rounded-full bg-indigo-500 animate-pulse"></span>
+            Found {{ filteredCount }} matches
+          </p>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="flex flex-wrap items-center gap-4">
+          <!-- Total Projects -->
+          <div class="hidden lg:flex flex-col items-end px-4 border-r border-slate-200/60">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Projects</span>
+            <span class="text-lg font-black text-slate-800 transition-all duration-300 [&.scrolled]:text-base">
+              {{ totalProjects }}
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2.5" *ngIf="roleId === 2">
+            <ng-container *ngFor="let button of headerButtons">
+              <button *ngIf="button.show()" mat-raised-button [disabled]="button.disabled()" (click)="button.action()"
+                [color]="button.color" [matTooltip]="button.label" class="!rounded-xl !px-4 !py-5 !text-xs !font-bold !uppercase !tracking-wider !transition-all 
+                 hover:!-translate-y-0.5 active:!translate-y-0
+                 [&.scrolled]:!py-4">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="!text-lg">{{ button.icon }}</mat-icon>
+                  <span class="hidden xl:inline">{{ button.label }}</span>
+                </div>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center py-20">
+      <app-costom-loading [loading]="loading" [text]="'Loading projects...'">
+      </app-costom-loading>
+    </div>
+
+    <!-- Projects Grid -->
+    <ng-container *ngIf="!loading">
+      <div *ngIf="filteredCount; else emptyState"
+        class="grid gap-4 sm:gap-6 mt-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-1">
+        <!-- Project Card Redesign - Improved -->
+        <div *ngFor="let project of filteredProjects; trackBy: trackByProjectId"
+          class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full border border-slate-100">
+
+          <!-- Image Section -->
+          <div class="relative h-40 w-full overflow-hidden bg-white border-b border-slate-50">
+            <img [src]="getProjectLogo(project)" [alt]="project.property_name"
+              class="h-full w-full object-contain p-4 transition-transform duration-700 group-hover:scale-105"
+              (error)="onImageError($event)">
+
+            <!-- Gradient Overlay (lighter for contain mode) -->
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-slate-900/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            </div>
+
+            <!-- Top Left Status Badge -->
+            <div class="absolute top-3 left-3 z-10" *ngIf="project.project_status">
+              <span
+                class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md shadow-sm border border-white/20 backdrop-blur-md">
+                {{ project.project_status }}
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Content Section -->
+          <div class="flex flex-1 flex-col p-4">
+            <!-- Title -->
+            <h3
+              class="mb-2 text-[15px] font-bold text-slate-800 line-clamp-1 group-hover:text-blue-600 transition-colors"
+              [matTooltip]="project.property_name || ''">
+              {{ project.property_name || 'Project Name' }}
+            </h3>
+
+            <!-- Metadata Row (Time + Location) -->
+            <div class="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px] font-medium text-slate-500">
+              <!-- Time -->
+              <div class="flex items-center gap-1.5" *ngIf="project.created_at">
+                <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-slate-400">schedule</mat-icon>
+                <span>{{ project.created_at | date:'shortTime' }}</span>
+              </div>
+
+              <!-- Location -->
+              <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-slate-400">location_on</mat-icon>
+                <span class="truncate block" [matTooltip]="project.address || ''">
+                  {{ project.address || 'Location not specified' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Creator / Updater Info - Clean minimal layout -->
+            <div class="mb-4 pt-3 border-t border-slate-50 grid grid-cols-2 gap-4">
+              <!-- Created By -->
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Created</span>
+                <div class="flex flex-col">
+                  <span class="text-[11px] font-semibold text-slate-700 truncate"
+                    [matTooltip]="project.created_by_name || '--'">
+                    {{ project.created_by_name || '--' }}
+                  </span>
+                  <span class="text-[10px] text-slate-400">
+                    {{ project.created_at | date:'d MMM y' || '--' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Updated By -->
+              <div class="flex flex-col gap-0.5 pl-4 border-l border-slate-100">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Updated</span>
+                <div class="flex flex-col">
+                  <span class="text-[11px] font-semibold text-slate-700 truncate"
+                    [matTooltip]="project.updated_by_name || '--'">
+                    {{ project.updated_by_name || '--' }}
+                  </span>
+                  <span class="text-[10px] text-slate-400">
+                    {{ project.updated_at | date:'d MMM y' || '--' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <!-- <p class="mb-3 line-clamp-2 text-xs leading-relaxed text-slate-500 flex-1">
+              {{ project.description || 'No description available.' }}
+            </p> -->
+
+            <!-- Action Footer: Single Row with Checkbox & Icons -->
+            <div class="mt-auto flex items-center justify-between pt-1">
+              <!-- Checkbox -->
+              <mat-checkbox color="primary" [checked]="project.__isSelected"
+                (change)="toggleSelection($event.checked, project)" class="scale-90 -ml-2">
+              </mat-checkbox>
+
+              <!-- Action Icons -->
+              <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                <!-- Edit / View -->
+                <button mat-icon-button [matTooltip]="roleId === 2 ? 'Edit Project' : 'View Details'"
+                  (click)="navigateToEditProject(project)"
+                  class="!text-slate-400 hover:!text-blue-600 hover:!bg-blue-50 transition-all duration-300">
+                  <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">{{ roleId === 2 ? 'edit' : 'visibility'
+                    }}</mat-icon>
+                </button>
+
+                <!-- Admin Actions -->
+                <ng-container *ngIf="roleId === 2">
+                  <button mat-icon-button matTooltip="Assign" (click)="onProjectAction('leadAssign', project)"
+                    class="!text-slate-400 hover:!text-indigo-600 hover:!bg-indigo-50 transition-all duration-300">
+                    <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">person_add</mat-icon>
+                  </button>
+                  <button *ngIf="roleId === 2" mat-icon-button matTooltip="Delete"
+                    (click)="onProjectAction('deleteProject', project)"
+                    class="!text-slate-400 hover:!text-rose-600 hover:!bg-rose-50 transition-all duration-300">
+                    <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">delete</mat-icon>
+                  </button>
+                </ng-container>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <!-- Empty State -->
+  <ng-template #emptyState>
+    <div
+      class="relative mt-12 flex flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-slate-200 bg-slate-50/50 p-16 text-center animate-in fade-in zoom-in duration-500 w-full">
+      <div class="relative mb-8">
+        <div class="absolute -inset-4 rounded-full bg-indigo-500/10 blur-xl"></div>
+        <div
+          class="relative flex h-24 w-24 items-center justify-center rounded-3xl bg-white shadow-xl ring-1 ring-slate-100">
+          <mat-icon class="!text-5xl text-slate-300">folder_off</mat-icon>
+        </div>
+      </div>
+
+      <div class="max-w-md space-y-4">
+        <h3 class="text-2xl font-black text-slate-800 tracking-tight">No Projects Found</h3>
+        <p class="text-sm font-medium leading-relaxed text-slate-500">
+          {{ searchText ? 'We couldn\'t find any projects matching your search. Try adjusting your filters or search
+          terms.' : 'It looks like you haven\'t added any projects yet. Start by creating your first project below.' }}
+        </p>
+      </div>
+
+    </div>
+  </ng-template>
+</app-template>

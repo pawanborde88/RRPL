@@ -1,0 +1,30 @@
+<h6 mat-dialog-title>
+  Delete Confirmation
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h6>
+<div mat-dialog-content class="dialog-content">
+  <div class="warning-container">
+    <mat-icon color="warn" class="warning-icon">warning</mat-icon>
+    <p class="warning-message">{{ data.message }}</p>
+  </div>
+
+  <p class="instruction-text">Please provide a reason for this deletion:</p>
+
+  <mat-form-field appearance="outline" class="reason-field">
+    <mat-label>Reason for deletion</mat-label>
+    <input matInput [(ngModel)]="reason" aria-label="Reason for deletion" required />
+  </mat-form-field>
+</div>
+
+<mat-divider></mat-divider>
+
+<div mat-dialog-actions align="end" class="dialog-actions">
+
+  <button mat-raised-button color="warn" class="delete-button" [disabled]="!reason.trim()" (click)="closeDialog(true)"
+    cdkFocusInitial>
+    <mat-icon>delete</mat-icon>
+    Delete
+  </button>
+</div>

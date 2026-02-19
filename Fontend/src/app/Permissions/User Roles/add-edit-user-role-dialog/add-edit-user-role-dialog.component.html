@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit User Role' : 'Add User Role' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="dialog-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>User</mat-label>
+        <mat-select formControlName="user_id">
+          <mat-option [value]="">-- Select --</mat-option>
+          <mat-option *ngFor="let item of UserList" [value]="$any(item).user_id">
+            {{ $any(item).username }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Roles</mat-label>
+        <mat-select formControlName="role_id">
+          <mat-option [value]="">-- Select --</mat-option>
+          <mat-option *ngFor="let item of RoleList" [value]="$any(item).role_id">
+            {{ $any(item).role_name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valid From</mat-label>
+        <input matInput formControlName="valid_from" [matDatepicker]="valid_from_picker" placeholder="MM/DD/YYYY" />
+        <mat-datepicker-toggle matSuffix [for]="valid_from_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_from_picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valid To</mat-label>
+        <input matInput formControlName="valid_till" [matDatepicker]="valid_till_picker" placeholder="MM/DD/YYYY" />
+        <mat-datepicker-toggle matSuffix [for]="valid_till_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_till_picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="2">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="form.invalid || loadingState"
+    (click)="onSubmit()"
+  >
+    {{ isEditMode ? 'Update' : 'Add' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,176 @@
+<div class="flex flex-col h-[85vh] max-h-[800px] overflow-hidden bg-[#e5ded8] relative rounded-lg">
+    <!-- Header -->
+    <div class="flex-none px-4 py-3 bg-[#008069] text-white shadow-md z-20 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-sm border border-white/10">
+                <mat-icon>person</mat-icon>
+            </div>
+            <div>
+                <h3 class="font-bold text-base leading-tight">{{data.chattingData.customer_name || 'Customer'}} </h3>
+
+            </div>
+        </div>
+        <div class="flex items-center gap-1">
+            <button mat-icon-button (click)="fetchAllWhatsAppChatting()" [disabled]="loading()" matTooltip="Refresh"
+                class="text-white hover:bg-white/10 rounded-full transition-colors">
+                <mat-icon [class.animate-spin]="loading()">refresh</mat-icon>
+            </button>
+            <button mat-icon-button mat-dialog-close
+                class="text-white hover:bg-white/10 rounded-full transition-colors">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-2 chat-history-scroll scroll-smooth bg-opacity-10 bg-repeat">
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="flex flex-col items-center justify-center h-full space-y-3">
+            <div class="bg-white/90 p-3 rounded-full shadow-sm">
+                <mat-spinner diameter="24" color="accent"></mat-spinner>
+            </div>
+            <p class="text-xs text-gray-500 font-medium bg-white/80 px-3 py-1 rounded-full shadow-sm backdrop-blur-sm">
+                Loading chat history...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="isEmpty()" class="flex flex-col items-center justify-center h-full text-center p-6 space-y-4">
+            <div
+                class="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-300 transform transition-transform hover:scale-110 duration-300">
+                <mat-icon class="text-4xl w-10 h-10">chat_bubble_outline</mat-icon>
+            </div>
+            <div class="bg-white/60 p-4 rounded-xl shadow-sm max-w-xs backdrop-blur-sm">
+                <h3 class="text-gray-900 font-bold mb-1 text-sm">No messages yet</h3>
+                <p class="text-gray-600 text-xs leading-relaxed">By sending a message, you can start a conversation with
+                    this customer.</p>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <ng-container *ngIf="!loading() && hasMessages()">
+            <div *ngFor="let chat of messages()" class="flex w-full animate-fadeIn"
+                [ngClass]="isFromUser(chat) ? 'justify-end' : 'justify-start'">
+
+                <div class="max-w-[85%] sm:max-w-[75%] md:max-w-[65%] min-w-[120px]">
+                    <div class="relative px-3 py-2 rounded-lg text-sm shadow-[0_1px_0.5px_rgba(0,0,0,0.13)] transition-all hover:shadow-md"
+                        [ngClass]="isFromUser(chat) 
+                            ? 'bg-[#d9fdd3] text-gray-800 rounded-tr-none' 
+                            : 'bg-white text-gray-800 rounded-tl-none'">
+
+                        <!-- Sender Name -->
+                        <div *ngIf="!isFromUser(chat)" class="text-[11px] font-bold text-orange-600 mb-0.5">
+                            {{chat.contact_name || 'Customer'}}
+                        </div>
+
+                        <!-- Content -->
+                        <div class="whitespace-pre-wrap break-words leading-relaxed text-[13.5px]">
+                            <span *ngIf="chat.message_type === 'text' && chat.message_text">{{chat.message_text}}</span>
+                            <span *ngIf="!chat.message_text"
+                                class="italic text-gray-500 text-xs flex items-center gap-1">
+                                <mat-icon class="text-xs w-3 h-3">info</mat-icon> Content unavailable
+                            </span>
+                        </div>
+
+                        <!-- Footer: Time & Status -->
+                        <div class="flex items-center justify-end gap-1 mt-1 select-none opacity-60">
+                            <span class="text-[10px] min-w-fit font-medium">
+                                {{formatDate(chat.message_timestamp || chat.created_at)}}
+                            </span>
+                            <ng-container *ngIf="isFromUser(chat)">
+                                <mat-icon *ngIf="chat.status === 'read'"
+                                    class="text-[14px] w-[14px] h-[14px] text-[#53bdeb]"
+                                    title="Read">done_all</mat-icon>
+                                <mat-icon *ngIf="chat.status === 'delivered'"
+                                    class="text-[14px] w-[14px] h-[14px] text-gray-500"
+                                    title="Delivered">done_all</mat-icon>
+                                <mat-icon *ngIf="chat.status === 'sent' || !chat.status"
+                                    class="text-[14px] w-[14px] h-[14px] text-gray-400" title="Sent">done</mat-icon>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+    <!-- Input Section -->
+    <div class="flex-none bg-[#f0f2f5] border-t border-gray-200 z-10">
+        <form [formGroup]="sendMessageForm">
+            <!-- Message Type Tabs -->
+            <div class="flex bg-white border-b border-gray-200 shadow-sm">
+                <button type="button" *ngFor="let type of messageTypeOptions"
+                    class="flex-1 py-3 text-xs font-bold uppercase tracking-wide transition-all relative hover:bg-gray-50 text-gray-500"
+                    [class.text-[#008069]]="activeMessageType() === type.value"
+                    [class.bg-gray-50]="activeMessageType() === type.value"
+                    (click)="sendMessageForm.patchValue({messageType: type.value})">
+                    <span class="flex items-center justify-center gap-2">
+                        <mat-icon class="text-lg w-5 h-5">{{type.value === 'template' ? 'description' :
+                            'edit'}}</mat-icon>
+                        {{type.label}}
+                    </span>
+                    <div *ngIf="activeMessageType() === type.value"
+                        class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#008069]"></div>
+                </button>
+            </div>
+
+            <div class="p-3 pb-2 space-y-3">
+                <!-- Template Mode -->
+                <div *ngIf="activeMessageType() === 'template'"
+                    class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1 animate-slideDown">
+                    <mat-form-field appearance="outline" class="w-full density-compact bg-white rounded-lg">
+                        <mat-label>Language</mat-label>
+                        <mat-select formControlName="language_code">
+                            <mat-option *ngFor="let languageCode of availableLanguages()" [value]="languageCode"
+                                class="text-sm">
+                                {{getLanguageName(languageCode)}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full density-compact bg-white rounded-lg">
+                        <mat-label>Template</mat-label>
+                        <mat-select formControlName="template_name"
+                            [disabled]="!sendMessageForm.get('language_code')?.value">
+                            <mat-option *ngFor="let template of templatesForLanguage()" [value]="template.value"
+                                class="text-sm">
+                                {{template.label}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+                <!-- Custom Message Mode -->
+                <div *ngIf="activeMessageType() === 'custom'" class="py-1 animate-slideDown">
+                    <mat-form-field appearance="outline" class="w-full density-compact bg-white rounded-lg">
+                        <textarea matInput formControlName="customMessage" placeholder="Type a message..."
+                            cdkTextareaAutosize cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5"
+                            class="text-sm leading-relaxed" maxlength="500"></textarea>
+                        <mat-hint align="end">{{sendMessageForm.get('customMessage')?.value?.length ||
+                            0}}/500</mat-hint>
+                    </mat-form-field>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="flex justify-between items-center pt-1 pb-1">
+                    <div class="text-[10px] text-gray-400 italic hidden sm:block pl-1">
+                        Pressing send will instantly notify the customer.
+                    </div>
+                    <button mat-flat-button color="primary"
+                        class="rounded-full min-w-[100px] shadow-sm hover:shadow-md transition-all active:scale-95"
+                        [disabled]="sendingMessage() || sendMessageForm.invalid || !data.chattingData.mobile_no"
+                        (click)="sendWhatsAppMessage()">
+                        <ng-container *ngIf="!sendingMessage()">
+                            <mat-icon class="mr-2 icon-sm">send</mat-icon> Send
+                        </ng-container>
+                        <ng-container *ngIf="sendingMessage()">
+                            <mat-spinner diameter="18" strokeWidth="3" color="accent"
+                                class="mr-2 inline-block align-middle"></mat-spinner>
+                        </ng-container>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+
+
+<mat-card class="mt-3 card-shadow-sm">
+  <div [ngClass]="applicantWorkExperiences.length? 'no-border' : 'warning-border'"
+  class="card rounded-2 card-shadow-sm  p-4 " id="work_experience">
+  <p class="alert alert-warning py-2 rounded-0 paragraph-text">Please provide a concise summary of your
+    work experience,
+    including any internships or freelancing roles
+    you have had.</p>
+
+
+  <div class="hstack align-items-center mb-3">
+    <p class="second-heading-ptag m-0">Work Experience</p>
+    <button mat-button class="ms-auto" (click)="openWorkExperienceDialog('add')" color="primary">Add
+      Work Experience</button>
+  </div>
+
+  <div *ngFor="let item of applicantWorkExperiences" class="mb-3">
+    <div class="hstack gap-3 ">
+      <p class="mb-1 fw-medium  paragraph-text">{{ item.organization }}
+
+      </p>
+      <mat-icon class="icon-button" (click)="openWorkExperienceDialog('update' ,item)">edit</mat-icon>
+    </div>
+    <!-- <p class="mb-1 paragraph-text">{{ item.designation }} - <span> (
+        {{ dateFormatService.formatDate(item.from_date) +
+        " to "
+        +dateFormatService.formatDate(item.to_date)}} )</span></p> -->
+    <p class="mb-1 paragraph-text"> <span class="text-primary">
+        {{"Worked for " + item.work_experience }}</span></p>
+  </div>
+
+  <app-no-data-error-message [dataArray]="applicantWorkExperiences"
+    [noDataErrorMessage]="'Please add your previous work experience (if any). It is crucial for evaluating your skills and suitability for the role.'"></app-no-data-error-message>
+
+  </div>
+</mat-card>
+

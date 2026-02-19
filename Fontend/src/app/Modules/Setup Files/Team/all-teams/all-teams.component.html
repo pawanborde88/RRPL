@@ -1,0 +1,10 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">All Teams</li>
+  </app-breadcrumb>
+
+  <app-configurable-ag-grid-data [columns]="columns" [apiEndpoint]="apiEndpoint" [apiMethod]="apiMethod"
+    [apiPayload]="apiPayload()" [actions]="teamActions" [headerButtons]="headerButtons"
+    (actionClick)="onActionClick($event)">
+  </app-configurable-ag-grid-data>
+</app-template>

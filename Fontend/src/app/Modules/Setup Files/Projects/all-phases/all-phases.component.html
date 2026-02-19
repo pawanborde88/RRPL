@@ -1,0 +1,89 @@
+<div >
+  <!-- Header -->
+  <div class="flex justify-end">
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="openPhaseComponent('add')"
+      [disabled]="loading()"
+      class="flex items-center gap-2">
+      <mat-icon class="!text-lg">add_circle</mat-icon> 
+      <span>Add Phase</span>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div >
+    @if (loading()) {
+      <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+        <mat-spinner diameter="32" class="mb-4"></mat-spinner>
+        <p class="text-sm">Loading phases...</p>
+      </div>
+    } @else if (error()) {
+      <div class="flex flex-col items-center justify-center  text-center">
+        <mat-icon color="warn" class="!text-5xl !w-12 !h-12 mb-3">error_outline</mat-icon>
+        <p class="text-sm text-gray-600 mb-4">{{ error() }}</p>
+        <button mat-button color="primary" (click)="fetchProjectPhases()">
+          Retry
+        </button>
+      </div>
+    } @else if (hasPhases()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        @for (phase of phases(); track phase.phase_id) {
+          <mat-card 
+            class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-1 border-l-4"
+            [class.border-l-blue-500]="isActivePhase(phase)"
+            [class.border-l-gray-300]="!isActivePhase(phase)"
+            (click)="openPhaseComponent('edit', phase)">
+            <mat-card-content class="p-3 !mb-0">
+              <!-- Header -->
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="text-sm font-semibold text-gray-800 line-clamp-1 flex-1">
+                  {{ phase.phase_name }}
+                </h3>
+                @if (isActivePhase(phase)) {
+                  <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700 whitespace-nowrap">
+                    Active
+                  </span>
+                } @else {
+                  <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-700 whitespace-nowrap">
+                    Inactive
+                  </span>
+                }
+              </div>
+              
+              <!-- Details -->
+              <div class="space-y-1.5 mt-2.5">
+                <!-- RERA -->
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500 font-medium">RERA:</span>
+                  <span class="text-gray-700 truncate ml-2">{{ phase.rera_no || '-' }}</span>
+                </div>
+                
+                <!-- Dates Row -->
+                <div class="grid grid-cols-2 gap-2 pt-1 border-t border-gray-100">
+                  <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Start</span>
+                    <span class="text-xs text-gray-700 font-medium">{{ formatDate(phase.start_date) }}</span>
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wide mb-0.5">Launch</span>
+                    <span class="text-xs text-gray-700 font-medium">{{ formatDate(phase.launch_date) }}</span>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center py-16 text-center">
+        <mat-icon class="!text-6xl !w-16 !h-16 text-gray-300 mb-4">inbox</mat-icon>
+        <p class="text-sm text-gray-500 mb-4">No phases added yet</p>
+        <button mat-button color="primary" (click)="openPhaseComponent('add')">
+          Add first phase
+        </button>
+      </div>
+    }
+  </div>
+</div>

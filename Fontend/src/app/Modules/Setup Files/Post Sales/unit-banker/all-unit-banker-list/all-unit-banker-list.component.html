@@ -1,0 +1,75 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item">After Sales</li>
+        <li class="breadcrumb-item active">Unit Assigned Bank</li>
+    </app-breadcrumb>
+
+    <mat-card-header class="d-flex flex-column mb-2">
+        <mat-accordion>
+            <mat-expansion-panel hideToggle [expanded]="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title> Advanced Filters </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <form [formGroup]="bookingForm" class="w-100 g-3">
+                    <!-- Project Dropdown -->
+                    <div class="row">
+
+                        <app-autocomplete-reusable-component class="col-md-3" [options]="projectsList"
+                            formControlName="project_id" displayKey="property_name" idKey="project_id"
+                            placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+
+                        <!-- Wing Dropdown -->
+                        <mat-form-field appearance="outline" class="col-md-3">
+                            <mat-label>Select Wing</mat-label>
+                            <mat-select formControlName="wing_id">
+                                <mat-option *ngFor="let wing of allWingslist" [value]="wing.wing_id">
+                                    {{ wing.wing_name }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- <mat-form-field appearance="outline" class="col-md-2">
+                            <mat-label>Agreement Status</mat-label>
+                            <mat-select formControlName="agreement_status_id">
+                                <mat-option value="1">Both</mat-option>
+                                <mat-option value="2">Done</mat-option>
+                                <mat-option value="3">Not Done</mat-option>
+                            </mat-select>
+                        </mat-form-field> -->
+
+
+                        <!-- Apply Filter Button -->
+                        <div class="col-md-auto">
+                            <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                                (click)="fetchAllUnitBankers()">
+                                <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Second Row: Search & Actions -->
+                <div class="row w-100 mt-3 align-items-center">
+                    <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2">
+
+                        <!-- Search Bar -->
+                        <div class="flex-grow-1 me-2" style="min-width: 220px;">
+                        </div>
+
+                    </div>
+                </div>
+
+            </mat-expansion-panel>
+        </mat-accordion>
+    </mat-card-header>
+    <mat-card-content>
+
+
+        <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+            [actions]="bookingActions" [headerButtons]="headerButtons" [showExportButton]="false" [showFooter]="true"
+            (actionClick)="onProjectAction($event.action, $event.row)">
+        </app-reusable-custom-table>
+    </mat-card-content>
+</app-template>

@@ -1,0 +1,54 @@
+<h5 mat-dialog-title>{{ getDialogTitle() }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h5>
+
+<div mat-dialog-content>
+  <form [formGroup]="excelUploadForm" id="excelUploadForm" (ngSubmit)="submitFile()" class="upload-form">
+    <div class="form-fields-container">
+      <div>
+        <app-autocomplete-reusable-component [options]="projectsList" formControlName="project_id"
+          displayKey="property_name" idKey="project_id" placeholder="Select Project">
+        </app-autocomplete-reusable-component>
+      </div>
+
+      <div *ngIf="data.for === 'enquiryImport'">
+        <app-autocomplete-reusable-component [options]="allSalesExecutive" formControlName="sales_executive_id"
+          displayKey="user_name" idKey="user_id" placeholder="Select Sales Executive">
+        </app-autocomplete-reusable-component>
+      </div>
+
+      <mat-form-field appearance="outline" *ngIf="data.for === 'receiptsImport'">
+        <mat-label>Select Wing</mat-label>
+        <mat-select formControlName="wing_id">
+          <mat-option *ngFor="let wing of allWingslist" [value]="wing.wing_id">
+            {{ wing.wing_name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="file-upload-container">
+        <input type="file" id="fileInput" (change)="selectFile($event)" hidden />
+        <label for="fileInput" class="file-label">
+          <span>select a file</span>
+        </label>
+        <span class="file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+      </div>
+
+      <div class="download-section">
+        <a mat-stroked-button color="accent" [href]="getSampleFileUrl()" [download]="getSampleFileName()">
+          <mat-icon>download</mat-icon>
+          {{ getSampleFileLabel() }}
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" form="excelUploadForm" type="submit" [disabled]="loading">
+    <span *ngIf="!loading">Import</span>
+    <span *ngIf="loading">Uploading...</span>
+  </button>
+</div>

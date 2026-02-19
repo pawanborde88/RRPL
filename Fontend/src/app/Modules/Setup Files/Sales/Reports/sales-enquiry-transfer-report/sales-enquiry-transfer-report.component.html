@@ -1,0 +1,62 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item">Sales Management</li>
+        <li class="breadcrumb-item">Reports</li>
+        <li class="breadcrumb-item active"> Enquiry Transfer Report</li>
+    </app-breadcrumb>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <form [formGroup]="leadForm" class="w-100 g-3">
+                <!-- Project Dropdown -->
+                <div class="row">
+                    <div class="col-md-2">
+                        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                            displayKey="property_name" idKey="project_id" [isMultiSelect]="true"
+                            placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
+                        formControlName="transfer_from" [isMultiSelect]="true" displayKey="user_name" idKey="user_id"
+                        placeholder="Transfer From">
+                    </app-autocomplete-reusable-component>
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
+                        formControlName="transfer_to" [isMultiSelect]="true" displayKey="user_name" idKey="user_id"
+                        placeholder="Transfer To">
+                    </app-autocomplete-reusable-component>
+
+                    <!-- Apply Filter Button -->
+                    <div class="col-md-auto">
+                        <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                            [disabled]="!leadForm.get('project_id')?.value?.length" (click)="refreshAgGridData()">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+
+
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_project_enquiry_logs'"
+        [apiPayload]="agGridPayload()">
+    </app-configurable-ag-grid-data>
+</app-template>

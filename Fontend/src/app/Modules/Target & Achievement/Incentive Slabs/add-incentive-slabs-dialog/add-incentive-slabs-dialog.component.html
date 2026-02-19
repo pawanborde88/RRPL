@@ -1,0 +1,41 @@
+
+<h2 mat-dialog-title>Add Demand Generation
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+<mat-dialog-content>
+    <form [formGroup]="addDemandGenerationForm" class="row g-3 align-items-end">
+     
+  
+         <app-autocomplete-reusable-component [options]="allWingslist" [isMultiSelect]="true" class="col-md-4"
+      formControlName="wing_id" displayKey="wing_name" idKey="wing_id" placeholder="Select Wing">
+    </app-autocomplete-reusable-component>
+       <mat-form-field appearance="outline" class="col-md-4">
+                  <mat-label>Incentive %</mat-label>
+                  <input matInput formControlName="incentive_percentage" placeholder="As per bank records" />
+                </mat-form-field>
+   <mat-form-field appearance="outline" class="col-md-4">
+                  <mat-label>% From</mat-label>
+                  <input matInput formControlName="percentage_from" placeholder="As per bank records" />
+                </mat-form-field>
+                   <mat-form-field appearance="outline" class="col-md-4">
+                  <mat-label>% To</mat-label>
+                  <input matInput formControlName="percentage_to" placeholder="As per bank records" />
+                </mat-form-field>
+
+
+
+      
+    
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">    
+  
+
+    <button mat-raised-button color="primary" (click)="addDemand()"
+            [disabled]="addDemandGenerationForm.invalid">
+            Add Insentive Slab
+        </button>
+</mat-dialog-actions>
+

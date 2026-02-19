@@ -1,0 +1,88 @@
+<form [formGroup]="addnoc" class="row">
+
+    <!-- Project Selection -->
+    <app-autocomplete-reusable-component [options]="projectsList" class="col-md-3" formControlName="project_id"
+        displayKey="property_name" idKey="project_id" placeholder="Select Project">
+    </app-autocomplete-reusable-component>
+
+    <!-- Wing Selection -->
+    <mat-form-field appearance="outline" class="col-md-2">
+        <mat-label>Select Wing</mat-label>
+        <mat-select formControlName="wing_id">
+            <mat-option *ngFor="let allwings of allWingslist" [value]="allwings.wing_id">
+                {{ allwings.wing_name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- Unit No -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Unit No.</mat-label>
+        <mat-select formControlName="unit_id">
+            <mat-option *ngFor="let unit of unitList" [value]="unit.unit_id">
+                {{ unit.unit_name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- Bank Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Bank Name</mat-label>
+        <mat-select formControlName="bank_name">
+            <mat-option *ngFor="let bank of bankList" [value]="bank.name">
+                {{ bank.name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <!-- Agreement Amount -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Agreement Amt.</mat-label>
+        <input matInput type="number" formControlName="agreement_amount">
+    </mat-form-field>
+
+    <!-- Sanction Amount -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Sanction Amt.</mat-label>
+        <input matInput type="number" formControlName="sanction_amount">
+    </mat-form-field>
+
+    <!-- Director Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Director Name</mat-label>
+        <input matInput formControlName="director_name">
+    </mat-form-field>
+
+    <!-- Director Sign Date -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Director Sign Date</mat-label>
+        <input matInput [matDatepicker]="signDatePicker" formControlName="director_sign_date">
+        <mat-datepicker-toggle matSuffix [for]="signDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #signDatePicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- NOC Handover Date -->
+    <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>NOC Handover Date</mat-label>
+        <input matInput [matDatepicker]="nocDatePicker" formControlName="noc_handover_date">
+        <mat-datepicker-toggle matSuffix [for]="nocDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #nocDatePicker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Remark -->
+    <mat-form-field appearance="outline" class="col-md-6">
+        <mat-label>Remark</mat-label>
+        <textarea matInput rows="3" formControlName="remark"></textarea>
+    </mat-form-field>
+
+    <!-- File Upload -->
+    <div class="col-md-6 mt-3">
+        <label for="file">Upload attachment</label>
+        <input type="file" id="file" (change)="onFileChange($event)">
+    </div>
+
+    <!-- Submit Button -->
+    <div class="col-md-12 text-end mt-3">
+        <button mat-raised-button color="primary" (click)="submitNox()">Submit</button>
+    </div>
+</form>

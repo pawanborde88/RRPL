@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>{{ data.title }} 
+     <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+
+
+  <form [formGroup]="addProjectConfigurationForm" class="row g-3 align-items-center">
+
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Variant Name</mat-label>
+      <input matInput formControlName="variant_name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Price Start</mat-label>
+      <input matInput formControlName="price_starts" />
+      <mat-select formControlName="start_price_id" class="bhk-select">
+        <mat-option *ngFor="let allPrices of allPriceList" [value]="allPrices.price_id">
+          {{ allPrices.price }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Price End</mat-label>
+      <input matInput formControlName="price_ends" />
+      <mat-select formControlName="end_price_id" class="bhk-select">
+        <mat-option *ngFor="let allPrices of allPriceList" [value]="allPrices.price_id">
+          {{ allPrices.price }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Configuration</mat-label>
+      <input matInput formControlName="configuration" />
+      <mat-select formControlName="bhk_id" class="bhk-select">
+        <mat-option *ngFor="let allBhKs of allBHKList" [value]="allBhKs.bhk_id">
+          {{ allBhKs.bhk }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Carpet Area</mat-label>
+      <input matInput formControlName="carpet_area" />
+      <mat-select formControlName="feet_id" class="bhk-select">
+        <mat-option *ngFor="let allPrices of allFeetList" [value]="allPrices.feet_id">
+          {{ allPrices.feet }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Configuration Date</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input formControlName="valid_from_date" matStartDate placeholder="Start date">
+        <input formControlName="valid_till_date" matEndDate placeholder="End date">
+      </mat-date-range-input>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Active Status</mat-label>
+      <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="0">Inactive</mat-option>
+      </mat-select>
+  </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Select Phase </mat-label>
+      <mat-select formControlName="phase_id">
+        <mat-option *ngFor="let phase of allPhaseList" [value]="phase.phase_id">
+          {{ phase.phase_name }}
+        </mat-option>
+      </mat-select>
+
+    </mat-form-field>
+
+
+
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button *ngIf="this.data?.rowData?.project_configuration_id" mat-icon-button color="warn"
+      (click)="$event.stopPropagation(); deleteConfiguaration(this.data?.rowData?.project_configuration_id)">
+      <mat-icon>delete</mat-icon>
+  </button>
+  <button mat-raised-button color="primary" (click)="onSubmit()">Submit</button>
+
+</mat-dialog-actions>

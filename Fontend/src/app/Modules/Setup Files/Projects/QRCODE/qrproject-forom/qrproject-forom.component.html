@@ -1,0 +1,430 @@
+<div class="min-h-screen bg-slate-50 py-4 sm:py-8 px-3 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div class="max-w-5xl mx-auto">
+        <!-- Error Banner -->
+        <div *ngIf="errorMessage()" @fadeIn
+            class="mb-6 rounded-xl bg-red-50 p-4 border border-red-200 flex items-start gap-3 shadow-sm ring-1 ring-red-100">
+            <mat-icon class="text-red-600 mt-0.5 shrink-0">error_outline</mat-icon>
+            <div class="flex-1">
+                <h3 class="text-sm font-semibold text-red-800">Submission Error</h3>
+                <div class="mt-1 text-sm text-red-700 leading-relaxed">{{ errorMessage() }}</div>
+            </div>
+
+        </div>
+
+        <mat-card *ngIf="!errorMessage()"
+            class="overflow-hidden rounded-xl sm:rounded-2xl shadow-xl bg-white ring-1 ring-slate-900/5 !transition-all !duration-300 hover:shadow-2xl">
+            <!-- Loading Overlay -->
+            <div *ngIf="loading()"
+                class="absolute inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-sm transition-opacity duration-300">
+                <mat-spinner diameter="48" class="custom-spinner"></mat-spinner>
+            </div>
+
+            <!-- Header Section -->
+            <div class="relative bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-100/50 py-8 sm:px-10 sm:py-12  overflow-hidden"
+                *ngIf="projectData()">
+
+
+
+                <div
+                    class="relative flex flex-col sm:flex-row items-center gap-6 sm:gap-8 z-10 text-center sm:text-left">
+                    <div class="relative group">
+                        <div
+                            class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-30 group-hover:opacity-75 transition duration-500">
+                        </div>
+                        <div
+                            class="relative flex h-24 w-24 sm:h-28 sm:w-28 flex-shrink-0 items-center justify-center rounded-2xl bg-white p-3 shadow-xl ring-1 ring-white/10">
+                            <img [src]="projectData()?.['project_logo'] ? storageUrl + '/' + projectData()?.['project_logo'] : 'assets/Images/dummy.png'"
+                                alt="Project Logo"
+                                class="h-full w-full object-contain transform transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 max-w-2xl">
+                        <h1
+                            class="text-2xl text-slate-950 sm:text-3xl lg:text-4xl font-bold drop-shadow-sm leading-tight">
+                            {{ projectData()?.['project_name'] || projectData()?.['property_name'] || 'Project Enquiry'
+                            }}
+                        </h1>
+                        <p class=" sm:text-lg text-slate-950  font-medium leading-relaxed max-w-lg mx-auto sm:mx-0">
+                            Please fill in your details below to register your interest.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <mat-card-content class="!p-0">
+                <form [formGroup]="addEnquiryform" class="flex flex-col">
+
+                    <div class="p-4 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
+
+
+                        <section class="space-y-5">
+                            <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
+                                <div
+                                    class="p-2 sm:p-2.5 bg-indigo-50 rounded-xl text-indigo-600 shadow-sm ring-1 ring-indigo-100/50">
+                                    <mat-icon class="scale-90 sm:scale-100">person</mat-icon>
+                                </div>
+                                <h4 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">Personal
+                                    Information</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+                                <!-- Salutation -->
+                                <div class="col-span-1 lg:col-span-3">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Salutation</mat-label>
+                                        <mat-select formControlName="salution_id">
+                                            <mat-option *ngFor="let item of salutationDropdown()"
+                                                [value]="item['salution_id']">
+                                                {{ item['salution'] }}
+                                            </mat-option>
+                                        </mat-select>
+                                        <mat-error
+                                            *ngIf="addEnquiryform.get('salution_id')?.hasError('required')">Required</mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- First Name -->
+                                <div class="col-span-1 lg:col-span-3">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>First Name</mat-label>
+                                        <input matInput formControlName="first_name" placeholder="Enter First Name">
+                                        <mat-error
+                                            *ngIf="addEnquiryform.get('first_name')?.hasError('required')">Required</mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Middle Name -->
+                                <div class="col-span-1 lg:col-span-3">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Middle Name</mat-label>
+                                        <input matInput formControlName="middle_name" placeholder="Enter Middle Name">
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Last Name -->
+                                <div class="col-span-1 lg:col-span-3">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Last Name</mat-label>
+                                        <input matInput formControlName="last_name" placeholder="Enter Last Name">
+                                        <mat-error
+                                            *ngIf="addEnquiryform.get('last_name')?.hasError('required')">Required</mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Mobile Number -->
+                                <div class="col-span-1 sm:col-span-2 lg:col-span-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Mobile Number</mat-label>
+                                        <span matTextPrefix class="text-gray-500 mr-2 font-medium">+91</span>
+                                        <input type="tel" matInput formControlName="mobile_no" maxlength="10"
+                                            (input)="onMobileNumberChange($event)" [readonly]="leadID() > 0">
+                                        <mat-icon matSuffix class="text-gray-400">smartphone</mat-icon>
+                                        <mat-error
+                                            *ngIf="addEnquiryform.get('mobile_no')?.hasError('required')">Required</mat-error>
+                                        <mat-error *ngIf="addEnquiryform.get('mobile_no')?.hasError('pattern')">Invalid
+                                            number</mat-error>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Alternate Mobile (Conditional) -->
+                                <div class="col-span-1 lg:col-span-4" *ngIf="showAlternateMobile()" @fadeIn>
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Alternate Mobile</mat-label>
+                                        <span matTextPrefix class="text-gray-500 mr-2 font-medium">+91</span>
+                                        <input type="tel" matInput formControlName="alternate_mob_no" maxlength="10">
+                                        <mat-icon matSuffix class="text-gray-400">phone</mat-icon>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- WhatsApp Number -->
+                                <div class="col-span-1 lg:col-span-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>WhatsApp Number</mat-label>
+                                        <span matTextPrefix class="text-gray-500 mr-2 font-medium">+91</span>
+                                        <input type="tel" matInput formControlName="whatsapp_no" maxlength="10">
+                                        <mat-icon matSuffix class="text-green-500">chat</mat-icon>
+                                    </mat-form-field>
+                                </div>
+
+                                <!-- Email Address -->
+                                <div class="col-span-1 sm:col-span-2 lg:col-span-4">
+                                    <mat-form-field appearance="outline" class="w-full">
+                                        <mat-label>Email Address</mat-label>
+                                        <input type="email" matInput formControlName="email_id"
+                                            placeholder="Enter Email Address">
+                                        <mat-icon matSuffix class="text-gray-400">email</mat-icon>
+                                        <mat-error
+                                            *ngIf="addEnquiryform.get('email_id')?.hasError('required')">Required</mat-error>
+                                        <mat-error *ngIf="addEnquiryform.get('email_id')?.hasError('email')">Invalid
+                                            email</mat-error>
+                                    </mat-form-field>
+
+                                    <div class="mt-2" *ngIf="addEnquiryform.get('telecaller_name_string')?.value">
+                                        <mat-form-field appearance="outline" class="w-full" floatLabel="always">
+                                            <mat-label>Telecaller Name</mat-label>
+                                            <input matInput formControlName="telecaller_name_string" readonly
+                                                class="text-gray-600" />
+                                            <mat-icon matSuffix>support_agent</mat-icon>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+
+                        <!-- Section: Preferences & Location -->
+                        <section class="space-y-5">
+                            <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
+                                <div
+                                    class="p-2 sm:p-2.5 bg-purple-50 rounded-xl text-purple-600 shadow-sm ring-1 ring-purple-100/50">
+                                    <mat-icon class="scale-90 sm:scale-100">tune</mat-icon>
+                                </div>
+                                <h4 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">Preferences &
+                                    Details</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                <app-autocomplete-reusable-component class="w-full" [options]="allSubregions()"
+                                    formControlName="current_living_place_id" displayKey="sub_region"
+                                    idKey="sub_region_id" placeholder="Current Location" [required]="true">
+                                </app-autocomplete-reusable-component>
+
+                                <app-autocomplete-reusable-component class="w-full" [options]="allSubregions()"
+                                    formControlName="preferred_location_id" displayKey="sub_region"
+                                    idKey="sub_region_id" placeholder="Preferred Location" [required]="true">
+                                </app-autocomplete-reusable-component>
+
+                                <app-autocomplete-reusable-component class="w-full"
+                                    [options]="preferredLocationDropdown()" formControlName="native_place_id"
+                                    displayKey="preferred_location" idKey="preferred_location_id"
+                                    placeholder="Native Location" [required]="true">
+                                </app-autocomplete-reusable-component>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Configuration</mat-label>
+                                    <mat-select formControlName="project_configuration_id" multiple>
+                                        <mat-option *ngFor="let item of confiList()"
+                                            [value]="item.project_configuration_id">
+                                            {{ item.configuration }} {{ item.bhk }} ({{ item.carpet_area }}{{ item.feet
+                                            }})
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('project_configuration_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Possession</mat-label>
+                                    <mat-select formControlName="possession_req_id">
+                                        <mat-option *ngFor="let item of possessionReqDropdown()"
+                                            [value]="item.possession_req_id">
+                                            {{ item.possession_req }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('possession_req_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Buying Purpose</mat-label>
+                                    <mat-select formControlName="buying_purpose_id">
+                                        <mat-option *ngFor="let item of buyingPurposeDropdown()"
+                                            [value]="item.buying_purpose_id">
+                                            {{ item.buying_purpose }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('buying_purpose_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Booking Plans</mat-label>
+                                    <mat-select formControlName="booking_plan_within_id"
+                                        placeholder="Select booking plan">
+                                        <mat-option *ngFor="let purpose of allBookingPlans()"
+                                            [value]="purpose.booking_plan_id">
+                                            {{ purpose.booking }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('booking_plan_within_id')?.hasError('required') && addEnquiryform.get('booking_plan_within_id')?.touched">
+                                        Booking plan is required
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Industry</mat-label>
+                                    <mat-select formControlName="industry_id">
+                                        <mat-option *ngFor="let item of industryDropdown()" [value]="item.industry_id">
+                                            {{ item.industry }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Company Name</mat-label>
+                                    <input matInput formControlName="company_name">
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('company_name')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Job Location</mat-label>
+                                    <input matInput formControlName="job_location">
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('job_location')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Age Group</mat-label>
+                                    <mat-select formControlName="age_range_id">
+                                        <mat-option *ngFor="let item of ageRangeDropdown()" [value]="item.age_range_id">
+                                            {{ item.age_range }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('age_range_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </section>
+
+                        <!-- Section: Budget -->
+                        <div
+                            class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-5 sm:p-8 border border-indigo-100/50 shadow-inner">
+                            <h4 class="text-lg sm:text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <div class="p-2 bg-white rounded-lg text-indigo-600 shadow-sm">
+                                    <mat-icon class="scale-110">account_balance_wallet</mat-icon>
+                                </div>
+                                Budget Preference
+                            </h4>
+
+                            <div class="space-y-8">
+                                <div class="flex justify-between items-end gap-4 px-1">
+                                    <div class="text-left">
+                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Min
+                                            Budget</span>
+                                        <div
+                                            class="text-xl sm:text-3xl font-bold text-indigo-900 mt-1 tabular-nums tracking-tight">
+                                            {{ minBudget() | indianCurrencyFormat }}
+                                        </div>
+                                    </div>
+                                    <div class="h-px bg-indigo-200/50 flex-1 mb-4"></div>
+                                    <div class="text-right">
+                                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Max
+                                            Budget</span>
+                                        <div
+                                            class="text-xl sm:text-3xl font-bold text-indigo-900 mt-1 tabular-nums tracking-tight">
+                                            {{ maxBudget() | indianCurrencyFormat }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="px-2 pb-2">
+                                    <mat-slider [min]="projectData()?.min_cost || 0"
+                                        [max]="projectData()?.max_cost || 0" [step]="currentStep" class="w-full">
+                                        <input matSliderStartThumb formControlName="min_budget"
+                                            [value]="addEnquiryform.get('min_budget')?.value || projectData()?.min_cost || 0">
+                                        <input matSliderEndThumb formControlName="max_budget"
+                                            [value]="addEnquiryform.get('max_budget')?.value || projectData()?.max_cost || 0">
+                                    </mat-slider>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: Source -->
+                        <section class="space-y-5">
+                            <div class="flex items-center gap-3 pb-3 border-b border-gray-100">
+                                <div
+                                    class="p-2 sm:p-2.5 bg-orange-50 rounded-xl text-orange-600 shadow-sm ring-1 ring-orange-100/50">
+                                    <mat-icon class="scale-90 sm:scale-100">campaign</mat-icon>
+                                </div>
+                                <h4 class="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">How did you hear
+                                    about us?</h4>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Source</mat-label>
+                                    <mat-select formControlName="source_id">
+                                        <mat-option *ngFor="let item of sourcesList()" [value]="item.source_id">
+                                            {{ item.source }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('source_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="w-full" *ngIf="isSourceDetailRequired()">
+                                    <mat-label>Source Detail</mat-label>
+                                    <mat-select formControlName="source_detail_id">
+                                        <mat-option *ngFor="let item of sourceDetailedList()"
+                                            [value]="item.source_detail_id">
+                                            {{ item.source_detail }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('source_detail_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+
+                                <ng-container *ngIf="isChannelPartnerSource()">
+                                    <div class="w-full">
+                                        <app-autocomplete-reusable-component [options]="allChannelPartnerList()"
+                                            formControlName="channel_partner_id" displayKey="full_name"
+                                            idKey="channel_partner_id" placeholder="Select Partner Firm"
+                                            (inputChanged)="onPartnerSearch($event)"
+                                            (selectedIdChange)="onPartnerSelected($event)">
+                                        </app-autocomplete-reusable-component>
+                                    </div>
+
+                                    <mat-form-field appearance="outline" class="w-full full-bg-readonly">
+                                        <mat-label>Rera No.</mat-label>
+                                        <input matInput readonly formControlName="rera_no" />
+                                    </mat-form-field>
+
+                                    <div class="w-full">
+                                        <app-autocomplete-reusable-component [options]="allCPExeuctiveList()" class="w-full"
+                                            formControlName="source_executive_id" displayKey="full_name" idKey="user_id"
+                                            placeholder="Select CP Executive" [required]="isChannelPartnerSource()">
+                                        </app-autocomplete-reusable-component>
+                                        <div class="text-red-500 text-xs mt-1" *ngIf="addEnquiryform.get('source_executive_id')?.hasError('required') && addEnquiryform.get('source_executive_id')?.touched">
+                                            CP Executive is required
+                                        </div>
+                                    </div>
+                                </ng-container>
+
+                                <mat-form-field appearance="outline" class="w-full">
+                                    <mat-label>Source Description</mat-label>
+                                    <input matInput formControlName="source_description"
+                                        placeholder="Enter Source Description...">
+                                    <mat-error
+                                        *ngIf="addEnquiryform.get('source_description')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </section>
+
+                    </div>
+
+                    <!-- Footer Actions -->
+                    <div class="px-4 py-6 sm:px-10 bg-slate-50 border-t border-slate-200 mt-auto">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 justify-end">
+                            <div *ngIf="isFormInvalid && addEnquiryform.touched"
+                                class="w-full sm:w-auto text-center sm:text-right text-red-500 text-sm font-medium animate-pulse bg-red-50 px-4 py-2 rounded-lg">
+                                Please fill all required fields correctly.
+                            </div>
+                            <button mat-raised-button color="primary" (click)="onSubmit()"
+                                class="w-full sm:w-auto min-w-[200px] !py-6 !text-lg !rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 active:scale-[0.98] transition-all duration-200"
+                                [disabled]="isFormInvalid || loading()">
+                                <mat-icon class="mr-2">send</mat-icon>
+                                {{ loading() ? 'Submitting...' : 'Submit Enquiry' }}
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </mat-card-content>
+        </mat-card>
+
+
+    </div>
+</div>

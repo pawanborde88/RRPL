@@ -1,0 +1,78 @@
+<h2 mat-dialog-title>{{dialogFor}} Skill</h2>
+<form [formGroup]="skillForm" (ngSubmit)="saveSkill()">
+    <mat-dialog-content>
+
+        <div class="row">
+
+
+            <mat-form-field appearance="outline">
+                <mat-label>Skill</mat-label>
+
+                <input type="text" matInput [formControl]="myControl" [matAutocomplete]="auto">
+                <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
+                    (optionSelected)="optionSelected($event)">
+                    <mat-option *ngFor="let skill of filteredOptions| async" [value]="skill">
+                        {{ skill.skill_name }}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+
+
+            <mat-form-field appearance="outline">
+                <mat-label>Self Rating</mat-label>
+
+                <mat-select formControlName="self_rating" required>
+                    <mat-option *ngFor="let rating of Ratings" [value]="rating.rating_id">{{ rating.rating_name
+                        }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="skillForm.controls.self_rating.hasError('required')">Self Rating is
+                    required</mat-error>
+            </mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Total Experience (In Years)</mat-label>
+                <input matInput formControlName="total_experience" placeholder="2">
+                <!-- <mat-error *ngIf="skillForm.controls.total_experience.hasError('required')">Total Experience is
+                    required</mat-error> -->
+
+                <mat-error *ngIf="skillForm.controls.total_experience.hasError('pattern')">Enter years only in
+                    numbers</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Last Worked On (In: MM-YYYY)</mat-label>
+                <input matInput formControlName="last_work_on" placeholder="04-2019">
+                <!-- <mat-error *ngIf="skillForm.controls.last_work_on.hasError('required')">Last Worked On is
+                    required</mat-error> -->
+                <mat-error *ngIf="skillForm.controls.last_work_on.hasError('pattern')">Invalid format. Use
+                    MM-YYYY</mat-error>
+            </mat-form-field>
+
+
+        </div>
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="col w-100 ">
+                <mat-label>Enter Comment</mat-label>
+                <textarea matInput rows="3" formControlName="comment"></textarea>
+            </mat-form-field>
+        </div>
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+
+        <button *ngIf="dialogFor === 'Update'" mat-button type="button" (click)="deleteSkill()" color="error"
+            class="me-auto" [disabled]="loading">
+            <span *ngIf="!loading">Delete Skill</span>
+            <mat-spinner color="warn" diameter="20" *ngIf="loading"></mat-spinner>
+        </button>
+
+
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button [disabled]="loading || skillForm.invalid">Save</button>
+        <!-- <app-dialog-loading-button  [loading]="loading"></app-dialog-loading-button> -->
+
+    </mat-dialog-actions>
+</form>

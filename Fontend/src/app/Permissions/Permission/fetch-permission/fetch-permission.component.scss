@@ -1,0 +1,25 @@
+.custom-expansion-panel {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  // margin-bottom: 2px;
+}
+
+.custom-expansion-header {
+  padding: 10px;
+  background-color: #f1f1f1;
+  font-weight: bold;
+}
+
+.custom-expansion-content {
+  max-width: 300px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+  padding: 0 10px;
+}
+
+.custom-expansion-content.open {
+  max-height: 1000px;
+  padding: 10px;
+}

@@ -1,0 +1,25 @@
+@import '../../../_variables.scss';
+
+.register-gradient {
+    background: #2980b9;
+    /* fallback for old browsers */
+    background: -webkit-linear-gradient(to left, $primaryColorDark, $primaryColorLight);
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to left, $primaryColorDark, $primaryColorLight);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.middle-card {
+    padding-top: 5rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
+    padding-bottom: 5rem;
+
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(100px);
+}
+
+.register-button {
+    background-color: $primaryColor;
+    color: white;
+}

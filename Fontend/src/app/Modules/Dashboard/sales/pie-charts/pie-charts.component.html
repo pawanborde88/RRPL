@@ -1,0 +1,41 @@
+<div class="chart-container">
+    <!-- Last Four Charts in a Single Row -->
+    <div class="chart-row">
+      
+      <!-- Pie Chart Section -->
+      <div class="chart-card">
+        <label for="pieFilter">Projects by :</label>
+        <select id="pieFilter" (change)="updatePieChart($event)">
+          <option value="enquiries">Enquiries</option>
+          <option value="siteVisits">Site Visits</option>
+          <option value="bookings">Bookings</option>
+        </select>
+        <canvas id="piechart"></canvas>
+      </div>
+
+      <!-- Divider Line -->
+      <div class="divider"></div>
+
+      <!-- Radar Chart Section -->
+      <div class="chart-card">
+        <label for="radarFilter">Region of site visits:</label>
+        <select id="radarFilter" (change)="updateRadarChart($event)">
+          <option value="enquiries">Enquiries</option>
+          <option value="siteVisits">Site Visits</option>
+          <option value="bookings">Bookings</option>
+        </select>
+        <h2>Region of site visits</h2>
+        <canvas id="rochart"></canvas>
+      </div>
+
+      <!-- Divider Line -->
+      <div class="divider"></div>
+
+      <!-- Doughnut Chart Section -->
+      <div class="chart-card">
+        <h2>Enquiries Vs Site Visits Vs Bookings</h2>
+        <canvas id="dochartMulti"></canvas> <!-- Multi-Ring Doughnut Chart -->
+      </div>
+
+    </div>
+</div>

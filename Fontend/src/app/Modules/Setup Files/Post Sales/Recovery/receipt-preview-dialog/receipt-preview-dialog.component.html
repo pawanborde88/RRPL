@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>
+  {{ data.title }}
+  <button mat-icon-button mat-dialog-close aria-label="Close dialog" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<div mat-dialog-content>
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">Loading preview...</p>
+  </div>
+  
+  <!-- Error state -->
+  <div *ngIf="hasError" class="error-container">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <p>{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="downloadFile()" [disabled]="isDownloading">
+      <mat-icon>{{ isDownloading ? 'hourglass_empty' : 'download' }}</mat-icon> 
+      {{ isDownloading ? 'Downloading...' : 'Download File Instead' }}
+    </button>
+  </div>
+  
+  <!-- PDF preview -->
+  <div *ngIf="!isLoading && !hasError && isPdf" class="pdf-container">
+    <iframe [src]="fileUrl" width="100%" height="500px" frameborder="0"></iframe>
+  </div>
+  
+  <!-- Image preview -->
+  <div *ngIf="!isLoading && !hasError && isImage" class="image-container">
+    <img [src]="data.fileUrl" alt="Receipt Image" 
+         (load)="isLoading = false" 
+         (error)="handleError('Failed to load image')" />
+  </div>
+  
+  <!-- Unsupported format -->
+  <div *ngIf="!isLoading && !hasError && !isPdf && !isImage" class="unsupported-format">
+    <mat-icon color="warn">description</mat-icon>
+    <p>This file format is not supported for preview.</p>
+    <p class="file-name">File: {{ fileName }}</p>
+  </div>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button *ngIf="showDownloadButton" 
+          mat-raised-button 
+          color="primary"
+          (click)="downloadFile()"
+          [disabled]="isDownloading">
+    <mat-icon>{{ isDownloading ? 'hourglass_empty' : 'download' }}</mat-icon> 
+    {{ isDownloading ? 'Downloading...' : (isPdf ? 'Download PDF' : 'Download Image') }}
+  </button>
+  <button mat-button mat-dialog-close>Close</button>
+</div>

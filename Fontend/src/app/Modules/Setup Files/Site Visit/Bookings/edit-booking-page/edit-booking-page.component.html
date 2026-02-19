@@ -1,0 +1,293 @@
+<h2 mat-dialog-title>Update Booking {{addBookingForm.get('applicant_name')?.value}}
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+<mat-dialog-content>
+    <div class="container-fluid">
+        <mat-card>
+
+            <mat-card-content>
+                <div class="info">
+                    <form [formGroup]="addBookingForm" class="row g-3">
+                        <!-- Project field is disabled for editing since it cannot be changed -->
+                        <app-autocomplete-reusable-component class="col-md-2" [options]="projectsList()"
+                            formControlName="project_id" displayKey="property_name" idKey="project_id"
+                            placeholder="Select Project" [disabled]="true">
+                        </app-autocomplete-reusable-component>
+
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Booking Date</mat-label>
+                                <input matInput [matDatepicker]="bookingDate"
+                                    formControlName="booking_date" 
+                                    [readonly]="!isBookingDateEnabled()"
+                                    [max]="maxDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="bookingDate" 
+                                    [disabled]="!isBookingDateEnabled()"></mat-datepicker-toggle>
+                                <mat-datepicker #bookingDate></mat-datepicker>
+                          
+                        </mat-form-field>
+
+                        <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
+                            formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+                            placeholder="Select Sales Executive">
+                        </app-autocomplete-reusable-component>
+
+                        <mat-form-field appearance="outline" class="col-md-2">
+                            <mat-label>Booking From</mat-label>
+                            <mat-select formControlName="booking_from_id">
+                                <mat-option *ngFor="let bookingFroms of allBookingDropdown()"
+                                    [value]="bookingFroms.booking_from_id">
+                                    {{ bookingFroms.booking_from }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="col-md-2"
+                            *ngIf="addBookingForm.controls['booking_from_id'].value == '1'">
+                            <mat-label>Select Token Type</mat-label>
+                            <mat-select formControlName="token_type_id">
+                                <mat-option *ngFor="let token of allTokenType()" [value]="token.token_type_id">
+                                    {{ token.token_type }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="col-md-2 ">
+                            <mat-label>Customer Name </mat-label>
+                            <input matInput formControlName="applicant_name" readonly placeholder="Enter Customer" />
+                        </mat-form-field>
+
+                    </form>
+                </div>
+            </mat-card-content>
+
+        </mat-card>
+
+
+        <div class="row mt-1">
+            <form [formGroup]="addBookingForm">
+                <mat-card class="mat-elevation-z2">
+                    <mat-card-header>
+                        <mat-card-title>
+                            <h4>Booking Calculation </h4>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Select Wing</mat-label>
+                                <mat-select formControlName="wing_id" [disabled]="!allWingslist().length">
+                                    <mat-option *ngFor="let allwings of allWingslist()" [value]="allwings.wing_id">
+                                        {{ allwings.wing_name }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2" *ngIf="floorUnitField()">
+                                <mat-label>Floor</mat-label>
+                                <mat-select formControlName="floor_id" [disabled]="!FloorUnitDropdown().length">
+                                    <mat-option *ngFor="let floor of FloorUnitDropdown()" [value]="floor.floor_id">
+                                        {{ floor.floor_name }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly" *ngIf="!floorUnitField()">
+                                <mat-label>Floor</mat-label>
+                                <input matInput formControlName="floor_id" readonly placeholder="Enter Floor" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly" *ngIf="!floorUnitField()">
+                                <mat-label>Unit Type</mat-label>
+                                <input matInput formControlName="unit_type" readonly placeholder="Enter Unit" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2" *ngIf="floorUnitField()">
+                                <mat-label>Unit Type</mat-label>
+                                <mat-select formControlName="unit_type" [disabled]="!confiList().length">
+                                    <mat-option *ngFor="let item of confiList()" [value]="item.unit_type">
+                                        {{ item.unit_type }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2" *ngIf="floorUnitField()">
+                                <mat-label>Unit No</mat-label>
+                                <mat-select formControlName="floor_unit_id" (selectionChange)="onUniTypeChange($event)">
+                                    <mat-option *ngFor="let unit of UnitNo()" [value]="unit.floor_unit_id">
+                                        {{ unit.floor_unit }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Floor Unit</mat-label>
+                                <input matInput formControlName="floor_unit" readonly placeholder="Enter Unit No" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Unit ID</mat-label>
+                                <input matInput formControlName="unit_id" readonly placeholder="Enter Unit No" />
+                            </mat-form-field>
+                        </div>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Total Carpet (Sq.Ft)</mat-label>
+                                <input matInput formControlName="carpet" readonly placeholder="Enter Carpet" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Rate</mat-label>
+                                <input matInput appAmount formControlName="rate" placeholder="Enter rate" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Floor Rise Rate</mat-label>
+                                <input matInput appAmount formControlName="floor_rise_rate" placeholder="Enter floor rise rate" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Floor Rise Amt</mat-label>
+                                <input matInput appAmount readonly formControlName="floor_rise_amt" placeholder="Enter Floor Rise Amt" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Market Value</mat-label>
+                                <input matInput appAmount formControlName="market_value" placeholder="Enter Market Value" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>GST (%) </mat-label>
+                                <input matInput formControlName="gst_per" placeholder="Enter GST (%)  amount" />
+                            </mat-form-field>
+                        </div>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>SD(%) </mat-label>
+                                <input matInput formControlName="sd_per" placeholder="Enter SD(%)" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Reg.(%) </mat-label>
+                                <input matInput formControlName="reg_per" placeholder="EnterReg.(%) " />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Basic Cost</mat-label>
+                                <input matInput appAmount readonly formControlName="basic_cost" placeholder="Enter basic cost" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>IDC</mat-label>
+                                <input matInput appAmount formControlName="idc" placeholder="Enter IDC amount" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Agreement Cost</mat-label>
+                                <input matInput appAmount formControlName="agreement_cost" placeholder="Enter agreement cost" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>GST</mat-label>
+                                <input matInput appAmount readonly formControlName="gst" placeholder="Enter GST" />
+                            </mat-form-field>
+                        </div>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Stamp Duty</mat-label>
+                                <input matInput appAmount readonly formControlName="stamp_duty" placeholder="Enter stamp duty value" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Reg.</mat-label>
+                                <input matInput appAmount readonly formControlName="reg" placeholder="Enter Reg." />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Society For.</mat-label>
+                                <input matInput appAmount formControlName="society_for" placeholder="Enter Society For. charges" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Legal </mat-label>
+                                <input matInput appAmount formControlName="legal" placeholder="Enter Legal " />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Maintenance </mat-label>
+                                <input matInput appAmount formControlName="maintenance" placeholder="Enter Maintenance " />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Corpus</mat-label>
+                                <input matInput appAmount formControlName="corpus" placeholder="Enter Corpus" />
+                            </mat-form-field>
+                        </div>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Other</mat-label>
+                                <input matInput appAmount formControlName="other" placeholder="Enter other" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                                <mat-label>Package Total</mat-label>
+                                <input matInput appAmount readonly formControlName="package_total" placeholder="Enter total package value" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Parking Charges</mat-label>
+                                <input matInput appAmount formControlName="parking_charges" placeholder="Enter Parking Charges" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Parking No.</mat-label>
+                                <input matInput formControlName="parking_no" placeholder="Enter Parking No." />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Source</mat-label>
+                                <mat-select formControlName="source_id" [disabled]="isSourceFieldsDisabled()">
+                                    <mat-option *ngFor="let source of sourcesList()" [value]="source.source_id">
+                                        {{ source.source }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2" *ngIf="!(this.addBookingForm.controls['source_id'].value == '3')">
+                                <mat-label>Select Source Detail</mat-label>
+                                <mat-select formControlName="source_detail_id" [disabled]="isSourceFieldsDisabled()">
+                                    <mat-option *ngFor="let sourceDetails of sourceDetailedList()" [value]="sourceDetails.source_detail_id">
+                                        {{ sourceDetails.source_detail }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-2"
+                                *ngIf="(addBookingForm.get('source_id')?.value == '3')" formControlName="channel_partner_id"
+                                displayKey="full_name" idKey="channel_partner_id" placeholder="Select Partner Firm"
+                                [disabled]="isSourceFieldsDisabled()"
+                                (inputChanged)="onPartnerSearch($event)">
+                            </app-autocomplete-reusable-component>
+                        </div>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Source Info</mat-label>
+                                <input matInput formControlName="source_description" placeholder="Enter Source description" />
+                            </mat-form-field>
+                            <mat-form-field appearance="outline" class="col-md-2">
+                                <mat-label>Remark</mat-label>
+                                <input matInput formControlName="remark" placeholder="Enter Remark" />
+                            </mat-form-field>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <mat-checkbox formControlName="show_scheme">Scheme Details</mat-checkbox>
+                            </div>
+                            <div class="col-md-3" *ngIf="+(addBookingForm.get('parking_charges')?.value || 0) > 0">
+                                <mat-checkbox formControlName="is_parking_charges_added">Add to Agreement Cost</mat-checkbox>
+                            </div>
+                        </div>
+                    
+                   
+
+                    </mat-card-content>
+                </mat-card>
+
+                <mat-card *ngIf="addBookingForm.get('show_scheme')?.value" class="mat-elevation-z2 mt-1">
+                    <mat-card-header class="mb-3">
+                        <mat-card-title>
+                            <h3 class="mat-h2">Scheme Details</h3>
+                        </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <div class="row g-3">
+                            <mat-form-field appearance="outline" class="col-md-12">
+                                <mat-label>Offer Name</mat-label>
+                                <input matInput type="text" formControlName="offer_name"
+                                    placeholder="Enter offer Name" />
+                            </mat-form-field>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+        
+            </form>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" [disabled]="!addBookingForm.valid"
+    (click)="submitForm()">
+    <mat-icon>add_circle</mat-icon> Update Booking
+</button>
+</mat-dialog-actions>

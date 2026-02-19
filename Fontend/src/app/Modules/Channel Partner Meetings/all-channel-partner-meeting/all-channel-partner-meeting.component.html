@@ -1,0 +1,73 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">Channel Partner</li>
+
+        <li class="breadcrumb-item active">All Channel Partner Meetings</li>
+    </app-breadcrumb>
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <form [formGroup]="channelPartnerMeetingForm">
+                <div class="row">
+                    <app-autocomplete-reusable-component class="col-md-2" [isMultiSelect]="true"
+                        [options]="projectsListValue" formControlName="project_id" displayKey="property_name"
+                        idKey="project_id" placeholder="Select Project">
+                    </app-autocomplete-reusable-component>
+
+                    <app-autocomplete-reusable-component [options]="allChannelPartnerListValue" class="col-md-2"
+                        formControlName="channel_partner_id" [isMultiSelect]="true" displayKey="full_name"
+                        idKey="channel_partner_id" placeholder="Select Partner Firm"
+                        (inputChanged)="onPartnerSearch($event)">
+                    </app-autocomplete-reusable-component>
+
+                    <app-autocomplete-reusable-component class="col-md-2" [isMultiSelect]="true"
+                        [options]="allCPExecutiveListValue" formControlName="cp_executive_id" displayKey="full_name"
+                        idKey="user_id" placeholder="Select CP Executive">
+                    </app-autocomplete-reusable-component>
+
+                    <app-autocomplete-reusable-component class="col-md-2" [isMultiSelect]="true"
+                        [options]="allSalesExecutiveManagerValue" formControlName="source_executive_id"
+                        displayKey="full_name" idKey="user_id" placeholder=" Sourcing Executive / manager">
+                    </app-autocomplete-reusable-component>
+                    <app-autocomplete-reusable-component class="col-md-2" [isMultiSelect]="true"
+                        [options]="allSalesExecutiveValue" formControlName="sales_executive_id" displayKey="full_name"
+                        idKey="user_id" placeholder=" Sales Executive / Manager">
+                    </app-autocomplete-reusable-component>
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Meeting Date</mat-label>
+                            <mat-date-range-input [rangePicker]="leadDatePicker">
+                                <input matStartDate formControlName="start_date" placeholder="Start date">
+                                <input matEndDate formControlName="end_date" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-auto">
+                        <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                            [disabled]="channelPartnerMeetingForm.get('project_id')?.invalid" (click)="fetchMeeting()">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-configurable-ag-grid-data [columns]="channelPartnerMeeting" [apiEndpoint]="'fetch_all_meetings'"
+        [apiMethod]="'POST'" [apiPayload]="getAgGridPayload()" [headerButtons]="headerButtonsValue"
+        [cacheBlockSize]="100">
+    </app-configurable-ag-grid-data>
+
+
+
+</app-template>

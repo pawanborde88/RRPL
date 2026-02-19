@@ -1,0 +1,47 @@
+<div class="container-fluid p-0">
+  <div class="bg-light p-3 border-bottom">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="h5 mb-0 text-dark">Change User Status</h2>
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+    </div>
+  </div>
+
+  <mat-dialog-content class="p-4">
+    <form [formGroup]="inactiveForm" class="row g-3">
+        <mat-form-field appearance="outline" class="col-md-12">
+            <mat-label>Reason</mat-label>
+            <textarea matInput formControlName="reason" rows="4" ></textarea>
+            <mat-error *ngIf="inactiveForm.get('reason')?.hasError('required')">
+              Reason is required
+            </mat-error>
+          </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-12">
+        <mat-label>Active Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1" class="d-flex align-items-center">
+            <mat-icon class="me-2 text-success">check_circle</mat-icon>
+            Active
+          </mat-option>
+          <mat-option [value]="0" class="d-flex align-items-center">
+            <mat-icon class="me-2 text-danger">cancel</mat-icon>
+            Inactive
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="inactiveForm.get('active_status_id')?.hasError('required')">
+          Status is required
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="p-3 border-top m-0">
+
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!inactiveForm.valid" class="d-flex align-items-center">
+      <mat-icon class="me-2">save</mat-icon>
+      Update
+    </button>
+  </mat-dialog-actions>
+</div>

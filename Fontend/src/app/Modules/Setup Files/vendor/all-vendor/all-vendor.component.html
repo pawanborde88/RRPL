@@ -1,0 +1,28 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">All Vendors</li>
+  </app-breadcrumb>
+  <mat-card class="mat-elevation-z4">
+    <mat-card-header>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Add Vendor Button with Angular Material Styling -->
+      <div class="d-flex justify-content-end gap-2 mb-3">
+        <button mat-raised-button color="primary" (click)="onAddVendors()" class="btn-sm">
+          <mat-icon class="me-1">add_circle</mat-icon> Add Vendors
+        </button>
+      </div>
+
+      <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+        [actions]="projectActions" [showCheckbox]="true" [showFooter]="true"
+        (actionClick)="onProjectAction($event.action, $event.row)"
+        (checkboxChange)="toggleSelection($event.checked, $event.row)">
+
+      </app-reusable-custom-table>
+
+
+
+    </mat-card-content>
+  </mat-card>
+
+</app-template>

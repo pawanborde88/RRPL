@@ -1,0 +1,114 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">Lead Management</li>
+    <li class="breadcrumb-item ">Reports</li>
+
+    <li class="breadcrumb-item active">All Digital Re-enquiry Report</li>
+  </app-breadcrumb>
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+
+      </mat-expansion-panel-header>
+      <form [formGroup]="leadForm" class="w-100 g-3">
+        <div class="row">
+          <!-- Project Dropdown -->
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <!-- Lead Level Dropdown with Async Pipe (like comment-log component) -->
+          <div class="col-md-2" *ngIf="roleId() !== 13">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Lead Level</mat-label>
+              <mat-select formControlName="lead_level_id">
+                <mat-option value="0" disabled>Select Lead Level</mat-option>
+                <mat-option *ngFor="let level of leadLevels$ | async; trackBy: trackByLeadLevelId"
+                  [value]="level.lead_level_id">
+                  {{ level.lead_level }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Call Status Dropdown with Async Pipe (like comment-log component) -->
+          <div class="col-md-2" *ngIf="roleId() !== 13">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Call Status</mat-label>
+              <mat-select formControlName="call_status_id">
+                <mat-option *ngFor="let callStatus of callStatus$ | async; trackBy: trackByCallStatusId"
+                  [value]="callStatus.call_status_id">
+                  {{ callStatus.call_status }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Status -->
+          <div class="col-md-2" *ngIf="roleId() !== 13">
+            <app-autocomplete-reusable-component [options]="statusDropdown()" formControlName="status_id"
+              displayKey="enquiry_status" idKey="enquiry_status_id" [isMultiSelect]="true" placeholder="Select Status">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <!-- Telecaller -->
+          <div class="col-md-2" *ngIf="roleId() !== 13">
+            <app-autocomplete-reusable-component [options]="allTelecallerlist()" formControlName="telecaller_id"
+              displayKey="full_name" idKey="user_id" [isMultiSelect]="true" placeholder="Select Telecaller">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <!-- Lead Date Range -->
+          <div class="col-md-2" *ngIf="roleId() !== 13">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Lead Date</mat-label>
+              <mat-date-range-input [rangePicker]="leadDatePicker"
+                [disabled]="leadForm.get('ignore_date_filters')?.value">
+                <input matStartDate formControlName="start_date" placeholder="Start date">
+                <input matEndDate formControlName="end_date" placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+
+          <!-- Follow-up Date Range -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Follow-up Date</mat-label>
+              <mat-date-range-input [rangePicker]="followUpDatePicker"
+                [disabled]="leadForm.get('ignore_date_filters')?.value">
+                <input matStartDate formControlName="start_followup_date" placeholder="Start date">
+                <input matEndDate formControlName="end_followup_date" placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <!-- <div class="col-md-2 d-flex align-items-center">
+          <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+        </div> -->
+
+          <!-- Apply Filter Button -->
+          <div class="col-md-auto">
+            <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+              [disabled]="!leadForm.get('project_id')?.value?.length" (click)="refreshAgGridData()">
+              Apply Filter
+            </button>
+          </div>
+        </div>
+      </form>
+
+    </mat-expansion-panel>
+
+  </mat-accordion>
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_lead'" [apiMethod]="'POST'"
+    [apiPayload]="agGridPayload()" [actions]="bookingActions" [idProperty]="'project_lead_id'" [cacheBlockSize]="30">
+  </app-configurable-ag-grid-data>
+</app-template>

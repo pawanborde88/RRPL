@@ -1,0 +1,253 @@
+<div class="application-header container">
+    <!-- Enhanced Alert Banner -->
+    <div class="alert-banner">
+        <mat-icon class="alert-icon">warning</mat-icon>
+        <div class="alert-content">
+            <h3 class="alert-title">Important Notice</h3>
+            <p class="alert-text">Please fill in the details carefully. This secure link will expire once you submit the form.</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Project Details Card -->
+    <div class="project-details-card">
+        <mat-card class="modern-card">
+            <div class="card-header">
+                <mat-icon class="header-icon">business</mat-icon>
+                <h2 class="card-title">Booking Information</h2>
+            </div>
+            <mat-divider></mat-divider>
+            <mat-card-content>
+                <div class="details-row">
+                    <div class="logo-container">
+                        <div class="logo-wrapper">
+                            <img *ngIf="bookingdata?.project_logo" [src]="storageUrl + '/' + bookingdata?.project_logo"
+                                alt="{{ bookingdata?.project_name }} Logo" class="project-logo">
+                            <div *ngIf="!bookingdata?.project_logo" class="logo-placeholder">
+                                <mat-icon>apartment</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-container">
+                        <div class="detail-item">
+                            <mat-icon class="detail-icon">apartment</mat-icon>
+                            <div class="detail-content">
+                                <span class="detail-label">Project Name</span>
+                                <span class="detail-value">{{ bookingdata?.project_name || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <mat-icon class="detail-icon">domain</mat-icon>
+                            <div class="detail-content">
+                                <span class="detail-label">Wing</span>
+                                <span class="detail-value">{{ bookingdata?.wing_name || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <mat-icon class="detail-icon">meeting_room</mat-icon>
+                            <div class="detail-content">
+                                <span class="detail-label">Unit No</span>
+                                <span class="detail-value">{{ bookingdata?.floor_unit || 'N/A' }}</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <mat-icon class="detail-icon">event</mat-icon>
+                            <div class="detail-content">
+                                <span class="detail-label">Booking Date</span>
+                                <span class="detail-value">{{ (bookingdata?.booking_date | date: 'dd MMM yyyy') || 'N/A' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Enhanced Applicant Cards -->
+    <div *ngFor="let applicant of applicants.controls; let i = index" class="applicant-card"
+        [class.required-applicant]="i === 0">
+        <mat-card class="modern-card">
+            <div class="applicant-header" [class.required-header]="i === 0">
+                <div class="applicant-title-wrapper">
+                    <mat-icon class="applicant-icon">person</mat-icon>
+                    <h2 class="applicant-title">Applicant {{ i + 1 }}</h2>
+                    <span class="required-badge" *ngIf="i === 0">
+                        <mat-icon>verified</mat-icon>
+                        Primary
+                    </span>
+                </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <mat-card-content>
+                <form [formGroup]="$any(applicant)" class="applicant-form">
+                    <div class="form-grid">
+                        <!-- Salutation -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Salutation</mat-label>
+                            <mat-select formControlName="salutation_id">
+                                <mat-option *ngFor="let salutation of salutationDropdown"
+                                    [value]="salutation.salution_id">
+                                    {{ salutation.salution }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- First Name -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>First Name </mat-label>
+                            <input matInput formControlName="first_name" placeholder="Enter first name" />
+                            <mat-error *ngIf="applicant.get('first_name')?.invalid && applicant.get('first_name')?.touched">
+                                First name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Middle Name -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Middle Name</mat-label>
+                            <input matInput formControlName="middle_name" placeholder="Enter middle name" />
+                        </mat-form-field>
+
+                        <!-- Last Name -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Last Name </mat-label>
+                            <input matInput formControlName="last_name" placeholder="Enter last name" />
+                            <mat-error *ngIf="applicant.get('last_name')?.invalid && applicant.get('last_name')?.touched">
+                                Last name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Occupation -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Occupation</mat-label>
+                            <mat-select formControlName="occupation_id">
+                                <mat-option *ngFor="let occ of allOccupations" [value]="occ.occupation_id">
+                                    {{ occ.occupation }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Mobile Number -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Mobile Number </mat-label>
+                            <input type="tel" matInput formControlName="mobile_no" maxlength="10" pattern="[0-9]{10}"
+                                inputmode="numeric" autocomplete="tel" placeholder="Enter 10-digit number"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
+                            <mat-error *ngIf="applicant.get('mobile_no')?.hasError('required') && applicant.get('mobile_no')?.touched">
+                                Mobile number is required
+                            </mat-error>
+                            <mat-error *ngIf="applicant.get('mobile_no')?.hasError('pattern') && applicant.get('mobile_no')?.touched">
+                                Enter a valid 10-digit number
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Alternate Mobile -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Alternate Mobile</mat-label>
+                            <input type="tel" matInput formControlName="alternate_mobile_no" maxlength="10" 
+                                placeholder="Enter 10-digit number" inputmode="numeric"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
+                            <mat-error *ngIf="applicant.get('alternate_mobile_no')?.hasError('pattern') && applicant.get('alternate_mobile_no')?.touched">
+                                Enter a valid 10-digit number
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- WhatsApp -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>WhatsApp Number</mat-label>
+                            <input type="tel" matInput formControlName="whatsapp_no" maxlength="10" 
+                                placeholder="Enter 10-digit number" inputmode="numeric"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
+                            <mat-error *ngIf="applicant.get('whatsapp_no')?.hasError('pattern') && applicant.get('whatsapp_no')?.touched">
+                                Enter a valid 10-digit number
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Email -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Email Address </mat-label>
+                            <input type="email" matInput formControlName="email_id" placeholder="Enter email address" />
+                            <mat-error *ngIf="applicant.get('email_id')?.hasError('required') && applicant.get('email_id')?.touched">
+                                Email is required
+                            </mat-error>
+                            <mat-error *ngIf="applicant.get('email_id')?.hasError('email') && applicant.get('email_id')?.touched">
+                                Please enter a valid email
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Aadhar -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Aadhar Number</mat-label>
+                            <input matInput appAadharcardNoformat formControlName="aadhar_no" maxlength="14"
+                                placeholder="XXXX XXXX XXXX" />
+                            <mat-hint>12-digit Aadhar number</mat-hint>
+                        </mat-form-field>
+
+                        <!-- PAN -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>PAN Number</mat-label>
+                            <input matInput appPANNo formControlName="pan_no" maxlength="10"
+                                placeholder="ABCDE1234F" />
+                            <mat-hint>10-character PAN</mat-hint>
+                        </mat-form-field>
+
+                        <!-- DOB -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Date of Birth</mat-label>
+                            <input matInput [matDatepicker]="getDobPicker(i)" formControlName="dob" placeholder="Select date" />
+                            <mat-datepicker-toggle matSuffix [for]="getDobPicker(i)"></mat-datepicker-toggle>
+                            <mat-datepicker #dobPicker></mat-datepicker>
+                        </mat-form-field>
+
+                        <!-- Anniversary -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Anniversary Date</mat-label>
+                            <input matInput [matDatepicker]="getAnniversaryPicker(i)" formControlName="anniversary_date" placeholder="Select date" />
+                            <mat-datepicker-toggle matSuffix [for]="getAnniversaryPicker(i)"></mat-datepicker-toggle>
+                            <mat-datepicker #anniversaryPicker></mat-datepicker>
+                        </mat-form-field>
+
+                        <!-- Current Address -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Current Address</mat-label>
+                            <textarea matInput formControlName="current_address" rows="2" 
+                                placeholder="Enter current residential address"></textarea>
+                        </mat-form-field>
+
+                        <!-- Permanent Address -->
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Permanent Address</mat-label>
+                            <textarea matInput formControlName="permanent_address" rows="2" 
+                                placeholder="Enter permanent address"></textarea>
+                        </mat-form-field>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Enhanced Action Section -->
+    <div class="action-section">
+        <mat-card class="action-card">
+            <mat-card-content>
+                <div class="action-container">
+                    <div class="action-info" *ngIf="!isFirstApplicantValid()">
+                        <mat-icon class="info-icon">info_outline</mat-icon>
+                        <p class="info-text">Please complete all required fields for the primary applicant to submit the form.</p>
+                    </div>
+                    
+                    <button mat-flat-button color="primary" (click)="updateAllApplicants()" class="update-button"
+                        [disabled]="loading || !isFirstApplicantValid()">
+                        <mat-icon class="button-icon">{{ loading ? 'sync' : 'check_circle' }}</mat-icon>
+                        <span class="button-text">{{ loading ? 'Submitting...' : 'Submit All Applicants' }}</span>
+                    </button>
+
+                    <p class="submission-note">
+                        <mat-icon class="note-icon">lock</mat-icon>
+                        This form link will expire after successful submission
+                    </p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

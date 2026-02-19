@@ -1,0 +1,126 @@
+<mat-card>
+    <mat-card-content>
+        <form [formGroup]="addTokenForm" (ngSubmit)="onSubmit()" enctype="multipart/form-data" class="row">
+
+            <!-- Transaction ID -->
+
+            <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                <mat-label>Balance</mat-label>
+                <input matInput readonly placeholder="Transaction Amount" formControlName="balance" appAmount />
+            </mat-form-field>
+            <mat-form-field class="col-md-2" appearance="outline">
+                <mat-label>Transaction Date</mat-label>
+                <input matInput [matDatepicker]="trDate" formControlName="date" />
+                <mat-datepicker-toggle matSuffix [for]="trDate"></mat-datepicker-toggle>
+                <mat-datepicker #trDate></mat-datepicker>
+            </mat-form-field>
+
+
+
+            <!-- Payment Mode Dropdown -->
+
+            <mat-form-field appearance="outline" class="col-md-2">
+                <mat-label>Select Payment Type</mat-label>
+                <mat-select formControlName="payment_mode_id">
+                    <mat-option *ngFor="let paymentMode of allPaymentMode" [value]="paymentMode.payment_mode_id">
+                        {{ paymentMode.payment_mode }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+
+            <!-- Amount -->
+
+            <mat-form-field appearance="outline" class="col-md-2">
+                <mat-label>Amount</mat-label>
+                <input matInput placeholder="Amount" formControlName="amount" appAmount />
+                <mat-error *ngIf="addTokenForm.get('amount')?.hasError('amountExceedsBalance')">
+                    Amount cannot be greater than balance
+                </mat-error>
+                <mat-error *ngIf="addTokenForm.get('amount')?.hasError('required')">
+                    Amount is required
+                </mat-error>
+
+            </mat-form-field>
+
+
+            <!-- Cheque No -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '1'">
+                <mat-label>Cheque No</mat-label>
+                <input matInput placeholder="Cheque No" formControlName="cheque_no" />
+            </mat-form-field>
+
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '2' || addTokenForm.controls['payment_mode_id'].value == '3' || addTokenForm.controls['payment_mode_id'].value == '4'">
+                <mat-label>Transaction ID</mat-label>
+                <input matInput placeholder="Transaction ID" formControlName="transaction_id" />
+                <mat-error *ngIf="addTokenForm.get('transaction_id')?.hasError('required')">
+                    Transaction ID is required
+                </mat-error>
+            </mat-form-field>
+
+
+            <!-- UPI ID -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '2'">
+                <mat-label>UPI ID</mat-label>
+                <input matInput placeholder="UPI ID" formControlName="upi_id" />
+            </mat-form-field>
+
+
+            <!-- Card No -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '4'">
+                <mat-label>Card No</mat-label>
+                <input matInput placeholder="Card No" formControlName="card_no" />
+            </mat-form-field>
+
+
+
+            <!-- Bank Name -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '1' || addTokenForm.controls['payment_mode_id'].value == '2'">
+                <mat-label>Bank Name</mat-label>
+                <input matInput placeholder="Bank Name" formControlName="bank_name" />
+                <mat-error *ngIf="addTokenForm.get('bank_name')?.hasError('required')">
+                    Bank Name is required
+                </mat-error>
+            </mat-form-field>
+
+
+            <!-- IFSC Code -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '1'">
+                <mat-label>IFSC Code</mat-label>
+                <input matInput placeholder="IFSC Code" formControlName="ifsc_code" />
+            </mat-form-field>
+
+
+            <!-- Bank Branch -->
+
+            <mat-form-field appearance="outline" class="col-md-2"
+                *ngIf="addTokenForm.controls['payment_mode_id'].value == '1'">
+                <mat-label>Bank Branch</mat-label>
+                <input matInput placeholder="Bank Branch" formControlName="bank_branch" />
+            </mat-form-field>
+
+
+            <div class="col-md-3 mb-3">
+                <label class="form-label d-block">Payment Attachment</label>
+                <input type="file" class="form-control" (change)="onFileChange($event)" />
+
+            </div>
+            <div class="col-md-12 d-flex justify-content-end mt-3">
+                <button mat-raised-button color="primary" type="submit" [disabled]="addTokenForm.invalid">Submit
+                    Payment</button>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

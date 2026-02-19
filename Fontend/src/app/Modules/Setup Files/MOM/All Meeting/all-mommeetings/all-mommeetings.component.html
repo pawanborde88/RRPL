@@ -1,0 +1,57 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">MOM</li>
+
+        <li class="breadcrumb-item active">All MOM Meetings</li>
+    </app-breadcrumb>
+
+    <mat-card>
+        <mat-card-header class="d-flex flex-column mb-2">
+            <mat-accordion>
+                <mat-expansion-panel hideToggle [expanded]="true"> <mat-panel-title> Advanced Filters
+                    </mat-panel-title>
+
+                    <mat-expansion-panel-header>
+                        <mat-panel-title> Advanced Filters </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <form [formGroup]="channelPartnerMeetingForm" class="row">
+                        <div class="col-md-4">
+                            <app-autocomplete-reusable-component [options]="projectsList" formControlName="project_id"
+                                displayKey="property_name" idKey="project_id" placeholder="Select Project"
+                                class="w-100">
+                            </app-autocomplete-reusable-component>
+                        </div>
+
+                        <mat-form-field appearance="outline" class="col-md-3">
+                            <mat-label>Report Date</mat-label>
+                            <mat-date-range-input [rangePicker]="leadDatePicker">
+                                <input matStartDate formControlName="start_date" placeholder="Start date">
+                                <input matEndDate formControlName="end_date" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+                        </mat-form-field>
+
+                        <div class="col-md-auto">
+                            <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                                [disabled]="!channelPartnerMeetingForm.get('project_id')?.value"
+                                (click)="fetchCPTargetReport()">
+                                <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                            </button>
+                        </div>
+
+
+                    </form>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </mat-card-header>
+
+        <mat-card-content>
+            <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource"
+                [displayedColumns]="displayedColumns" [actions]="tokenActions" [showFooter]="true"
+                [headerButtons]="headerButtons" (actionClick)="onTokenAction($event.action, $event.row)">
+            </app-reusable-custom-table>
+        </mat-card-content>
+    </mat-card>
+</app-template>

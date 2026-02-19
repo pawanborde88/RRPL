@@ -1,0 +1,107 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">Channel Partner</li>
+
+        <li class="breadcrumb-item active">CP Payout</li>
+    </app-breadcrumb>
+
+
+    <!-- Card with improved focus management and semantic structure -->
+    <mat-card class="mt-3" tabindex="0" aria-labelledby="cardTitle">
+        <mat-card-header>
+            <form [formGroup]="bookingForm" class=" w-100 g-3 align-items-end">
+                <div class="row">
+                    <!-- Project Dropdown -->
+                    <div class="col-md-2">
+                        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                            displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+
+                    <!-- Approval Level Dropdown -->
+                    <mat-form-field appearance="outline" class="col-md-2">
+                        <mat-label>Select Level</mat-label>
+                        <mat-select formControlName="approval_level_id">
+                            <mat-option *ngFor="let level of approvalLevels(); trackBy: trackByApprovalLevelId"
+                                [value]="level.approval_level_id">
+                                {{ level.approval_level }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+
+
+
+
+                    <!-- Apply Filter Button -->
+                    <div class="col-md-2">
+                        <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                            [disabled]="!bookingForm.get('project_id')?.value" (click)="searchCPPayout()">
+                            <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- Enhanced Tab group with keyboard navigation support -->
+            <mat-tab-group aria-label="CP Payout status tabs" (selectedTabChange)="onTabChange($event)"
+                [selectedIndex]="selectedTabIndex()">
+                <!-- Pending Approval Tab -->
+                <mat-tab label="Pending Approval" aria-label="Pending approval bills">
+
+                    <div class="tab-content-wrapper" role="tabpanel" aria-labelledby="mat-tab-label-0">
+                        <section aria-label="Pending approval bills section">
+                            <app-reusable-custom-table [loading]="loading().pendingApproval"
+                                [idProperty]="'booking_bill_id'" [selectedItems]="getSelectedItemsArray()"
+                                (selectedItemsChange)="onSelectedItemsChange($event)" [headerButtons]="headerButtons()"
+                                [actions]="bookingActions()" [dataSource]="pendingApprovalDataSource()"
+                                [displayedColumns]="bookingBillsColumns" [showCheckbox]="true" [showFooter]="true"
+                                (checkboxChange)="onCheckboxChange($event.checked, $event.row)"
+                                aria-label="List of pending approval bills">
+                            </app-reusable-custom-table>
+                        </section>
+                    </div>
+                </mat-tab>
+
+                <!-- Pending Payment Tab -->
+                <mat-tab label="Pending Payment" aria-label="Pending payment bills">
+                    <div class="tab-content-wrapper" role="tabpanel" aria-labelledby="mat-tab-label-1">
+                        <section aria-label="Pending payment bills section">
+                            <!-- Enhanced Action bar with better focus management -->
+
+
+                            <app-reusable-custom-table [loading]="loading().pendingPayment"
+                                [idProperty]="'booking_bill_id'" [selectedItems]="getSelectedItemsArray()"
+                                (selectedItemsChange)="onSelectedItemsChange($event)" [headerButtons]="headerButtons()"
+                                [actions]="bookingActions()" (actionClick)="onActionClick($event.action, $event.row)"
+                                [dataSource]="pendingPaymentDataSource()" [displayedColumns]="bookingBillsColumns"
+                                [showCheckbox]="true" [showFooter]="true"
+                                (checkboxChange)="onCheckboxChange($event.checked, $event.row)"
+                                aria-label="List of pending payment bills">
+                            </app-reusable-custom-table>
+                        </section>
+                    </div>
+                </mat-tab>
+
+                <!-- Paid Bills Tab -->
+                <mat-tab label="Paid Bills" aria-label="Paid bills">
+                    <div class="tab-content-wrapper" role="tabpanel" aria-labelledby="mat-tab-label-2">
+                        <section aria-label="Paid bills section">
+                            <app-reusable-custom-table [loading]="loading().paidBills" [idProperty]="'booking_bill_id'"
+                                [selectedItems]="getSelectedItemsArray()"
+                                (selectedItemsChange)="onSelectedItemsChange($event)" [actions]="bookingActions()"
+                                (actionClick)="onActionClick($event.action, $event.row)"
+                                [dataSource]="paidBillsDataSource()" [displayedColumns]="bookingBillsColumns"
+                                [showCheckbox]="true" [showFooter]="true"
+                                (checkboxChange)="onCheckboxChange($event.checked, $event.row)"
+                                aria-label="List of paid bills">
+                            </app-reusable-custom-table>
+                        </section>
+                    </div>
+                </mat-tab>
+            </mat-tab-group>
+        </mat-card-content>
+    </mat-card>
+</app-template>

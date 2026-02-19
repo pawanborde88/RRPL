@@ -1,0 +1,64 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">After Sales</li>
+
+        <li class="breadcrumb-item active">Document Generation</li>
+    </app-breadcrumb>
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <form [formGroup]="bookingForm" class="row w-100 g-3">
+                <!-- Project Dropdown -->
+                <div class="col-md-3">
+                    <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                        displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                    </app-autocomplete-reusable-component>
+                </div>
+
+                <!-- Wing Dropdown -->
+                <mat-form-field appearance="outline" class="col-md-3">
+                    <mat-label>Select Wing</mat-label>
+                    <mat-select formControlName="wing_id">
+                        <mat-option *ngFor="let allwings of allWingslist()" [value]="allwings.wing_id">
+                            {{ allwings.wing_name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- Letter Type Dropdown -->
+                <mat-form-field appearance="outline" class="col-md-3">
+                    <mat-label>Select Letter Type</mat-label>
+                    <mat-select formControlName="letter_type_id">
+                        <mat-option [value]="null">All Letter Types</mat-option>
+                        <mat-option *ngFor="let letterType of letterTypes()" [value]="letterType.letter_type_id">
+                            {{ letterType.letter_type }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+
+                <!-- Apply Filter Button -->
+                <div class="col-md-auto">
+                    <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                        [disabled]="!bookingForm.get('project_id')?.value" (click)="fetchAllBookings()">
+                        <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                    </button>
+                </div>
+            </form>
+
+        </mat-expansion-panel>
+    </mat-accordion>
+    <app-configurable-ag-grid-data [loading]="loading()" [columns]="agreementDetailsColumnsNames"
+        [apiEndpoint]="'fetch_all_letters'" [headerButtons]="headerButtons" [apiMethod]="'POST'"
+        [apiPayload]="agGridPayload()" [actions]="projectActions" [idProperty]="'letter_config_id'"
+        (actionClick)="onTokenAction($event.action, $event.row)">
+    </app-configurable-ag-grid-data>
+
+
+
+</app-template>

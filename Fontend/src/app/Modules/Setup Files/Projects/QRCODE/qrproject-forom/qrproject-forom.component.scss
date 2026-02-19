@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+/* Tailwind covers the layout, only keep minimal slider polish */
+:host ::ng-deep .mat-mdc-slider {
+  width: 100%;
+  --mdc-slider-active-track-color: #0d4678;
+  --mdc-slider-inactive-track-color: #e0e7ff;
+  --mdc-slider-with-tick-marks-active-container-color: #0d4678;
+  --mdc-slider-with-tick-marks-inactive-container-color: #e0e7ff;
+  --mdc-slider-handle-color: #0d4678;
+  --mdc-slider-focus-handle-color: #0d4678;
+  --mdc-slider-hover-handle-color: #0d4678;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__track {
+  height: 8px;
+  /* Slightly thicker */
+  border-radius: 9999px;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__track--active_fill {
+  background: linear-gradient(90deg, #0d4678, #0d4678);
+  border: none;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__track--inactive {
+  background: #e0e7ff;
+  opacity: 1;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__track--inactive,
+:host ::ng-deep .mat-mdc-slider .mdc-slider__track--active_fill {
+  border-top-width: 0;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__thumb-knob {
+  width: 24px;
+  /* Larger thumb */
+  height: 24px;
+  border: 4px solid #fff;
+  border-radius: 9999px;
+  background: #0d4678;
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4), 0 2px 4px -1px rgba(79, 70, 229, 0.2);
+  transition: transform 0.2s;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__thumb:hover .mdc-slider__thumb-knob {
+  transform: scale(1.1);
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__thumb-knob::after {
+  display: none;
+}
+
+:host ::ng-deep .mat-mdc-slider .mdc-slider__value-indicator-text {
+  font-weight: 600;
+}
+
+::ng-deep .full-bg-readonly .mat-mdc-text-field-wrapper {
+  z-index: 0;
+  background-color: #f8fafc !important;
+  /* Update to slate-50 */
+  cursor: not-allowed;
+}

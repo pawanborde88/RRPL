@@ -1,0 +1,21 @@
+.bank-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .bank-card {
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mat-card-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc0c0;
+    margin-bottom: 10px;
+  }
+  
+  .mat-form-field {
+    width: 100%;
+  }

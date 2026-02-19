@@ -1,0 +1,49 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item">Sales</li>
+        <li class="breadcrumb-item">CP Site Visits</li>
+        <li class="breadcrumb-item active">CP Bill Approved</li>
+    </app-breadcrumb>
+
+    <mat-card>
+        <mat-card-content>
+            <mat-tab-group (selectedTabChange)="onTabChange($event)">
+                <!-- Pending Tab -->
+                <mat-tab label="Pending List">
+
+                    <app-reusable-custom-table [loading]="loading.pending" [headerButtons]="headerButtons"
+                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
+                        (selectedItemsChange)="selectedBooking = $event"
+                        (actionClick)="onBookingAction($event.action, $event.row)" [actions]="bookingActions"
+                        [dataSource]="pendingDataSource" [displayedColumns]="bookingBillsColumns" [showCheckbox]="true"
+                        [showFooter]="true" (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
+                    </app-reusable-custom-table>
+                </mat-tab>
+
+                <!-- Approved Tab -->
+                <mat-tab label="Approved List">
+
+                    <app-reusable-custom-table [loading]="loading.approved" [headerButtons]="headerButtons"
+                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
+                        (selectedItemsChange)="selectedBooking = $event" [actions]="bookingActions"
+                        (actionClick)="onBookingAction($event.action, $event.row)" [dataSource]="approvedDataSource"
+                        [displayedColumns]="bookingBillsColumns" [showCheckbox]="true" [showFooter]="true"
+                        (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
+                    </app-reusable-custom-table>
+                </mat-tab>
+
+                <!-- Rejected Tab -->
+                <mat-tab label="Rejected List">
+
+                    <app-reusable-custom-table [loading]="loading.rejected" [headerButtons]="headerButtons"
+                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
+                        (selectedItemsChange)="selectedBooking = $event" [actions]="bookingActions"
+                        (actionClick)="onBookingAction($event.action, $event.row)" [dataSource]="rejectedDataSource"
+                        [displayedColumns]="bookingBillsColumns" [showCheckbox]="true" [showFooter]="true"
+                        (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
+                    </app-reusable-custom-table>
+                </mat-tab>
+            </mat-tab-group>
+        </mat-card-content>
+    </mat-card>
+</app-template>

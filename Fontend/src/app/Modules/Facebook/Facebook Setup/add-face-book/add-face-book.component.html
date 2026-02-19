@@ -1,0 +1,46 @@
+<h6 mat-dialog-title>
+    {{ isEditMode() ? 'Edit' : 'Add' }} Facebook Form ID
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addFaceBookForm" class="container row mt-1">
+        <app-autocomplete-reusable-component 
+            [options]="projectsList()" 
+            formControlName="project_id" 
+            class="col-md-6"
+            displayKey="property_name" 
+            idKey="project_id" 
+            placeholder="Select Project">
+        </app-autocomplete-reusable-component>
+
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Form ID</mat-label>
+            <input matInput formControlName="form_id" required>
+            <mat-error *ngIf="addFaceBookForm.get('form_id')?.hasError('required') && addFaceBookForm.get('form_id')?.touched">
+                Form ID is required
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Integration Name</mat-label>
+            <input matInput formControlName="integration_name">
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button 
+        (click)="onSubmit()" 
+        mat-raised-button 
+        color="primary" 
+        type="submit" 
+        [disabled]="addFaceBookForm.invalid || isSubmitting()">
+        <span *ngIf="isSubmitting()" class="spinner-container">
+            <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+        </span>
+        {{ isSubmitting() ? 'Saving...' : 'Save' }}
+    </button>
+</mat-dialog-actions>

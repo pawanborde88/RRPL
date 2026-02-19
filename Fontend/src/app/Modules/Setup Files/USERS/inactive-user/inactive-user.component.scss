@@ -1,0 +1,85 @@
+.dialog-container {
+  padding: 0;
+  max-width: 500px;
+  width: 100%;
+}
+
+.dialog-header {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  
+  .user-name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #212529;
+  }
+
+  .close-button {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    color: #6c757d;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+  }
+}
+
+.dialog-content {
+  padding: 1.5rem;
+  
+  .form-container {
+    .mat-form-field {
+      margin-bottom: 1rem;
+    }
+
+    .status-option {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px;
+
+      .status-icon {
+        margin-right: 8px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+.dialog-actions {
+  padding: 1rem;
+  border-top: 1px solid #e9ecef;
+  margin: 0;
+
+  .cancel-button {
+    margin-right: 8px;
+    color: #6c757d;
+  }
+
+  .submit-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 576px) {
+  .dialog-container {
+    width: 95vw;
+  }
+  
+  .dialog-content {
+    padding: 1rem;
+  }
+}

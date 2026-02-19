@@ -1,0 +1,29 @@
+.position-relative {
+  position: relative;
+}
+
+.bhk-select {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 35%;
+  height: 100%;
+}
+
+.bhk-select .mat-form-field-wrapper {
+  padding-bottom: 0;
+}
+
+.bhk-select .mat-form-field-infix {
+  border-top: 0;
+  padding: 0;
+}
+
+.bhk-select .mat-select-arrow-wrapper {
+  transform: translateY(0);
+}
+
+/* Adjust the input field width to make room for the select */
+.w-100 .mat-form-field-infix {
+  width: calc(100% - 35% - 8px); /* 35% for the select, 8px for padding */
+}

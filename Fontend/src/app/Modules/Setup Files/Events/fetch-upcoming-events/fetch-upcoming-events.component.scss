@@ -1,0 +1,29 @@
+::ng-deep {
+    .hide-subscript {
+        .mat-mdc-form-field-subscript-wrapper {
+            display: none !important;
+        }
+
+        .mat-mdc-text-field-wrapper {
+            background-color: white !important;
+            border-radius: 12px !important;
+            transition: all 0.3s ease !important;
+
+            &:hover {
+                background-color: #f8fafc !important;
+            }
+        }
+
+        &.mat-focused {
+            .mat-mdc-text-field-wrapper {
+                background-color: white !important;
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+            }
+        }
+
+        .mat-mdc-form-field-flex {
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+        }
+    }
+}

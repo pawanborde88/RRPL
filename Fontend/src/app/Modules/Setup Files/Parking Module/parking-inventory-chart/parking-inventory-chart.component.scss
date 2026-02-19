@@ -1,0 +1,124 @@
+// Modern and polished styles for parking inventory chart
+// Enhanced with smooth animations and better visual hierarchy
+// Based on inventory-chart.component.scss but optimized for parking
+
+.inventory-table {
+
+    th,
+    td {
+        // Subtle borders for cleaner look
+        border-bottom: 1px solid #f1f5f9;
+        border-right: 1px dashed #e2e8f0;
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+
+    // Modern table styling
+    font-size: 0.75rem;
+}
+
+// Ensure sticky positioning works correctly with Material table
+.mat-column-floor_name {
+    width: 10rem; // Increased width for floor column
+    min-width: 10rem;
+    max-width: 10rem;
+    position: sticky !important;
+    left: 0;
+    z-index: 100 !important;
+    background-color: white;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.mat-header-row {
+    height: 60px; // Slightly taller header
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+// Enhanced unit cell hover effect
+.group {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover {
+        transform: scale(1.08) translateY(-4px);
+        box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15);
+        z-index: 50;
+    }
+
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
+// Filter buttons
+.filter-btn {
+    min-width: 0 !important;
+    padding: 0 12px !important;
+    height: 28px !important;
+    border-radius: 6px !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: -0.01em !important;
+    transition: all 0.2s ease !important;
+    color: #64748b !important;
+
+    &:hover {
+        color: #1e293b !important;
+        background-color: #e2e8f0 !important;
+    }
+}
+
+// Styles for 'invisible' elements to hold space but not show
+.invisible {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+// Scrollbar styling for the table container
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+
+    &:hover {
+        background: #94a3b8;
+    }
+}
+
+// Animations
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+// Custom checkbox peer interaction
+.peer:checked~span {
+    opacity: 1 !important;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .mat-column-floor_name {
+        width: 4rem;
+        min-width: 4rem;
+        max-width: 4rem;
+    }
+}

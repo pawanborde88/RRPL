@@ -1,0 +1,127 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">After Sales</li>
+    <li class="breadcrumb-item ">Payment Collection</li>
+    <li class="breadcrumb-item ">All Slips</li>
+
+  </app-breadcrumb>
+
+
+  <div class="row p-2">
+    <!-- Dynamic column size based on dataSource length -->
+    <div class="col-md-6">
+      <form [formGroup]="addProjectsRecipts" class="banker-form row" (ngSubmit)="onSubmit()">
+        <!-- Project, Wing, Unit -->
+        <app-autocomplete-reusable-component class="col-md-4" [options]="projectsList()" formControlName="project_id"
+          displayKey="property_name" idKey="project_id" placeholder="Select Project">
+        </app-autocomplete-reusable-component>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Select Wing</mat-label>
+          <mat-select formControlName="wing_id">
+            <mat-option *ngFor="let wing of wingsList(); trackBy: trackByWingId" [value]="wing.wing_id">
+              {{ wing.wing_name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <app-autocomplete-reusable-component [options]="unitList()" class="col-md-4" formControlName="floor_unit_id"
+          displayKey="full_name" idKey="floor_unit_id" placeholder="Select Unit">
+        </app-autocomplete-reusable-component>
+
+        <!-- Receipt Details -->
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Receipt Type</mat-label>
+          <mat-select formControlName="receipt_type_id">
+            <mat-option *ngFor="let type of receiptTypeList(); trackBy: trackByReceiptTypeId"
+              [value]="type.receipt_type_id">
+              {{ type.receipt_type }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Receipt Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="receipt_date">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>TRN No</mat-label>
+          <input matInput formControlName="trn_no">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>TRN Date</mat-label>
+          <input matInput [matDatepicker]="trnDatePicker" formControlName="trn_date">
+          <mat-datepicker-toggle matSuffix [for]="trnDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #trnDatePicker></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Amount Details -->
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Received Amount</mat-label>
+          <input matInput formControlName="received_amount" appAmount>
+        </mat-form-field>
+
+        <!-- Payment Details -->
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Payment Mode</mat-label>
+          <mat-select formControlName="payment_mode_id">
+            <mat-option *ngFor="let mode of paymentModeList(); trackBy: trackByPaymentModeId"
+              [value]="mode.payment_mode_id">
+              {{ mode.payment_mode }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <app-autocomplete-reusable-component class="col-md-4" [options]="bankList()" formControlName="bank_id"
+          displayKey="preferred_bank" idKey="preferred_bank_id" placeholder="Select Bank">
+        </app-autocomplete-reusable-component>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Branch</mat-label>
+          <input matInput formControlName="bank_details">
+        </mat-form-field>
+
+
+        <!-- Remarks -->
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Remarks</mat-label>
+          <input matInput type="text" formControlName="remark">
+        </mat-form-field>
+        <!-- File Upload -->
+        <div class="col-md-4 mb-3">
+          <label class="form-label d-block">Attachment</label>
+          <input type="file" class="form-control" (change)="onFileChange($event)" />
+        </div>
+
+
+        <div class="col-md-12 d-flex justify-content-end mt-3">
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="addProjectsRecipts.invalid || isSubmitting()">
+            <span *ngIf="!isSubmitting()">
+              {{ currentReceiptId() ? 'Update Receipt' : 'Submit Receipt' }}
+            </span>
+            <span *ngIf="isSubmitting()">
+              <mat-spinner diameter="20" class="d-inline-block"></mat-spinner>
+              {{ currentReceiptId() ? 'Updating...' : 'Submitting...' }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-md-6">
+      <app-configurable-ag-grid-data [columns]="bookingReciptColumns" [actions]="reciptActions"
+        [headerButtons]="headerButtons" apiEndpoint="fetch_all_booking_receipt" [apiPayload]="agGridPayload()"
+        idProperty="booking_receipt_id" [showCheckbox]="true" (actionClick)="onReciptActions($event.action, $event.row)"
+        (checkboxChange)="onLeadSelectionChange($event.checked, $event.row)"
+        (rowSelected)="onSelectedItemsChange($event)">
+      </app-configurable-ag-grid-data>
+    </div>
+
+  </div>
+
+</app-template>

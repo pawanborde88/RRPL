@@ -1,0 +1,77 @@
+<h6 mat-dialog-title>
+    Add Booking Bill
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addBookingbillform" class="container row">
+        <!-- Bill Number -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Bill Number</mat-label>
+            <input matInput formControlName="bill_no" required>
+            @if (addBookingbillform.get('bill_no')?.hasError('required') && addBookingbillform.get('bill_no')?.touched)
+            {
+            <mat-error>Bill number is required</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Basic Bill Amount -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Basic Bill Amount</mat-label>
+            <input matInput type="number" formControlName="basic_bill_amount" required>
+            @if (addBookingbillform.get('basic_bill_amount')?.hasError('required') &&
+            addBookingbillform.get('basic_bill_amount')?.touched) {
+            <mat-error>Basic bill amount is required</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- GST -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>GST</mat-label>
+            <input matInput type="number" formControlName="gst">
+        </mat-form-field>
+
+        <!-- Total Bill -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Total Bill</mat-label>
+            <input matInput type="number" formControlName="total_bill" required>
+            @if (addBookingbillform.get('total_bill')?.hasError('required') &&
+            addBookingbillform.get('total_bill')?.touched) {
+            <mat-error>Total bill is required</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Status -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="booking_bill_status_id">
+                <mat-option [value]="1">Active</mat-option>
+                <mat-option [value]="2">Inactive</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <!-- Attachment -->
+        <div class="col-md-6">
+            <label class="form-label d-block">Attachment</label>
+            <input type="file" class="form-control" (change)="onFileChange($event)"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
+            @if (selectedFile()) {
+            <small class="text-muted">Selected: {{ selectedFile()?.name }}</small>
+            }
+        </div>
+
+        <!-- Remark -->
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Remark</mat-label>
+            <textarea matInput formControlName="remark" rows="3"></textarea>
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onSubmit()" type="submit" >
+        {{ submitButtonText() }}
+    </button>
+</mat-dialog-actions>

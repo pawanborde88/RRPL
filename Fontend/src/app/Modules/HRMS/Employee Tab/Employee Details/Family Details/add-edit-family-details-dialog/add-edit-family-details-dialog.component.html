@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form [formGroup]="familyDeatilsForm" >
+  <mat-dialog-content>
+    <div class="row">
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Relation</mat-label>
+        <input matInput formControlName="relation" aria-label="Relation">
+        <mat-error *ngIf="familyDeatilsForm.controls['relation'].hasError('required')">
+          Relation is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="first_name" aria-label="First Name">
+        <mat-error *ngIf="familyDeatilsForm.controls['first_name'].hasError('required')">
+          First Name is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="last_name" aria-label="Last Name">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone" aria-label="Phone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-8">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" aria-label="Email">
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+
+
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button (click)="submit()"
+      mat-raised-button
+      color="primary"
+      [disabled]="uploading || familyDeatilsForm.invalid || invalidDateRange">
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

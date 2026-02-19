@@ -1,0 +1,110 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">After Sales</li>
+        <li class="breadcrumb-item ">Reports</li>
+
+        <li class="breadcrumb-item active"> MIS Report</li>
+    </app-breadcrumb>
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <form [formGroup]="misReportFilterForm" class="w-100 g-3">
+                <div class="row">
+                    <!-- Project Dropdown -->
+                    <div class="col-md-2">
+                        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                            displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+
+                    <!-- Wing Dropdown -->
+                    <mat-form-field appearance="outline" class="col-md-2">
+                        <mat-label>Select Wing</mat-label>
+                        <mat-select formControlName="wing_id" [disabled]="!hasSelectedProject() || !hasWings()">
+                            <mat-option *ngFor="let wing of allWingslist()" [value]="wing.wing_id">
+                                {{ wing.wing_name }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Sales Executive Dropdown -->
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
+                        formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+                        [isMultiSelect]="true" placeholder="Select Sales Executive"
+                        [disabled]="!hasSelectedProject() || !hasSalesExecutives()">
+                    </app-autocomplete-reusable-component>
+
+                    <!-- Channel Partner Dropdown -->
+                    <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-2"
+                        formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+                        placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+                    </app-autocomplete-reusable-component>
+
+                    <!-- Booking Status Dropdown -->
+                    <mat-form-field appearance="outline" class="col-md-2">
+                        <mat-label>Booking Status</mat-label>
+                        <mat-select formControlName="booking_status_id" multiple>
+                            <mat-option [value]="1">Book</mat-option>
+                            <mat-option [value]="2">Cancelled</mat-option>
+                            <mat-option [value]="0">Both</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Agreement Status Dropdown -->
+                    <mat-form-field appearance="outline" class="col-md-2">
+                        <mat-label>Agreement Status</mat-label>
+                        <mat-select formControlName="agreement_status_id" multiple>
+                            <mat-option [value]="1">Done</mat-option>
+                            <mat-option [value]="0">Pending</mat-option>
+                            <mat-option [value]="2">Both</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Disbursement Status Dropdown -->
+                    <mat-form-field appearance="outline" class="col-md-2">
+                        <mat-label>Disbursement Status</mat-label>
+                        <mat-select formControlName="disbursement_status_id" multiple>
+                            <mat-option [value]="1">Done</mat-option>
+                            <mat-option [value]="0">Pending</mat-option>
+                            <mat-option [value]="2">Both</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Date Range -->
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Date Range</mat-label>
+                            <mat-date-range-input [rangePicker]="datePicker">
+                                <input matStartDate formControlName="start_date" placeholder="Start date">
+                                <input matEndDate formControlName="end_date" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #datePicker></mat-date-range-picker>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Apply Filter Button -->
+                    <div class="col-md-auto">
+                        <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                            [disabled]="misReportFilterForm.get('project_id')?.invalid" (click)="fetchMISReport()">
+                            <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </mat-expansion-panel>
+    </mat-accordion>
+
+
+    <app-configurable-ag-grid-data [columns]="displayedColumns" [apiEndpoint]="'fetch_all_marketing_mis_report'"
+        [apiMethod]="'POST'" [showCheckbox]="false" [apiPayload]="getAgGridPayload()" [cacheBlockSize]="100"
+        [idProperty]="'booking_id'">
+    </app-configurable-ag-grid-data>
+
+</app-template>

@@ -1,0 +1,25 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">After Sales</li>
+    <li class="breadcrumb-item active">Template Management</li>
+  </app-breadcrumb>
+
+  <mat-card>
+    <mat-card-header>
+
+
+      <app-autocomplete-reusable-component class="w-25" [options]="projectsList" idKey="project_id"
+        displayKey="property_name" placeholder="Select Project"
+        (selectedIdChange)="onProjectChange($event)"></app-autocomplete-reusable-component>
+    </mat-card-header>
+    <mat-card-content>
+
+      <app-reusable-custom-table [loading]="loading" [headerButtons]="headerButtons" [dataSource]="dataSource"
+        [displayedColumns]="displayedColumns" [actions]="projectActions" [showFooter]="true"
+        (actionClick)="onProjectAction($event.action, $event.row)"
+        (checkboxChange)="toggleSelection($event.checked, $event.row)">
+
+      </app-reusable-custom-table>
+    </mat-card-content>
+  </mat-card>
+</app-template>

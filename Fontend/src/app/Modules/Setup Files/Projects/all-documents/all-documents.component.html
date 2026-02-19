@@ -1,0 +1,95 @@
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-1">
+  <!-- Documents Section -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between mb-2 px-1">
+      <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 m-0">
+        <div class="p-1.5 bg-blue-50 rounded-lg">
+          <mat-icon class="text-blue-600 !flex items-center justify-center !text-[20px]">folder_shared</mat-icon>
+        </div>
+        Project Documents
+      </h2>
+      <button *ngIf="allProjectDocuments && allProjectDocuments.length > 0" mat-flat-button color="primary"
+        (click)="addDocument('add')"
+        class="!rounded-lg !px-4 !h-9 !leading-9 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95">
+        <div class="flex items-center gap-1.5">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">upload_file</mat-icon>
+          <span class="text-xs font-medium">Upload Document</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Document List Card -->
+    <div *ngIf="allProjectDocuments && allProjectDocuments.length > 0; else noDocuments"
+      class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden ring-1 ring-slate-900/5">
+      <div class="divide-y divide-slate-50">
+        <div *ngFor="let doc of allProjectDocuments"
+          class="group flex items-center justify-between p-3.5 hover:bg-slate-50/80 transition-all duration-200">
+          <div class="flex items-center gap-4 min-w-0 flex-1">
+            <div
+              class="w-11 h-11 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all duration-300">
+              <mat-icon class="!text-[22px]">description</mat-icon>
+            </div>
+            <div class="flex flex-col min-w-0">
+              <a [href]="storageUrl + '/' + doc.project_attachment" target="_blank"
+                class="text-sm font-semibold text-slate-700 hover:text-blue-600 truncate no-underline transition-colors decoration-blue-500/30 underline-offset-4 hover:underline">
+                {{doc.name}}
+              </a>
+              <div class="flex items-center gap-2 mt-1">
+                <span
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-[9px] font-bold text-slate-500 uppercase tracking-wider ring-1 ring-inset ring-slate-200">
+                  {{ doc.project_attachment.split('.').pop() }}
+                </span>
+                <span class="text-[10px] text-slate-400">Project File</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 pl-4">
+            <button mat-icon-button color="warn"
+              (click)="$event.stopPropagation(); deleteDocument(doc.project_attachment_id)"
+              class="!w-9 !h-9 !leading-9 !rounded-lg hover:!bg-red-50 group-hover:opacity-100 opacity-40 transition-all duration-200">
+              <mat-icon class="!text-[18px]">delete_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Action for Compact View -->
+      <div class="bg-slate-50/50 p-2 border-t border-slate-100">
+        <button mat-button color="primary" (click)="addDocument('add')"
+          class="!w-full !rounded-lg !text-xs !py-1 transition-colors hover:bg-white">
+          <mat-icon class="!text-[16px] !w-[16px] !h-[16px] mr-1">add_circle_outline</mat-icon>
+          Add Another Attachment
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <ng-template #noDocuments>
+      <div
+        class="flex flex-col items-center justify-center p-12 bg-white rounded-xl border-2 border-dashed border-slate-200 text-slate-500 hover:border-blue-200 hover:bg-blue-50/10 transition-all duration-300">
+        <div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-6 relative">
+          <mat-icon class="text-slate-300 !text-[40px] !w-[40px] !h-[40px]">file_upload</mat-icon>
+          <div
+            class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
+            <mat-icon class="text-blue-500 !text-[18px] !w-[18px] !h-[18px]">add</mat-icon>
+          </div>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 mb-2">No documents stored</h3>
+        <p class="text-sm text-slate-400 mb-8 text-center max-w-[280px] leading-relaxed">
+          It looks like you haven't uploaded any documents for this project yet. Centralize your files here.
+        </p>
+        <button mat-flat-button color="primary" (click)="addDocument('add')"
+          class="!rounded-xl !px-8 !h-11 !text-sm shadow-lg shadow-blue-200">
+          <mat-icon class="mr-2">cloud_upload</mat-icon>
+          Upload Your First Document
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Links Section -->
+  <div class="space-y-4">
+    <app-all-links [projectID]="projectID"></app-all-links>
+  </div>
+</div>

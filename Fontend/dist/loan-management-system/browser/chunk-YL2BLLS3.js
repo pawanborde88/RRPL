@@ -1,0 +1,1 @@
+import{ua as i}from"./chunk-HNEDXOKI.js";var o=(()=>{let t=class t{transform(r,e){return r?r.length>e?r.substring(0,e)+"...":r:""}};t.\u0275fac=function(e){return new(e||t)},t.\u0275pipe=i({name:"truncate",type:t,pure:!0,standalone:!0});let n=t;return n})();export{o as a};

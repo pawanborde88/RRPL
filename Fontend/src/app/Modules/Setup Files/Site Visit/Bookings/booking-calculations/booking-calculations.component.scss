@@ -1,0 +1,11 @@
+::ng-deep .full-bg-readonly .mat-mdc-text-field-wrapper {
+    width: 100%;
+    z-index: 0;
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+}
+.missing-fields-tooltip {
+    background: #f44336;
+    font-size: 14px;
+    max-width: unset !important;
+  }

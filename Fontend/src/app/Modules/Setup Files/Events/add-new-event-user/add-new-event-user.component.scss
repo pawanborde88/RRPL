@@ -1,0 +1,171 @@
+.dense-form-field {
+    width: 100%;
+    transition: transform 0.2s ease-in-out;
+
+    ::v-deep {
+        .mat-mdc-text-field-wrapper {
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+            background-color: #f8fafc !important; // slate-50
+            border-radius: 16px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #e2e8f0 !important; // slate-200
+        }
+
+        .mat-mdc-form-field-flex {
+            height: 56px !important;
+            align-items: center !important;
+        }
+
+        .mat-mdc-form-field-infix {
+            padding-top: 12px !important;
+            padding-bottom: 12px !important;
+            min-height: unset !important;
+        }
+
+        .mdc-notched-outline__inner {
+            display: none !important; // Hide default outline for custom look
+        }
+
+        .mat-mdc-form-field-icon-prefix {
+            padding: 0 16px 0 4px !important;
+            display: flex;
+            align-items: center;
+            color: #94a3b8 !important; // slate-400
+            transition: color 0.3s ease;
+        }
+
+        .mat-mdc-form-field-subscript-wrapper {
+            font-size: 10px !important;
+            font-weight: 600 !important;
+            margin-top: 6px !important;
+            padding-left: 4px !important;
+        }
+
+        // Label styling
+        .mdc-floating-label {
+            font-size: 14px !important;
+            color: #64748b !important; // slate-500
+            font-weight: 500 !important;
+            top: 28px !important;
+        }
+    }
+
+    &:hover {
+        ::v-deep .mat-mdc-text-field-wrapper {
+            background-color: #f1f5f9 !important; // slate-100
+            border-color: #cbd5e1 !important; // slate-300
+        }
+    }
+
+    &.mat-focused {
+        ::v-deep {
+            .mat-mdc-text-field-wrapper {
+                background-color: #ffffff !important;
+                border-color: #0ea5e9 !important; // sky-500
+                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
+            }
+
+            .mat-mdc-form-field-icon-prefix {
+                color: #0ea5e9 !important;
+            }
+
+            .mdc-floating-label {
+                color: #0ea5e9 !important;
+            }
+        }
+    }
+}
+
+// Special scale animation for form fields
+.scale-hover {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:hover:not(.mat-focused) {
+        transform: translateY(-2px);
+    }
+}
+
+// Sidebar background decoration
+.lg\:w-2\/5 {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, #e2e8f0, transparent);
+    }
+}
+
+// Unified card shadow and border radius
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.08) !important;
+}
+
+// Custom button styling and animation
+button[type="submit"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: 0.6s;
+    }
+
+    &:hover:not(:disabled) {
+        transform: scale(1.02) translateY(-2px);
+        background-color: #0ea5e9 !important; // sky-500
+
+        &::before {
+            transform: translateX(100%);
+        }
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+}
+
+// Mat-Spinner styling
+::v-deep .mat-mdc-progress-spinner circle {
+    stroke: white !important;
+}
+
+// Divider styling
+.h-px {
+    background-color: #e2e8f0;
+}
+
+// Global typography tweaks
+:host {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+.tracking-widest {
+    letter-spacing: 0.1em;
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
+    .lg\:w-2\/5 {
+        &::after {
+            display: none;
+        }
+    }
+}

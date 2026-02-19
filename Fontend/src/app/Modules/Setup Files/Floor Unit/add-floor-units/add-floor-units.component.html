@@ -1,0 +1,58 @@
+<h2 mat-dialog-title> Add Floor Unit
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+      <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addFloorUnit" (ngSubmit)="onSubmit()" class="row g-3 align-items-center">
+      <!-- Channel Partner (Project ID) -->
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Select Project</mat-label>
+        <mat-select formControlName="project_id">
+          <mat-option *ngFor="let project of projectsList" [value]="project.project_id">
+            {{ project.property_name }}
+          </mat-option>
+        </mat-select>
+     
+      </mat-form-field>
+  
+      <!-- Wing -->
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Select Wing</mat-label>
+        <mat-select formControlName="wing_id">
+            <mat-option *ngFor="let allwings of allWingslist" [value]="allwings.wing_id">
+                {{ allwings.wing_name }}
+            </mat-option>
+        </mat-select>
+        
+    </mat-form-field>
+  
+      <!-- Floor Unit -->
+      <mat-form-field appearance="outline" class="col-md-6">
+        <mat-label>Floor Unit</mat-label>
+        <input matInput type="number" formControlName="floor_unit" />
+    
+      </mat-form-field>
+  
+   
+  
+      <!-- Active Status -->
+      <mat-form-field appearance="outline" class="col-md-6">
+        <mat-label>Active Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="0">Inactive</mat-option>
+        </mat-select>
+    
+      </mat-form-field>
+  
+      <!-- Submit and Cancel Buttons -->
+      <mat-dialog-actions align="end">
+        <button mat-raised-button color="primary" type="submit">
+          Save
+        </button>
+     
+      </mat-dialog-actions>
+    </form>
+  </mat-dialog-content>
+  

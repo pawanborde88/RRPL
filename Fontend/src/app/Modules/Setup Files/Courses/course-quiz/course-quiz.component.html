@@ -1,0 +1,315 @@
+<h2 mat-dialog-title>{{ quizTitle }} 
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+</button>
+</h2>
+
+<!-- Dialog Content -->
+<mat-dialog-content class="dialog-content">
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-container text-center py-4">
+    <mat-spinner diameter="50" class="mx-auto mb-2"></mat-spinner>
+    <p class="text-muted">Loading quiz questions...</p>
+  </div>
+
+  <!-- Quiz Questions Section -->
+  <div *ngIf="!quizSubmitted && !loading">
+    <!-- Progress Info & Question Navigator -->
+    <div *ngIf="questions.length > 0" class="mb-3">
+      <!-- Progress Bar -->
+      <div class="progress-header mb-2">
+        <div class="progress-main">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <mat-icon class="text-primary">analytics</mat-icon>
+            <span class="fw-semibold">Progress: {{ getAnsweredCount() }} / {{ questions.length }}</span>
+          </div>
+          <mat-progress-bar 
+            mode="determinate" 
+            [value]="(getAnsweredCount() / questions.length) * 100"
+            class="progress-bar-main">
+          </mat-progress-bar>
+        </div>
+      </div>
+
+   
+    </div>
+
+    <!-- No Questions Message -->
+    <div *ngIf="questions.length === 0" class="empty-state text-center py-4">
+      <div class="empty-icon mb-2">
+        <mat-icon>quiz</mat-icon>
+      </div>
+      <h4 class="mb-2">No Questions Available</h4>
+      <p class="text-muted mb-3">This quiz doesn't have any questions yet.</p>
+      <button mat-raised-button color="primary" (click)="closeDialog()">
+        <mat-icon class="me-2">arrow_back</mat-icon>
+        Close
+      </button>
+    </div>
+
+    <!-- Current Question -->
+    <div *ngIf="questions.length > 0" class="question-container">
+      <mat-card class="question-card" [@slideAnimation]>
+        <!-- Question Header -->
+        <mat-card-header class="question-header">
+          <div class="row align-items-start w-100 g-1">
+            <div class="col-12 col-md-10">
+              <div class="question-number mb-1">
+                <mat-chip class="question-chip">Question {{ currentQuestionIndex + 1 }}</mat-chip>
+              </div>
+              <h3 class="question-text mb-0">
+                {{ getCurrentQuestion().question }}
+              </h3>
+            </div>
+            <div class="col-12 col-md-2 text-md-end">
+              <div class="points-badge">
+                <mat-icon class="star-icon">star</mat-icon>
+                <span class="points-text">{{ getCurrentQuestion().points }} pts</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-header>
+
+        <!-- Options -->
+        <mat-card-content class="options-container">
+          <mat-radio-group 
+            [(ngModel)]="selectedAnswers[getCurrentQuestion().id]" 
+            [disabled]="isQuestionLocked(getCurrentQuestion().id)"
+            class="options-group">
+            <div *ngFor="let opt of getCurrentQuestion().options; let j = index" 
+                 class="option-item"
+                 [class.selected]="selectedAnswers[getCurrentQuestion().id] === opt.id"
+                 [class.locked]="isQuestionLocked(getCurrentQuestion().id)"
+                 (click)="!isQuestionLocked(getCurrentQuestion().id) && onOptionClick(getCurrentQuestion(), opt.id)">
+              <div class="option-content">
+                <mat-radio-button 
+                  [value]="opt.id" 
+                  (change)="onOptionSelected(getCurrentQuestion(), opt.id)"
+                  class="option-radio">
+                  <div class="option-label">
+                    <span class="option-letter">{{ getOptionLetter(j) }}</span>
+                    <span class="option-text">{{ opt.text }}</span>
+                  </div>
+                </mat-radio-button>
+                <mat-icon *ngIf="selectedAnswers[getCurrentQuestion().id] === opt.id" class="check-icon">
+                  check_circle
+                </mat-icon>
+              </div>
+            </div>
+          </mat-radio-group>
+
+          <!-- Locked Message -->
+          <div *ngIf="isQuestionLocked(getCurrentQuestion().id)" class="locked-message">
+            <mat-icon>lock</mat-icon>
+            <span>This question is locked. You cannot change your answer.</span>
+          </div>
+
+          <!-- Helper Text -->
+          <div *ngIf="!isQuestionLocked(getCurrentQuestion().id) && !selectedAnswers[getCurrentQuestion().id]" 
+               class="helper-text">
+            <mat-icon>touch_app</mat-icon>
+            <span>Select an option to answer this question</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Congratulations Section (After Submission) -->
+  <div *ngIf="quizSubmitted && quizResults" class="congratulations-section" [@fadeInAnimation]>
+    <div class="container">
+      <!-- Success Icon -->
+      <div class="success-icon-wrapper mb-2">
+        <mat-icon class="success-icon">celebration</mat-icon>
+      </div>
+
+      <!-- Congratulations Message -->
+      <h2 class="congratulations-title mb-1">🎉 Congratulations! 🎉</h2>
+      <p class="subtitle mb-3">You have successfully completed the quiz!</p>
+
+      <!-- Results Card -->
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          <mat-card class="results-card mb-3">
+            <mat-card-content class="results-content">
+              <!-- Score Circle -->
+              <div class="score-circle mx-auto mb-3">
+                <svg class="score-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                  </defs>
+                  <circle class="score-bg" cx="100" cy="100" r="90"></circle>
+                  <circle 
+                    class="score-progress" 
+                    cx="100" 
+                    cy="100" 
+                    r="90"
+                    [style.strokeDashoffset]="565 - (565 * quizResults.percentage / 100)">
+                  </circle>
+                </svg>
+                <div class="score-content">
+                  <div class="percentage">{{ quizResults.percentage }}%</div>
+                  <div class="label">Your Score</div>
+                </div>
+              </div>
+
+              <!-- Progress Details Grid -->
+              <div class="row g-2 mb-3">
+                <div class="col-6 col-md-3">
+                  <div class="stat-card stat-primary">
+                    <mat-icon class="stat-icon">quiz</mat-icon>
+                    <div class="stat-value">{{ quizResults.totalQuestions }}</div>
+                    <div class="stat-label">Total Questions</div>
+                  </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                  <div class="stat-card stat-success">
+                    <mat-icon class="stat-icon">check_circle</mat-icon>
+                    <div class="stat-value">{{ quizResults.correctAnswers }}</div>
+                    <div class="stat-label">Correct</div>
+                  </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                  <div class="stat-card stat-danger">
+                    <mat-icon class="stat-icon">cancel</mat-icon>
+                    <div class="stat-value">{{ quizResults.wrongAnswers }}</div>
+                    <div class="stat-label">Wrong</div>
+                  </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                  <div class="stat-card stat-warning">
+                    <mat-icon class="stat-icon">stars</mat-icon>
+                    <div class="stat-value">{{ quizResults.totalPoints }}</div>
+                    <div class="stat-label">Points</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="result-progress">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="progress-label">
+                    <mat-icon class="me-1">trending_up</mat-icon>
+                    Accuracy
+                  </span>
+                  <span class="progress-value">{{ quizResults.correctAnswers }} / {{ quizResults.totalQuestions }}</span>
+                </div>
+                <mat-progress-bar 
+                  mode="determinate" 
+                  [value]="quizResults.percentage"
+                  [color]="quizResults.percentage >= 80 ? 'primary' : quizResults.percentage >= 60 ? 'accent' : 'warn'"
+                  class="custom-progress-bar">
+                </mat-progress-bar>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+      <!-- Motivational Message -->
+      <div class="motivational-message">
+        <div *ngIf="quizResults.percentage >= 80" class="message-card message-excellent">
+          <mat-icon class="message-icon">emoji_events</mat-icon>
+          <div class="message-content">
+            <h4>Excellent Work!</h4>
+            <p>You've mastered this quiz! Outstanding performance! 🌟</p>
+          </div>
+        </div>
+        <div *ngIf="quizResults.percentage >= 60 && quizResults.percentage < 80" class="message-card message-good">
+          <mat-icon class="message-icon">thumb_up</mat-icon>
+          <div class="message-content">
+            <h4>Good Job!</h4>
+            <p>Keep up the great work! You're on the right track! 👏</p>
+          </div>
+        </div>
+        <div *ngIf="quizResults.percentage < 60" class="message-card message-practice">
+          <mat-icon class="message-icon">psychology</mat-icon>
+          <div class="message-content">
+            <h4>Keep Practicing!</h4>
+            <p>Don't give up! You'll do better next time! 💪</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<!-- Dialog Actions -->
+<mat-dialog-actions class="dialog-actions">
+  <div class="container-fluid">
+    <!-- Quiz Not Submitted - Show Navigation -->
+    <div *ngIf="!quizSubmitted && !loading" class="row align-items-center g-1">
+      <!-- Status Message -->
+      <div class="col-12 col-md-6 order-2 order-md-1">
+        <div class="status-message">
+          <div *ngIf="!hasAnsweredAll()" class="status-warning">
+            <mat-icon>info</mat-icon>
+            <span>{{ getAnsweredCount() }} of {{ questions.length }} answered</span>
+          </div>
+          <div *ngIf="hasAnsweredAll()" class="status-success">
+            <mat-icon>check_circle</mat-icon>
+            <span>All questions answered! Ready to submit.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <div class="col-12 col-md-6 order-1 order-md-2">
+        <div class="d-flex gap-2 justify-content-md-end">
+          <!-- Previous Button -->
+          <button 
+            mat-raised-button 
+            (click)="previousQuestion()"
+            [disabled]="isFirstQuestion()"
+            class="nav-btn">
+            <mat-icon>navigate_before</mat-icon>
+            <span class="d-none d-sm-inline">Previous</span>
+          </button>
+
+          <!-- Next Button (shown when not on last question) -->
+          <button 
+            *ngIf="!isLastQuestion()"
+            mat-raised-button 
+            color="accent"
+            (click)="nextQuestion()"
+            class="nav-btn">
+            <span class="d-none d-sm-inline">Next</span>
+            <mat-icon>navigate_next</mat-icon>
+          </button>
+
+          <!-- Submit Button (shown on last question) -->
+          <button 
+            *ngIf="isLastQuestion()"
+            mat-raised-button 
+            color="primary" 
+            (click)="submitAnswers()"
+            [disabled]="!hasAnsweredAll()"
+            class="submit-btn">
+            <mat-icon class="me-1">send</mat-icon>
+            Submit Quiz
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Submitted - Show Close Button -->
+    <div *ngIf="quizSubmitted" class="row">
+      <div class="col-12 text-center">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="closeDialog()"
+          class="close-result-btn">
+          <mat-icon class="me-2">check_circle</mat-icon>
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-dialog-actions>

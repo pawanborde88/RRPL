@@ -1,0 +1,52 @@
+<app-template>
+  <app-breadcrumb>
+
+    <li class="breadcrumb-item active">Meta Setup</li>
+
+    <li class="breadcrumb-item active">All faceBook List</li>
+  </app-breadcrumb>
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+        <!-- Row for Dropdowns and Date Filter -->
+        <div class="row">
+          <div class="col-md-3">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+
+
+
+          <!-- <div class="col-md-2 d-flex align-items-center">
+                    <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+                  </div> -->
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" (click)="fetchAllFaceBookList()"
+              class="d-flex align-items-center w-100"
+              [disabled]="!enquiryFilterForm.get('project_id')?.value || enquiryFilterForm.get('project_id')?.value?.length === 0 || enquiryFilterForm.get('project_id')?.invalid">
+              Apply
+            </button>
+          </div>
+        </div>
+      </form>
+
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_facebook_setup'"
+    [apiMethod]="'POST'" [apiPayload]="agGridPayload()" [actions]="bookingActions" [headerButtons]="headerButtons"
+    [idProperty]="'facebook_setup_id'" [cacheBlockSize]="100" [autoLoad]="false"
+    (actionClick)="onBookingAction($event.action, $event.row)">
+  </app-configurable-ag-grid-data>
+
+</app-template>

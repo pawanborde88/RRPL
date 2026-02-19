@@ -1,0 +1,88 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">Channel Partner</li>
+    <li class="breadcrumb-item ">CP Visits</li>
+
+    <li class="breadcrumb-item active">CP Site Visit Report</li>
+  </app-breadcrumb>
+
+
+  <mat-tab-group>
+    <!-- List Tab -->
+    <mat-tab label="CP Enquiry List">
+      <mat-accordion class="w-100 mb-2">
+        <mat-expansion-panel hideToggle [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Advanced Filters</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+            <!-- Row for Dropdowns and Date Filter -->
+            <div class="row">
+              <div class="col-md-3">
+                <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                  displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+                </app-autocomplete-reusable-component>
+              </div>
+
+
+
+              <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-3"
+                formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+                placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+                <!-- event handler -->
+              </app-autocomplete-reusable-component>
+
+
+
+
+
+              <div class="col-md-2">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>Date</mat-label>
+                  <mat-date-range-input [rangePicker]="followUpDatePicker"
+                    [disabled]="enquiryFilterForm.get('ignore_date_filters')?.value">
+                    <input formControlName="start_date" matStartDate placeholder="Start date">
+                    <input formControlName="end_date" matEndDate placeholder="End date">
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+                  <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
+
+              <div class="col-md-2">
+                <button mat-raised-button color="primary" (click)="fetchAllEnquiry()"
+                  class="d-flex align-items-center w-100" [disabled]="enquiryFilterForm.get('project_id')?.invalid">
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </form>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <app-configurable-ag-grid-data [columns]="displayedColumns" [apiEndpoint]="'fetch_project_enquiries'"
+        [apiMethod]="'POST'" [apiPayload]="agGridPayload()" [cacheBlockSize]="100">
+      </app-configurable-ag-grid-data>
+
+    </mat-tab>
+
+    <!-- Booking List Tab -->
+    <mat-tab label="CP Booking List">
+      <mat-card>
+        <mat-card-content>
+          <app-all-cpbooking-list></app-all-cpbooking-list>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+
+    <!-- Bill List Tab -->
+    <mat-tab label="Bill List">
+      <mat-card>
+        <mat-card-content>
+          <app-all-bills></app-all-bills>
+        </mat-card-content>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+
+</app-template>

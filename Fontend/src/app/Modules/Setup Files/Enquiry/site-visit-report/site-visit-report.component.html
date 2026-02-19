@@ -1,0 +1,77 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">Sales</li>
+
+        <li class="breadcrumb-item active">All Site Visits Report</li>
+    </app-breadcrumb>
+    <mat-card>
+
+        <mat-card-header class="d-flex flex-column mb-2">
+            <mat-accordion>
+                <mat-expansion-panel hideToggle [expanded]="true"> <mat-panel-title> Advanced Filters
+                    </mat-panel-title>
+
+                    <mat-expansion-panel-header>
+
+                        <mat-panel-title> Advanced Filters </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+                        <!-- Row for Dropdowns and Date Filter -->
+                        <div class="row">
+                            <div class="col-md-2">
+                                <app-autocomplete-reusable-component formControlName="project_id"
+                                    [options]="projectsList" displayKey="property_name" idKey="project_id"
+                                    [isMultiSelect]="true" placeholder="Select Project">
+                                </app-autocomplete-reusable-component>
+                            </div>
+
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Date</mat-label>
+                                    <mat-date-range-input [rangePicker]="followUpDatePicker"
+                                        [disabled]="enquiryFilterForm.get('ignore_date_filters')?.value">
+                                        <input formControlName="start_date" matStartDate placeholder="Start date">
+                                        <input formControlName="end_date" matEndDate placeholder="End date">
+                                    </mat-date-range-input>
+                                    <mat-datepicker-toggle matIconSuffix
+                                        [for]="followUpDatePicker"></mat-datepicker-toggle>
+                                    <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-center">
+                                <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+                            </div>
+                            <div class="col-md-2">
+                                <button mat-raised-button color="primary" (click)="fetchAllEnquiry()"
+                                    class="d-flex align-items-center w-100"
+                                    [disabled]="!enquiryFilterForm.get('project_id')?.value">
+                                    Apply Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </mat-expansion-panel>
+            </mat-accordion>
+        </mat-card-header>
+
+        <mat-card-content>
+
+            <app-reusable-custom-table [loading]="loading" [virtualScrolling]="true" [dataSource]="dataSource"
+                [showPaginator]="false" [paginationOffset]="paginationParams.offset"
+                [displayedColumns]="displayedColumns" [actions]="enquiryActions" [itemSize]="52" [initialLoadCount]="50"
+                [pageSize]="paginationParams.limit" [showFooter]="true"
+                (actionClick)="getLeadActions($event.action, $event.row)">
+            </app-reusable-custom-table>
+
+            <app-pagination [currentPage]="paginationParams.offset / paginationParams.limit + 1"
+                [totalItems]="totalItems" [pageSize]="paginationParams.limit"
+                [filteredCount]="paginationParams.filteredCount" [pageSizeOptions]="[10, 20, 30,50,100, 'All']"
+                [showPageSize]="true" (pageSizeChange)="onPageSizeChange($event)">
+            </app-pagination>
+
+        </mat-card-content>
+    </mat-card>
+</app-template>

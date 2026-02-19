@@ -1,0 +1,46 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a routerLink="/role-permission">Role Permission</a></li>
+    <li class="breadcrumb-item active">Edit Role Permission</li>
+
+  </app-breadcrumb>
+
+  <form [formGroup]="editPermissionForm" (ngSubmit)="onSubmit()">
+    <div class="row gx-4 my-5">
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Roles </mat-label>
+        <input readonly matInput formControlName="role_name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Permission Name </mat-label>
+        <input readonly matInput formControlName="permission_name" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Valid From</mat-label>
+        <input matInput formControlName="valid_from" [matDatepicker]="valid_from_picker" placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle matSuffix [for]="valid_from_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_from_picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Valid To</mat-label>
+        <input matInput formControlName="valid_till" [matDatepicker]="valid_till_picker" placeholder="MM/DD/YYYY">
+        <mat-datepicker-toggle matSuffix [for]="valid_till_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_till_picker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="2">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-auto ms-auto">
+        <button color="primary" type="submit" [disabled]="editPermissionForm.invalid " mat-raised-button>Update</button>
+      </div>
+    </div>
+  </form>
+
+</app-template>

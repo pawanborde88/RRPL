@@ -1,0 +1,100 @@
+<h4 mat-dialog-title>Add Demand Generation
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h4>
+
+<mat-dialog-content>
+    <form [formGroup]="addDemandGenerationForm" class="row g-3 align-items-end">
+        <!-- Date Field -->
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Installment/Demand Date</mat-label>
+            <input matInput [matDatepicker]="bookingDate" formControlName="installment_date" required>
+            <mat-datepicker-toggle matSuffix [for]="bookingDate"></mat-datepicker-toggle>
+            <mat-datepicker #bookingDate></mat-datepicker>
+            <mat-error
+                *ngIf="addDemandGenerationForm.get('installment_date')?.hasError('required') && addDemandGenerationForm.get('installment_date')?.touched">
+                Date is required
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Project Dropdown -->
+        <div class="col-md-4">
+            <app-autocomplete-reusable-component [options]="projects()" formControlName="project_id"
+                displayKey="property_name" idKey="project_id" placeholder="Select Project" [required]="true"
+                class="w-100">
+            </app-autocomplete-reusable-component>
+        </div>
+
+        <!-- Wing Dropdown -->
+        <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Select Wing</mat-label>
+                <mat-select formControlName="wing_id" required>
+                    <mat-option *ngFor="let wing of wings()" [value]="wing.wing_id">
+                        {{ wing.wing_name }}
+                    </mat-option>
+                </mat-select>
+                <mat-error
+                    *ngIf="addDemandGenerationForm.get('wing_id')?.hasError('required') && addDemandGenerationForm.get('wing_id')?.touched">
+                    Wing is required
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Agreement Status -->
+        <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Agreement Status</mat-label>
+                <mat-select formControlName="agreement_status_id" required>
+                    <mat-option [value]="1">Done</mat-option>
+                    <mat-option [value]="2">Not Done</mat-option>
+                </mat-select>
+                <mat-error
+                    *ngIf="addDemandGenerationForm.get('agreement_status_id')?.hasError('required') && addDemandGenerationForm.get('agreement_status_id')?.touched">
+                    Agreement status is required
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Stages Dropdown -->
+        <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Select Stages</mat-label>
+                <mat-select formControlName="stage_id" required>
+                    <mat-option *ngFor="let stage of stages()" [value]="stage.payment_stage_id">
+                        {{ stage.payment_stage }} - ({{ stage.percentage }}%)
+                    </mat-option>
+                </mat-select>
+                <mat-error
+                    *ngIf="addDemandGenerationForm.get('stage_id')?.hasError('required') && addDemandGenerationForm.get('stage_id')?.touched">
+                    Stage is required
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Unit No Dropdown -->
+        <div class="col-md-4">
+            <app-autocomplete-reusable-component [options]="units()" formControlName="floor_unit_id"
+                displayKey="full_name" idKey="floor_unit_id" placeholder="Select Unit" class="w-100"
+                [isMultiSelect]="true">
+            </app-autocomplete-reusable-component>
+        </div>
+
+
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="flex items-center justify-between w-full">
+
+    <div class="text-sm text-red-600 font-medium">
+        * Demand generation date must be on or before the booking date.
+    </div>
+
+    <button mat-raised-button color="primary" (click)="addDemand()" [disabled]="!isFormValid()" class="ml-4">
+        <span *ngIf="loading()" class="flex items-center">
+            <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+            Adding...
+        </span>
+        <span *ngIf="!loading()">Add Demand</span>
+    </button>
+</mat-dialog-actions>

@@ -1,0 +1,223 @@
+<h2 mat-dialog-title>
+  {{ isEditMode() ? 'Edit Agreement' : 'Add New Agreement' }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <!-- Project Details Section -->
+  @if (!isEditMode()) {
+  <mat-card class="mb-3">
+    <mat-card-header>
+      <mat-card-title>Project Details</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="addUnitBankerForm" class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <app-autocomplete-reusable-component [options]="projects()" formControlName="project_id"
+            displayKey="property_name" idKey="project_id" placeholder="Select Project" class="w-100">
+          </app-autocomplete-reusable-component>
+        </div>
+
+        <div class="col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Select Wing</mat-label>
+            <mat-select formControlName="wing_id">
+              @for (wing of wings(); track wing.wing_id) {
+              <mat-option [value]="wing.wing_id">
+                {{ wing.wing_name }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (addUnitBankerForm.get('wing_id')?.hasError('required') && addUnitBankerForm.get('wing_id')?.touched) {
+            <mat-error>Wing is required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-4">
+          <app-autocomplete-reusable-component [options]="units()" formControlName="unit_id" displayKey="full_name"
+            idKey="floor_unit_id" placeholder="Select Unit" class="w-100">
+          </app-autocomplete-reusable-component>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  }
+
+  <!-- Agreement Details Section -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Agreement Details</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="addUpdateAgreementDetailsForm" class="row g-3">
+        <!-- Row 1 -->
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Challan Date</mat-label>
+            <input matInput [matDatepicker]="challanPicker" formControlName="challan_date" required />
+            <mat-datepicker-toggle matSuffix [for]="challanPicker"></mat-datepicker-toggle>
+            <mat-datepicker #challanPicker></mat-datepicker>
+            @if (addUpdateAgreementDetailsForm.get('challan_date')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('challan_date')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Challan Status</mat-label>
+            <mat-select formControlName="challan_status_id" required>
+              <mat-option [value]="1">Paid</mat-option>
+              <mat-option [value]="2">Unpaid</mat-option>
+            </mat-select>
+            @if (addUpdateAgreementDetailsForm.get('challan_status_id')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('challan_status_id')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Agreement Number</mat-label>
+            <input matInput formControlName="agreement_no" placeholder="Enter Agreement No" />
+            @if (addUpdateAgreementDetailsForm.get('agreement_no')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('agreement_no')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Agreement Copy Received</mat-label>
+            <mat-select formControlName="agreement_copy_status_id" required>
+              @for (status of agreementCopyStatusList(); track status.agreement_copy_status_id) {
+              <mat-option [value]="status.agreement_copy_status_id">
+                {{ status.agreement_copy_status }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (addUpdateAgreementDetailsForm.get('agreement_copy_status_id')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('agreement_copy_status_id')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Agreement Schedule Date</mat-label>
+            <input matInput [matDatepicker]="schedulePicker" formControlName="agreement_shadule_date" required />
+            <mat-datepicker-toggle matSuffix [for]="schedulePicker"></mat-datepicker-toggle>
+            <mat-datepicker #schedulePicker></mat-datepicker>
+            @if (addUpdateAgreementDetailsForm.get('agreement_shadule_date')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('agreement_shadule_date')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Agreement Date</mat-label>
+            <input matInput [matDatepicker]="agreementPicker" formControlName="agreement_date" required />
+            <mat-datepicker-toggle matSuffix [for]="agreementPicker"></mat-datepicker-toggle>
+            <mat-datepicker #agreementPicker></mat-datepicker>
+            @if (addUpdateAgreementDetailsForm.get('agreement_date')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('agreement_date')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Registration Office</mat-label>
+            <mat-select formControlName="registration_office" required>
+              @for (office of registrationOfficeList(); track office.registration_office_id) {
+              <mat-option [value]="office.registration_office_id">
+                {{ office.registration_office_name }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (addUpdateAgreementDetailsForm.get('registration_office')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('registration_office')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Date of Execution</mat-label>
+            <input matInput [matDatepicker]="executionPicker" formControlName="date_of_execution" required />
+            <mat-datepicker-toggle matSuffix [for]="executionPicker"></mat-datepicker-toggle>
+            <mat-datepicker #executionPicker></mat-datepicker>
+            @if (addUpdateAgreementDetailsForm.get('date_of_execution')?.hasError('required') &&
+            addUpdateAgreementDetailsForm.get('date_of_execution')?.touched) {
+            <mat-error>Required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label d-block mb-2">Index 2 Attachment (Max 1 Mb) <span
+              class="text-danger">*</span></label>
+          <input type="file" class="form-control" (change)="onFileChange($event, 'index_attachment')"
+            accept="application/pdf, image/*"
+            [class.is-invalid]="addUpdateAgreementDetailsForm.get('index_attachment')?.invalid && addUpdateAgreementDetailsForm.get('index_attachment')?.touched" />
+
+
+          @if (addUpdateAgreementDetailsForm.get('index_attachment')?.hasError('required') &&
+          addUpdateAgreementDetailsForm.get('index_attachment')?.touched) {
+          <div class="invalid-feedback d-block">Attachment is required</div>
+          }
+          @if (addUpdateAgreementDetailsForm.get('index_attachment')?.hasError('invalidFormat')) {
+          <div class="invalid-feedback d-block">Please select a PDF or Image only</div>
+          }
+
+          <div class="form-text text-primary mt-1">
+            <i class="bi bi-info-circle me-1"></i> Hint: Only Image and PDF formats are allowed.
+          </div>
+          @if (selectedFileName()) {
+          <small class="text-muted d-block mt-1">
+            Selected: {{ selectedFileName() }}
+          </small>
+          }
+
+          @if (existingAttachment()) {
+          <div class="mt-2">
+            <a [href]="existingAttachment()" target="_blank" class="text-decoration-none">
+              <mat-icon class="align-middle" style="font-size: 18px; width: 18px; height: 18px;">attachment</mat-icon>
+              View Existing Attachment
+            </a>
+          </div>
+          }
+        </div>
+
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Remark</mat-label>
+            <textarea matInput formControlName="remark" rows="2"></textarea>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!isFormValid() || loading()">
+    @if (loading()) {
+    <span>Submitting...</span>
+    } @else {
+    <span>{{ isEditMode() ? 'Update Agreement' : 'Submit Agreement' }}</span>
+    }
+  </button>
+</mat-dialog-actions>

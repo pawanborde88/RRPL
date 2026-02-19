@@ -1,0 +1,186 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item">After Sales</li>
+    <li class="breadcrumb-item active">Account Setup</li>
+  </app-breadcrumb>
+
+  <!-- Filter Section -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <form [formGroup]="addpaymentStages">
+        <div class="row">
+          <div class="col-md-3">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+              displayKey="property_name" idKey="project_id" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Select Wing</mat-label>
+              <mat-select formControlName="wing_id">
+                <mat-option *ngFor="let wing of allWingslist(); trackBy: trackByWingId" [value]="wing.wing_id">
+                  {{ wing.wing_name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3">
+            <button mat-raised-button color="primary" (click)="updateBankData()" [disabled]="!canAddBankData()"
+              [matTooltip]="!canAddBankData() ? 'Please select both project and wing first' : 'Add new bank details for selected project and wing'">
+              <mat-icon>add</mat-icon>
+              Add New Bank Data
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Project Content Section -->
+  <mat-card class="project-content-card">
+    <mat-card-content>
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="loading()">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading project bank data...</p>
+      </div>
+
+      <!-- No Data State -->
+
+
+
+      <div *ngIf="!loading() && projects().length === 0" class="flex flex-col items-center justify-center py-20 px-4">
+        <div class="relative mb-6">
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 rounded-full blur-3xl opacity-40 animate-pulse">
+          </div>
+          <div
+            class="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300 shadow-xl">
+            <mat-icon class="!text-5xl !w-12 !h-12 !text-slate-400">inventory_2</mat-icon>
+          </div>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 mb-2">No Project Bank Data Available</h3>
+        <p class="text-sm text-slate-500 text-center max-w-md mb-6">
+          Please select a project and wing from the filters above to view the project bank data.
+        </p>
+        <div
+          class="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
+          <mat-icon class="!text-blue-600">info</mat-icon>
+          <span class="text-sm font-medium text-blue-700">Select filters above to get started</span>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+      <!-- Projects List -->
+      <div *ngFor="let project of projects(); trackBy: trackByProject" class="project-section">
+        <div *ngFor="let wing of project.wings; trackBy: trackByWing" class="wing-section">
+
+          <!-- Wing Data Cards -->
+          <div class="wing-data-container" *ngIf="wing.wing_data && wing.wing_data.length > 0">
+            <div class="grid w-full grid-cols-2 gap-4">
+              <mat-card *ngFor="let bankData of wing.wing_data; trackBy: trackByBankData"
+                class="bank-data-card clickable group relative flex h-full flex-col overflow-hidden !rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 ease-out hover:shadow-md hover:border-gray-300"
+                (click)="updateBankData(bankData)" title="Click to edit bank details">
+
+                <!-- Delete button in top left corner -->
+                <div class="absolute left-1.5 top-1.5 z-10" *ngIf="roleId === 2">
+                  <button mat-icon-button color="warn" (click)="deleteBankData(bankData); $event.stopPropagation()"
+                    class="!w-7 !h-7 !min-w-0" matTooltip="Delete bank data">
+                    <mat-icon class="!text-base">delete</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Account type badge in top right corner -->
+                <div class="absolute right-1.5 top-1.5 z-10">
+                  <span
+                    class="rounded-md bg-sky-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-700">
+                    {{ bankData.account_type || 'Bank Account' }}
+                  </span>
+                </div>
+
+                <mat-card-content class="flex flex-1 flex-col gap-2 !px-3 !pt-8 !pb-3 text-xs text-gray-700">
+                  <div class="flex flex-col items-center text-center gap-1">
+                    <div
+                      class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-sky-500/20 text-base text-gray-700 group-hover:bg-sky-500/30">
+                      <mat-icon class="!text-xl text-gray-700">account_balance</mat-icon>
+                    </div>
+                    <h3
+                      class="text-sm font-semibold text-gray-900 mb-0 w-full flex items-center justify-center gap-1 flex-wrap">
+                      <span class="truncate" [title]="bankData.bank_name">{{ bankData.bank_name || 'Unnamed Bank'
+                        }}</span>
+                      <span class="text-xs font-normal text-gray-600" *ngIf="bankData.branch_name"
+                        [title]="bankData.branch_name">
+                        ({{ bankData.branch_name }})
+                      </span>
+                    </h3>
+                  </div>
+
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5">
+                      <mat-icon class="!text-sm text-gray-600">credit_card</mat-icon>
+                      <div class="flex flex-col min-w-0 flex-1">
+                        <span class="text-[9px] font-medium uppercase tracking-wide text-gray-500">Account No.</span>
+                        <span class="mt-0.5 text-xs font-semibold text-gray-900 truncate"
+                          [title]="bankData.account_no">{{ bankData.account_no }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5">
+                      <mat-icon class="!text-sm text-gray-600">pin</mat-icon>
+                      <div class="flex flex-col min-w-0 flex-1">
+                        <span class="text-[9px] font-medium uppercase tracking-wide text-gray-500">IFSC Code</span>
+                        <span class="mt-0.5 text-xs font-semibold text-gray-900 tracking-wide"
+                          [title]="bankData.ifsc_code">{{ bankData.ifsc_code }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5">
+                      <mat-icon class="!text-sm text-gray-600">person</mat-icon>
+                      <div class="flex flex-col min-w-0 flex-1">
+                        <span class="text-[9px] font-medium uppercase tracking-wide text-gray-500">Beneficiary</span>
+                        <span class="mt-0.5 text-xs font-medium text-gray-800 truncate"
+                          [title]="bankData.beneficiary_name">{{ bankData.beneficiary_name || '—' }}</span>
+                      </div>
+                    </div>
+
+
+
+                    <div class="flex items-start gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5"
+                      *ngIf="bankData.address">
+                      <mat-icon class="!text-sm text-gray-600 mt-0.5">location_on</mat-icon>
+                      <div class="min-w-0 flex-1">
+                        <span class="text-[9px] font-medium uppercase tracking-wide text-gray-500">Address</span>
+                        <p class="mt-0.5 text-xs leading-tight text-gray-800 line-clamp-2" [title]="bankData.address">{{
+                          bankData.address }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </div>
+
+          <!-- No Wing Data Message -->
+          <div class="no-wing-data" *ngIf="!wing.wing_data || wing.wing_data.length === 0">
+            <p>No bank data available for this wing.</p>
+          </div>
+        </div>
+
+        <!-- No Wings Message -->
+        <div class="no-wings" *ngIf="!project.wings || project.wings.length === 0">
+          <p>No wings available for this project.</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</app-template>

@@ -1,0 +1,66 @@
+// Ensure full width for dialog content
+::ng-deep {
+  .mat-mdc-dialog-content {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+.file-upload-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.file-upload-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-upload-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.file-upload-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-name-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+  }
+}
+
+.file-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}.file-error {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f44336;
+}

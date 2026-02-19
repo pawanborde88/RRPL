@@ -1,0 +1,1 @@
+import{ua as i}from"./chunk-HNEDXOKI.js";var s=(()=>{let r=class r{transform(t){return t?(t=+t,t>=1e7?`\u20B9${(t/1e7).toFixed(2)} Cr`:t>=1e5?`\u20B9${(t/1e5).toFixed(2)} Lakh`:`\u20B9${Math.round(t)}`):"\u20B90"}};r.\u0275fac=function(n){return new(n||r)},r.\u0275pipe=i({name:"indianCurrencyFormat",type:r,pure:!0,standalone:!0});let e=r;return e})();export{s as a};

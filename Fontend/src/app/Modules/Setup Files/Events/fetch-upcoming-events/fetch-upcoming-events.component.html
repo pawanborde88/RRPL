@@ -1,0 +1,179 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">All Events</li>
+    </app-breadcrumb>
+
+    <div class="w-full px-4 pb-12 sm:px-6 lg:px-8">
+        <!-- Sticky Header with Blur Effect -->
+        <div
+            class="sticky top-0 z-50 -mx-4 mb-8 bg-white/90 px-4 py-4 backdrop-blur-xl transition-all duration-300 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 border-b border-slate-200/60 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <!-- Search and Filters -->
+                <form [formGroup]="filterForm" (ngSubmit)="applyFilter()"
+                    class="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center">
+
+                    <mat-form-field appearance="outline" class="w-full sm:max-w-[320px] hide-subscript">
+                        <mat-label>Search Events</mat-label>
+                        <mat-icon matPrefix class="text-indigo-500/70 mr-2">search</mat-icon>
+                        <input matInput formControlName="searchTerm" placeholder="Title, venue..." />
+                        <button mat-icon-button matSuffix *ngIf="filterForm.get('searchTerm')?.value"
+                            (click)="filterForm.get('searchTerm')?.reset('')" type="button" class="mr-1">
+                            <mat-icon class="text-slate-400">close</mat-icon>
+                        </button>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full sm:max-w-[280px] hide-subscript">
+                        <mat-label>Date Range</mat-label>
+                        <mat-date-range-input [rangePicker]="picker">
+                            <input matStartDate formControlName="start_date" placeholder="Start">
+                            <input matEndDate formControlName="end_date" placeholder="End">
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
+                </form>
+
+                <!-- Add Event Button -->
+                <button mat-flat-button color="primary" (click)="addEvent('add')">
+                    <mat-icon class="mr-2">add_circle_outline</mat-icon>
+                    <span class="font-semibold tracking-wide">Create Event</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="flex flex-col items-center justify-center py-20">
+            <mat-spinner diameter="40" class="mb-4"></mat-spinner>
+            <p class="text-slate-500 font-medium">Loading events...</p>
+        </div>
+
+        <!-- Events Grid -->
+        <ng-container *ngIf="!loading && filteredEvents?.length; else noEvents">
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
+                <div *ngFor="let event of filteredEvents"
+                    class="group flex flex-col overflow-hidden rounded-[16px] bg-white border border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition-all duration-300 hover:shadow-[0_10px_35px_rgba(0,0,0,0.1)]">
+
+                    <!-- Image Section with Reference Badges -->
+                    <div class="relative aspect-[16/9] overflow-hidden">
+                        <img [src]="event.event_image ? (storageUrl + '/' + event.event_image) : 'assets/Images/dummy.png'"
+                            class="h-full w-full object-cover" alt="Event cover" />
+
+                        <!-- "Popular/Featured" Badge (Top Left) -->
+                        <div *ngIf="event.is_highlight"
+                            class="absolute left-3 top-3 rounded-md bg-green-50 px-2.5 py-1 text-[10px] font-bold shadow-sm">
+                            Featured
+                        </div>
+
+                        <!-- Reference Style Date Badge (Top Right) -->
+                        <div
+                            class="absolute right-3 top-3 flex flex-col items-center justify-center rounded-lg bg-white p-1 min-w-[42px] shadow-md border border-slate-100">
+                            <span class="text-base font-bold text-slate-900 leading-none">
+                                {{ event.event_date | date: 'dd' }}
+                            </span>
+                            <span class="text-[8px] font-bold uppercase text-red-500 leading-none mt-1">
+                                {{ event.event_date | date: 'MMM' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Content Section -->
+                    <div class="flex flex-1 flex-col p-4">
+                        <h4 class="mb-3 text-lg font-bold text-slate-900 line-clamp-2 leading-tight">
+                            {{ event.event_title }}
+                        </h4>
+
+                        <!-- Meta Info Row (Time & Venue) -->
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-3">
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <mat-icon class="!text-base !w-4 !h-4 text-indigo-500/80">schedule</mat-icon>
+                                <span class="text-[12px] font-medium">{{ event.event_start_time }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <mat-icon class="!text-base !w-4 !h-4 text-indigo-500/80">location_on</mat-icon>
+                                <span class="text-[12px] font-medium truncate max-w-[110px]">{{ event.event_venue
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Organizer & Description Placeholder -->
+                        <div class="space-y-2 mb-4">
+                            <p class="text-[13px] text-slate-500 line-clamp-2 leading-relaxed">
+                                {{ event.event_description
+                                }}
+                            </p>
+                            <div class="flex items-center gap-1.5" *ngIf="event.created_by_name">
+                                <mat-icon class="!text-sm !w-3.5 !h-3.5 text-slate-400">person</mat-icon>
+                                <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                                    By {{ event.created_by_name }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="mt-auto pt-3 border-t border-slate-50">
+                            <div class="flex items-center justify-between mb-3">
+                                <div
+                                    class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold">
+                                    <mat-icon class="!text-[12px] !w-[12px] !h-[12px]">check_circle</mat-icon>
+                                    {{ event.going_count }} Going
+                                </div>
+                                <div class="flex items-center gap-0.5">
+                                    <button mat-icon-button [disabled]="!hasPermission('624')"
+                                        (click)="addEvent('edit', event)"
+                                        class="!w-7 !h-7 !text-slate-400 hover:!text-indigo-600 transition-colors">
+                                        <mat-icon class="!text-base">edit</mat-icon>
+                                    </button>
+                                    <button mat-icon-button [disabled]="!hasPermission('625')"
+                                        (click)="goToEventLog(event.event_id)"
+                                        class="!w-7 !h-7 !text-slate-400 hover:!text-indigo-600 transition-colors">
+                                        <mat-icon class="!text-base">analytics</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button [disabled]="!hasPermission('626')" mat-flat-button color="primary"
+                                (click)="goToEventRegistration(event.event_id)"
+                                class="w-full !h-10 !rounded-lg  hover:!bg-[#1D4ED8] !text-white !font-bold !text-[12px] shadow-sm">
+                                Register Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- Premium Empty State -->
+        <ng-template #noEvents>
+            <div *ngIf="!loading"
+                class="flex flex-col items-center justify-center rounded-[48px] border border-slate-100 bg-white/50 backdrop-blur-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] py-32 text-center max-w-3xl mx-auto mt-16 group/empty">
+                <div class="relative mb-12">
+                    <div class="absolute inset-0 scale-150 animate-pulse bg-indigo-100/60 rounded-full blur-3xl"></div>
+                    <div
+                        class="relative flex h-32 w-32 items-center justify-center rounded-[40px] bg-white text-indigo-500 shadow-[0_20px_40px_rgba(0,0,0,0.05)] border border-slate-100 transform transition-transform duration-700 group-hover/empty:scale-110 group-hover/empty:rotate-3">
+                        <mat-icon class="!text-6xl !w-16 !h-16 text-indigo-400">event_busy</mat-icon>
+                        <div
+                            class="absolute -top-2 -right-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 shadow-lg border border-white">
+                            <mat-icon class="!text-2xl">search_off</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-3xl font-black text-slate-900 tracking-tight">No events found</h3>
+                <p class="mt-4 text-slate-500 max-w-md mx-auto text-lg font-medium leading-relaxed">
+                    It seems there are no upcoming events at the moment. Try adjusting your filters or search keywords.
+                </p>
+
+                <div class="mt-12 flex flex-wrap justify-center gap-4 px-6">
+                    <button mat-flat-button (click)="resetFilter()"
+                        class="!rounded-2xl !h-14 !px-10 !bg-indigo-600 hover:!bg-indigo-700 !text-white !font-black !uppercase !tracking-widest !text-[13px] shadow-xl shadow-indigo-200">
+                        Reset All Filters
+                    </button>
+                    <button mat-stroked-button (click)="addEvent('add')"
+                        class="!rounded-2xl !h-14 !px-10 !border-slate-200 !text-slate-600 hover:!bg-slate-50 !font-black !uppercase !tracking-widest !text-[13px]">
+                        Create New Event
+                    </button>
+                </div>
+            </div>
+        </ng-template>
+    </div>
+</app-template>

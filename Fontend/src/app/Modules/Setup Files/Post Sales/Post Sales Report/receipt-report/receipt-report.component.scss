@@ -1,0 +1,153 @@
+// Styles for enhanced Receipt Report table with Virtual Scroll and Tailwind
+
+// ---------- Virtual Scroll Viewport ----------
+.virtual-scroll-viewport {
+  display: block;
+  height: 100%;
+  overflow: auto;
+  
+  // Smooth scrolling
+  scroll-behavior: smooth;
+  
+  // Optimize rendering
+  will-change: scroll-position;
+  contain: layout style paint;
+  
+  // Custom scrollbar styling (optional)
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+// ---------- Table base ----------
+.receipt-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  
+  th,
+  td {
+    border-right: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 8px 12px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  
+  th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: left;
+  }
+  
+  // Remove right border from last column
+  th:last-child,
+  td:last-child {
+    border-right: none;
+  }
+  
+  // Zebra striping for better readability
+  tbody tr:nth-child(even) {
+    background-color: #ffffff;
+  }
+  
+  tbody tr:nth-child(odd) {
+    background-color: #f9fafb;
+  }
+  
+  // Hover effect
+  tbody tr:hover {
+    background-color: #f3f4f6;
+    transition: background-color 0.15s ease-in-out;
+  }
+}
+
+// Inner table (nested detail table)
+.inner-table {
+  margin: 0;
+  
+  th {
+    background-color: #f3f4f6;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+  
+  td {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+  }
+}
+
+// Summary row interactions
+.summary-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: #eff6ff !important;
+  }
+}
+
+// Project header styling
+.project-header {
+  h5 {
+    font-weight: 600;
+    color: #1f2937;
+  }
+}
+
+// Export button styling
+.export-btn {
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .receipt-table {
+    th,
+    td {
+      padding: 6px 8px;
+      font-size: 0.875rem;
+    }
+  }
+  
+  .virtual-scroll-viewport {
+    height: 400px !important;
+  }
+}
+
+// Performance optimizations
+.receipt-table {
+  // GPU acceleration for smooth scrolling
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// Ensure proper z-index layering
+.sticky {
+  &.top-0 {
+    z-index: 20;
+  }
+}

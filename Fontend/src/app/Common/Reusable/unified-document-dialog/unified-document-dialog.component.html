@@ -1,0 +1,38 @@
+<h2 mat-dialog-title>
+  {{ store.dialogTitle() }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;"
+    aria-label="Close dialog">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content>
+  <div class="print-dialog-container">
+    @if (isGeneratingPDF ) {
+    <div class="pdf-generating-overlay" aria-live="polite">
+      <mat-spinner diameter="32" color="primary"></mat-spinner>
+      <span class="pdf-generating-text">Generating PDF…</span>
+    </div>
+    }
+    @if (store.loading()) {
+    <div class="spinner-container">
+      <mat-spinner diameter="20" color="accent"></mat-spinner>
+    </div>
+    }
+    @if (!store.loading() && store.hasContent()) {
+    <div #receiptContainer class="receipt-container" [innerHTML]="store.processedHtml()"
+      [attr.data-large-content]="store.isLargeContent()">
+    </div>
+    }
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions mat-dialog-actions align="end">
+  <!-- <button mat-raised-button color="primary" (click)="downloadPDF()" [disabled]="!store.canPrint() || isGeneratingPDF"
+    aria-label="Download PDF">
+    <mat-icon>download</mat-icon> 
+    {{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}
+  </button> -->
+  <button mat-raised-button color="primary" (click)="print()" [disabled]="!store.canPrint()"
+    aria-label="Print document">
+    <mat-icon>print</mat-icon> Print {{ store.dialogTitle() }}
+  </button>
+</mat-dialog-actions>

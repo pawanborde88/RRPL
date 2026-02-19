@@ -1,0 +1,27 @@
+<h2 mat-dialog-title >{{ projectName }}</h2>
+
+<mat-dialog-content class="mat-typography">
+  <div class="bordered-container">
+    <div class="thumbnail-container">
+      <img alt="Project Thumbnail" class="thumbnail-img"
+        [src]="projectLogo ? storageUrl + '/' + projectLogo : 'assets/Images/dummy.png'" />
+    </div>
+
+    <div class="qr-code-container">
+      <qrcode #qrCode [qrdata]="Qrlink" [elementType]="'canvas'" [errorCorrectionLevel]="'M'"
+        [imageSrc]="'./assets/angular-logo.png'" [imageHeight]="40" [imageWidth]="40" [margin]="4" [scale]="1"
+        [width]="150" title="Scan this QR code to access the project link"></qrcode>
+    </div>
+
+    <p class="created-date">Created On: {{ data.rowData[0].created_at | date: 'dd MMM yyyy' }}</p>
+
+    <div class="button-group">
+      <button mat-button color="primary" (click)="downloadQR()">
+        <mat-icon>download</mat-icon> Download 
+      </button>
+      <button mat-button color="accent" (click)="shareQR()">
+        <mat-icon>share</mat-icon> Share
+      </button>
+    </div>
+  </div>
+</mat-dialog-content>

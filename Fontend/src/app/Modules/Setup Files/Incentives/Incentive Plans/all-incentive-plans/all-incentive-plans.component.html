@@ -1,0 +1,42 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">All Incentive Plans</li>
+  </app-breadcrumb>
+
+  <mat-card>
+    <mat-card-header class="d-flex flex-column mb-2">
+      <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Advanced Filters</mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="row">
+            <app-autocomplete-reusable-component (selectedIdChange)="onProjectChange($event)" [options]="projectsList"
+              class="col-md-3" idKey="project_id" displayKey="property_name" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+
+            <mat-form-field appearance="outline" class="col-md-3">
+              <mat-label>Select Wing</mat-label>
+              <mat-select [(ngModel)]="selectedWingId" (selectionChange)="onWingChange($event.value)"
+                [disabled]="!selectedProjectId || allWingslist.length === 0">
+                <mat-option *ngFor="let wing of allWingslist" [value]="wing.wing_id">
+                  {{ wing.wing_name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+        </mat-expansion-panel>
+      </mat-accordion>
+
+
+    </mat-card-header>
+
+    <mat-card-content>
+      <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+        [actions]="projectActions" [showFooter]="true" (actionClick)="onProjectAction($event.action, $event.row)"
+        [headerButtons]="headerButtons">
+      </app-reusable-custom-table>
+    </mat-card-content>
+  </mat-card>
+</app-template>

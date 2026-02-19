@@ -1,0 +1,166 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addCPOwnerForm" (ngSubmit)="onSubmit()" class="row g-3 align-items-center">
+
+          <!-- First Name -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="first_name" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('first_name')?.hasError('required')">
+              First Name is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Last Name -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="last_name" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('last_name')?.hasError('required')">
+              Last Name is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Email -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="user_email" type="email" />
+            <mat-error *ngIf="addCPOwnerForm.get('user_email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="addCPOwnerForm.get('user_email')?.hasError('email')">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Phone Number -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="user_phone" type="number" />
+            <mat-error *ngIf="addCPOwnerForm.get('user_phone')?.hasError('required')">
+              Phone number is required
+            </mat-error>
+          </mat-form-field>
+
+    
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Date of Birth </mat-label>
+            <input matInput formControlName="dob" [matDatepicker]="picker"
+                placeholder="Select Date" />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+          <!-- Gender -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option [value]="2">Male</mat-option>
+              <mat-option [value]="1">Female</mat-option>
+              <mat-option [value]="3">Other</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- PAN Number -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>PAN Number</mat-label>
+            <input matInput formControlName="pan_no" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('pan_no')?.hasError('required')">
+              PAN Number is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Address -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('address')?.hasError('required')">
+              Address is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- City -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('city')?.hasError('required')">
+              City is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Country -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('country')?.hasError('required')">
+              Country is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- State -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('state')?.hasError('required')">
+              State is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Pin Code -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Pin Code</mat-label>
+            <input matInput formControlName="pin_code" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('pin_code')?.hasError('required')">
+              Pin code is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Password -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" />
+            <mat-error *ngIf="addCPOwnerForm.get('password')?.hasError('required')">
+              Password is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- RERA -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>RERA Number</mat-label>
+            <input matInput formControlName="rera" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('rera')?.hasError('required')">
+              RERA Number is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Aadhar Number -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Aadhar Number</mat-label>
+            <input matInput formControlName="aadhar_no" type="text" />
+            <mat-error *ngIf="addCPOwnerForm.get('aadhar_no')?.hasError('required')">
+              Aadhar Number is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Channel Partner ID -->
+          <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Channel Partner</mat-label>
+            <mat-select formControlName="channel_partner_id">
+                <mat-option *ngFor="let allChannels of allChannelPartnerList"
+                    [value]="allChannels.channel_partner_id">{{
+                    allChannels.firm_name
+                    }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="addCPOwnerForm.get('channel_partner_id')?.hasError('required')">
+                Channel Partner is required.
+            </mat-error>
+        </mat-form-field>
+
+  
+      <mat-dialog-actions align="end">
+        <button mat-raised-button color="primary" type="submit" >
+          Save
+        </button>
+        <button mat-button mat-dialog-close>Cancel</button>
+      </mat-dialog-actions>
+    </form>
+  </mat-dialog-content>

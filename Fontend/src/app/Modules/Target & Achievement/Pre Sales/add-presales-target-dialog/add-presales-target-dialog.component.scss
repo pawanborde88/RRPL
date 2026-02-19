@@ -1,0 +1,49 @@
+.grid-container {
+    max-height: 500px;
+    overflow: auto;
+
+    .grid-table {
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        tbody {
+            .sticky-col {
+                position: sticky;
+                left: 0;
+                z-index: 10;
+                box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .employee-name {
+                min-width: 140px;
+            }
+
+            .ref-cell {
+                min-width: 50px;
+            }
+
+            .input-cell {
+                min-width: 70px;
+            }
+
+            .separator-col {
+                min-width: 6px;
+                width: 6px;
+            }
+        }
+    }
+}
+
+mat-dialog-content {
+    max-height: 85vh !important;
+}
+
+// Ensure Material components play nice with Tailwind
+::ng-deep {
+    .mat-mdc-dialog-container {
+        --mdc-dialog-container-shape: 16px;
+    }
+}

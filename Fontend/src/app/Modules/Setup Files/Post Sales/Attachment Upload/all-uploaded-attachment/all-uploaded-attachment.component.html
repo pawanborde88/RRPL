@@ -1,0 +1,19 @@
+<app-template>
+
+  <app-breadcrumb>
+    <li class="breadcrumb-item">After Sales</li>
+
+    <li class="breadcrumb-item active">File Upload</li>
+  </app-breadcrumb>
+  <mat-card>
+
+    <mat-card-content>
+
+      <app-reusable-custom-table [loading]="loading" [actions]="bookingActions" [dataSource]="dataSource"
+        [displayedColumns]="bookingBills" [headerButtons]="headerButtons" [showFooter]="true"
+        [idProperty]="'project_unit_attachment_id'" (actionClick)="onBookingAction($event.action, $event.row)">
+
+      </app-reusable-custom-table>
+    </mat-card-content>
+  </mat-card>
+</app-template>
