@@ -12,10 +12,9 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
-import { SectionHeadingComponent } from '../../../Common/section-heading/section-heading.component';
 import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
 import { PermissionService } from '../../../Service/permission.service';
 
 
@@ -25,9 +24,6 @@ import { PermissionService } from '../../../Service/permission.service';
   standalone: true,
   imports: [
     AngularMaterialModule,
-    SectionHeadingComponent,
-    CommonModule,
-    RouterOutlet,
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,
@@ -58,7 +54,7 @@ export class AddRolePermissionsComponent {
     private router: Router,
     private snackBar: MatSnackBar,
     private permissionApi: PermissionService
-  ) {}
+  ) { }
 
   addPermissionForm = new FormGroup({
     account_id: new FormControl(sessionStorage.getItem('account_id')),
@@ -92,7 +88,7 @@ export class AddRolePermissionsComponent {
         console.log(err);
         this.snackBar.open('Unable to fetch Role Permissions.');
       },
-      complete: () => {},
+      complete: () => { },
     });
   }
 
@@ -107,7 +103,7 @@ export class AddRolePermissionsComponent {
         console.log(err);
         this.snackBar.open('Unable to fetch ROles.');
       },
-      complete: () => {},
+      complete: () => { },
     });
   }
 

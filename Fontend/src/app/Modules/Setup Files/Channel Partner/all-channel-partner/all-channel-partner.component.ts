@@ -23,7 +23,7 @@ import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { TableColumn } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { TableColumn, ActionButton } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { AuthService } from '../../../../Service/auth.service';
 import { EMPTY, Subject, of } from 'rxjs';
 import {
@@ -37,6 +37,9 @@ import {
   finalize,
   startWith
 } from 'rxjs/operators';
+import { ReceiptPreviewDialogComponent } from '../../Post Sales/Recovery/receipt-preview-dialog/receipt-preview-dialog.component';
+import { Receipt } from '../../Post Sales/Recovery/Recipts/receipts.service';
+import { ReraApproveDialog } from '../rera-approve-dialog/rera-approve-dialog';
 
 interface EnquiryFilterForm {
   project_id: FormControl<any[] | null>;
@@ -105,6 +108,7 @@ export class AllChannelPartnerComponent implements OnInit {
   readonly allChannelPartnerList = signal<ChannelPartner[]>([]);
   readonly isLoadingProjects = signal<boolean>(false);
   readonly isLoadingPartners = signal<boolean>(false);
+  readonly storageUrl = environment.STORAGE_URL;
 
   // Search subject for debounced partner search
   private readonly partnerSearchSubject = new Subject<string>();
@@ -121,6 +125,7 @@ export class AllChannelPartnerComponent implements OnInit {
     },
     { key: 'firm_name', label: 'Firm Name' },
     { key: 'rera', label: 'RERA' },
+    { key: 'rera_approvel', label: 'Is Approved' },
     { key: 'booking_count', label: 'Booking Count' },
     { key: 'token_count', label: 'Token Count' },
     { key: 'site_visit_count', label: 'Site Visit Count' },
@@ -163,7 +168,7 @@ export class AllChannelPartnerComponent implements OnInit {
     { initialValue: { project_id: null, channel_partner_id: null, start_date: null, end_date: null, cp_start_date: null, cp_end_date: null } }
   );
 
-  readonly channelPartnerActions = [
+  readonly channelPartnerActions: ActionButton<any>[] = [
     {
       action: 'deleteBooking',
       icon: 'delete',
@@ -178,7 +183,20 @@ export class AllChannelPartnerComponent implements OnInit {
       color: 'primary',
       disabled: false,
     },
-  ] as const;
+    {
+      action: 'RERACertificate',
+      icon: 'attach_file',
+      tooltip: ' RERA Certificate',
+      color: 'primary',
+      disabled: (row: any) => !row['rera_certificate'],
+    },
+    {
+      action: 'RERAApprove',
+      icon: 'fact_check',
+      tooltip: ' RERA Approve',
+      color: 'primary',
+    },
+  ];
 
   readonly headerButtons = [
     {
@@ -307,18 +325,66 @@ export class AllChannelPartnerComponent implements OnInit {
     this.agGridComponent?.refreshData();
   }
 
-  getChannelPartneractions(action: string, row: Record<string, unknown>): void {
+  getChannelPartnerActions(action: string, row: Record<string, unknown>): void {
     switch (action) {
       case 'deleteBooking':
         this.deleteChannelPartner(Number(row['channel_partner_id']));
         break;
+
       case 'editBooking':
         this.router.navigate(
           ['/setup/edit-channel-partner', row['firm_name'], row['channel_partner_id']],
           { state: { data: row } }
         );
         break;
+
+      case 'RERACertificate':
+        this.openReceiptDialog(row);
+        break;
+
+      case 'RERAApprove':
+        this.openRERADialog(row);
+        break;
+
+      default:
+        console.warn('Unknown action:', action);
+        break;
     }
+  }
+
+  openRERADialog(receiptData: any): void {
+    const dialogRef = this.dialog.open(ReraApproveDialog, {
+      width: '400px',
+      data: {
+        title: 'RERA Approval',
+        data: receiptData
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.agGridComponent?.refreshData();
+      }
+    });
+  }
+  openReceiptDialog(receiptData: any): void {
+    if (!receiptData?.rera_certificate) {
+      this.snackBar.open('Receipt attachment not found', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    const fileUrl = `${this.storageUrl}/${receiptData.rera_certificate}`;
+
+    this.dialog.open(ReceiptPreviewDialogComponent, {
+      width: '80%',
+      maxWidth: '900px',
+      data: {
+        title: 'RERA Certificate',
+        fileUrl: fileUrl,
+      },
+    });
   }
   fetchAllProjects(): void {
     this.isLoadingProjects.set(true);

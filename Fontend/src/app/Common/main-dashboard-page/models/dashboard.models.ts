@@ -147,7 +147,7 @@ export interface MarketStats {
 }
 
 export interface DashboardParams {
-    project_id: number | number[];
+    project_id: number[];
     start_date: string;
     end_date: string;
     telecaller_id?: number[];

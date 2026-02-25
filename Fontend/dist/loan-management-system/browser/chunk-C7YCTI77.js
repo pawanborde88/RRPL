@@ -1,0 +1,1 @@
+import{Ab as i}from"./chunk-34G6Z2ZP.js";var o=(()=>{class t{transform(r){return r?(r=+r,r>=1e7?`\u20B9${(r/1e7).toFixed(2)} Cr`:r>=1e5?`\u20B9${(r/1e5).toFixed(2)} Lakh`:`\u20B9${Math.round(r)}`):"\u20B90"}static{this.\u0275fac=function(e){return new(e||t)}}static{this.\u0275pipe=i({name:"indianCurrencyFormat",type:t,pure:!0})}}return t})();export{o as a};

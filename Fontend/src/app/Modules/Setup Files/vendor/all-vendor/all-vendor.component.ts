@@ -11,18 +11,22 @@ import {
   Validators,
 } from '@angular/forms';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { RouterModule } from '@angular/router';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AddVendorComponent } from '../add-vendor/add-vendor.component';
 import { environment } from '../../../../../environments/environment';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+
+
 import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-all-vendor',
@@ -30,24 +34,22 @@ import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-tab
   imports: [
     CommonModule,
     RouterModule,
+    ReusableTableComponent,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe, 
-          ReusableTableComponent // Add the pipe here
-// Add the pipe here
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './all-vendor.component.html',
   styleUrl: './all-vendor.component.scss',
 })
-export class AllVendorComponent implements OnInit,AfterViewInit  {
+export class AllVendorComponent implements OnInit, AfterViewInit {
   baseUrl = environment.API_URL;
   vendorsList: any[] = [];
   dataSource = new MatTableDataSource<any>();
 
- 
+
   roleId = Number(sessionStorage.getItem('role_id'));
   userId = Number(sessionStorage.getItem('session_id'));
   constructor(
@@ -55,13 +57,13 @@ export class AllVendorComponent implements OnInit,AfterViewInit  {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
   @ViewChild(MatSort)
   sort!: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
- displayedColumns = [
-      {
+  displayedColumns = [
+    {
       key: 'actions',
       label: 'Actions',
       type: 'actions',
@@ -73,15 +75,15 @@ export class AllVendorComponent implements OnInit,AfterViewInit  {
       label: '',
       type: 'index',
     },
-  { key: 'vendor_name', label: 'Vendor Name' },
-  { key: 'contact_person_name', label: 'Contact Person' },
-  { key: 'active_status', label: 'Active Status' },
-  { key: 'contact_no', label: 'Contact Number' },
-  { key: 'gst_number', label: 'GST Number' },
-  { key: 'created_by_name', label: 'Created By' },
-  { key: 'updated_by_name', label: 'Updated By' },
-  
-];
+    { key: 'vendor_name', label: 'Vendor Name' },
+    { key: 'contact_person_name', label: 'Contact Person' },
+    { key: 'active_status', label: 'Active Status' },
+    { key: 'contact_no', label: 'Contact Number' },
+    { key: 'gst_number', label: 'GST Number' },
+    { key: 'created_by_name', label: 'Created By' },
+    { key: 'updated_by_name', label: 'Updated By' },
+
+  ];
   loading: boolean = false; // Initialize loading state
 
   ngOnInit(): void {
@@ -93,18 +95,18 @@ export class AllVendorComponent implements OnInit,AfterViewInit  {
   }
 
   fetchAllVendors(): void {
-            this.loading = true; 
+    this.loading = true;
 
     this.http.get(`${this.baseUrl}/fetch_vendors`).subscribe({
       next: (res: any) => {
-               this.dataSource = new MatTableDataSource(res);
+        this.dataSource = new MatTableDataSource(res);
 
         this.dataSource.data = res;
-                this.loading = false; 
+        this.loading = false;
 
       },
       error: () => {
-                this.loading = false; 
+        this.loading = false;
 
         this.snackBar.open('Unable to fetch vendors.', 'Close', {
           duration: 3000,
@@ -121,13 +123,13 @@ export class AllVendorComponent implements OnInit,AfterViewInit  {
     },
     ...(this.roleId === 2
       ? [
-          {
-            icon: 'delete',
-            tooltip: 'Delete Project',
-            action: 'deleteProject',
-            color: 'warn',
-          },
-        ]
+        {
+          icon: 'delete',
+          tooltip: 'Delete Project',
+          action: 'deleteProject',
+          color: 'warn',
+        },
+      ]
       : []),
   ];
   onProjectAction(action: string, row: any): void {
@@ -194,7 +196,7 @@ export class AllVendorComponent implements OnInit,AfterViewInit  {
 
   deleteVendor(Id: any): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-       minWidth: '25vw',
+      minWidth: '25vw',
       data: { message: 'Are you sure you want to delete Vendor?' },
     });
 

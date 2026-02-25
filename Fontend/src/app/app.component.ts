@@ -4,19 +4,20 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AngularMaterialModule } from '../angular-material.module';
 import { QuillModule } from 'ngx-quill';
-import { TemplateComponent } from './Common/template/template.component';
+
 import { filter } from 'rxjs/operators';
 import { PermissonService } from './Service/PermissonAccess/permisson.service';
 import { AppStore } from './Core/store/app.store';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GlobalDraggableDialogService } from './Service/global-draggable-dialog.service';
+import { AutoLogoutService } from './Auth/services/auto-logout.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [RouterOutlet, CommonModule, QuillModule, TemplateComponent],
+  imports: [RouterOutlet, CommonModule, QuillModule],
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -26,6 +27,7 @@ export class AppComponent {
   private readonly permissionService = inject(PermissonService);
   private readonly appStore = inject(AppStore);
   private readonly draggableDialogService = inject(GlobalDraggableDialogService);
+  private readonly autoLogoutService = inject(AutoLogoutService);
 
   readonly title = 'Dravyam';
 

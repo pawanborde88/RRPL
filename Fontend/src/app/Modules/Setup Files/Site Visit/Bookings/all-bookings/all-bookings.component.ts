@@ -35,17 +35,17 @@ import { AngularMaterialModule } from '../../../../../../angular-material.module
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
+
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { IndianCurrencyPipe } from '../../../../../Pipes/currency/indianCurrency/pipes/indian-currency.pipe';
-import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
+
+
 import { ReusableTableComponent, HeaderButton } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { UnifiedDocumentDialogComponent } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.component';
 import { DocumentDialogType } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.interfaces';
 import { CancelTokenDialogComponent } from '../../Toktens/cancel-token-dialog/cancel-token-dialog.component';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { AdvancedSearchFilterDialogComponent } from '../../../../../Common/advanced-search-filter-dialog/advanced-search-filter-dialog.component';
+
 import { AllReceiptsDialogComponent } from '../all-receipts-dialog/all-receipts-dialog.component';
 import { ImportFloorUnitsComponent } from '../../../Floor Unit/import-floor-units/import-floor-units.component';
 import { EditBookingPageComponent } from '../edit-booking-page/edit-booking-page.component';
@@ -153,11 +153,11 @@ const ROLE_ADMIN = 2;
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
+
     AutocompleteReusableComponent,
-    AdvancedSearchFilterDialogComponent,
-    IndianCurrencyPipe,
-    ActionColumnComponent,
+
+
+
     ConfigurableAgGridDataComponent,
 
   ],

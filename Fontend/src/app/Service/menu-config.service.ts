@@ -95,6 +95,11 @@ export class MenuConfigService {
             visible: hasPermission('248'),
           },
           {
+            routerLink: '/setup/course-user-report',
+            label: 'Course User Report',
+            visible: hasPermission('583'),
+          },
+          {
             routerLink: '/setup/leaderboard',
             label: 'Leaderboard',
             visible: hasPermission('583'),

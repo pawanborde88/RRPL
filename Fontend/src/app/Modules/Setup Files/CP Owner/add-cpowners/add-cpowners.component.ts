@@ -12,12 +12,12 @@ import { environment } from '../../../../../environments/environment';
   selector: 'app-add-cpowners',
   standalone: true,
   imports: [
-     CommonModule,
-     RouterModule,
-     AngularMaterialModule,
-     FormsModule,
-     ReactiveFormsModule,
-   ],
+    CommonModule,
+    RouterModule,
+    AngularMaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './add-cpowners.component.html',
   styleUrl: './add-cpowners.component.scss'
 })
@@ -32,14 +32,14 @@ export class AddCPOwnersComponent {
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any, // Injected dialog data
     private dialogRef: MatDialogRef<AddCPOwnersComponent> // Reference to the dialog
-  ) {}
+  ) { }
   ngOnInit(): void {
     console.log(this.data);
     this.fetchAllChannelPartner();
   }
 
   addCPOwnerForm = new FormGroup({
-    role_id: new FormControl(5), 
+    role_id: new FormControl(5),
 
     first_name: new FormControl(this.data?.rowData?.first_name || '', Validators.required),
     last_name: new FormControl(this.data?.rowData?.last_name || '', Validators.required),
@@ -48,19 +48,19 @@ export class AddCPOwnersComponent {
       Validators.required,
       Validators.pattern(/^[6-9]\d{9}$/), // Example: Indian mobile number validation
     ]),
-    dob: new FormControl(this.data?.rowData?.dob || '', Validators.required),
-    gender: new FormControl(this.data?.rowData?.gender , Validators.required),
-    pan_no: new FormControl(this.data?.rowData?.pan_no || '', Validators.required),
-    address: new FormControl(this.data?.rowData?.address || 1, Validators.required),
-    city: new FormControl(this.data?.rowData?.city || '', Validators.required),
-    country: new FormControl(this.data?.rowData?.country || 'India', Validators.required),
-    state: new FormControl(this.data?.rowData?.state || '', Validators.required),
-    pin_code: new FormControl(this.data?.rowData?.pin_code || '', Validators.required),
-    password: new FormControl(this.data?.rowData?.password || '', Validators.required),
-    rera: new FormControl(this.data?.rowData?.rera || '', Validators.required),
-    aadhar_no: new FormControl(this.data?.rowData?.aadhar_no || '', Validators.required),
-    channel_partner_id: new FormControl(this.data?.rowData?.channel_partner_id , Validators.required),
-    updated_by: new FormControl(this.data?.rowData?.created_by || this.userId, Validators.required),
+    dob: new FormControl(this.data?.rowData?.dob || ''),
+    gender: new FormControl(this.data?.rowData?.gender),
+    pan_no: new FormControl(this.data?.rowData?.pan_no || ''),
+    address: new FormControl(this.data?.rowData?.address || 1),
+    city: new FormControl(this.data?.rowData?.city || ''),
+    country: new FormControl(this.data?.rowData?.country || 'India'),
+    state: new FormControl(this.data?.rowData?.state || ''),
+    pin_code: new FormControl(this.data?.rowData?.pin_code || ''),
+    password: new FormControl(this.data?.rowData?.password || ''),
+    rera: new FormControl(this.data?.rowData?.rera || ''),
+    aadhar_no: new FormControl(this.data?.rowData?.aadhar_no || ''),
+    channel_partner_id: new FormControl(this.data?.rowData?.channel_partner_id, Validators.required),
+    updated_by: new FormControl(this.data?.rowData?.created_by || this.userId),
     user_id: new FormControl(
       this.data?.rowData?.user_id || null
     ),// Assuming you will set this value dynamically
@@ -78,17 +78,17 @@ export class AddCPOwnersComponent {
         });
       },
     });
-  } 
+  }
   onSubmit(): void {
     // Get the form data
     const formData = { ...this.addCPOwnerForm.value }; // Create a copy to avoid directly mutating the form
-  
+
     // Format the dob field
     formData.dob = formData.dob ? this.pipe.transform(formData.dob, 'yyyy-MM-dd') : null;
 
     // Initialize the apiUrl from the passed data
     const apiUrl = this.data.apiUrl;
-  
+
     // Send the request
     this.http.post(`${this.baseUrl}/${apiUrl}`, formData).subscribe(
       (response) => {
@@ -107,5 +107,5 @@ export class AddCPOwnersComponent {
       }
     );
   }
-  
+
 }

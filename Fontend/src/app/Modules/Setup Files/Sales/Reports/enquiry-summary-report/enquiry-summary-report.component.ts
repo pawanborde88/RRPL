@@ -21,7 +21,6 @@ import {
   FormsModule,
   ReactiveFormsModule
 } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import {

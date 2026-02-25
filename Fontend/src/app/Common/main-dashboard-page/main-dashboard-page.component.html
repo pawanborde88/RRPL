@@ -1,32 +1,37 @@
 <app-costom-loading [loading]="loading()"></app-costom-loading>
 <app-template>
-    <div class="min-h-screen bg-slate-50/50 pb-8">
-        <div class="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-6 pt-4">
+    <div class="min-h-screen bg-slate-50/60 pb-10">
+        <div class="w-full px-4 sm:px-6 lg:px-8 pt-6">
 
-            <!-- Premium Header Section -->
+            <!-- ══════════════════════════════════════════════════ -->
+            <!-- PREMIUM HEADER -->
+            <!-- ══════════════════════════════════════════════════ -->
             <header
-                class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 animate-fade-in">
-                <div class="header-content">
-                    <h1 class="text-3xl md:text-4xl font-black tracking-tight text-slate-900 mb-1">
-                        {{ greetingText() }} {{greetingName()}}
+                class="flex flex-col md:flex-row justify-between items-start md:items-center mb-5 gap-4 animate-fade-in">
+                <div class="flex flex-col">
+                    <h1 class="text-3xl md:text-5xl font-black tracking-tight text-slate-900 mb-1 leading-tight">
+                        {{ greetingText() }}, <span
+                            class="text-indigo-600 underline decoration-indigo-100 decoration-8 underline-offset-[10px]">{{
+                            greetingName() }}</span> 👋
                     </h1>
-                    <p class="text-sm font-medium text-slate-500 flex items-center gap-2">
-                        {{ currentDate() | date:'EEEE, MMMM d, y' }}
-                    </p>
+                    <div class="flex items-center gap-2 text-slate-400">
+                        <mat-icon class="!w-4 !h-4 !text-[16px] opacity-70">calendar_today</mat-icon>
+                        <p class="text-[13px] font-bold tracking-wide uppercase">
+                            {{ currentDate() | date:'EEEE, MMMM d, y' }}
+                        </p>
+                    </div>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
-                    <app-autocomplete-reusable-component class="w-[240px] !mb-0" [options]="projectsList()"
-                        idKey="project_id" displayKey="property_name" placeholder="Select Project"
-                        (selectedIdChange)="onProjectChange($event)">
+                    <app-autocomplete-reusable-component class="w-[220px] !mb-0" [options]="projects()"
+                        idKey="project_id" displayKey="property_name" [isMultiSelect]="true"
+                        placeholder="Select Project" (selectedIdChange)="onProjectChange($event)">
                     </app-autocomplete-reusable-component>
 
                     <mat-form-field appearance="outline" class="w-[240px] !mb-0 dense-form-field">
-                        <mat-date-range-input [rangePicker]="picker" [max]="currentDate()">
-                            <input matStartDate [ngModel]="startDate()" (ngModelChange)="startDate.set($event)"
-                                placeholder="Start">
-                            <input matEndDate [ngModel]="endDate()"
-                                (ngModelChange)="endDate.set($event); onDateChange()" placeholder="End">
+                        <mat-date-range-input [rangePicker]="picker" [max]="currentDate()" [formGroup]="filterForm">
+                            <input matStartDate formControlName="start_date" placeholder="Start">
+                            <input matEndDate formControlName="end_date" placeholder="End">
                         </mat-date-range-input>
                         <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                         <mat-date-range-picker #picker></mat-date-range-picker>
@@ -34,18 +39,21 @@
                 </div>
             </header>
 
+            <!-- ══════════════════════════════════════════════════ -->
             <!-- TAB GROUP -->
+            <!-- ══════════════════════════════════════════════════ -->
             <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false"
                 class="premium-tabs remove-tab-header-padding">
 
-                <!-- DASHBOARD TAB -->
+                <!-- ─────────────────── DASHBOARD TAB ─────────────────── -->
                 <mat-tab label="Dashboard">
-                    <div class="pt-6 animate-fade-in">
-                        <!-- ROW 1: KEY PERFORMANCE METRICS -->
-                        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="pt-5 animate-fade-in">
+
+                        <!-- ROW 1 · HEADER KPI METRICS -->
+                        <section class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             <div *ngFor="let metric of headerMetrics(); let i = index; trackBy: trackByMetricId"
-                                class="animate-fade-in" [class]="'stagger-' + (i + 1)">
-                                <div class="metric-card shadow-lg" [style.--card-bg]="getMetricTheme(metric.icon).bg"
+                                class="animate-fade-in stagger-{{i+1}} group">
+                                <div class="metric-card" [style.--card-bg]="getMetricTheme(metric.icon).bg"
                                     [style.--card-border]="getMetricTheme(metric.icon).bg"
                                     [style.--card-shadow]="getMetricTheme(metric.icon).shadow"
                                     [style.--card-icon]="getMetricTheme(metric.icon).icon"
@@ -53,15 +61,17 @@
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <div class="metric-title">{{ metric.title }}</div>
-                                            <div class="metric-value">{{ metric.value }}</div>
-                                            <div class="trend-indicator" [ngClass]="metric.trend">
-                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px] font-bold">{{
+                                            <div
+                                                class="metric-value group-hover:scale-110 transition-transform origin-left duration-500">
+                                                {{ metric.value }}</div>
+                                            <div class="trend-indicator shadow-sm mt-3" [ngClass]="metric.trend">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px]">{{
                                                     getTrendIcon(metric.trend) }}</mat-icon>
-                                                <span>{{ metric.change }} <span class="opacity-60 font-medium italic">vs
-                                                        last</span></span>
+                                                <span>{{ metric.change }}</span>
                                             </div>
                                         </div>
-                                        <div class="metric-icon-box">
+                                        <div
+                                            class="metric-icon-box shadow-xl group-hover:rotate-12 transition-all duration-500">
                                             <mat-icon>{{ metric.icon }}</mat-icon>
                                         </div>
                                     </div>
@@ -69,38 +79,35 @@
                             </div>
                         </section>
 
-                        <!-- QUICK ACTIONS SECTION -->
-
-
-
-                        <!-- ROW 2: SALES MANAGEMENT METRICS -->
-                        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-                            *ngIf="salesMetrics().length > 0">
+                        <!-- ROW 2 · LIVE SALES METRICS -->
+                        <section class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8" *ngIf="salesMetrics().length > 0">
                             <div *ngFor="let metric of salesMetrics(); let i = index; trackBy: trackByMetricId"
-                                class="animate-fade-in" [class]="'stagger-' + (i + 1)">
-                                <div class="metric-card shadow-lg" [style.--card-bg]="getMetricTheme(metric.icon).bg"
+                                class="animate-fade-in stagger-{{i+1}} group">
+                                <div class="metric-card" [style.--card-bg]="getMetricTheme(metric.icon).bg"
                                     [style.--card-border]="getMetricTheme(metric.icon).bg"
                                     [style.--card-shadow]="getMetricTheme(metric.icon).shadow"
                                     [style.--card-icon]="getMetricTheme(metric.icon).icon"
                                     [style.--card-text]="getMetricTheme(metric.icon).text">
                                     <div class="flex justify-between items-start">
-                                        <div class="flex flex-col h-full">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <div class="live-indicator">
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center gap-2 mb-3">
+                                                <div class="live-indicator glass-pill">
                                                     <div class="dot"></div>
-                                                    <span>Live</span>
+                                                    <span>Live Today</span>
                                                 </div>
-                                                <div class="metric-title !mb-0">{{ metric.title }}</div>
                                             </div>
-                                            <div class="metric-value">{{ metric.value }}</div>
-                                            <div class="trend-indicator" [ngClass]="metric.trend">
-                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px] font-bold">{{
+                                            <div class="metric-title">{{ metric.title }}</div>
+                                            <div
+                                                class="metric-value group-hover:translate-x-1 transition-transform duration-500">
+                                                {{ metric.value }}</div>
+                                            <div class="trend-indicator shadow-sm mt-3" [ngClass]="metric.trend">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px]">{{
                                                     getTrendIcon(metric.trend) }}</mat-icon>
-                                                <span>{{ metric.change || '+0%' }} <span
-                                                        class="opacity-60 font-medium italic">vs last</span></span>
+                                                <span>{{ metric.change || '+0%' }}</span>
                                             </div>
                                         </div>
-                                        <div class="metric-icon-box">
+                                        <div
+                                            class="metric-icon-box group-hover:-translate-y-2 transition-transform duration-500">
                                             <mat-icon>{{ metric.icon }}</mat-icon>
                                         </div>
                                     </div>
@@ -108,424 +115,402 @@
                             </div>
                         </section>
 
-
-                        <!-- ROW 3: CHARTS GRID -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+                        <!-- ROW 3 · ENQUIRY + UNIT DISTRIBUTION -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
                             <!-- Enquiry Analysis -->
-                            <div class="lg:col-span-4 animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="lg:col-span-4 animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                                                Enquiry
-                                                Analysis</h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Status breakdown
-                                            </p>
-                                        </div>
-                                        <button mat-icon-button
-                                            class="text-slate-200 hover:text-blue-600 hover:bg-blue-50 transition-all w-10 h-10 flex items-center justify-center rounded-2xl">
-                                            <mat-icon
-                                                class="!w-5 !h-5 !text-[20px] leading-[20px]">more_horiz</mat-icon>
-                                        </button>
-                                    </div>
-                                    <div class="flex flex-row items-center justify-between gap-4 mt-4">
-                                        <div class="relative w-[150px] h-[150px] flex-shrink-0">
-                                            <canvas #statusChartDash></canvas>
                                             <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span
-                                                    class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                                <strong class="text-xl font-black text-slate-900">{{ totalEnquiries()
-                                                    }}</strong>
-                                            </div>
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Enquiry Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Conversion Funnel</div>
                                         </div>
-                                        <div class="grid grid-cols-1 gap-1 w-full">
-                                            <div class="flex items-center justify-between p-1.5 rounded-xl hover:bg-slate-50 transition-all group/item"
-                                                *ngFor="let item of statusChartLegend()">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full"
-                                                        [style.background-color]="item.color"></span>
-                                                    <span
-                                                        class="text-[11px] font-bold text-slate-500 group-hover/item:text-slate-900">{{
-                                                        item.label }}</span>
-                                                </div>
-                                                <span class="text-[11px] font-black text-slate-900">{{
-                                                    item.value }}</span>
-                                            </div>
+                                        <span
+                                            class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">Funnel</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="enquiryAnalysisOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Unit Distribution -->
-                            <div class="lg:col-span-8 animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-2">
+                            <div class="lg:col-span-8 animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                                                Unit
-                                                Distribution</h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Inventory overview across
-                                                projects
-                                            </p>
+                                            <div
+                                                class="chart-title group-hover:text-emerald-600 transition-colors duration-300">
+                                                Unit Distribution</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Inventory Overview</div>
                                         </div>
-                                        <button mat-icon-button
-                                            class="text-slate-200 hover:text-blue-600 hover:bg-blue-50 transition-all w-10 h-10 flex items-center justify-center rounded-2xl">
-                                            <mat-icon
-                                                class="!w-5 !h-5 !text-[20px] leading-[20px]">more_horiz</mat-icon>
-                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="kpi-badge bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Active
+                                                Inventory</span>
+                                        </div>
                                     </div>
-                                    <div class="flex-grow min-h-[220px] w-full mt-2">
-                                        <canvas #priceByTypeChartDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="unitDistributionOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ROW 4: SOURCES -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <!-- ROW 4 · LEAD SOURCES -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                             <!-- Presale Sources -->
-                            <div class="animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-emerald-600 transition-colors duration-300">
-                                                Presale Lead
-                                                Sources
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Where are leads
-                                                coming from?
-                                            </p>
+                                            <div
+                                                class="chart-title group-hover:text-violet-600 transition-colors duration-300">
+                                                Presale Lead Sources</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Attribution Analysis</div>
                                         </div>
-                                        <div
-                                            class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black tracking-wider shadow-sm">
-                                            TOP 10</div>
+                                        <span class="kpi-badge bg-violet-50 text-violet-600 glass-pill text-[10px]">All
+                                            Channels</span>
                                     </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #presaleSourceChartDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="presaleSourceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
-
                                 </div>
                             </div>
 
                             <!-- Sales Sources -->
-                            <div class="animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-blue-600 transition-colors duration-300">
-                                                Sales
-                                                Enquiry Sources
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Conversion tracking
-                                                by source
-                                            </p>
-                                        </div>
-                                        <div
-                                            class="px-3 py-1 bg-blue-50 text-blue-700 rounded-xl text-[10px] font-black tracking-wider shadow-sm">
-                                            TOP 10
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #salesSourceChartDash></canvas>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ROW 5: LEAD LEVELS -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <!-- Presale Lead Levels -->
-                            <div class="animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-indigo-600 transition-colors">
-                                            Presale Lead
-                                            Levels</h3>
-                                    </div>
-                                    <div class="flex flex-row items-center justify-center gap-6 h-full mt-2">
-                                        <div class="relative w-[140px] h-[140px] flex-shrink-0">
-                                            <canvas #presaleLeadLevelChartDash></canvas>
                                             <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span
-                                                    class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                                <strong class="text-xl font-black text-slate-900">{{
-                                                    totalPresaleLeads()
-                                                    }}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="grid grid-cols-1 gap-1 w-full max-w-[150px]">
-                                            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-slate-50 transition-all group/level"
-                                                *ngFor="let item of presaleLeadLevelLegend()">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full"
-                                                        [style.background-color]="item.color"></span>
-                                                    <span
-                                                        class="text-[11px] font-bold text-slate-500 group-hover/level:text-slate-900">{{
-                                                        item.label
-                                                        }}</span>
-                                                </div>
-                                                <span
-                                                    class="font-black text-slate-900 bg-slate-50 px-1.5 py-0.5 rounded-lg text-[10px]">{{
-                                                    item.value }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Sales Lead Levels -->
-                            <div class="animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.08)] border border-slate-100/50 h-full flex flex-col p-4 transition-all duration-300 ease-out">
-                                    <div class="flex items-center justify-between mb-6">
-                                        <h3 class="text-sm font-bold text-slate-800 m-0 tracking-tight">Sales Lead
-                                            Levels</h3>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-8 h-full">
-                                        <div class="relative w-[160px] h-[160px] flex-shrink-0">
-                                            <canvas #salesLeadLevelChartDash></canvas>
+                                                class="chart-title group-hover:text-blue-600 transition-colors duration-300">
+                                                Sales Enquiry Sources</div>
                                             <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span
-                                                    class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Total</span>
-                                                <strong class="text-xl font-black text-slate-800">{{ totalSalesLeads()
-                                                    }}</strong>
-                                            </div>
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Conversion Tracking</div>
                                         </div>
-                                        <div class="grid grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-2 w-full sm:w-auto">
-                                            <div class="flex items-center justify-between gap-4 text-xs group"
-                                                *ngFor="let item of salesLeadLevelLegend()">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="w-2 h-2 rounded-full ring-2 ring-white shadow-sm"
-                                                        [style.background-color]="item.color"></span>
-                                                    <span
-                                                        class="text-slate-600 font-medium truncate max-w-[100px] group-hover:text-slate-900 transition-colors">{{
-                                                        item.label
-                                                        }}</span>
-                                                </div>
-                                                <span
-                                                    class="font-bold text-slate-800 bg-slate-50 px-1.5 py-0.5 rounded text-[10px]">{{
-                                                    item.value }}</span>
-                                            </div>
+                                        <span class="kpi-badge bg-blue-50 text-blue-600 glass-pill text-[10px]">All
+                                            Channels</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="salesSourceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ROW 6: BOOKING & CAMPAIGNS -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
+                        <!-- ROW 5 · LEAD LEVELS -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <!-- Lead Levels -->
+                            <div class="animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Presale Pipeline Stages</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Distribution analysis</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">Presale</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="presaleLeadLevelOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-teal-600 transition-colors duration-300">
+                                                Sales Pipeline Stages</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Performance Tracking</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-teal-50 text-teal-600 glass-pill text-[10px]">Sales</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="salesLeadLevelOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 6 · BOOKING STATUS + CAMPAIGN TABLE -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
                             <!-- Booking Status -->
-                            <div class="lg:col-span-4 animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="lg:col-span-4 animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-teal-600 transition-colors">
-                                                Booking
-                                                Status</h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Trend over time</p>
+                                            <div
+                                                class="chart-title group-hover:text-teal-600 transition-colors duration-300">
+                                                Booking Status</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Unit Status Overview</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-teal-50 text-teal-700 glass-pill text-[10px]">Real-time</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="bookingStatusOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
-                                    <div class="flex-grow min-h-[160px] w-full">
-                                        <canvas #bookingStatusChartDash></canvas>
-                                    </div>
-
                                 </div>
                             </div>
 
-                            <!-- Campaign Performance -->
-                            <div class="lg:col-span-8 animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="p-4 border-b border-slate-50 bg-slate-50/30">
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-indigo-600 transition-colors">
-                                            Campaign
-                                            Performance</h3>
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                            ROI & Lead generation
-                                            metrics</p>
+                            <!-- Campaign Performance Table -->
+                            <div class="lg:col-span-8 animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Campaign Performance</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                ROI & Delivery Metrics</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-indigo-50 text-indigo-700 glass-pill text-[10px]">Digital
+                                            Assets</span>
                                     </div>
-                                    <div class="overflow-x-auto max-h-[350px]">
-                                        <table class="w-full text-left border-collapse">
-                                            <thead class="sticky top-0 z-10">
-                                                <tr class="bg-white border-b border-slate-100">
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 bg-white">
-                                                        Campaign Name</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Leads</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Duplicate</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Visited</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Booked</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-50">
-                                                <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
-                                                    class="hover:bg-slate-50/50 transition-colors duration-200 group/row">
-                                                    <td
-                                                        class="py-4 px-6 text-xs font-bold text-slate-700 max-w-[200px] truncate group-hover/row:text-indigo-600 transition-colors">
-                                                        {{ campaign.integration_name }}</td>
-                                                    <td class="py-4 px-6 text-xs font-black text-slate-900 text-center">
-                                                        <span
-                                                            class="bg-slate-100 group-hover/row:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">{{
-                                                            campaign.lead_count }}</span>
-                                                    </td>
-                                                    <td class="py-4 px-6 text-xs font-bold text-slate-400 text-center">
-                                                        {{
-                                                        campaign.duplicate_leads }}</td>
-                                                    <td class="py-4 px-6 text-xs font-bold text-slate-600 text-center">
-                                                        {{
-                                                        campaign.site_visit_count }}</td>
-                                                    <td class="py-4 px-6 text-xs font-black text-center">
-                                                        <span
-                                                            class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg">{{
-                                                            campaign.booking_count }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    <div class="chart-card-body !pb-0 !px-0">
+                                        <div class="h-[350px] w-full mb-4 px-6">
+                                            <ag-charts *ngIf="campaignPerformanceOptions() as opts"
+                                                class="w-full h-full" [options]="opts"></ag-charts>
+                                        </div>
+                                        <div class="overflow-x-auto border-t border-slate-50">
+                                            <table class="campaign-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-left">Campaign Information</th>
+                                                        <th class="text-center">Leads</th>
+                                                        <th class="text-center">Duplicates</th>
+                                                        <th class="text-center">Site Visits</th>
+                                                        <th class="text-center">Bookings</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
+                                                        class="group/tr">
+                                                        <td class="font-bold text-slate-800">{{
+                                                            campaign.integration_name }}</td>
+                                                        <td class="text-center">
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700">{{
+                                                                campaign.lead_count }}</span>
+                                                        </td>
+                                                        <td class="text-center text-slate-400 font-semibold">{{
+                                                            campaign.duplicate_leads }}</td>
+                                                        <td class="text-center text-slate-600 font-bold">{{
+                                                            campaign.site_visit_count }}</td>
+                                                        <td class="text-center">
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 group-hover/tr:scale-110 transition-transform">{{
+                                                                campaign.booking_count }}</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ROW 7: DEMOGRAPHICS -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <div class="animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                        <!-- ROW 7 · DEMOGRAPHICS -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-amber-600 transition-colors">
-                                                Industry
-                                                Distribution
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Buyer profession
-                                                breakdown</p>
+                                            <div
+                                                class="chart-title group-hover:text-amber-600 transition-colors duration-300">
+                                                Industry Distribution</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Market Segments</div>
                                         </div>
+                                        <span
+                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Demographics</span>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #industryChartDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="industryOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-violet-600 transition-colors">
-                                                Age Group
-                                                Analysis</h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Customer
-                                                demographics</p>
+                                            <div
+                                                class="chart-title group-hover:text-violet-600 transition-colors duration-300">
+                                                Age Group Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Customer Profile</div>
                                         </div>
+                                        <span
+                                            class="kpi-badge bg-violet-50 text-violet-700 glass-pill text-[10px]">Demographics</span>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #ageRangeChartDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="ageRangeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- ROW 8: BUYER INTENT & PREFERENCES -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <div class="animate-fade-in stagger-3">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="text-base font-black text-slate-800 m-0 tracking-tight">Booking Plan
-                                        </h3>
+                        <!-- ROW 8 · BUYER INTENT -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-3 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-emerald-600 transition-colors duration-300">
+                                                Booking Plan</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Timeline Intent</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-emerald-50 text-emerald-700 glass-pill text-[10px]">Intent</span>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #bookingPlanDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="bookingPlanOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-4">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3 class="text-base font-black text-slate-800 m-0 tracking-tight">Buying
-                                            Purpose</h3>
+                            <div class="animate-fade-in stagger-4 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-pink-600 transition-colors duration-300">
+                                                Buying Purpose</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Investment Strategy</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-pink-50 text-pink-700 glass-pill text-[10px]">Intent</span>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #buyingPurposeDash></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="buyingPurposeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                            <div class="animate-fade-in stagger-5">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 h-full flex flex-col p-4">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Native Place</h3>
-                                    <div class="flex-grow min-h-[180px]">
-                                        <canvas #nativePlaceDash></canvas>
+                        <!-- ROW 9 · GEO PREFERENCES -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-5 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Native Place</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Origin Tracking</div>
+                                        </div>
                                     </div>
-
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="nativePlaceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-6">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 h-full flex flex-col p-4">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Possession Required</h3>
-                                    <div class="flex-grow min-h-[180px]">
-                                        <canvas #possessionRequiredDash></canvas>
+                            <div class="animate-fade-in stagger-6 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Possession Timeline</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Delivery Urgency</div>
+                                        </div>
                                     </div>
-
+                                    <div class="chart-card-body">
+                                        <div class="h-[320px] w-full">
+                                            <ag-charts *ngIf="possessionRequiredOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-7">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 h-full flex flex-col p-4">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Preferred Location</h3>
-                                    <div class="flex-grow min-h-[180px]">
-                                        <canvas #preferredLocationDash></canvas>
+                            <div class="animate-fade-in stagger-7 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Preferred Location</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Market Demand</div>
+                                        </div>
                                     </div>
-
+                                    <div class="chart-card-body">
+                                        <div class="h-[320px] w-full">
+                                            <ag-charts *ngIf="preferredLocationOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -533,14 +518,15 @@
                     </div>
                 </mat-tab>
 
-                <!-- SITE VISIT MANAGEMENT TAB -->
+                <!-- ─────────────── SITE VISIT MANAGEMENT TAB ─────────────── -->
                 <mat-tab label="Site Visit Management">
-                    <div class="pt-6 animate-fade-in">
-                        <!-- Section 1: Sales Header Metrics -->
-                        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                            <div *ngFor="let metric of salesMetrics(); let i = index; trackBy: trackByMetricId"
-                                class="animate-fade-in" [class]="'stagger-' + (i + 1)">
-                                <div class="metric-card shadow-lg" [style.--card-bg]="getMetricTheme(metric.icon).bg"
+                    <div class="pt-5 animate-fade-in">
+
+                        <!-- SITE VISIT METRICS -->
+                        <section class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div *ngFor="let metric of siteVisitMetrics(); let i = index; trackBy: trackByMetricId"
+                                class="animate-fade-in stagger-{{i+1}} group">
+                                <div class="metric-card" [style.--card-bg]="getMetricTheme(metric.icon).bg"
                                     [style.--card-border]="getMetricTheme(metric.icon).bg"
                                     [style.--card-shadow]="getMetricTheme(metric.icon).shadow"
                                     [style.--card-icon]="getMetricTheme(metric.icon).icon"
@@ -548,15 +534,17 @@
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <div class="metric-title">{{ metric.title }}</div>
-                                            <div class="metric-value">{{ metric.value }}</div>
-                                            <div class="trend-indicator" [ngClass]="metric.trend">
-                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px] font-bold">{{
+                                            <div
+                                                class="metric-value group-hover:scale-105 transition-transform origin-left duration-500">
+                                                {{ metric.value }}</div>
+                                            <div class="trend-indicator shadow-sm mt-3" [ngClass]="metric.trend">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px]">{{
                                                     getTrendIcon(metric.trend) }}</mat-icon>
-                                                <span>{{ metric.change || '+0%' }} <span
-                                                        class="opacity-60 font-medium italic">vs last</span></span>
+                                                <span>{{ metric.change || '+0%' }}</span>
                                             </div>
                                         </div>
-                                        <div class="metric-icon-box">
+                                        <div
+                                            class="metric-icon-box shadow-lg group-hover:rotate-12 transition-all duration-500">
                                             <mat-icon>{{ metric.icon }}</mat-icon>
                                         </div>
                                     </div>
@@ -564,248 +552,296 @@
                             </div>
                         </section>
 
-
-                        <!-- Section 2: Charts Area -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
-                            <!-- Sales Lead Levels -->
-                            <div class="lg:col-span-4 animate-fade-in stagger-1">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-indigo-600 transition-colors">
-                                            Sales Lead
-                                            Levels</h3>
-                                    </div>
-                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-10 h-full">
-                                        <div class="relative w-[180px] h-[180px] flex-shrink-0">
-                                            <canvas #salesLeadLevelChartSV></canvas>
+                        <!-- Level Wise SV + SV Sources -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                            <!-- Site Visit Levels (Sales) -->
+                            <div class="lg:col-span-4 animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
                                             <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span
-                                                    class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                                <strong class="text-2xl font-black text-slate-900">{{
-                                                    totalSalesLeads()
-                                                    }}</strong>
-                                            </div>
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Sales Lead Levels</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Pipeline Stage analysis</div>
                                         </div>
-                                        <div class="grid grid-cols-1 gap-2 w-full max-w-[180px]">
-                                            <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-all group/level"
-                                                *ngFor="let item of salesLeadLevelLegend()">
-                                                <div class="flex items-center gap-3">
-                                                    <span class="w-2.5 h-2.5 rounded-full shadow-sm"
-                                                        [style.background-color]="item.color"></span>
+                                        <span
+                                            class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="flex flex-col md:flex-row items-center gap-6">
+                                            <div class="relative w-[150px] h-[150px] flex-shrink-0">
+                                                <ag-charts *ngIf="salesLeadLevelOptions() as opts" class="w-full h-full"
+                                                    [options]="opts"></ag-charts>
+                                                <div
+                                                    class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                                     <span
-                                                        class="text-xs font-bold text-slate-500 group-hover/level:text-slate-900 transition-colors">{{
-                                                        item.label
+                                                        class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Total</span>
+                                                    <strong class="text-xl font-black text-slate-900 leading-none">{{
+                                                        totalSalesLeads() }}</strong>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-1 gap-1.5 w-full">
+                                                <div class="legend-item group/item"
+                                                    *ngFor="let item of salesLeadLevelLegend()">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <span
+                                                            class="w-2 h-2 rounded-full group-hover/item:scale-125 transition-transform"
+                                                            [style.background-color]="item.color"></span>
+                                                        <span
+                                                            class="text-[12px] font-bold text-slate-600 group-hover/item:text-slate-900">{{
+                                                            item.label }}</span>
+                                                    </div>
+                                                    <span class="text-[12px] font-black text-slate-900">{{ item.value
                                                         }}</span>
                                                 </div>
-                                                <span
-                                                    class="font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">{{
-                                                    item.value }}</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Sales Lead Sources -->
-                            <div class="lg:col-span-8 animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <!-- Sales SV Sources -->
+                            <div class="lg:col-span-8 animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-indigo-600 transition-colors">
-                                                Sales
-                                                Lead Sources
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Source of sales
-                                                enquiries
-                                            </p>
+                                            <div
+                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                Sales Lead Sources</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Attribution analysis</div>
                                         </div>
-                                        <div
-                                            class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black tracking-wider shadow-sm">
-                                            TOP 10</div>
+                                        <span class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">All
+                                            Channels</span>
                                     </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #salesSourceChartSV></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="salesSourceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 3: Shared Charts -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                            <!-- Enquiry Analysis -->
-                            <div
-                                class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col h-full animate-fade-in stagger-3 group">
-                                <h3
-                                    class="text-base font-black text-slate-800 mb-4 group-hover:text-indigo-600 transition-colors">
-                                    Enquiry Analysis</h3>
-                                <div class="relative w-48 h-48 mx-auto">
-                                    <canvas #statusChartSV></canvas>
-                                    <div
-                                        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <!-- Enquiry + Unit Distribution (Sales) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-3 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                                Enquiry Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Status breakdown</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[350px] w-full">
+                                            <ag-charts *ngIf="enquiryAnalysisOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="lg:col-span-2 animate-fade-in stagger-4 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">Unit
+                                                Distribution</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Inventory overview</div>
+                                        </div>
                                         <span
-                                            class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                        <strong class="text-2xl font-black text-slate-900">{{ totalEnquiries()
-                                            }}</strong>
+                                            class="kpi-badge bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[230px] w-full">
+                                            <ag-charts *ngIf="unitDistributionOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="mt-8 grid grid-cols-1 gap-2">
-                                    <div class="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-all group/item"
-                                        *ngFor="let item of polarAreaChartLegend()">
-                                        <div class="flex items-center gap-3">
-                                            <span class="w-2.5 h-2.5 rounded-full shadow-sm"
-                                                [style.background-color]="item.color"></span>
-                                            <span
-                                                class="text-xs font-bold text-slate-500 group-hover/item:text-slate-900 transition-colors">{{
-                                                item.label }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Demographics (Sales) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-5 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                                Industry Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Buyer profession breakdown</div>
                                         </div>
                                         <span
-                                            class="font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">{{
-                                            item.value }}</span>
+                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Unit Distribution -->
-                            <div
-                                class="lg:col-span-2 bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col h-full animate-fade-in stagger-4 group">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3
-                                        class="text-base font-black text-slate-800 group-hover:text-indigo-600 transition-colors">
-                                        Unit Distribution</h3>
-                                </div>
-                                <div class="flex-grow min-h-[250px]">
-                                    <canvas #priceByTypeChartSV></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 3b: Demographics -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <!-- Industry -->
-                            <div class="animate-fade-in stagger-5">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-amber-600 transition-colors">
-                                                Industry
-                                                Analysis
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Buyer profession
-                                                breakdown</p>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="industryOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #industryChartSV></canvas>
-                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Age Range -->
-                            <div class="animate-fade-in stagger-6">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="animate-fade-in stagger-6 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-violet-600 transition-colors">
-                                                Age Range
-                                                Analysis
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Customer demographics</p>
+                                            <div class="chart-title group-hover:text-violet-600 transition-colors">Age
+                                                Range Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Customer demographics</div>
                                         </div>
+                                        <span
+                                            class="kpi-badge bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
                                     </div>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #ageRangeChartSV></canvas>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="ageRangeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 4: Booking Status -->
-                        <div
-                            class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 mb-4 animate-fade-in stagger-7 group">
-                            <div class="flex items-center justify-between mb-4">
+                        <!-- Booking Status Full Width -->
+                        <div class="chart-card mb-8 animate-fade-in stagger-7 group">
+                            <div class="chart-card-header">
                                 <div>
-                                    <h3
-                                        class="text-base font-black text-slate-800 group-hover:text-teal-600 transition-colors">
-                                        Booking Status</h3>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                        Monthly booking trends and
-                                        agreements</p>
+                                    <div class="chart-title group-hover:text-teal-600 transition-colors">Booking Status
+                                        Overview</div>
+                                    <div class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">Monthly
+                                        booking trends & agreements</div>
                                 </div>
+                                <span class="kpi-badge bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking
+                                    Insights</span>
                             </div>
-                            <div class="w-full h-[320px]">
-                                <canvas #bookingStatusChartSV></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Section 4: Buyer Behavior & Intent -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4 mt-6">
-                            <div class="animate-fade-in stagger-8">
-                                <div
-                                    class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 flex flex-col h-full group">
-                                    <h3
-                                        class="text-base font-black text-slate-800 mb-4 group-hover:text-amber-600 transition-colors">
-                                        Booking Plan</h3>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #bookingPlanSV></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="animate-fade-in stagger-9">
-                                <div
-                                    class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 flex flex-col h-full group">
-                                    <h3
-                                        class="text-base font-black text-slate-800 mb-4 group-hover:text-violet-600 transition-colors">
-                                        Buying Purpose</h3>
-                                    <div class="flex-grow min-h-[250px] w-full">
-                                        <canvas #buyingPurposeSV></canvas>
-                                    </div>
+                            <div class="chart-card-body">
+                                <div class="h-[300px] w-full">
+                                    <ag-charts *ngIf="bookingStatusOptions() as opts" class="w-full h-full"
+                                        [options]="opts"></ag-charts>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                            <div class="animate-fade-in stagger-10">
-                                <div
-                                    class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 h-full flex flex-col">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Native Place</h3>
-                                    <div class="flex-grow min-h-[280px]">
-                                        <canvas #nativePlaceSV></canvas>
+                        <!-- Buyer Behavior (Sales) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-8 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">
+                                                Booking Plan</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Planned booking timelines</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-emerald-50 text-emerald-700 glass-pill text-[10px]">Lead
+                                            Intent</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="bookingPlanOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-11">
-                                <div
-                                    class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 h-full flex flex-col">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Possession Required</h3>
-                                    <div class="flex-grow min-h-[280px]">
-                                        <canvas #possessionRequiredSV></canvas>
+                            <div class="animate-fade-in stagger-9 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-pink-600 transition-colors">Buying
+                                                Purpose</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Investment vs Self-use</div>
+                                        </div>
+                                        <span class="kpi-badge bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
+                                            Intent</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="buyingPurposeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="animate-fade-in stagger-12">
-                                <div
-                                    class="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 h-full flex flex-col">
-                                    <h3 class="text-base font-black text-slate-800 mb-4">Preferred Location</h3>
-                                    <div class="flex-grow min-h-[180px]">
-                                        <canvas #preferredLocationSV></canvas>
-                                    </div>
+                        </div>
 
+                        <!-- Geo Preferences (Sales) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-10 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Native Place</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Buyer origins</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="nativePlaceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-11 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Possession Timeline</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Urgency of requirement</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="possessionRequiredOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-12 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Preferred Location</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Top desired areas</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="preferredLocationOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -813,14 +849,15 @@
                     </div>
                 </mat-tab>
 
-                <!-- LEAD MANAGEMENT TAB -->
+                <!-- ─────────────────── LEAD MANAGEMENT TAB ─────────────────── -->
                 <mat-tab label="Lead Management">
-                    <div class="pt-6 animate-fade-in">
-                        <!-- Section 1: Header Metrics -->
-                        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="pt-5 animate-fade-in">
+
+                        <!-- KPI METRICS -->
+                        <section class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                             <div *ngFor="let metric of headerMetrics(); let i = index; trackBy: trackByMetricId"
-                                class="animate-fade-in" [class]="'stagger-' + (i + 1)">
-                                <div class="metric-card shadow-lg" [style.--card-bg]="getMetricTheme(metric.icon).bg"
+                                class="animate-fade-in stagger-{{i+1}} group">
+                                <div class="metric-card" [style.--card-bg]="getMetricTheme(metric.icon).bg"
                                     [style.--card-border]="getMetricTheme(metric.icon).bg"
                                     [style.--card-shadow]="getMetricTheme(metric.icon).shadow"
                                     [style.--card-icon]="getMetricTheme(metric.icon).icon"
@@ -828,15 +865,17 @@
                                     <div class="flex justify-between items-start">
                                         <div>
                                             <div class="metric-title">{{ metric.title }}</div>
-                                            <div class="metric-value">{{ metric.value }}</div>
-                                            <div class="trend-indicator" [ngClass]="metric.trend">
-                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px] font-bold">{{
+                                            <div
+                                                class="metric-value group-hover:scale-105 transition-transform origin-left duration-500">
+                                                {{ metric.value }}</div>
+                                            <div class="trend-indicator shadow-sm mt-3" [ngClass]="metric.trend">
+                                                <mat-icon class="!w-3 !h-3 !text-[12px] leading-[12px]">{{
                                                     getTrendIcon(metric.trend) }}</mat-icon>
-                                                <span>{{ metric.change }} <span class="opacity-60 font-medium italic">vs
-                                                        last</span></span>
+                                                <span>{{ metric.change }}</span>
                                             </div>
                                         </div>
-                                        <div class="metric-icon-box">
+                                        <div
+                                            class="metric-icon-box shadow-lg group-hover:rotate-12 transition-all duration-500">
                                             <mat-icon>{{ metric.icon }}</mat-icon>
                                         </div>
                                     </div>
@@ -844,386 +883,392 @@
                             </div>
                         </section>
 
-
-                        <!-- Section 2: Campaign Performance & Charts -->
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
-                            <!-- Campaign Performance -->
-                            <div class="lg:col-span-8 animate-fade-in stagger-2">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="p-4 border-b border-slate-50 bg-slate-50/30">
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-blue-600 transition-colors">
-                                            Campaign
-                                            Performance</h3>
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                            Real-time digital
-                                            campaign metrics</p>
-                                    </div>
-                                    <div class="overflow-x-auto max-h-[350px]">
-                                        <table class="w-full text-left border-collapse">
-                                            <thead class="sticky top-0 z-10">
-                                                <tr class="bg-white border-b border-slate-100">
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 bg-white">
-                                                        Campaign Name</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Leads</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Duplicate</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Visited</th>
-                                                    <th
-                                                        class="py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-center bg-white">
-                                                        Booked</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-slate-50">
-                                                <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
-                                                    class="hover:bg-slate-50/50 transition-colors duration-200 group/row">
-                                                    <td
-                                                        class="py-4 px-6 text-xs font-bold text-slate-700 max-w-[200px] truncate group-hover/row:text-blue-600 transition-colors">
-                                                        {{ campaign.integration_name }}</td>
-                                                    <td class="py-4 px-6 text-xs font-black text-slate-900 text-center">
-                                                        <span
-                                                            class="bg-slate-100 group-hover/row:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">{{
-                                                            campaign.lead_count }}</span>
-                                                    </td>
-                                                    <td class="py-4 px-6 text-xs font-bold text-slate-400 text-center">
-                                                        {{
-                                                        campaign.duplicate_leads }}</td>
-                                                    <td class="py-4 px-6 text-xs font-bold text-slate-600 text-center">
-                                                        {{
-                                                        campaign.site_visit_count }}</td>
-                                                    <td class="py-4 px-6 text-xs font-black text-center">
-                                                        <span
-                                                            class="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg">{{
-                                                            campaign.booking_count }}</span>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Presale Lead Levels -->
-                            <div class="lg:col-span-4 animate-fade-in stagger-3">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-indigo-600 transition-colors">
-                                            Presale Lead
-                                            Levels</h3>
-                                    </div>
-                                    <div class="flex flex-row items-center justify-center gap-6 h-full mt-2">
-                                        <div class="relative w-[140px] h-[140px] flex-shrink-0">
-                                            <canvas #presaleLeadLevelChartLead></canvas>
+                        <!-- CAMPAIGN + PRESALE LEVELS -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                            <!-- Campaign Performance Table -->
+                            <div class="lg:col-span-8 animate-fade-in stagger-1 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Campaign Performance</div>
                                             <div
-                                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                                <span
-                                                    class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                                <strong class="text-xl font-black text-slate-900">{{
-                                                    totalPresaleLeads() }}</strong>
-                                            </div>
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Digital Marketing ROI</div>
                                         </div>
-                                        <div class="grid grid-cols-1 gap-1 w-full max-w-[150px]">
-                                            <div class="flex items-center justify-between p-1 rounded-xl hover:bg-slate-50 transition-all group/level"
-                                                *ngFor="let item of presaleLeadLevelLegend()">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="w-2.5 h-2.5 rounded-full"
-                                                        [style.background-color]="item.color"></span>
+                                        <span
+                                            class="kpi-badge bg-indigo-50 text-indigo-700 glass-pill text-[10px]">Real-time</span>
+                                    </div>
+                                    <div class="chart-card-body !pb-0 !px-0">
+                                        <div class="h-[220px] w-full mb-4 px-6">
+                                            <ag-charts *ngIf="campaignPerformanceOptions() as opts"
+                                                class="w-full h-full" [options]="opts"></ag-charts>
+                                        </div>
+                                        <div class="overflow-x-auto border-t border-slate-50">
+                                            <table class="campaign-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-left">Campaign Name</th>
+                                                        <th class="text-center">Leads</th>
+                                                        <th class="text-center">Duplicates</th>
+                                                        <th class="text-center">Site Visits</th>
+                                                        <th class="text-center">Bookings</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
+                                                        class="group/tr">
+                                                        <td class="font-bold text-slate-800">{{
+                                                            campaign.integration_name }}</td>
+                                                        <td class="text-center">
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-700">{{
+                                                                campaign.lead_count }}</span>
+                                                        </td>
+                                                        <td class="text-center text-slate-400 font-semibold">{{
+                                                            campaign.duplicate_leads }}</td>
+                                                        <td class="text-center text-slate-600 font-bold">{{
+                                                            campaign.site_visit_count }}</td>
+                                                        <td class="text-center">
+                                                            <span
+                                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 group-hover/tr:scale-110 transition-transform">{{
+                                                                campaign.booking_count }}</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Presale Lead Levels (Lead Mgmt) -->
+                            <div class="lg:col-span-4 animate-fade-in stagger-2 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Presale Pipeline</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Distribution Analysis</div>
+                                        </div>
+                                        <span class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM
+                                            Funnel</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="flex flex-col md:flex-row items-center gap-6">
+                                            <div class="relative w-[140px] h-[140px] flex-shrink-0">
+                                                <ag-charts *ngIf="presaleLeadLevelOptions() as opts"
+                                                    class="w-full h-full" [options]="opts"></ag-charts>
+                                                <div
+                                                    class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                                     <span
-                                                        class="text-[11px] font-bold text-slate-500 group-hover/level:text-slate-900">{{
-                                                        item.label }}</span>
+                                                        class="text-[8px] font-black text-slate-300 uppercase tracking-widest">Total</span>
+                                                    <strong class="text-xl font-black text-slate-900 leading-none">{{
+                                                        totalPresaleLeads() }}</strong>
                                                 </div>
-                                                <span
-                                                    class="font-black text-slate-900 bg-slate-50 px-1.5 py-0.5 rounded-lg text-[10px]">{{
-                                                    item.value }}</span>
+                                            </div>
+                                            <div class="grid grid-cols-1 gap-1 w-full">
+                                                <div class="legend-item group/item"
+                                                    *ngFor="let item of presaleLeadLevelLegend()">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2 h-2 rounded-full"
+                                                            [style.background-color]="item.color"></span>
+                                                        <span
+                                                            class="text-[11px] font-bold text-slate-600 group-hover/item:text-slate-900 truncate">{{
+                                                            item.label }}</span>
+                                                    </div>
+                                                    <span class="text-[11px] font-black text-slate-900">{{ item.value
+                                                        }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Presale Lead Sources (Full Width) -->
-                        <div class="mb-4 animate-fade-in stagger-4">
-                            <div
-                                class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                <div class="flex items-center justify-between mb-4">
+                        <!-- Presale Sources Full Width (Lead Mgmt) -->
+                        <div class="mb-8 animate-fade-in stagger-3 group">
+                            <div class="chart-card">
+                                <div class="chart-card-header">
                                     <div>
-                                        <h3
-                                            class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-amber-600 transition-colors">
-                                            Presale Lead
-                                            Sources</h3>
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                            Source of enquiries and
-                                            follow-ups</p>
+                                        <div class="chart-title group-hover:text-amber-600 transition-colors">Presale
+                                            Lead Sources</div>
+                                        <div class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">Top
+                                            attribution channels</div>
                                     </div>
-                                    <div
-                                        class="px-3 py-1 bg-amber-50 text-amber-700 rounded-xl text-[10px] font-black tracking-wider shadow-sm">
-                                        TOP 10</div>
+                                    <span class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Top 10
+                                        Source Analysis</span>
                                 </div>
-                                <div class="flex-grow min-h-[180px] w-full">
-                                    <canvas #presaleSourceChartLead></canvas>
+                                <div class="chart-card-body">
+                                    <div class="h-[260px] w-full">
+                                        <ag-charts *ngIf="presaleSourceOptions() as opts" class="w-full h-full"
+                                            [options]="opts"></ag-charts>
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
 
-                        <!-- Section 3: Shared Charts -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                            <!-- Enquiry Analysis -->
-                            <div
-                                class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col h-full animate-fade-in stagger-5 group">
-                                <h3
-                                    class="text-base font-black text-slate-800 mb-4 group-hover:text-indigo-600 transition-colors">
-                                    Enquiry Analysis</h3>
-                                <div class="flex flex-row items-center justify-between gap-4 mt-4">
-                                    <div class="relative w-[130px] h-[130px] flex-shrink-0">
-                                        <canvas #statusChartLead></canvas>
-                                        <div
-                                            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                            <span
-                                                class="text-[8px] font-black text-slate-300 uppercase tracking-widest">Total</span>
-                                            <strong class="text-lg font-black text-slate-900">{{ totalEnquiries()
-                                                }}</strong>
+                        <!-- Enquiry + Unit Distribution (Lead Mgmt) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-4 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Enquiry Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Status breakdown</div>
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 gap-1 w-full">
-                                        <div class="flex items-center justify-between p-1 rounded-lg hover:bg-slate-50 transition-all group/item"
-                                            *ngFor="let item of polarAreaChartLegend()">
-                                            <div class="flex items-center gap-2">
-                                                <span class="w-2 h-2 rounded-full"
-                                                    [style.background-color]="item.color"></span>
-                                                <span
-                                                    class="text-[10px] font-bold text-slate-500 group-hover/item:text-slate-900 truncate max-w-[80px]">{{
-                                                    item.label }}</span>
+                                    <div class="chart-card-body">
+                                        <div class="flex flex-col md:flex-row items-center gap-4">
+                                            <div class="relative w-[130px] h-[130px] flex-shrink-0 mx-auto">
+                                                <ag-charts *ngIf="enquiryAnalysisOptions() as opts"
+                                                    class="w-full h-full" [options]="opts"></ag-charts>
+                                                <div
+                                                    class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                                    <span
+                                                        class="text-[8px] font-black text-slate-300 uppercase tracking-widest">Total</span>
+                                                    <strong class="text-lg font-black text-slate-900 leading-none">{{
+                                                        totalEnquiries() }}</strong>
+                                                </div>
                                             </div>
-                                            <span class="text-[10px] font-black text-slate-900">{{
-                                                item.value }}</span>
+                                            <div class="grid grid-cols-1 gap-1 w-full mt-4 md:mt-0">
+                                                <div class="legend-item group/item"
+                                                    *ngFor="let item of statusChartLegend()">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="w-2 h-2 rounded-full"
+                                                            [style.background-color]="item.color"></span>
+                                                        <span
+                                                            class="text-[11px] font-bold text-slate-600 group-hover/item:text-slate-900">{{
+                                                            item.label }}</span>
+                                                    </div>
+                                                    <span class="text-[11px] font-black text-slate-900">{{ item.value
+                                                        }}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
-
-                            <!-- Unit Distribution -->
-                            <div
-                                class="lg:col-span-2 bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col h-full animate-fade-in stagger-6 group">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3
-                                        class="text-base font-black text-slate-800 group-hover:text-indigo-600 transition-colors">
-                                        Unit Distribution</h3>
-                                </div>
-                                <div class="flex-grow min-h-[200px]">
-                                    <canvas #priceByTypeChartLead></canvas>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!-- Section 3b: Demographics -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <!-- Industry -->
-                            <div class="animate-fade-in stagger-7">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0_0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="lg:col-span-2 animate-fade-in stagger-5 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-amber-600 transition-colors">
-                                                Industry
-                                                Analysis
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Buyer profession breakdown</p>
+                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">Unit
+                                                Distribution</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Inventory Overview</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory
+                                            Status</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="unitDistributionOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #industryChartLead></canvas>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Age Range -->
-                            <div class="animate-fade-in stagger-8">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-violet-600 transition-colors">
-                                                Age Group
-                                                Analysis
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Customer demographics</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #ageRangeChartLead></canvas>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 3c: Buyer Behavior & Intent -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                            <!-- Booking Plan -->
-                            <div class="animate-fade-in stagger-9">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                        <!-- Demographics (Lead Mgmt) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-7 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-blue-600 transition-colors">
-                                                Booking Plan
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Timeline for planned bookings</p>
+                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                                Industry Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Buyer profession breakdown</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="industryOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #bookingPlanLead></canvas>
-                                    </div>
-
                                 </div>
                             </div>
-
-                            <!-- Buying Purpose -->
-                            <div class="animate-fade-in stagger-10">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
+                            <div class="animate-fade-in stagger-8 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
                                         <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-emerald-600 transition-colors">
-                                                Buying Purpose
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Investment vs Self-use</p>
+                                            <div class="chart-title group-hover:text-violet-600 transition-colors">Age
+                                                Group Analysis</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Customer demographics</div>
+                                        </div>
+                                        <span
+                                            class="kpi-badge bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="ageRangeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
                                         </div>
                                     </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #buyingPurposeLead></canvas>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Section 3d: Origin & Geographic Preferences -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-                            <!-- Native Place -->
-                            <div class="animate-fade-in stagger-11">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-orange-600 transition-colors">
-                                                Native Place
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Buyer origins</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #nativePlaceLead></canvas>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Possession Required -->
-                            <div class="animate-fade-in stagger-12">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-teal-600 transition-colors">
-                                                Possession Timeline
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Urgency of requirement</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #possessionRequiredLead></canvas>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Preferred Location -->
-                            <div class="animate-fade-in stagger-13">
-                                <div
-                                    class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 h-full flex flex-col p-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group">
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h3
-                                                class="text-base font-black text-slate-800 m-0 tracking-tight group-hover:text-pink-600 transition-colors">
-                                                Area Preferences
-                                            </h3>
-                                            <p
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                                Top desired locations</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow min-h-[180px] w-full">
-                                        <canvas #preferredLocationLead></canvas>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Section 4: Booking Status -->
-                        <div
-                            class="bg-white rounded-3xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] border border-slate-100 mb-4 animate-fade-in stagger-9 group">
-                            <div class="flex items-center justify-between mb-4">
+                        <!-- Buyer Intent (Lead Mgmt) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-9 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-blue-600 transition-colors">Booking
+                                                Plan</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Timeline for planned bookings</div>
+                                        </div>
+                                        <span class="kpi-badge bg-blue-50 text-blue-700 glass-pill text-[10px]">Lead
+                                            Intent</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="bookingPlanOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-10 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-pink-600 transition-colors">Buying
+                                                Purpose</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Investment vs Self-use</div>
+                                        </div>
+                                        <span class="kpi-badge bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
+                                            Intent</span>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[240px] w-full">
+                                            <ag-charts *ngIf="buyingPurposeOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Geographic Preferences (Lead Mgmt) -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="animate-fade-in stagger-11 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Native Place</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Buyer origins</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="nativePlaceOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-12 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                                Possession Timeline</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Urgency of requirement</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="possessionRequiredOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="animate-fade-in stagger-13 group">
+                                <div class="chart-card">
+                                    <div class="chart-card-header">
+                                        <div>
+                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">Area
+                                                Preferences</div>
+                                            <div
+                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                Top desired locations</div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-card-body">
+                                        <div class="h-[220px] w-full">
+                                            <ag-charts *ngIf="preferredLocationOptions() as opts" class="w-full h-full"
+                                                [options]="opts"></ag-charts>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Booking Status (Lead Mgmt) -->
+                        <div class="chart-card mb-8 animate-fade-in stagger-9 group">
+                            <div class="chart-card-header">
                                 <div>
-                                    <h3
-                                        class="text-base font-black text-slate-800 group-hover:text-teal-600 transition-colors">
-                                        Booking Status</h3>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                        Monthly booking trends and
-                                        agreements</p>
+                                    <div class="chart-title group-hover:text-teal-600 transition-colors">Booking Status
+                                    </div>
+                                    <div class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">Monthly
+                                        booking trends & agreements</div>
                                 </div>
+                                <span class="kpi-badge bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking
+                                    Insights</span>
                             </div>
-                            <div class="w-full h-[220px]">
-                                <canvas #bookingStatusChartLead></canvas>
+                            <div class="chart-card-body">
+                                <div class="h-[280px] w-full">
+                                    <ag-charts *ngIf="bookingStatusOptions() as opts" class="w-full h-full"
+                                        [options]="opts"></ag-charts>
+                                </div>
                             </div>
                         </div>
 
                     </div>
                 </mat-tab>
 
+                <!-- ─────────────────── CRM TAB ─────────────────── -->
                 <mat-tab label="CRM">
                     <div class="pt-6 animate-fade-in min-h-[350px] flex items-center justify-center">
                         <div class="text-center">
-                            <p class="text-slate-600 text-lg font-medium animate-bounce">
-                                Coming Soon...
-                            </p>
+                            <div
+                                class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
+                                <mat-icon class="!text-3xl text-indigo-400">rocket_launch</mat-icon>
+                            </div>
+                            <p class="text-slate-600 text-lg font-bold">Coming Soon</p>
+                            <p class="text-slate-400 text-sm mt-1">CRM Analytics is under development</p>
                         </div>
                     </div>
                 </mat-tab>
+
             </mat-tab-group>
 
         </div>

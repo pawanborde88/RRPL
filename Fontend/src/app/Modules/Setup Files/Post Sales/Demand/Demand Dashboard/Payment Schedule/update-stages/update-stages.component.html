@@ -51,7 +51,7 @@
     <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource"
         [displayedColumns]="bookingDisplayedColumns" [actions]="bookingActions" (editEvent)="onEditEvent($event)"
         [showFooter]="true" [showCheckbox]="true" [idProperty]="'payment_stage_id'"
-        (selectedItemsChange)="selectedStages = $event" (actionClick)="onBookingAction($event.action, $event.row)"
+        (selectedItemsChange)="selectedStages = $event" (onActionClick)="onBookingAction($event.action, $event.row)"
         [selectedItems]="selectedStages" (checkboxChange)="onBookingSelectionChange($event.checked, $event.row)">
     </app-reusable-custom-table>
 </mat-card-content>

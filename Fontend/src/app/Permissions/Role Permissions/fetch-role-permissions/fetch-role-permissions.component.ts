@@ -12,12 +12,13 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
-import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../Common/template/template.component';
-import { ConfirmDialogComponent } from '../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
+import { AngularMaterialModule } from '../../../../angular-material.module';
+import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
+import { ConfirmDialogComponent } from '../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+
 
 interface moduleListForm {
   institute_name: string;
@@ -51,7 +52,7 @@ interface moduleListForm {
 })
 export class FetchRolePermissionsComponent {
   baseUrl = environment.API_URL;
-  constructor(private http: HttpClient, private snackBar: MatSnackBar,  private router: Router, private dialog: MatDialog) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router, private dialog: MatDialog) { }
   pipe = new DatePipe('en-US');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;

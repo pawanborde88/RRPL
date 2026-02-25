@@ -14,9 +14,9 @@ import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
 import { AddChannelPartnerComponent } from '../../Channel Partner/add-channel-partner/add-channel-partner.component';
-import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { MatTableDataSource } from '@angular/material/table';
-import { TemplateComponent } from '../../../../Common/template/template.component';
+import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+
 
 @Component({
   selector: 'app-add-site-visit',
@@ -27,7 +27,6 @@ import { TemplateComponent } from '../../../../Common/template/template.componen
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
     ReusableTableComponent
   ],
   templateUrl: './add-site-visit.component.html',
@@ -37,7 +36,7 @@ export class AddSiteVisitComponent {
   baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
   roleId = Number(sessionStorage.getItem('role_id'));
   userId = Number(sessionStorage.getItem('session_id'));
-dataSource = new MatTableDataSource<any>([]); // Initialize with empty array
+  dataSource = new MatTableDataSource<any>([]); // Initialize with empty array
   loading: boolean = false; // Initialize loading state
 
   projectsList: any[] = [];
@@ -62,7 +61,7 @@ dataSource = new MatTableDataSource<any>([]); // Initialize with empty array
       type: 'index', // Add this to identify it as an index column
     },
     { key: 'client_name', label: 'Name ' },
-    { key: 'date', label: ' Date', type: 'date'},
+    { key: 'date', label: ' Date', type: 'date' },
 
     { key: 'reason', label: 'Reason' },
     { key: 'remark', label: 'Remark' },
@@ -76,7 +75,7 @@ dataSource = new MatTableDataSource<any>([]); // Initialize with empty array
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any, // Injected dialog data
     private dialogRef: MatDialogRef<AddChannelPartnerComponent>
-  ) {}
+  ) { }
   ngOnInit(): void {
     console.log(this.data);
     if (this.data?.rowData?.site_visit_id) {
@@ -108,7 +107,7 @@ dataSource = new MatTableDataSource<any>([]); // Initialize with empty array
       })
       .subscribe({
         next: (res: any) => {
-                 this.dataSource = new MatTableDataSource(res);
+          this.dataSource = new MatTableDataSource(res);
 
           this.dataSource.data = res.site_visit_log;
           this.loading = false;

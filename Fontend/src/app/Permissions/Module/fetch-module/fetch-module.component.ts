@@ -10,11 +10,11 @@ import { ColDef, GridApi, GridReadyEvent, themeQuartz } from 'ag-grid-community'
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
 import { AngularMaterialModule } from '../../../../angular-material.module';
 import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../Common/template/template.component';
 import { AddEditModuleDialogComponent, AddEditModuleDialogData } from '../add-edit-module-dialog/add-edit-module-dialog.component';
 import { ModuleActionsCellRendererComponent, ModuleActionsContext } from './cell-renderers/module-actions-cell-renderer.component';
 import { ModuleTreeCellRendererComponent } from './cell-renderers/module-tree-cell-renderer.component';
+import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 
 export interface ModuleRow {
   module_id?: string | number;
@@ -39,16 +39,13 @@ export interface ModuleGridContext extends ModuleActionsContext {
   selector: 'app-fetch-module',
   standalone: true,
   imports: [
-    AngularMaterialModule,
+    AgGridAngular,
     CommonModule,
-    RouterOutlet,
     TemplateComponent,
     BreadcrumbComponent,
+    AngularMaterialModule,
     RouterModule,
-    AgGridAngular,
     MainPermissionComponent,
-    ModuleActionsCellRendererComponent,
-    ModuleTreeCellRendererComponent,
   ],
   templateUrl: './fetch-module.component.html',
   styleUrl: './fetch-module.component.scss',
@@ -66,7 +63,7 @@ export class FetchModuleComponent {
     private snackBar: MatSnackBar,
     private router: Router,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   readonly columnDefs: ColDef<ModuleRow>[] = [
     {

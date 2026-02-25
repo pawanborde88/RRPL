@@ -4,9 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
 import { IndianCurrencyFormatPipe } from '../../../../../Pipes/currency/indian-currency-format.pipe';
 import { HttpClient } from '@angular/common/http';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -14,7 +12,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../../environments/environment';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
-
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { TemplateComponent } from '../../../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 @Component({
   selector: 'app-refund-token-payment',
   standalone: true,
@@ -24,18 +24,17 @@ import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
+    AddTokenPaymentComponent,
     AutocompleteReusableComponent,
-        AddTokenPaymentComponent,
-    
-   
+    TemplateComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './refund-token-payment.component.html',
   styleUrl: './refund-token-payment.component.scss'
 })
 export class RefundTokenPaymentComponent {
- baseUrl = environment.API_URL;
+  baseUrl = environment.API_URL;
   loading = false;
   allPaymentMode: any[] = [];
   confiList: any[] = [];
@@ -53,21 +52,21 @@ export class RefundTokenPaymentComponent {
   allTokenUnit: any[] = [];
   allWingslist: any[] = [];
   refundTokenData: any;
-    selectedFile: File | null = null;
+  selectedFile: File | null = null;
   pipe = new DatePipe('en-US');
 
   isTokenUpgraded: boolean = false;
   isPaymentDone: boolean = false;
   constructor(
-        public dialogRef: MatDialogRef<RefundTokenPaymentComponent>,
-        @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<RefundTokenPaymentComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private http: HttpClient,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
 
     private _activatedRoute: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
   upgradeTokens = new FormGroup({
     project_id: new FormControl(),
     token_id: new FormControl(null),
@@ -75,14 +74,14 @@ export class RefundTokenPaymentComponent {
     first_name: new FormControl(null),
     last_name: new FormControl(null),
     middle_name: new FormControl(null),
-payment_mode_id: new FormControl(),
+    payment_mode_id: new FormControl(),
     mob_no: new FormControl('', [
       Validators.pattern(/^\d{10}$/),
       Validators.minLength(10),
       Validators.maxLength(10),
     ]),
     amount: new FormControl('', [Validators.required, Validators.min(1)]),
-created_by: new FormControl(''),
+    created_by: new FormControl(''),
     cheque_no: new FormControl(''),
     upi_id: new FormControl(''),
     card_no: new FormControl(''),
@@ -90,7 +89,7 @@ created_by: new FormControl(''),
     floor_unit_id: new FormControl('', Validators.required),
     unit_type: new FormControl('', Validators.required),
     email_id: new FormControl(),
-       bank_name: new FormControl(''),
+    bank_name: new FormControl(''),
     ifsc_code: new FormControl(''),
     bank_branch: new FormControl(''),
     token_amount: new FormControl(),
@@ -201,7 +200,7 @@ created_by: new FormControl(''),
       next: (res: any) => {
         this.confiList = res.data;
       },
-      error: () => {},
+      error: () => { },
     });
   }
   private resetDependentFields(): void {
@@ -234,7 +233,7 @@ created_by: new FormControl(''),
         },
       });
   }
-    onFileChange(event: any) {
+  onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
@@ -247,7 +246,7 @@ created_by: new FormControl(''),
         next: (res: any) => {
           this.preferenceDropdown = res;
         },
-        error: () => {},
+        error: () => { },
       });
   }
   fetchAllSourceDetails(sourceId: any): void {
@@ -264,7 +263,7 @@ created_by: new FormControl(''),
         },
       });
   }
-    fetchPaymentModeDropdown(): void {
+  fetchPaymentModeDropdown(): void {
     this.http.get(`${this.baseUrl}/payment_mode_dropdown`).subscribe({
       next: (res: any) => {
         this.allPaymentMode = res;
@@ -286,26 +285,26 @@ created_by: new FormControl(''),
     );
     return selectedToken ? selectedToken.is_highest === 1 : false;
   }
-onSubmit() {
+  onSubmit() {
 
     const formData = new FormData();
-    
-   Object.keys(this.upgradeTokens.controls).forEach(key => {
-    if (key !== 'payment_attachment') {
-      const control = this.upgradeTokens.get(key);
-      if (control) {
-        const value = control.value;
-        if (value !== null && value !== undefined) {
-          // Special handling for date field
-          if (key === 'date' && value instanceof Date) {
-            formData.append(key, this.pipe.transform(value, 'yyyy-MM-dd') || '');
-          } else {
-            formData.append(key, value.toString());
+
+    Object.keys(this.upgradeTokens.controls).forEach(key => {
+      if (key !== 'payment_attachment') {
+        const control = this.upgradeTokens.get(key);
+        if (control) {
+          const value = control.value;
+          if (value !== null && value !== undefined) {
+            // Special handling for date field
+            if (key === 'date' && value instanceof Date) {
+              formData.append(key, this.pipe.transform(value, 'yyyy-MM-dd') || '');
+            } else {
+              formData.append(key, value.toString());
+            }
           }
         }
       }
-    }
-  });
+    });
 
 
     // Explicitly ensure these fields are included
@@ -323,11 +322,11 @@ onSubmit() {
     this.http.post(apiUrl, formData).subscribe({
       next: (res: any) => {
         if (res.success) {
-   
-            this.dialog.open(SuccessDialogComponent, {
-              data: { message: res.message },
-            });
-  
+
+          this.dialog.open(SuccessDialogComponent, {
+            data: { message: res.message },
+          });
+
         }
       },
       error: (error) => {

@@ -1,30 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { 
-  Component, 
-  ViewChild, 
-  signal, 
-  computed, 
-  effect, 
-  inject, 
+import {
+  Component,
+  ViewChild,
+  signal,
+  computed,
+  effect,
+  inject,
   ChangeDetectionStrategy,
   DestroyRef
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { AddCitySubregionComponent } from '../add-city-subregion/add-city-subregion.component';
 import { AddLeadLevelComponent } from '../../Lead Level/add-lead-level/add-lead-level.component';
 import { AgGridAngular } from 'ag-grid-angular';
-import { 
-  ColDef, 
-  GridApi, 
-  GridReadyEvent, 
+import {
+  ColDef,
+  GridApi,
+  GridReadyEvent,
   ICellRendererParams,
   AllCommunityModule,
   ModuleRegistry,
@@ -38,16 +36,25 @@ import { switchMap, of } from 'rxjs';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+
 @Component({
   selector: 'app-city-subregion',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    TruncatePipe,
     AgGridAngular,
     ActionCellRendererComponent,
     ExpandableRowCellRendererComponent,
@@ -84,9 +91,9 @@ export class CitySubregionComponent {
     const mode = this.viewMode();
     const expandedCities = this.expandedCities();
     const expandedLeadLevels = this.expandedLeadLevels();
-    
+
     const result: any[] = [];
-    
+
     if (mode === 'leadLevel') {
       data.forEach((leadLevel: any) => {
         if (leadLevel?.isDetailRow) return;
@@ -116,7 +123,7 @@ export class CitySubregionComponent {
         }
       });
     }
-    
+
     return result;
   });
 
@@ -186,7 +193,7 @@ export class CitySubregionComponent {
       sortable: false,
       filter: false,
       cellRenderer: ActionCellRendererComponent,
-        cellRendererParams: {
+      cellRendererParams: {
         color: 'warn',
         tooltip: 'Delete city',
         icon: 'delete',
@@ -409,16 +416,16 @@ export class CitySubregionComponent {
   isLoadingSubregions(cityId: number): boolean {
     return this.loadingSubregionsMap().get(cityId) || false;
   }
-  
+
   fetchSubregionData(cityId: number): void {
     if (this.subregionsMap().has(cityId)) {
       return; // Already loaded
     }
-    
+
     const loadingMap = new Map(this.loadingSubregionsMap());
     loadingMap.set(cityId, true);
     this.loadingSubregionsMap.set(loadingMap);
-    
+
     this.dataService.fetchSubregions(cityId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -426,7 +433,7 @@ export class CitySubregionComponent {
           const subregionsMap = new Map(this.subregionsMap());
           subregionsMap.set(cityId, subregions);
           this.subregionsMap.set(subregionsMap);
-          
+
           const updatedLoadingMap = new Map(this.loadingSubregionsMap());
           updatedLoadingMap.set(cityId, false);
           this.loadingSubregionsMap.set(updatedLoadingMap);
@@ -442,7 +449,7 @@ export class CitySubregionComponent {
         },
       });
   }
-  
+
 
   deleteCity(cityId: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -501,7 +508,7 @@ export class CitySubregionComponent {
   }
 
 
- 
+
   openAddcitySubregionDialog(action: string, multiple: string, item?: any): void {
     const dialogRef = this.dialog.open(AddCitySubregionComponent, {
       minWidth: '50vw',
@@ -515,7 +522,7 @@ export class CitySubregionComponent {
         rowData: item,
       },
     });
-  
+
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
@@ -594,11 +601,11 @@ export class CitySubregionComponent {
     if (this.callStatusMap().has(leadLevelId)) {
       return; // Already loaded
     }
-    
+
     const loadingMap = new Map(this.loadingCallStatusMap());
     loadingMap.set(leadLevelId, true);
     this.loadingCallStatusMap.set(loadingMap);
-    
+
     this.dataService.fetchCallStatuses(leadLevelId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -606,7 +613,7 @@ export class CitySubregionComponent {
           const callStatusMap = new Map(this.callStatusMap());
           callStatusMap.set(leadLevelId, callStatuses);
           this.callStatusMap.set(callStatusMap);
-          
+
           const updatedLoadingMap = new Map(this.loadingCallStatusMap());
           updatedLoadingMap.set(leadLevelId, false);
           this.loadingCallStatusMap.set(updatedLoadingMap);

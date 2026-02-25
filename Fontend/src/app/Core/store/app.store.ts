@@ -1,4 +1,5 @@
-import { Injectable, computed } from '@angular/core';
+import { Injectable, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BaseStore } from './base-store';
 
 export interface AppState {
@@ -17,12 +18,20 @@ const initialState: AppState = {
     providedIn: 'root',
 })
 export class AppStore extends BaseStore<AppState> {
+    private readonly platformId = inject(PLATFORM_ID);
+
     // Selectors
     readonly showTemplate = this.select((state) => state.showTemplate);
     readonly user = this.select((state) => state.user);
     readonly permissions = this.select((state) => state.permissions);
 
-    readonly isAuthenticated = computed(() => !!this.user());
+    readonly isAuthenticated = computed(() => {
+        if (this.user()) return true;
+        if (isPlatformBrowser(this.platformId)) {
+            return !!sessionStorage.getItem('session_id');
+        }
+        return false;
+    });
 
     constructor() {
         super(initialState);

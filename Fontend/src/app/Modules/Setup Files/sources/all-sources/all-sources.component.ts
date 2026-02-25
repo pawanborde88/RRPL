@@ -13,7 +13,7 @@ import { environment } from '../../../../../environments/environment';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
+
 import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
 import { AddSourcesComponent } from '../add-sources/add-sources.component';
 import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
@@ -29,7 +29,7 @@ import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-tab
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
+
     ReusableTableComponent // Add the pipe here
   ],
   templateUrl: './all-sources.component.html',
@@ -54,7 +54,7 @@ export class AllSourcesComponent {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
 
   displayedColumns = [
     {
@@ -70,7 +70,7 @@ export class AllSourcesComponent {
       type: 'index', // Add this to identify it as an index column
     },
     { key: 'source', label: 'Source' },
-        {
+    {
       key: 'active_status',
       label: 'Status',
       applyChequeStatusColor: true,
@@ -92,40 +92,40 @@ export class AllSourcesComponent {
     this.dataSource.sort = this.sort;
   }
   selectedProjects: any[] = [];
-headerButtons = [
-  {
-    label: 'Add Sources',
-    icon: 'add_circle',
-    color: 'primary',
-    disabled: () => false,
-    action: () => this.openAddEditSorceDialog('add'),
-    show: () => true,
-  }
-];
+  headerButtons = [
+    {
+      label: 'Add Sources',
+      icon: 'add_circle',
+      color: 'primary',
+      disabled: () => false,
+      action: () => this.openAddEditSorceDialog('add'),
+      show: () => true,
+    }
+  ];
 
   toggleSelection(isChecked: boolean, row: any): void {
     if (!row || !row.project_id) {
       console.error('Invalid row data');
       return;
     }
-  
+
     if (isChecked) {
       if (!this.selectedProjects.some(p => p.source_id === row.source_id)) {
-        this.selectedProjects.push({...row}); // Add a copy of the project
+        this.selectedProjects.push({ ...row }); // Add a copy of the project
       }
     } else {
       this.selectedProjects = this.selectedProjects.filter(
         p => p.source_id !== row.source_id
       );
     }
-    
+
     console.log('Selected Projects:', this.selectedProjects);
   }
   fetchAllSources(): void {
     this.loading = true;
     this.http.get(`${this.baseUrl}/fetch_sources`).subscribe({
       next: (res: any) => {
-        
+
         this.dataSource = new MatTableDataSource(res);
 
         this.dataSource.data = res;
@@ -149,19 +149,19 @@ headerButtons = [
     },
     ...(this.roleId === 2
       ? [
-          {
-            icon: 'delete',
-            tooltip: 'Delete Source',
-            action: 'deleteProject',
-            color: 'warn',
-          },
-        ]
+        {
+          icon: 'delete',
+          tooltip: 'Delete Source',
+          action: 'deleteProject',
+          color: 'warn',
+        },
+      ]
       : []),
   ];
   onProjectAction(action: string, row: any): void {
     switch (action) {
       case 'leadAssign':
-                this.openAddEditSorceDialog('edit', row);
+        this.openAddEditSorceDialog('edit', row);
 
         break;
       case 'deleteProject':
@@ -171,7 +171,7 @@ headerButtons = [
         break;
     }
   }
-  
+
   openAddEditSorceDialog(action: string, row?: any): void {
     const dialogRef = this.dialog.open(AddSourcesComponent, {
       minWidth: '30vw',
@@ -197,7 +197,7 @@ headerButtons = [
 
   deleteSources(Id: any): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-       minWidth: '25vw',
+      minWidth: '25vw',
       data: { message: 'Are you sure you want to delete Source?' },
     });
 

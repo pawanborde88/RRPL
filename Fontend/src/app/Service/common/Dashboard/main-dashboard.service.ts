@@ -137,7 +137,7 @@ export class MainDashboardService {
    * @returns Observable of presale dashboard data
    */
   fetchPresaleDashboard(payload: {
-    project_id: number | number[];
+    project_id: number[];
     start_date: string;
     end_date: string;
     telecaller_id?: number[];
@@ -159,7 +159,7 @@ export class MainDashboardService {
    * @returns Observable of digital report data
    */
   fetchDigitalReport(payload: {
-    project_id: number | number[];
+    project_id: number[];
     start_date?: string;
     end_date?: string;
     telecaller_id?: number[];
@@ -181,7 +181,7 @@ export class MainDashboardService {
    * @returns Observable of sales reports data
    */
   fetchSalesReports(payload: {
-    project_id: number | number[];
+    project_id: number[];
     start_date: string;
     end_date: string;
     telecaller_id?: number[];
@@ -225,7 +225,7 @@ export class MainDashboardService {
    * @returns Observable of all project summary data
    */
   fetchAllProjectSummary(payload: {
-    project_id?: number | number[];
+    project_id?: number[];
     start_date?: string;
     end_date?: string;
     telecaller_id?: number[];
@@ -334,7 +334,7 @@ export class MainDashboardService {
    * @returns Observable of sales dashboard data
    */
   fetchSalesDashboard(payload: {
-    project_id: number | number[];
+    project_id: number[];
     start_date: string;
     end_date: string;
   }): Observable<SalesDashboardResponse | null> {

@@ -11,19 +11,16 @@ import { RouterModule } from '@angular/router';
 import { Router } from 'express';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
-import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
 import { ResetUserPasswordComponent } from '../../../USERS/add-user/Reset Password/reset-user-password/reset-user-password.component';
 import { UserProjctsComponent } from '../../../USERS/all-users/User Projects/user-projcts/user-projcts.component';
 import { InactiveUserComponent } from '../../../USERS/inactive-user/inactive-user.component';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { AddWhatsAppTemplateDialogComponent } from '../add-whats-app-template-dialog/add-whats-app-template-dialog.component';
+import { MatCardModule } from '@angular/material/card';
+import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../../Common/template/template.component';
 
 @Component({
   selector: 'app-all-whats-app-templates',
@@ -31,16 +28,10 @@ import { AddWhatsAppTemplateDialogComponent } from '../add-whats-app-template-di
   imports: [
     CommonModule,
     RouterModule,
+    ReusableTableComponent,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
-    AutocompleteReusableComponent,
-    ActionColumnComponent,
-    ReusableTableComponent,
-    // Add the pipe here
+    MatCardModule
   ],
   templateUrl: './all-whats-app-templates.component.html',
   styleUrl: './all-whats-app-templates.component.scss'
@@ -63,7 +54,7 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService,
-  ) {}
+  ) { }
   displayedColumns = [
     {
       key: 'actions',
@@ -81,15 +72,15 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
     { key: 'project_name', label: 'Project' },
     { key: 'module_name', label: 'Module' },
     { key: 'language_code', label: 'Language' },
-    { 
-      key: 'created_at', 
-      label: 'Created At', 
-      type: 'date' 
+    {
+      key: 'created_at',
+      label: 'Created At',
+      type: 'date'
     },
-    { 
-      key: 'updated_at', 
-      label: 'Updated At', 
-      type: 'date' 
+    {
+      key: 'updated_at',
+      label: 'Updated At',
+      type: 'date'
     },
     { key: 'created_by_name', label: 'Created By' },
     // You might want to add updated_by_name if available
@@ -104,7 +95,7 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
     this.columnKeys = this.selectedColumns;
   }
   headerButtons = [
-    
+
     {
       label: 'Add WhatsApp Template',
       icon: 'view_timeline',
@@ -114,8 +105,8 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
       show: () => true,
 
     },
-    
- 
+
+
   ];
   ngOnInit(): void {
     this.fetchAllWhatsAppTemplates();
@@ -129,13 +120,13 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
     },
     ...(this.roleId === 2
       ? [
-          {
-            icon: 'delete',
-            tooltip: 'Delete Project',
-            action: 'deleteWhatAppTemplate',
-            color: 'warn',
-          },
-        ]
+        {
+          icon: 'delete',
+          tooltip: 'Delete Project',
+          action: 'deleteWhatAppTemplate',
+          color: 'warn',
+        },
+      ]
       : []),
   ];
   onProjectAction(action: string, row: any): void {
@@ -158,7 +149,7 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
   }
   deleteSources(Id: any): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-       minWidth: '25vw',
+      minWidth: '25vw',
       data: { message: 'Are you sure you want to delete whatsapp template?' },
     });
 
@@ -207,20 +198,20 @@ export class AllWhatsAppTemplatesComponent implements OnInit {
       icon: 'delete',
       tooltip: 'Delete User',
       color: 'warn',
-          show: () => [1, 2, 4].includes(this.roleId) // Only show for specific roles
+      show: () => [1, 2, 4].includes(this.roleId) // Only show for specific roles
 
     },
   ];
 
 
- 
+
 
 
 
   addWhatAppTempalte() {
     const dialogRef = this.dialog.open(AddWhatsAppTemplateDialogComponent, {
       minWidth: '40vw',
-     
+
     });
 
     dialogRef.afterClosed().subscribe((result) => {

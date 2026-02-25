@@ -8,8 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 
 @Component({
@@ -18,8 +17,7 @@ import { SuccessDialogComponent } from '../../../../../Common/success-dialog/suc
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
@@ -36,12 +34,12 @@ export class CancelTokenDialogComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private snackBar: MatSnackBar,
-        private dialog: MatDialog,
-    
+    private dialog: MatDialog,
+
     private sanitizer: DomSanitizer,
     public dialogRef: MatDialogRef<CancelTokenDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log(this.data);

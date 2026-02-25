@@ -159,6 +159,7 @@ export const PARTNER_LOGIN = 'Partner Login - Relation Realtech PVT.LTD.';
 
 // Courses Module
 export const COURSES = 'Courses - Relation Realtech PVT.LTD.';
+export const COURSE_USE_RS_REPORT = 'Course Use Rs Report - Relation Realtech PVT.LTD.';
 export const SECTIONS = 'Sections - Relation Realtech PVT.LTD.';
 export const ALL_QUIZZ = 'All Quizz - Relation Realtech PVT.LTD.';
 export const COURSE_QUIZ = 'Course Quiz - Relation Realtech PVT.LTD.';
@@ -314,6 +315,6 @@ export const EDIT_UNVERIFIED_ENQUIRY = 'Edit Unverified Enquiry - Relation Realt
 export const UNVERIFIED_PARTNERS = 'Unverified Partners - Relation Realtech PVT.LTD.';
 export const EDIT_UNVERIFIED_PARTNERS = 'Edit Unverified Partners - Relation Realtech PVT.LTD.';
 export const IVR_USERS = 'IVR Users - Relation Realtech PVT.LTD.';
-
+export const ALL_HASHTAG_PLACEHOLDERS = 'All Hashtag Placeholders - Relation Realtech PVT.LTD.';
 
 

@@ -15,8 +15,7 @@ import { CommonService } from '../../../../../Service/common/common.service';
 import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { PaginationComponent } from '../../../../../Common/pagination/pagination.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
+
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { CommentLogComponent } from '../../../comment-log/comment-log.component';
@@ -52,8 +51,6 @@ interface PaginationConfig {
     TruncatePipe,
     ActionColumnComponent,
     AutocompleteReusableComponent,
-    ReusableTableComponent,
-    PaginationComponent,
     ConfigurableAgGridDataComponent,
   ],
   templateUrl: './discard-enquiry-report.component.html',

@@ -1,73 +1,201 @@
-// Real Estate Dashboard Component Styles
-@import '../../../variables';
+@use '../../../variables' as vars;
+@reference "tailwindcss";
 
 :host {
   display: block;
   width: 100%;
   min-height: 100vh;
   font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  max-width: 100%;
+  background: radial-gradient(circle at top right, #f8fafc 0%, #f1f5f9 100%);
 }
 
-// Material Overrides to match Tailwind Theme
+// ─────────────────────────────────────────────
+// Universal Core Reset
+// ─────────────────────────────────────────────
+* {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+// ─────────────────────────────────────────────
+// Material Enterprise Overrides
+// ─────────────────────────────────────────────
 ::v-deep {
   .mat-mdc-form-field {
     .mat-mdc-text-field-wrapper {
       background-color: white !important;
-      border-radius: 0.5rem !important; // rounded-lg
-      padding-bottom: 0px; // Fix default padding
+      border-radius: 12px !important;
+      transition: all 0.2s ease;
     }
 
     &.dense-form-field {
-      .mat-mdc-form-field-flex {
-        height: 40px !important;
-        padding-top: 0 !important;
-        align-items: center;
-      }
 
-      .mat-mdc-text-field-wrapper {
-        height: 40px !important;
-        padding: 0 12px !important;
-      }
-
+      .mat-mdc-text-field-wrapper,
+      .mat-mdc-form-field-flex,
       .mat-mdc-form-field-infix {
-        padding: 8px 0 !important;
-        min-height: unset !important;
-        height: 40px !important;
+        height: 42px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        display: flex;
+        align-items: center;
       }
     }
 
     &.mat-form-field-appearance-outline .mat-mdc-notched-outline {
-      border-color: #e2e8f0 !important; // slate-200
+      border-color: #f1f5f9 !important;
     }
 
     &.mat-focused .mat-mdc-notched-outline-thick {
-      border-color: #6366f1 !important; // indigo-500
-      border-width: 1px !important;
+      border-color: #6366f1 !important;
+      border-width: 1.5px !important;
     }
   }
 
-  .mat-mdc-button-base {
-    letter-spacing: 0 !important;
+  .mat-mdc-tab-header {
+    border-bottom: 1px solid #f1f5f9 !important;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    padding: 0 12px;
   }
 
-  .mat-datepicker-toggle {
-    color: #6366f1 !important;
+  .mat-mdc-tab {
+    height: 50px !important;
+
+    .mdc-tab__text-label {
+      font-weight: 700 !important;
+      color: #94a3b8 !important;
+      transition: color 0.3s ease;
+    }
+
+    &.mdc-tab--active .mdc-tab__text-label {
+      color: #6366f1 !important;
+    }
+  }
+
+  .mat-mdc-tab-indicator__content {
+    border-color: #6366f1 !important;
+    border-width: 3px !important;
   }
 }
 
-
-// Chart Containers - ensuring proper responsiveness
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+// ─────────────────────────────────────────────
+// Modern Shadow System
+// ─────────────────────────────────────────────
+.shadow-enterprise {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
 }
 
-// Animations
+.shadow-enterprise-hover {
+  &:hover {
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.05),
+      0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+}
+
+// ─────────────────────────────────────────────
+// Premium Card Architecture
+// ─────────────────────────────────────────────
+.metric-card {
+  @apply relative overflow-hidden rounded-[28px] p-6 transition-all duration-500 bg-white border border-white/60;
+  background: linear-gradient(135deg, var(--card-bg, #fff) 0%, #ffffff 100%);
+  box-shadow:
+    0 10px 15px -3px var(--card-shadow, rgba(0, 0, 0, 0.04)),
+    0 4px 6px -4px var(--card-shadow, rgba(0, 0, 0, 0.04));
+
+  &::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 transition-opacity duration-500;
+  }
+
+  &::after {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-700 pointer-events-none;
+    background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.4), transparent);
+  }
+
+  &:hover {
+    @apply -translate-y-2;
+    box-shadow: 0 25px 40px -12px var(--card-shadow, rgba(0, 0, 0, 0.1));
+
+    &::before,
+    &::after {
+      @apply opacity-100;
+    }
+
+    .metric-icon-box {
+      @apply scale-110 rotate-6 shadow-xl;
+      filter: brightness(1.1);
+    }
+
+    .metric-value {
+      @apply text-indigo-950 scale-[1.02];
+    }
+  }
+
+  .metric-icon-box {
+    @apply w-14 h-14 rounded-[20px] flex items-center justify-center transition-all duration-500 shadow-md;
+    background: linear-gradient(135deg, var(--card-icon) 0%, var(--card-text) 100%);
+
+    mat-icon {
+      @apply text-white text-2xl !w-7 !h-7 flex items-center justify-center;
+    }
+  }
+
+  .metric-title {
+    @apply text-[12px] font-extrabold uppercase tracking-[0.18em] opacity-70 mb-2;
+    color: var(--card-text);
+  }
+
+  .metric-value {
+    @apply text-4xl font-black text-slate-900 tracking-tight leading-none transition-all duration-500;
+  }
+}
+
+.chart-card {
+  @apply bg-white/80 backdrop-blur-xl rounded-[32px] border border-white/60 transition-all duration-700 overflow-hidden flex flex-col;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
+
+  &:hover {
+    @apply -translate-y-1.5;
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.08);
+    border-color: #6366f120;
+  }
+
+  .chart-card-header {
+    @apply px-8 py-6 border-b border-slate-100/50 flex items-center justify-between bg-white/20 backdrop-blur-md sticky top-0 z-10;
+  }
+
+  .chart-card-body {
+    @apply p-8 flex-1 min-h-0 w-full overflow-hidden;
+  }
+
+  .chart-title {
+    @apply text-lg font-black text-slate-900 tracking-tight;
+  }
+
+  .chart-subtitle {
+    @apply text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Animations & Effects
+// ─────────────────────────────────────────────
+.animate-fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(10px);
   }
 
   to {
@@ -76,92 +204,58 @@
   }
 }
 
-@keyframes glowPulse {
-  0% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.5;
-    transform: scale(1.05);
-  }
-
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  opacity: 0; // Start hidden
-}
-
-.animate-glow {
-  animation: glowPulse 4s ease-in-out infinite;
-}
-
-// Staggered fades for cards
-@for $i from 1 through 10 {
+@for $i from 1 through 15 {
   .stagger-#{$i} {
-    animation-delay: #{$i * 0.15}s;
+    animation-delay: #{$i * 0.05}s;
   }
 }
 
-// Premium Tab Styling
-::v-deep {
-  .mat-mdc-tab-group {
-    background: transparent;
-  }
+.glass-pill {
+  @apply bg-white/60 backdrop-blur-md border border-white/40 shadow-sm px-3 py-1 rounded-full;
+}
 
-  .mat-mdc-tab-header {
-    border-bottom: 2px solid #f1f5f9 !important;
-    margin-bottom: 0.75rem;
-  }
+// ─────────────────────────────────────────────
+// Data Table Enhancements
+// ─────────────────────────────────────────────
+.campaign-table {
+  @apply w-full border-separate border-spacing-0;
 
-  .mat-mdc-tab {
-    height: 44px !important;
-    padding: 0 16px !important;
-    opacity: 0.6 !important;
-    transition: all 0.3s ease;
+  th {
+    @apply py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 bg-slate-50/50 border-b border-slate-100 text-center;
 
-    .mdc-tab__text-label {
-      color: #64748b !important;
-      font-weight: 600 !important;
-      font-size: 0.95rem !important;
+    &:first-child {
+      @apply text-left pl-8 rounded-tl-2xl;
     }
 
-    &.mdc-tab--active {
-      opacity: 1 !important;
-
-      .mdc-tab__text-label {
-        color: #0d4678 !important; // Match brand color
-      }
-    }
-
-    &:hover {
-      background: rgba(241, 245, 249, 0.5);
-      opacity: 0.8 !important;
+    &:last-child {
+      @apply rounded-tr-2xl;
     }
   }
 
-  .mat-mdc-tab-labels {
-    gap: 12px;
+  td {
+    @apply py-4 px-6 text-sm text-slate-600 border-b border-slate-50 transition-colors duration-200;
+
+    &:first-child {
+      @apply pl-8 font-bold text-slate-800;
+    }
   }
 
-  .mat-mdc-tab-indicator__content {
-    border-color: #0d4678 !important;
-    border-width: 3px !important;
-    border-radius: 3px 3px 0 0 !important;
+  tr:hover td {
+    @apply bg-slate-50/30;
+  }
+
+  tr:last-child td {
+    @apply border-b-0;
   }
 }
 
-// Custom Scrollbar for tables
-.overflow-auto {
+// ─────────────────────────────────────────────
+// Custom Scrollbar (Stealth Mode)
+// ─────────────────────────────────────────────
+* {
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
   }
 
   &::-webkit-scrollbar-track {
@@ -169,184 +263,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
+    background: #e2e8f0;
+    border-radius: 10px;
 
     &:hover {
-      background: #94a3b8;
+      background: #cbd5e1;
     }
-  }
-}
-
-// Glassmorphism subtle overlay
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-// New Metric Card Styles
-.metric-card {
-  background: var(--card-bg, white);
-  border-radius: 16px;
-  padding: 18px;
-  border: 1px solid var(--card-border, #f1f5f9);
-  box-shadow: 0 4px 6px -1px var(--card-shadow, rgb(0 0 0 / 0.05)), 0 2px 4px -2px var(--card-shadow, rgb(0 0 0 / 0.05));
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 20px 25px -5px var(--card-shadow, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--card-shadow, rgb(0 0 0 / 0.1));
-    border-color: var(--card-icon);
-  }
-
-  .metric-icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--card-icon, #64748b);
-    box-shadow: 0 10px 15px -3px var(--card-shadow, rgb(0 0 0 / 0.2));
-    transition: all 0.3s ease;
-
-    mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-      color: white;
-      transition: transform 0.3s ease;
-    }
-  }
-
-  &:hover .metric-icon-box mat-icon {
-    transform: scale(1.2) rotate(5deg);
-  }
-
-  .metric-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--card-text, #64748b);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 6px;
-  }
-
-  .metric-value {
-    font-size: 28px;
-    font-weight: 900;
-    color: #0f172a;
-    letter-spacing: -0.05em;
-    line-height: 1;
-  }
-
-  .trend-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 10px;
-    padding: 2px 8px;
-    border-radius: 99px;
-    background: rgba(255, 255, 255, 0.5);
-
-    &.up {
-      color: #059669;
-      background: #ecfdf5;
-    }
-
-    &.down {
-      color: #dc2626;
-      background: #fef2f2;
-    }
-
-    &.neutral {
-      color: #64748b;
-      background: #f8fafc;
-    }
-  }
-}
-
-.live-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: white;
-  padding: 4px 10px;
-  border-radius: 99px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    background: #ef4444;
-    border-radius: 50%;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      background: inherit;
-      border-radius: inherit;
-      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-    }
-  }
-
-  span {
-    font-size: 10px;
-    font-weight: 900;
-    color: #ef4444;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(.33);
-    opacity: 0.5;
-  }
-
-  80%,
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
-}
-
-// Chart Card Styling
-.bg-white.rounded-3xl {
-  padding: 1rem !important;
-
-  &.p-4 {
-    padding: 1rem !important;
-  }
-}
-
-// Compact Table Styles
-.compact-table {
-  th {
-    padding: 10px 16px !important;
-    font-size: 9px !important;
-    background: #f8fafc !important;
-  }
-
-  td {
-    padding: 8px 16px !important;
-    font-size: 11px !important;
-  }
-}
-
-// Adjusting grid gaps for higher density
-.grid {
-  &.gap-4 {
-    gap: 0.75rem !important;
   }
 }

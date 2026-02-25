@@ -6,36 +6,39 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { AssignLeadsComponent } from '../../Setup Files/Projects/Leads/assign-leads/assign-leads.component';
-import { FetchFunctionsService } from '../../../Service/fetch-functions.service';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../Common/template/template.component';
-import { TruncatePipe } from '../../../Pipes/truncate.pipe';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
+
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatCardModule } from '@angular/material/card';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { log } from 'console';
 
 @Component({
   selector: 'app-view-mob-email-log',
   standalone: true,
-   imports: [
-   CommonModule,
+  imports: [
+    CommonModule,
     RouterModule,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
+    MatCardModule,
+    MatProgressBarModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatIconModule
 
-   ],
+
+  ],
   templateUrl: './view-mob-email-log.component.html',
   styleUrl: './view-mob-email-log.component.scss'
 })
-export class ViewMobEmailLogComponent implements OnInit{
-baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
+export class ViewMobEmailLogComponent implements OnInit {
+  baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
   roleId = Number(sessionStorage.getItem('role_id'));
   userId = Number(sessionStorage.getItem('session_id'));
   pipe = new DatePipe('en-US');
@@ -48,15 +51,15 @@ baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
     private http: HttpClient,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-  
+
     private route: ActivatedRoute
 
-  ) {}
+  ) { }
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       this.projectLeadID = params['project_lead_id'];
-      console.log( this.projectLeadID);
-      
+      console.log(this.projectLeadID);
+
     });
     this.fetchAllLogs();
 
@@ -69,12 +72,12 @@ baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
 
 
   ];
-  
+
   columnKeys: string[] = this.displayedColumns.map((col) => col.key);
-  
+
   fetchAllLogs(): void {
     this.loading = true;
-    this.http.post(`${this.baseUrl}/fetch_viewed_mob_no`, { project_lead_id:this.projectLeadID }).subscribe({
+    this.http.post(`${this.baseUrl}/fetch_viewed_mob_no`, { project_lead_id: this.projectLeadID }).subscribe({
       next: (res: any) => {
         this.dataSource.data = res;
         this.dataSource.sort = this.sort;

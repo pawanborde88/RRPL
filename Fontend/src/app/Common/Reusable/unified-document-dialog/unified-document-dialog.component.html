@@ -26,11 +26,7 @@
   </div>
 </mat-dialog-content>
 <mat-dialog-actions mat-dialog-actions align="end">
-  <!-- <button mat-raised-button color="primary" (click)="downloadPDF()" [disabled]="!store.canPrint() || isGeneratingPDF"
-    aria-label="Download PDF">
-    <mat-icon>download</mat-icon> 
-    {{ isGeneratingPDF ? 'Generating...' : 'Download PDF' }}
-  </button> -->
+
   <button mat-raised-button color="primary" (click)="print()" [disabled]="!store.canPrint()"
     aria-label="Print document">
     <mat-icon>print</mat-icon> Print {{ store.dialogTitle() }}

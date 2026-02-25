@@ -1,0 +1,28 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item"><a routerLink="/setup/courses">All Courses</a></li>
+        <li class="breadcrumb-item active">Course Users Report</li>
+    </app-breadcrumb>
+
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-form-field appearance="outline" class="w-50">
+                <mat-select [ngModel]="selectedCourseId()"
+                    (ngModelChange)="selectedCourseId.set($event); onCourseChange()" placeholder="Category">
+                    @for (course of allCourses; track course.course_id) {
+                    <mat-option [value]="course.course_id">{{ course.title }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+        [apiEndpoint]="'fetch_all_course_users'" [apiMethod]="'POST'" [apiPayload]="getAgGridApiPayload()">
+    </app-configurable-ag-grid-data>
+</app-template>

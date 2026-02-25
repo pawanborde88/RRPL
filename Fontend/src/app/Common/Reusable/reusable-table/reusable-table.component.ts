@@ -415,8 +415,10 @@ export class ReusableTableComponent<T extends TableRowData = TableRowData> imple
 
   // Legacy properties for backward compatibility (typed)
   indianCurrencyPipe!: IndianCurrencyPipe;
-  roleId!: number;
+  @Input() roleId!: number;
   pipe!: DatePipe;
+
+  @Output() onActionClick = new EventEmitter<{ row: T; action: string }>();
 
   // Test hooks (exposed for testing)
   readonly testHooks: TableTestHooks<T> = {
@@ -3406,7 +3408,7 @@ export class ReusableTableComponent<T extends TableRowData = TableRowData> imple
   }
 
   handleActionClick(event: { action: string; row: T }): void {
-    this.actionClick.emit(event);
+    this.onActionClick.emit(event);
   }
 
   // ==================== OPTIMIZED VIRTUAL SCROLL DATA MANAGEMENT ====================

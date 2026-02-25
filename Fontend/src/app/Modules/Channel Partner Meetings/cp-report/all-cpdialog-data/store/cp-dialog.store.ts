@@ -165,18 +165,7 @@ export class CpDialogStore {
             { key: 'balance', label: 'Balance', isAmount: true },
             { key: 'amount_paid', label: 'Pay Till Date' },
             { key: 'booked', label: 'Booking Status' },
-            {
-                key: 'token_status',
-                label: 'Status',
-                colorCondition: (element: any) =>
-                    element['token_status_id'] === 1 ? 'red' : 'green',
-            },
-            {
-                key: 'is_upgraded',
-                label: 'Is Upgrade',
-                colorCondition: (element: any) =>
-                    element['is_upgraded'] === 'Upgraded' ? 'green' : 'red',
-            },
+
             { key: 'mob_no', label: 'Mobile Number', type: 'sensitive' },
             { key: 'email_id', label: 'Email ID', type: 'sensitive' },
             { key: 'payment_status', label: 'Payment Status' },
@@ -256,13 +245,9 @@ export class CpDialogStore {
             { key: 'token_count', label: 'Token Count' },
             { key: 'booking_count', label: 'CP Booking' },
             { key: 'firm_address', label: 'Firm Address' },
-            { key: 'firm_email', label: 'Firm Email' },
-            {
-                key: 'active_status',
-                label: 'Status',
-                colorCondition: (element: any) =>
-                    element['active_status_id'] === 1 ? 'green' : 'red',
-            },
+            { key: 'firm_email', label: 'Firm Email', type: 'sensitive' },
+            { key: 'firm_phone', label: 'Firm Mobile', type: 'sensitive' },
+
         ] as const;
     }
     private getRetentionColumns(): readonly TableColumn[] {
@@ -274,12 +259,7 @@ export class CpDialogStore {
             { key: 'booking_count', label: 'CP Booking' },
             { key: 'firm_address', label: 'Firm Address' },
             { key: 'firm_email', label: 'Firm Email' },
-            {
-                key: 'active_status',
-                label: 'Status',
-                colorCondition: (element: any) =>
-                    element['active_status_id'] === 1 ? 'green' : 'red',
-            },
+
         ] as const;
     }
 }

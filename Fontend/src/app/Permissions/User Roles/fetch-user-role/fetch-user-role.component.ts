@@ -14,9 +14,9 @@ import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
 import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
 import { AddEditUserRoleDialogComponent, AddEditUserRoleDialogData } from '../add-edit-user-role-dialog/add-edit-user-role-dialog.component';
 
 interface moduleListForm {
@@ -56,7 +56,7 @@ export class FetchUserRoleComponent {
     private snackBar: MatSnackBar,
     private router: Router,
     private dialog: MatDialog
-  ) {}
+  ) { }
   pipe = new DatePipe('en-US');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;

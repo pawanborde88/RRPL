@@ -1,5 +1,9 @@
 // Type definitions for unified document dialog
 
+export interface ReplacementMap {
+  [key: string]: string;
+}
+
 export enum DocumentDialogType {
   ALLOTMENT_LETTER = 'allotment_letter',
   BOOKING_COST_SHEET = 'booking_cost_sheet',
@@ -293,7 +297,7 @@ export interface DocumentDialogData {
   dialogType: DocumentDialogType;
   rowData?: {
     booking_id?: number;
-    demand_id?: number;
+    demand_id?: number | number[];
     project_id?: number;
     channel_partner_id?: number;
     letter_generation_id?: number;
@@ -304,6 +308,7 @@ export interface DocumentDialogData {
   project_id?: number;
   receiptData?: ReceiptData[] | ReceiptData;
   booking_receipt_id?: number;
+  demand_id?: number | number[];
   letter_generation_id?: number;
   token_id?: number;
 }
@@ -360,7 +365,7 @@ export const MODULE_ID_MAP: Record<DocumentDialogType, number> = {
   [DocumentDialogType.TOKEN_RECEIPT]: 7,
   [DocumentDialogType.LEDGER_REPORT]: 20,
   [DocumentDialogType.QUATATION_REPORT]: 6
-};    
+};
 
 // Title mapping
 export const TITLE_MAP: Record<DocumentDialogType, string> = {

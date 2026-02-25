@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -27,6 +27,7 @@ export const appConfig: ApplicationConfig = {
     { provide: DateAdapter, useClass: ErpDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: ERP_DATE_FORMATS },
     provideAnimationsAsync(),
+    provideZonelessChangeDetection(),
     provideHttpClient(
       withInterceptors([
         authInterceptor

@@ -1,12 +1,12 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { 
-  ChangeDetectionStrategy, 
-  Component, 
-  computed, 
-  DestroyRef, 
-  inject, 
-  signal 
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -132,17 +132,17 @@ export class UnitDetailsDialogComponent {
   });
 
   // Computed signal to check if booking details exist
-  protected readonly hasBookingDetails = computed(() => 
+  protected readonly hasBookingDetails = computed(() =>
     !!this.unitDetails()?.booking_details
   );
 
   // Computed signal to check if recovery details exist
-  protected readonly hasRecoveryDetails = computed(() => 
+  protected readonly hasRecoveryDetails = computed(() =>
     !!this.unitDetails()?.recovery_deatils
   );
 
   // Computed signal to check if token details exist
-  protected readonly hasTokenDetails = computed(() => 
+  protected readonly hasTokenDetails = computed(() =>
     !!this.unitDetails()?.token_deatils
   );
 
@@ -161,7 +161,7 @@ export class UnitDetailsDialogComponent {
     this.error.set(null);
 
     this.http.post<ApiResponse>(
-      `${this.baseUrl}/fetch_floor_unit_info`, 
+      `${this.baseUrl}/fetch_floor_unit_info`,
       { floor_unit_id: floorUnitId }
     ).pipe(
       map((response: ApiResponse) => {
@@ -192,13 +192,13 @@ export class UnitDetailsDialogComponent {
     if (amount === null || amount === undefined || amount === '' || amount === '-') {
       return '-';
     }
-  
+
     const numAmount = typeof amount === 'string' ? Number(amount) : amount;
-  
+
     if (isNaN(numAmount)) {
       return '-';
     }
-  
+
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -206,16 +206,16 @@ export class UnitDetailsDialogComponent {
       maximumFractionDigits: 0
     }).format(numAmount);
   }
-  
+
   // Format area in SqFt / Sqm
   protected formatArea(sqft: number | null | undefined, sqm: number | null | undefined): string {
     const sqftVal = sqft ?? 0;
     const sqmVal = sqm ?? 0;
-    
+
     if (sqftVal === 0 && sqmVal === 0) {
       return '-';
     }
-    
+
     return `${sqftVal} SqFt / ${sqmVal} Sqm`;
   }
 
@@ -224,11 +224,11 @@ export class UnitDetailsDialogComponent {
     const applicant1 = this.unitDetails()?.booking_details?.applicant_name1;
     const applicant2 = this.unitDetails()?.booking_details?.applicant_name2;
     const applicant3 = this.unitDetails()?.booking_details?.applicant_name3;
-    
+
     const applicants = [applicant1, applicant2, applicant3]
       .filter(name => name && name.trim() !== '')
       .map(name => name!.trim().replace(/\s+/g, ' ')); // Normalize multiple spaces to single space
-    
+
     return applicants.length > 0 ? applicants.join(', ') : '-';
   }
 
@@ -236,10 +236,10 @@ export class UnitDetailsDialogComponent {
   protected getApplicant(num: number): string {
     const bookingDetails = this.unitDetails()?.booking_details;
     if (!bookingDetails) return '-';
-    
+
     let applicantName: string | undefined;
-    
-    switch(num) {
+
+    switch (num) {
       case 1:
         applicantName = bookingDetails.applicant_name1;
         break;
@@ -252,11 +252,11 @@ export class UnitDetailsDialogComponent {
       default:
         return '-';
     }
-    
+
     if (!applicantName || applicantName.trim() === '') {
       return '-';
     }
-    
+
     // Normalize multiple spaces to single space and trim
     return applicantName.trim().replace(/\s+/g, ' ');
   }

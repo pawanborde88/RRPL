@@ -25,12 +25,20 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "stylePreprocessorOptions": {
+              "sass": {
+                "silenceDeprecations": [
+                  "import",
+                  "color-functions",
+                  "global-builtin"
+                ]
+              }
+            },
             "assets": [
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-
               "src/styles.scss"
             ],
             "scripts": []
@@ -136,7 +144,6 @@
               "src/assets"
             ],
             "styles": [
-
               "src/styles.scss"
             ],
             "scripts": []

@@ -3,10 +3,10 @@ import { Component, Inject, OnInit, signal, computed, inject, DestroyRef, ViewCh
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
+
+
+
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
@@ -28,14 +28,14 @@ import { DocumentDialogType } from '../../../../../Common/Reusable/unified-docum
   imports: [
     CommonModule,
     RouterModule,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
-    AutocompleteReusableComponent,
+
+
     ConfigurableAgGridDataComponent,
-    AmountDirective,
+
   ],
   templateUrl: './all-receipts-dialog.component.html',
   styleUrl: './all-receipts-dialog.component.scss'

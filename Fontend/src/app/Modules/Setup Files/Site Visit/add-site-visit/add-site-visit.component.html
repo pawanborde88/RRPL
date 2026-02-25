@@ -14,13 +14,8 @@
   </ng-container>
 
   <ng-template #contentLoaded>
-    <app-reusable-custom-table 
-      *ngIf="(dataSource?.data?.length || 0) > 0; else noData"
-      [loading]="loading"
-      [dataSource]="dataSource" 
-      [displayedColumns]="bookingDisplayedColumns" 
-      [showCheckbox]="true"
-      [showFooter]="true">
+    <app-reusable-custom-table *ngIf="dataSource.data.length > 0; else noData" [loading]="loading"
+      [dataSource]="dataSource" [displayedColumns]="bookingDisplayedColumns" [showCheckbox]="true" [showFooter]="true">
     </app-reusable-custom-table>
 
     <ng-template #noData>
@@ -57,7 +52,7 @@
           Time is required
         </mat-error>
       </mat-form-field>
-      
+
       <mat-form-field appearance="outline" class="col-md-3">
         <mat-label>Reason</mat-label>
         <input matInput formControlName="reason" required />
@@ -65,7 +60,7 @@
           Reason is required
         </mat-error>
       </mat-form-field>
-      
+
       <mat-form-field appearance="outline" class="col-md-3">
         <mat-label>Revisit</mat-label>
         <mat-select formControlName="is_revisit" required>
@@ -76,7 +71,7 @@
           Revisit selection is required
         </mat-error>
       </mat-form-field>
-      
+
       <mat-form-field appearance="outline" class="col-md-6">
         <mat-label>Remark</mat-label>
         <textarea matInput formControlName="remark" rows="2"></textarea>

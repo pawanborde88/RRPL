@@ -2,9 +2,24 @@
   <app-breadcrumb>
     <li class="breadcrumb-item active">All Teams</li>
   </app-breadcrumb>
+  <mat-card>
+    <mat-card-header class="d-flex justify-content-between align-items-center">
+      <div class="d-flex gap-2 mb-3">
+        <button mat-raised-button color="primary" (click)="openAddTeam()" class="btn-sm">
+          <mat-icon class="me-1">add_circle</mat-icon> Add Team
+        </button>
+      </div>
+    </mat-card-header>
 
-  <app-configurable-ag-grid-data [columns]="columns" [apiEndpoint]="apiEndpoint" [apiMethod]="apiMethod"
-    [apiPayload]="apiPayload()" [actions]="teamActions" [headerButtons]="headerButtons"
-    (actionClick)="onActionClick($event)">
-  </app-configurable-ag-grid-data>
+    <mat-card-content>
+
+      <app-reusable-custom-table [loading]="loading()" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+        [actions]="projectActions" [showFooter]="true" (actionClick)="onProjectAction($event.action, $event.row)"
+        (checkboxChange)="toggleSelection($event.checked, $event.row)">
+
+      </app-reusable-custom-table>
+    </mat-card-content>
+
+  </mat-card>
+
 </app-template>

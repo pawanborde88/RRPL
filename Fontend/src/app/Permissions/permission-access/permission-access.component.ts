@@ -30,13 +30,11 @@ import {
   switchMap,
   tap
 } from 'rxjs';
+import { AngularMaterialModule } from '../../../angular-material.module';
 import { TemplateComponent } from '../../Common/template/template.component';
 import { BreadcrumbComponent } from '../../Common/breadcrumb/breadcrumb.component';
-import { AngularMaterialModule } from '../../../angular-material.module';
-import { TruncatePipe } from '../../Pipes/truncate.pipe';
 import { environment } from '../../../environments/environment';
 import { MainPermissionComponent } from '../main-permission/main-permission.component';
-import { HighlightPipe } from '../../Pipes/highlight.pipe';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
   ColDef,
@@ -112,12 +110,8 @@ interface ApiResponse {
     TemplateComponent,
     BreadcrumbComponent,
     AngularMaterialModule,
-    TruncatePipe,
     MainPermissionComponent,
-    HighlightPipe,
     AgGridAngular,
-    ModuleCellRendererComponent,
-    CheckboxCellRendererComponent
   ],
   templateUrl: './permission-access.component.html',
   styleUrl: './permission-access.component.scss',

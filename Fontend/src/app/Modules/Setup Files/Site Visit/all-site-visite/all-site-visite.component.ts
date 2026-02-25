@@ -34,16 +34,12 @@ import {
 } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { CommonService } from '../../../../Service/common/common.service';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
-import { AddSiteVisitComponent } from '../add-site-visit/add-site-visit.component';
-import { AllCPBookingListComponent } from '../CP Booking List/all-cpbooking-list/all-cpbooking-list.component';
-import { AllBillsComponent } from '../../../Channel Partner Meetings/all-bills/all-bills.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TableColumn } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { CommonService } from '../../../../Service/common/common.service';
+import { AddSiteVisitComponent } from '../add-site-visit/add-site-visit.component';
+import { AllCPBookingListComponent } from '../CP Booking List/all-cpbooking-list/all-cpbooking-list.component';
 
 interface EnquiryFilterForm {
   project_id: FormControl<any[] | null>;
@@ -86,22 +82,37 @@ interface PreferenceDropdown {
   [key: string]: unknown;
 }
 
+import { MatTabsModule } from '@angular/material/tabs';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { AllBillsComponent } from '../../../Channel Partner Meetings/all-bills/all-bills.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+
 @Component({
   selector: 'app-all-site-visite',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
+    MatTabsModule,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
-    AllCPBookingListComponent,
     AllBillsComponent,
+    MatCardModule,
+    MatIconModule,
+    MatExpansionModule,
     ConfigurableAgGridDataComponent,
+    AllCPBookingListComponent,
+    ReactiveFormsModule,
     AutocompleteReusableComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule
   ],
   templateUrl: './all-site-visite.component.html',
   styleUrl: './all-site-visite.component.scss',
@@ -114,7 +125,7 @@ export class AllSiteVisiteComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly datePipe = new DatePipe('en-US');
-  
+
   // Environment
   readonly storageUrl = environment.STORAGE_URL;
 
@@ -181,7 +192,7 @@ export class AllSiteVisiteComponent implements OnInit {
   });
   // Table columns configuration
   readonly displayedColumns: TableColumn[] = [
-  
+
 
     { key: 'project_name', label: 'Project Name' },
     { key: 'enquiry_date', label: 'Date', type: 'mediumDate' },
@@ -332,13 +343,13 @@ export class AllSiteVisiteComponent implements OnInit {
     const limit = size === 'All'
       ? this.paginationParams().filteredCount
       : (size as number);
-    
+
     this.paginationParams.update((params) => ({
       ...params,
       limit,
       offset: 0,
     }));
-    
+
     this.fetchAllEnquiry();
   }
 
@@ -482,8 +493,8 @@ export class AllSiteVisiteComponent implements OnInit {
     this.commonService
       .fetchChannelPartnerDropdown(trimmedSearch)
       .pipe(
-        map((res) =>
-          res.map((item) => ({
+        map((res: any[]) =>
+          res.map((item: any) => ({
             ...item,
             full_name: `${item.firm_name} --(${item.cp_owner || '--'})`,
           }))
@@ -494,7 +505,7 @@ export class AllSiteVisiteComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (res) => {
+        next: (res: any[]) => {
           this.allChannelPartnerList.set(res);
         },
       });

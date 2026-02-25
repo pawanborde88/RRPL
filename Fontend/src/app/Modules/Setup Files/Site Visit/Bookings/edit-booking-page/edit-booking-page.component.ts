@@ -21,11 +21,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { AddApplicantsComponent } from '../add-applicants/add-applicants.component';
-import { AddPaymentsComponent } from '../add-payments/add-payments.component';
-import { BookingCalculationsComponent } from '../booking-calculations/booking-calculations.component';
+
+
+
+
+
 import { combineLatest, filter, distinctUntilChanged, take, merge, map, startWith } from 'rxjs';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
@@ -50,15 +50,15 @@ import { BookingService } from '../../../../../Service/booking.service';
   imports: [
     CommonModule,
     RouterModule,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
+
     AutocompleteReusableComponent,
-    AddApplicantsComponent,
-    BookingCalculationsComponent,
-    AddPaymentsComponent,
+
+
+
     AmountDirective,
   ],
   providers: [BookingCalculationsStateService],

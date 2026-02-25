@@ -11,7 +11,7 @@ import { Subject, takeUntil } from 'rxjs';
 
 // Components
 import { EditPaymentstageDialogComponent } from '../edit-paymentstage-dialog/edit-paymentstage-dialog.component';
-import { UpdateStagesListComponent } from '../update-stages-list/update-stages-list.component';
+
 import { ConfirmDialogComponent } from '../../../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { SuccessDialogComponent } from '../../../../../../../Common/success-dialog/success-dialog.component';
 import { ActionColumnComponent } from '../../../../../../../Common/action-column/action-column.component';
@@ -100,8 +100,7 @@ interface DefaultStage {
     AutocompleteReusableComponent,
     IndianCurrencyPipe,
     ActionColumnComponent,
-    ReusableTableComponent,
-    UpdateStagesListComponent
+    ReusableTableComponent
   ],
   templateUrl: './update-stages.component.html',
   styleUrls: ['./update-stages.component.scss'],
@@ -134,7 +133,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
 
   // Table configuration
   dataSource = new MatTableDataSource<PaymentStage>([]);
-  
+
   readonly bookingDisplayedColumns: ColumnDefinition[] = [
     {
       key: 'actions',
@@ -148,23 +147,23 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
       label: 'Sr.no',
       type: 'index',
     },
-    { 
-      key: 'payment_stage', 
+    {
+      key: 'payment_stage',
       label: 'Particulars',
-      editable: true, 
+      editable: true,
       editType: 'text'
     },
-    { 
-      key: 'percentage', 
-      label: 'Percentage (%)',  
-      editable: true, 
-      editType: 'text',  
-      isAmount: true 
+    {
+      key: 'percentage',
+      label: 'Percentage (%)',
+      editable: true,
+      editType: 'text',
+      isAmount: true
     },
-    { 
-      key: 'stage_date', 
-      label: ' Date', 
-      type: 'short_date' 
+    {
+      key: 'stage_date',
+      label: ' Date',
+      type: 'short_date'
     },
     {
       key: 'status_string',
@@ -214,7 +213,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
   // View children
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(UpdateStagesListComponent) updateStagesListComponent!: UpdateStagesListComponent;
+
 
   constructor(
     private http: HttpClient,
@@ -222,7 +221,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<UpdateStagesComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) { }
 
   // Getters
   get roleId(): number {
@@ -271,7 +270,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
   // Data fetching methods
   fetchAllProjects(): void {
     this.setLoading(true);
-    const payload = { user_id:  this.userId };
+    const payload = { user_id: this.userId };
 
     this.http.post(`${this.baseUrl}/user_project_dropdown`, payload)
       .pipe(takeUntil(this.destroy$))
@@ -290,7 +289,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
 
   fetchAllWings(projectId: number): void {
     this.setLoading(true);
-    
+
     this.http.post(`${this.baseUrl}/wing_dropdown`, { project_id: projectId })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -313,7 +312,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
     }
 
     this.setLoading(true);
-    
+
     this.http.post(`${this.baseUrl}/fetch_payment_stage`, { project_id: projectId, wing_id: wingId })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -431,7 +430,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
 
   private performDelete(id: number): void {
     this.setLoading(true);
-    
+
     this.http.post(`${this.baseUrl}/delete_payment_stage`, { payment_stage_id: id })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -520,7 +519,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
   onCloneStages(): void {
     const selectedWingIds = this.addpaymentStages.get('clone_wing_id')?.value;
     const projectId = this.addpaymentStages.get('project_id')?.value;
-    
+
     if (!selectedWingIds || selectedWingIds.length === 0 || !projectId || this.selectedStages.length === 0) {
       this.showSnackBar('Please select wings and ensure stages are selected', 'error');
       return;
@@ -533,7 +532,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
     };
 
     this.setLoading(true);
-    
+
     this.http.post(`${this.baseUrl}/clone_stages`, payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -646,7 +645,7 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
 
     stages.forEach((stage) => {
       const formData = this.createDefaultStageFormData(stage, projectId, wingId);
-      
+
       this.http.post(`${this.baseUrl}/add_payment_stage`, formData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -680,8 +679,8 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
     const formData = new FormData();
 
     const appendField = (key: string, value: any, isDate = false) => {
-      const val = isDate && value ? this.datePipe.transform(value, 'yyyy-MM-dd') : 
-                  value !== null && value !== undefined ? value.toString() : '';
+      const val = isDate && value ? this.datePipe.transform(value, 'yyyy-MM-dd') :
+        value !== null && value !== undefined ? value.toString() : '';
       formData.append(key, val);
     };
 
@@ -692,21 +691,21 @@ export class UpdateStagesComponent implements OnInit, OnDestroy {
     appendField('percentage', formValue.percentage);
     appendField('stage_date', formValue.stage_date, true);
     appendField('status', formValue.status);
-    
+
     // Optional fields
     if (formValue.actual_date) {
       appendField('actual_date', formValue.actual_date, true);
     }
-    
+
     // File fields
     if (formValue.architecture_letter instanceof File) {
       formData.append('architecture_letter', formValue.architecture_letter);
     }
-    
+
     if (formValue.site_work_progress instanceof File) {
       formData.append('site_work_progress', formValue.site_work_progress);
     }
-    
+
     appendField('created_by', formValue.created_by);
 
     return formData;

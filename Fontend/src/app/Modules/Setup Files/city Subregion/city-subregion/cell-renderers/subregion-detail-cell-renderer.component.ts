@@ -1,8 +1,14 @@
-import { Component, IDetailCellRendererParams } from 'ag-grid-community';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AgGridAngular } from 'ag-grid-angular';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridApi, GridReadyEvent, IDetailCellRendererParams } from 'ag-grid-community';
+
+export interface SubregionCellRendererParams extends IDetailCellRendererParams {
+  onDeleteSubregion?: (sub_region_id: number, city_id: number) => void;
+  onEditSubregion?: (data: any) => void;
+  onAddSubregion?: (data: { city_id: number, city_name: string }) => void;
+}
 
 @Component({
   selector: 'app-subregion-detail-cell-renderer',
@@ -46,8 +52,8 @@ import { ColDef, GridApi, GridReadyEvent } from 'ag-grid-community';
     </div>
   `,
 })
-export class SubregionDetailCellRendererComponent implements Component {
-  private params!: IDetailCellRendererParams;
+export class SubregionDetailCellRendererComponent {
+  private params!: SubregionCellRendererParams;
   cityName: string = '';
   subregions: any[] = [];
   isLoading: boolean = false;
@@ -60,11 +66,11 @@ export class SubregionDetailCellRendererComponent implements Component {
     resizable: true,
   };
 
-  agInit(params: IDetailCellRendererParams): void {
+  agInit(params: SubregionCellRendererParams): void {
     this.params = params;
     this.cityName = params.data.city_name || '';
     this.cityId = params.data.city_id;
-    
+
     // Setup detail column definitions
     this.detailColumnDefs = [
       {
@@ -174,7 +180,7 @@ export class SubregionDetailCellRendererComponent implements Component {
     }
   }
 
-  refresh(params: IDetailCellRendererParams): boolean {
+  refresh(params: SubregionCellRendererParams): boolean {
     return false;
   }
 }

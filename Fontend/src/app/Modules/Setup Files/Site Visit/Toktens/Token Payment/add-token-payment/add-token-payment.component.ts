@@ -14,9 +14,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { environment } from '../../../../../../../environments/environment';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AngularMaterialModule } from '../../../../../../../angular-material.module';
-import { AutocompleteReusableComponent } from '../../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../../Common/template/template.component';
+
 import { SuccessDialogComponent } from '../../../../../../Common/success-dialog/success-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AmountDirective } from '../../../../../../Common/Amount Direcitve/amount.directive';
@@ -30,11 +28,10 @@ import { AmountDirective } from '../../../../../../Common/Amount Direcitve/amoun
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
     AmountDirective,
 
-    AutocompleteReusableComponent,
+
   ],
   templateUrl: './add-token-payment.component.html',
   styleUrl: './add-token-payment.component.scss',
@@ -77,7 +74,7 @@ export class AddTokenPaymentComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (this.tokenId) {
@@ -86,30 +83,30 @@ export class AddTokenPaymentComponent implements OnInit {
     }
 
     this.fetchPaymentModeDropdown();
-    
+
     // Add valueChanges listener to payment_mode_id to update validations
     this.addTokenForm.get('payment_mode_id')?.valueChanges.subscribe((mode) => {
       this.updateValidators(mode);
     });
   }
-  
+
   updateValidators(paymentMode: string | null) {
     const transactionIdControl = this.addTokenForm.get('transaction_id');
     const bankNameControl = this.addTokenForm.get('bank_name');
-    
+
     // Reset validators
     transactionIdControl?.clearValidators();
     bankNameControl?.clearValidators();
-    
+
     // Set validators based on payment mode
     if (paymentMode === '2' || paymentMode === '3' || paymentMode === '4') {
       transactionIdControl?.setValidators([Validators.required]);
     }
-    
+
     if (paymentMode === '2') {
       bankNameControl?.setValidators([Validators.required]);
     }
-    
+
     // Update validity
     transactionIdControl?.updateValueAndValidity();
     bankNameControl?.updateValueAndValidity();

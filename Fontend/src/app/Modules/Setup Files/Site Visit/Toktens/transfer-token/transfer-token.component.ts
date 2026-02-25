@@ -5,14 +5,14 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } 
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { Router } from 'express';
+
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../../Common/template/template.component';
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 @Component({
   selector: 'app-transfer-token',
@@ -23,15 +23,15 @@ import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    AddTokenPaymentComponent,
     TemplateComponent,
     BreadcrumbComponent,
-    AutocompleteReusableComponent,
-    AddTokenPaymentComponent,
+    AutocompleteReusableComponent
   ],
   templateUrl: './transfer-token.component.html',
   styleUrl: './transfer-token.component.scss'
 })
-export class TransferTokenComponent implements OnInit{
+export class TransferTokenComponent implements OnInit {
   baseUrl = environment.API_URL;
   loading = false;
   allPaymentMode: any[] = [];
@@ -180,7 +180,7 @@ export class TransferTokenComponent implements OnInit{
       next: (res: any) => {
         this.confiList = res.data;
       },
-      error: () => {},
+      error: () => { },
     });
   }
   private resetDependentFields(): void {
@@ -220,7 +220,7 @@ export class TransferTokenComponent implements OnInit{
         next: (res: any) => {
           this.preferenceDropdown = res;
         },
-        error: () => {},
+        error: () => { },
       });
   }
   fetchAllSourceDetails(sourceId: any): void {
@@ -297,7 +297,7 @@ export class TransferTokenComponent implements OnInit{
     private dialog: MatDialog,
 
     private _activatedRoute: ActivatedRoute,
-  ) {}
+  ) { }
 
   fetchAllWings(projectID: any): void {
     this.http

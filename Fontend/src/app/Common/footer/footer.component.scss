@@ -1,4 +1,5 @@
-@import '../../../variables';
+@use 'sass:color';
+@use '../../../variables' as vars;
 
 // CSS Custom Properties for better performance and theming
 :host {
@@ -53,11 +54,11 @@
         transition: color var(--transition-duration) var(--transition-timing);
 
         &:hover {
-            color: $black !important;
+            color: vars.$black !important;
         }
 
         &:focus-visible {
-            outline: 2px solid $primaryColor;
+            outline: 2px solid vars.$primaryColor;
             outline-offset: 2px;
             border-radius: 2px;
         }
@@ -65,7 +66,7 @@
 }
 
 .version-text {
-    color: $primaryColor;
+    color: vars.$primaryColor;
     font-weight: 500;
     letter-spacing: 0.02em;
 
@@ -97,8 +98,8 @@
 
     // Styling
     border-radius: 50% !important;
-    background-color: $primaryButtonColor !important;
-    color: $white !important;
+    background-color: vars.$primaryButtonColor !important;
+    color: vars.$white !important;
     box-shadow: var(--support-fab-shadow);
     border: none !important;
 
@@ -124,7 +125,7 @@
 
     // Hover state with optimized transform
     &:hover {
-        background-color: darken($primaryButtonColor, 8%) !important;
+        background-color: color.adjust(vars.$primaryButtonColor, $lightness: -8%) !important;
         transform: scale(1.1) translateZ(0);
         box-shadow: var(--support-fab-shadow-hover);
     }
@@ -132,7 +133,7 @@
     // Active state for tactile feedback
     &:active {
         transform: scale(0.95) translateZ(0);
-        background-color: darken($primaryButtonColor, 15%) !important;
+        background-color: color.adjust(vars.$primaryButtonColor, $lightness: -15%) !important;
         transition-duration: 0.1s; // Faster transition on click
     }
 
@@ -148,7 +149,7 @@
         width: var(--support-fab-icon-size);
         height: var(--support-fab-icon-size);
         line-height: var(--support-fab-icon-size);
-        color: $white !important;
+        color: vars.$white !important;
 
         // Prevent icon selection
         user-select: none;

@@ -139,7 +139,7 @@
                     {{ project.created_by_name || '--' }}
                   </span>
                   <span class="text-[10px] text-slate-400">
-                    {{ project.created_at | date:'d MMM y' || '--' }}
+                    {{ (project.created_at | date:'d MMM y') || '--' }}
                   </span>
                 </div>
               </div>
@@ -153,7 +153,7 @@
                     {{ project.updated_by_name || '--' }}
                   </span>
                   <span class="text-[10px] text-slate-400">
-                    {{ project.updated_at | date:'d MMM y' || '--' }}
+                    {{ (project.updated_at | date:'d MMM y') || '--' }}
                   </span>
                 </div>
               </div>

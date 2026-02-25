@@ -64,7 +64,7 @@ export class UnifiedDocumentDialogComponent implements OnInit {
 
   private readonly LOGO_CONFIG = { maxWidth: 150, maxHeight: 80 };
   private readonly PRINT_CONFIG = { cleanupDelay: 1000, printDelay: 100 };
-  
+
   // Track PDF generation state
   isGeneratingPDF = false;
 

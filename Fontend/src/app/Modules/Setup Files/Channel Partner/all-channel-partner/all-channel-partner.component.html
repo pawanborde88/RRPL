@@ -68,7 +68,7 @@
 
   <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_cp'" [apiMethod]="'POST'"
     [apiPayload]="agGridPayload()" [actions]="channelPartnerActions" [headerButtons]="headerButtons"
-    [cacheBlockSize]="100" [autoLoad]="false" (actionClick)="getChannelPartneractions($event.action, $event.row)">
+    [cacheBlockSize]="100" [autoLoad]="false" (actionClick)="getChannelPartnerActions($event.action, $event.row)">
   </app-configurable-ag-grid-data>
 
 </app-template>

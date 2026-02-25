@@ -7,12 +7,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
 import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
+import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { TemplateComponent } from '../../../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'app-pay-token-manually',
@@ -23,12 +24,13 @@ import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.d
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
-    BreadcrumbComponent,
-    AutocompleteReusableComponent,
-    AddTokenPaymentComponent,
-    AmountDirective ,
 
+    AddTokenPaymentComponent,
+    AmountDirective,
+    SuccessDialogComponent,
+    AutocompleteReusableComponent,
+    TemplateComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './pay-token-manually.component.html',
   styleUrl: './pay-token-manually.component.scss'
@@ -82,7 +84,7 @@ export class PayTokenManuallyComponent implements OnInit {
     balance: new FormControl(),
     transaction_id: new FormControl(''),
     payment_mode_id: new FormControl('', Validators.required),
-    amount: new FormControl('', [Validators.required, Validators.min(1), ]),
+    amount: new FormControl('', [Validators.required, Validators.min(1),]),
 
     cheque_no: new FormControl(''),
     upi_id: new FormControl(''),
@@ -101,7 +103,7 @@ export class PayTokenManuallyComponent implements OnInit {
 
   ngOnInit(): void {
     this.elementData = history.state.data;
-    
+
     // Load payment modes immediately
     this.fetchPaymentModeDropdown();
 
@@ -116,10 +118,10 @@ export class PayTokenManuallyComponent implements OnInit {
       // Calculate balance - if token is fully paid, balance will be 0
       const tokenAmount = Number(this.elementData.token_amount) || 0;
       const amountPaid = Number(this.elementData.amount_paid) || 0;
-      
+
       // Show upgrade details if we have token amount info
       this.showUpgradeDetails = !!this.elementData.token_amount;
-      
+
       // Disable project selection since we're working with an existing token
       this.upgradeTokens.get('project_id')?.disable();
       this.upgradeTokens.get('token_type_id')?.disable();
@@ -159,14 +161,14 @@ export class PayTokenManuallyComponent implements OnInit {
         preference_id: this.elementData.preference_id,
         phase_id: this.elementData.phase_id
       });
-      
+
       // If floor_unit_id exists, set it
       if (this.elementData.floor_unit_id) {
         this.upgradeTokens.patchValue({
           floor_unit_id: this.elementData.floor_unit_id
         });
       }
-      
+
       // Setup dependent data based on project_id
       if (this.elementData.project_id) {
         this.setupTokenTypeHandler(this.elementData.project_id);
@@ -176,15 +178,15 @@ export class PayTokenManuallyComponent implements OnInit {
         // If wing_id exists, fetch floors
         if (this.elementData.wing_id) {
           this.fetchallProjectFloors(this.elementData.project_id, this.elementData.wing_id);
-          
+
           // If floor_id and wing_id exist, fetch unit types
           if (this.elementData.floor_id && this.elementData.wing_id) {
             this.FetchProjectUnitType(
-              this.elementData.project_id, 
-              this.elementData.wing_id, 
+              this.elementData.project_id,
+              this.elementData.wing_id,
               this.elementData.floor_id
             );
-            
+
             // If unit_type exists, fetch floor units
             if (this.elementData.unit_type) {
               this.fetchTokenFloorUnitDropdown(
@@ -198,7 +200,7 @@ export class PayTokenManuallyComponent implements OnInit {
         }
       }
     }
-    
+
     this.setupFormValueChanges();
   }
   fetchSingleToken(tokenID: any): void {
@@ -277,7 +279,7 @@ export class PayTokenManuallyComponent implements OnInit {
         this.fetchAllSourceDetails(sourceId);
       }
     });
-    
+
     // Payment amount changes - update balance
     this.upgradeTokens.get('amount')?.valueChanges.subscribe((amount) => {
       if (amount && this.elementData?.token_amount) {
@@ -285,14 +287,14 @@ export class PayTokenManuallyComponent implements OnInit {
         const amountPaid = Number(this.elementData.amount_paid) || 0;
         const currentAmount = Number(amount) || 0;
         const newBalance = Math.max(0, tokenAmount - amountPaid - currentAmount);
-        
+
         this.upgradeTokens.patchValue({
           balance: newBalance
         }, { emitEvent: false });
       }
     });
   }
-  
+
   FetchProjectUnitType(projectID: any, wingId: any, floorId: any): void {
     const payload = {
       project_id: projectID,
@@ -304,17 +306,17 @@ export class PayTokenManuallyComponent implements OnInit {
       next: (res: any) => {
         this.confiList = res.data;
       },
-      error: () => {},
+      error: () => { },
     });
   }
-  
+
   private resetDependentFields(): void {
     this.upgradeTokens.get('wing_id')?.reset();
     this.upgradeTokens.get('floor_id')?.reset();
     this.upgradeTokens.get('unit_type')?.reset();
     this.upgradeTokens.get('floor_unit_id')?.reset();
   }
-  
+
   fetchTokenFloorUnitDropdown(
     projectID: any,
     wingID: any,
@@ -339,7 +341,7 @@ export class PayTokenManuallyComponent implements OnInit {
         },
       });
   }
-  
+
   fechpreferencedropdown(projectID: any): void {
     this.http
       .post(`${this.baseUrl}/web_config_dropdown`, { project_id: projectID })
@@ -347,10 +349,10 @@ export class PayTokenManuallyComponent implements OnInit {
         next: (res: any) => {
           this.preferenceDropdown = res;
         },
-        error: () => {},
+        error: () => { },
       });
   }
-  
+
   fetchAllSourceDetails(sourceId: any): void {
     this.http
       .post(`${this.baseUrl}/source_detail_dropdown`, { source_id: sourceId })
@@ -365,7 +367,7 @@ export class PayTokenManuallyComponent implements OnInit {
         },
       });
   }
-  
+
   isHighestTokenSelected(): boolean {
     const selectedTokenId = this.upgradeTokens.get('token_type_id')?.value;
     if (!selectedTokenId || !this.allTokenType) return false;
@@ -375,11 +377,11 @@ export class PayTokenManuallyComponent implements OnInit {
     );
     return selectedToken ? selectedToken.is_highest === 1 : false;
   }
-  
+
   onSubmit() {
- 
+
     const formData = new FormData();
-    
+
     // Add all form values to formData
     Object.keys(this.upgradeTokens.controls).forEach(key => {
       if (key !== 'payment_attachment') {
@@ -401,7 +403,7 @@ export class PayTokenManuallyComponent implements OnInit {
     // Ensure critical fields are included
     formData.append('token_id', this.tokenID.toString());
     formData.append('created_by', this.userId.toString());
-    
+
     // Include project_id even if disabled in the form
     if (this.upgradeTokens.get('project_id')?.disabled) {
       formData.append('project_id', this.elementData.project_id.toString());
@@ -424,25 +426,25 @@ export class PayTokenManuallyComponent implements OnInit {
           } else {
             // Reset only payment-related fields, not the entire form
             this.resetPaymentFields();
-            
+
             this.dialog.open(SuccessDialogComponent, {
               data: { message: res.message },
             });
-            
+
             // Update the payment status
             this.isPaymentDone = true;
-            
+
             // If token data includes token transactions, update the amount paid
             if (this.elementData && this.upgradeTokens.get('amount')?.value) {
               const currentAmountPaid = Number(this.elementData.amount_paid) || 0;
               const newPayment = Number(this.upgradeTokens.get('amount')?.value) || 0;
               this.elementData.amount_paid = (currentAmountPaid + newPayment).toString();
-              
+
               // Update the balance
               const tokenAmount = Number(this.elementData.token_amount) || 0;
               const totalPaid = currentAmountPaid + newPayment;
               this.elementData.balance = Math.max(0, tokenAmount - totalPaid);
-              
+
               // Update form values
               this.upgradeTokens.patchValue({
                 amount_paid: this.elementData.amount_paid,
@@ -460,7 +462,7 @@ export class PayTokenManuallyComponent implements OnInit {
       },
     });
   }
-  
+
   resetPaymentFields(): void {
     // Reset only payment-related fields
     this.upgradeTokens.patchValue({
@@ -483,7 +485,7 @@ export class PayTokenManuallyComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private _activatedRoute: ActivatedRoute,
-  ) {}
+  ) { }
 
   fetchAllWings(projectID: any): void {
     this.http
@@ -499,7 +501,7 @@ export class PayTokenManuallyComponent implements OnInit {
         },
       });
   }
-  
+
   fetchPaymentModeDropdown(): void {
     this.http.get(`${this.baseUrl}/payment_mode_dropdown`).subscribe({
       next: (res: any) => {
@@ -513,7 +515,7 @@ export class PayTokenManuallyComponent implements OnInit {
       },
     });
   }
-  
+
   setupTokenTypeHandler(projectID: any): void {
     if (!projectID) return;
 
@@ -538,14 +540,14 @@ export class PayTokenManuallyComponent implements OnInit {
         },
       });
   }
-  
+
   onFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
     }
   }
-  
+
   fetchallProjectFloors(projectID: any, wingID: any): void {
     this.http
       .post(`${this.baseUrl}/fetch_floor_dropdown`, {
@@ -597,6 +599,6 @@ export class PayTokenManuallyComponent implements OnInit {
       },
     });
   }
-  
+
 
 }

@@ -113,8 +113,8 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
   readonly animateRows = input<boolean>(true);
   readonly maxConcurrentDatasourceRequests = input<number>(2);
   readonly floatingFiltersHeight = input<number>(25);
-  readonly autoGroupColumnDef = input<ColDef | undefined>(undefined);
-  readonly selectionColumnDef = input<ColDef | undefined>(undefined);
+  readonly autoGroupColumnDef = input<AutoGroupColumnDef<T> | undefined>(undefined);
+  readonly selectionColumnDef = input<ColDef<T> | undefined>(undefined);
   readonly getRowId = input<((params: any) => string) | undefined>(undefined);
   readonly getRowStyle = input<((params: any) => any) | undefined>(undefined);
   readonly enableCellTextSelection = input<boolean>(true);

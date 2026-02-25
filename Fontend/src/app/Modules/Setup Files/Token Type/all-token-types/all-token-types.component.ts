@@ -10,13 +10,13 @@ import { MatTableDataSource } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
-import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
-import { AddTokenComponent } from '../add-token/add-token.component';
 import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { AddTokenComponent } from '../add-token/add-token.component';
+import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-all-token-types',
@@ -24,13 +24,10 @@ import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-tab
   imports: [
     CommonModule,
     RouterModule,
+    ReusableTableComponent,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
-    ReusableTableComponent, // Add the pipe here
+    MatCardModule
   ],
   templateUrl: './all-token-types.component.html',
   styleUrl: './all-token-types.component.scss',
@@ -54,7 +51,7 @@ export class AllTokenTypesComponent {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
   ngOnInit(): void {
     this.fetchAllTokenTypes();
   }
@@ -83,7 +80,7 @@ export class AllTokenTypesComponent {
     });
   }
   headerButtons = [
-    
+
     {
       label: 'Add Token Configuration',
       icon: 'add_circle',

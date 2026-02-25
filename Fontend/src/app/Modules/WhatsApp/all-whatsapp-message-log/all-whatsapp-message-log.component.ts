@@ -9,16 +9,12 @@ import { RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
 import { AngularMaterialModule } from '../../../../angular-material.module';
 import { environment } from '../../../../environments/environment';
-import { AutocompleteReusableComponent } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
-import { PaginationComponent } from '../../../Common/pagination/pagination.component';
 import { ConfigurableAgGridDataComponent } from '../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TableColumn } from '../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
-import { ReusableTableComponent } from '../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TemplateComponent } from '../../../Common/template/template.component';
-import { TruncatePipe } from '../../../Pipes/truncate.pipe';
 import { AuthService } from '../../../Service/auth.service';
 import { CommonService } from '../../../Service/common/common.service';
+import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { FetchFunctionsService } from '../../../Service/fetch-functions.service';
 
 @Component({
@@ -26,19 +22,12 @@ import { FetchFunctionsService } from '../../../Service/fetch-functions.service'
   standalone: true,
   imports: [CommonModule,
     RouterModule,
+    CommonModule,
+    RouterModule,
+    ConfigurableAgGridDataComponent,
     TemplateComponent,
     BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
-    AutocompleteReusableComponent,
-    ReusableTableComponent,
-    PaginationComponent,
-    AutocompleteReusableComponent,
-    ConfigurableAgGridDataComponent,
-
-    ReusableTableComponent,],
+  ],
   templateUrl: './all-whatsapp-message-log.component.html',
   styleUrl: './all-whatsapp-message-log.component.scss'
 })

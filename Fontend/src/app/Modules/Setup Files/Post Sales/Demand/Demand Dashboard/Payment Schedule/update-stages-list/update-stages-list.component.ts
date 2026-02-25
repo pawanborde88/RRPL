@@ -19,6 +19,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { environment } from '../../../../../../../../environments/environment';
 import { FetchFunctionsService } from '../../../../../../../Service/fetch-functions.service';
 import { UpdateStagesComponent } from '../update-stages/update-stages.component';
+import { EditPaymentstageDialogComponent } from '../edit-paymentstage-dialog/edit-paymentstage-dialog.component';
+import { ConfirmDialogComponent } from '../../../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+
 interface ActionButton {
   action: string;
   icon: string;
@@ -30,27 +33,27 @@ interface ActionButton {
 @Component({
   selector: 'app-update-stages-list',
   standalone: true,
-    imports: [
-      CommonModule,
-      RouterModule,
-      TemplateComponent,
-      BreadcrumbComponent,
-      AngularMaterialModule,
-      FormsModule,
-      ReactiveFormsModule,
-      TruncatePipe,
-  
-      AutocompleteReusableComponent,
-     
-      IndianCurrencyPipe,
-      ActionColumnComponent,
-      ReusableTableComponent,
-    ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TemplateComponent,
+    BreadcrumbComponent,
+    AngularMaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TruncatePipe,
+
+    AutocompleteReusableComponent,
+
+    IndianCurrencyPipe,
+    ActionColumnComponent,
+    ReusableTableComponent,
+  ],
   templateUrl: './update-stages-list.component.html',
   styleUrl: './update-stages-list.component.scss'
 })
 export class UpdateStagesListComponent {
- baseUrl = environment.API_URL;
+  baseUrl = environment.API_URL;
   loading: boolean = false; // Initialize loading state
   allWingslist: any[] = []; // Initialize allWingslist as an empty array
   allUnitNoList: any[] = []; // Added missing declaration  registrationOfficeList: any[] = [];
@@ -69,7 +72,13 @@ export class UpdateStagesListComponent {
   pipe = new DatePipe('en-US');
   currentBookingId: number | null = null;
   bookingDisplayedColumns = [
- 
+    {
+      key: 'actions',
+      label: 'Actions',
+      type: 'actions',
+      sticky: true,
+      disabled: false,
+    },
     {
       key: 'sr_no',
       label: 'Sr.no',
@@ -77,10 +86,11 @@ export class UpdateStagesListComponent {
     },
     { key: 'project_name', label: 'Project  ' },
 
-        { key: 'wing_name', label: 'Wing' },
+    { key: 'wing_name', label: 'Wing' },
 
     { key: 'payment_stage', label: 'Particulars' },
-    { key: 'percentage', label: 'Percentage (%)',  isAmount: true 
+    {
+      key: 'percentage', label: 'Percentage (%)', isAmount: true
     },
 
     { key: 'stage_date', label: 'Stage Date', type: 'short_date' },
@@ -105,7 +115,7 @@ export class UpdateStagesListComponent {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.fetchAllProjects();
@@ -121,14 +131,14 @@ export class UpdateStagesListComponent {
         this.fetchPaymentStages(projectId, wingId);
       }
     });
-    
+
   }
   addpaymentStages = new FormGroup({
     project_id: new FormControl<number | null>(null, Validators.required),
     wing_id: new FormControl<number | null>(null, Validators.required),
   });
   headerButtons = [
-    
+
     {
       label: 'Update Stages',
       icon: 'add_circle',
@@ -137,7 +147,7 @@ export class UpdateStagesListComponent {
       disabled: () => false,
       show: () => true,
     },
-  ]; 
+  ];
 
   bookingActions: ActionButton[] = [
     {
@@ -158,7 +168,7 @@ export class UpdateStagesListComponent {
   fetchAllProjects(): void {
     this.loading = true;
     const payload = {
-      user_id:  this.userId,
+      user_id: this.userId,
     };
 
     this.http.post(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
@@ -192,16 +202,16 @@ export class UpdateStagesListComponent {
       minWidth: '70vw',
       maxWidth: '50vh',
       maxHeight: '100vh',
-   
+
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
       }
     });
   }
-  
-  fetchPaymentStages ( projectId:number, wingId:number ): void {
- 
+
+  fetchPaymentStages(projectId: number, wingId: number): void {
+
     this.http
       .post(`${this.baseUrl}/fetch_payment_stage`, {
         project_id: projectId,
@@ -227,5 +237,73 @@ export class UpdateStagesListComponent {
           });
         },
       });
+  }
+
+  onBookingAction(action: string, row: any): void {
+    const actionHandlers: { [key: string]: () => void } = {
+      'deleteBooking': () => this.deleteBookings(row.payment_stage_id, row),
+      'editPaymentStage': () => this.editPaymentStage(row),
+    };
+
+    const handler = actionHandlers[action];
+    if (handler) {
+      handler();
+    } else {
+      console.warn(`Unknown action: ${action}`);
+    }
+  }
+
+  editPaymentStage(row: any): void {
+    const dialogRef = this.dialog.open(EditPaymentstageDialogComponent, {
+      width: '600px',
+      data: {
+        paymentStage: row,
+        projectId: this.addpaymentStages.get('project_id')?.value || row.project_id,
+        wingId: this.addpaymentStages.get('wing_id')?.value || row.wing_id,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.refreshPaymentStages();
+      }
+    });
+  }
+
+  deleteBookings(id: number, row: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      minWidth: '25vw',
+      data: { message: 'Are you sure you want to delete Stage?' },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.performDelete(id);
+      }
+    });
+  }
+
+  private performDelete(id: number): void {
+    this.loading = true;
+    this.http.post(`${this.baseUrl}/delete_payment_stage`, { payment_stage_id: id })
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Stage deleted successfully', 'Close', { duration: 3000 });
+          this.refreshPaymentStages();
+        },
+        error: (err) => {
+          console.error('Error deleting stage:', err);
+          this.snackBar.open('Unable to delete stage', 'Close', { duration: 3000 });
+          this.loading = false;
+        }
+      });
+  }
+
+  private refreshPaymentStages(): void {
+    const projectId = this.addpaymentStages.get('project_id')?.value;
+    const wingId = this.addpaymentStages.get('wing_id')?.value;
+    if (projectId && wingId) {
+      this.fetchPaymentStages(projectId, wingId);
+    }
   }
 }

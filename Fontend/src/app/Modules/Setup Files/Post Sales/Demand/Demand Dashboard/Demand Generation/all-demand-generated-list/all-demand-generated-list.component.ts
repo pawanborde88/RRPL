@@ -149,7 +149,6 @@ export class AllDemandGeneratedListComponent implements OnInit {
   });
 
   readonly enquiryActions: readonly any[] = [
-    { action: 'demandLetter', tooltip: 'Demand Letter', icon: 'receipt_long', color: 'primary' },
     { action: 'deleteEnquiry', icon: 'delete', tooltip: 'Delete Demand', color: 'warn' },
   ] as const;
 
@@ -235,8 +234,7 @@ export class AllDemandGeneratedListComponent implements OnInit {
   }
 
   onDemandAction(action: string, row: any): void {
-    if (action === 'deleteEnquiry') this.deleteDemand(row.demand_id);
-    if (action === 'demandLetter') this.openDemandLetter(row);
+    if (action === 'deleteEnquiry') this.deleteDemand([row.demand_id]);
   }
   readonly headerButtons = [
     {
@@ -261,6 +259,20 @@ export class AllDemandGeneratedListComponent implements OnInit {
       disabled: () => this.selectedDemand().length === 0,
       action: () => this.emailDemand(this.selectedDemand()[0]),
     },
+    {
+      label: 'Delete Demand',
+      icon: 'delete',
+      color: 'warn',
+      disabled: () => this.selectedDemand().length === 0,
+      action: () => this.deleteDemand(this.selectedDemand().map((demand) => demand.demand_id)),
+    },
+    {
+      label: 'Demand Letter',
+      icon: 'receipt_long',
+      color: 'primary',
+      disabled: () => this.selectedDemand().length === 0,
+      action: () => this.openDemandLetter(this.selectedDemand().map((demand) => demand.demand_id)),
+    },
 
   ];
   whatsappDemand(demandIds: number[]): void {
@@ -271,7 +283,7 @@ export class AllDemandGeneratedListComponent implements OnInit {
   }
 
 
-  private openDemandLetter(row: any): void {
+  private openDemandLetter(demandIds: number[]): void {
     this.dialog.open(UnifiedDocumentDialogComponent, {
       width: 'auto',
       height: 'auto',
@@ -280,26 +292,27 @@ export class AllDemandGeneratedListComponent implements OnInit {
       panelClass: 'custom-dialog-container',
       data: {
         dialogType: DocumentDialogType.DEMAND_LETTER,
-        rowData: row,
+        demand_id: demandIds,
       },
     });
   }
 
-  private deleteDemand(demandId: number): void {
+  private deleteDemand(demandIds: number[]): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       minWidth: '25vw',
-      data: { message: 'Are you sure you want to delete this demand?' },
+      data: { message: `Are you sure you want to delete ${demandIds.length === 1 ? 'this demand' : 'selected demands'}?` },
     });
 
     dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
         this.http.post(`${this.baseUrl}/delete_demand`, {
-          demand_id: demandId,
+          demand_id: demandIds,
           reason: result.reason,
           created_by: this.userId(),
         }).subscribe({
           next: () => {
             this.showSnackBar('Demand deleted successfully');
+            this.selectedDemand.set([]);
             this.refreshAgGridData();
           },
           error: () => this.showSnackBar('Unable to delete demand.'),

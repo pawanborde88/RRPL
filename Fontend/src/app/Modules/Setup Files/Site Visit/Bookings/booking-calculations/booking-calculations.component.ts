@@ -19,8 +19,8 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
+
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
@@ -48,11 +48,11 @@ import { effect } from '@angular/core';
   imports: [
     CommonModule,
     RouterModule,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
+
     AutocompleteReusableComponent,
     AmountDirective,
   ],

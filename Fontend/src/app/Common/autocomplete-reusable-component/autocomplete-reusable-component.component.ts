@@ -81,8 +81,7 @@ export interface SelectOption<T = any> {
   ],
 })
 export class AutocompleteReusableComponent
-  implements OnInit, OnChanges, OnDestroy
-{
+  implements OnInit, OnChanges, OnDestroy {
   // Inputs - using @Input() for backward compatibility, converted to signals internally
   @Input() isMultiSelect: boolean = false;
   @Input() placeholder: string = '';
@@ -103,7 +102,7 @@ export class AutocompleteReusableComponent
   private readonly _displayKeySignal = signal<string>('');
   private readonly _idKeySignal = signal<string>('');
   private readonly _disabledSignal = signal<boolean>(false);
-  private readonly  _selectedValueSignal = signal<any>(null);
+  private readonly _selectedValueSignal = signal<any>(null);
   @Input() required: boolean = false;
 
   /**
@@ -117,13 +116,13 @@ export class AutocompleteReusableComponent
   readonly searchCtrl = new FormControl();
 
   // ControlValueAccessor callbacks
-  private onChange: (value: any) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: any) => void = () => { };
+  private onTouched: () => void = () => { };
 
   constructor(
     private cdr: ChangeDetectorRef,
     @Optional() private controlContainer: ControlContainer
-  ) {}
+  ) { }
 
   // Internal state using signals for reactive updates
   private readonly _searchTerm = signal<string>('');
@@ -196,7 +195,7 @@ export class AutocompleteReusableComponent
   }
   // Cleanup subject
   private readonly _destroy$ = new Subject<void>();
-  
+
   // Flag to prevent infinite loop when programmatically setting values
   private _isUpdatingSelection = false;
 
@@ -260,7 +259,7 @@ export class AutocompleteReusableComponent
     this.setupSearchSubscription();
     this.setupSelectionSubscription();
     this.autoSelectUserId();
-    
+
     // Trigger change detection to ensure form control is bound
     this.cdr.markForCheck();
   }
@@ -370,6 +369,7 @@ export class AutocompleteReusableComponent
 
       const actualIds = selectedValues.filter((v) => v !== this.selectAllValue);
       this.selectedChange.emit(actualIds);
+      this.selectedIdChange.emit(actualIds);
       this.onChange(actualIds);
     } finally {
       this._isUpdatingSelection = false;
@@ -399,6 +399,7 @@ export class AutocompleteReusableComponent
         const newSelection = [this.selectAllValue, ...filteredIds];
         this.selectedCtrl.setValue(newSelection, { emitEvent: false });
         this.selectedChange.emit(filteredIds);
+        this.selectedIdChange.emit(filteredIds);
         this.onChange(filteredIds);
       } else {
         // Deselect all that are currently shown
@@ -408,6 +409,7 @@ export class AutocompleteReusableComponent
         );
         this.selectedCtrl.setValue(remaining, { emitEvent: false });
         this.selectedChange.emit(remaining);
+        this.selectedIdChange.emit(remaining);
         this.onChange(remaining);
       }
     } finally {
@@ -459,7 +461,7 @@ export class AutocompleteReusableComponent
       console.warn('AutocompleteReusableComponent: selectedCtrl is not initialized');
       return;
     }
-    
+
     if (this._isMultiSelectSignal()) {
       if (Array.isArray(value)) {
         this.selectedCtrl.setValue(value, { emitEvent: false });
@@ -509,7 +511,7 @@ export class AutocompleteReusableComponent
     event.stopPropagation();
     const clearedValue = this._isMultiSelectSignal() ? [] : null;
     this.selectedCtrl.setValue(clearedValue);
-    
+
     // Emit the change events
     this.selectedChange.emit(clearedValue);
     this.selectedIdChange.emit(clearedValue);

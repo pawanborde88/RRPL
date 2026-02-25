@@ -9,12 +9,7 @@ import {
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { IndianCurrencyPipe } from '../../../../../Pipes/currency/indianCurrency/pipes/indian-currency.pipe';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
+
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,6 +18,7 @@ import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-di
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
 import { AddbookingBillComponent } from '../../../../Channel Partner Meetings/addbooking-bill/addbooking-bill.component';
 import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 @Component({
   selector: 'app-all-cpbooking-list',
@@ -30,16 +26,13 @@ import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    AutocompleteReusableComponent,
-    IndianCurrencyPipe,
-    ActionColumnComponent,
+
     ConfigurableAgGridDataComponent,
+    AutocompleteReusableComponent
   ],
   templateUrl: './all-cpbooking-list.component.html',
   styleUrl: './all-cpbooking-list.component.scss',
@@ -62,10 +55,10 @@ export class AllCPBookingListComponent {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
 
   bookingBillsColumns = [
- 
+
     { key: 'booking_date', label: 'Booking Date', type: 'mediumDate' },
     { key: 'project_name', label: 'Project Name' },
     { key: 'wing_name', label: 'wing' },
@@ -99,7 +92,7 @@ export class AllCPBookingListComponent {
     end_date: new FormControl(null),
   });
 
-  
+
   onPartnerSearch(searchText: string): void {
     const trimmedSearch = searchText.trim();
     if (trimmedSearch.length <= 3) {
@@ -134,7 +127,7 @@ export class AllCPBookingListComponent {
       action: () => this.openAddBookingBillDialog(),
       show: () => true,
     },
-    
+
   ];
   openAddBookingBillDialog(row?: any): void {
     const dialogRef = this.dialog.open(AddbookingBillComponent, {
@@ -150,7 +143,7 @@ export class AllCPBookingListComponent {
       }
     });
   }
-  editBooking(booking: any): void {}
+  editBooking(booking: any): void { }
 
   ngOnInit(): void {
     this.fetchAllProjects();
@@ -198,13 +191,13 @@ export class AllCPBookingListComponent {
       source_id: 3, // Always include source_id as 3 for CP Booking List
       start_date: formValues.start_date
         ? (typeof formValues.start_date === 'string'
-            ? formValues.start_date
-            : this.pipe.transform(formValues.start_date, 'yyyy-MM-dd') ?? null)
+          ? formValues.start_date
+          : this.pipe.transform(formValues.start_date, 'yyyy-MM-dd') ?? null)
         : null,
       end_date: formValues.end_date
         ? (typeof formValues.end_date === 'string'
-            ? formValues.end_date
-            : this.pipe.transform(formValues.end_date, 'yyyy-MM-dd') ?? null)
+          ? formValues.end_date
+          : this.pipe.transform(formValues.end_date, 'yyyy-MM-dd') ?? null)
         : null,
     };
 
@@ -247,7 +240,7 @@ export class AllCPBookingListComponent {
     this.loading = true;
 
     const payload = {
-      user_id:  this.userId,
+      user_id: this.userId,
     };
 
     this.http.post(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
@@ -295,7 +288,7 @@ export class AllCPBookingListComponent {
 
 
 
-  generateReceipt(): void {}
+  generateReceipt(): void { }
   openReceipt(bookingIds: number[]) {
     // Handle receipt logic with the selected booking IDs
     console.log('Selected bookings for receipt:', bookingIds);

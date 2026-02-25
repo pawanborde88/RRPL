@@ -1,13 +1,22 @@
-<h2 mat-dialog-title>{{ data.title }}
-    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
-        <mat-icon>close</mat-icon>
-    </button>
+<h2 mat-dialog-title>
+    <div class="d-flex align-items-center justify-content-between w-100">
+        <span>{{ data.title }}</span>
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
 </h2>
 
-<mat-dialog-content class="mat-typography">
-    <form [formGroup]="addCpExecutiveForm" (ngSubmit)="onSubmit()" class="row g-3 align-items-center">
+<mat-dialog-content class="mat-typography pt-3">
+    <form [formGroup]="addCpExecutiveForm" class="row g-3">
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <!-- Section: Personal Information -->
+        <div class="col-12 mt-0">
+            <h6 class="text-primary fw-bold mb-0">Personal Information</h6>
+            <hr class="mt-1 mb-3 opacity-25">
+        </div>
+
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>First Name</mat-label>
             <input matInput formControlName="first_name" required />
             <mat-error *ngIf="addCpExecutiveForm.get('first_name')?.hasError('required')">
@@ -15,7 +24,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>Last Name</mat-label>
             <input matInput formControlName="last_name" required />
             <mat-error *ngIf="addCpExecutiveForm.get('last_name')?.hasError('required')">
@@ -23,7 +32,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>Email</mat-label>
             <input matInput formControlName="user_email" required email />
             <mat-error *ngIf="addCpExecutiveForm.get('user_email')?.hasError('required')">
@@ -34,107 +43,78 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>Phone Number</mat-label>
-            <input matInput formControlName="user_phone" required pattern="^\d{10}$" />
+            <input matInput formControlName="user_phone" required pattern="^[6789]\d{9}$" maxlength="10"
+                inputmode="numeric" />
             <mat-error *ngIf="addCpExecutiveForm.get('user_phone')?.hasError('required')">
                 Phone number is required.
             </mat-error>
             <mat-error *ngIf="addCpExecutiveForm.get('user_phone')?.hasError('pattern')">
-                Phone number must be 10 digits.
+                Invalid phone number.
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>PAN Number</mat-label>
-            <input matInput formControlName="pan_no" required pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$" />
-            <mat-error *ngIf="addCpExecutiveForm.get('pan_no')?.hasError('required')">
-                PAN number is required.
-            </mat-error>
-            <mat-error *ngIf="addCpExecutiveForm.get('pan_no')?.hasError('pattern')">
-                Invalid PAN number format.
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>Address</mat-label>
-            <input matInput formControlName="address" required />
-            <mat-error *ngIf="addCpExecutiveForm.get('address')?.hasError('required')">
-                Address is required.
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>Country</mat-label>
-            <input matInput formControlName="country" required />
-            <mat-error *ngIf="addCpExecutiveForm.get('country')?.hasError('required')">
-                Country is required.
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>State</mat-label>
-            <input matInput formControlName="state" required />
-            <mat-error *ngIf="addCpExecutiveForm.get('state')?.hasError('required')">
-                State is required.
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>PIN Code</mat-label>
-            <input matInput formControlName="pin_code" required pattern="^\d{6}$" />
-            <mat-error *ngIf="addCpExecutiveForm.get('pin_code')?.hasError('required')">
-                PIN Code is required.
-            </mat-error>
-            <mat-error *ngIf="addCpExecutiveForm.get('pin_code')?.hasError('pattern')">
-                PIN Code must be 6 digits.
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>Password</mat-label>
-            <input matInput formControlName="password" required />
-            <mat-error *ngIf="addCpExecutiveForm.get('password')?.hasError('required')">
-                Password is required.
-            </mat-error>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>Birth Date</mat-label>
-            <input matInput formControlName="dob" [matDatepicker]="picker"
-                placeholder="Select Date" />
+            <input matInput formControlName="dob" [matDatepicker]="picker" placeholder="Select Date" />
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
-            <mat-label>Aadhar Number</mat-label>
-            <input matInput formControlName="aadhar_no" required pattern="^\d{12}$" />
-            <mat-error *ngIf="addCpExecutiveForm.get('aadhar_no')?.hasError('required')">
-                Aadhar number is required.
-            </mat-error>
-            <mat-error *ngIf="addCpExecutiveForm.get('aadhar_no')?.hasError('pattern')">
-                Aadhar number must be 12 digits.
+        <mat-form-field appearance="outline" class="col-md-4" *ngIf="!data?.rowData?.user_id">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" [required]="!data?.rowData?.user_id" />
+            <mat-error *ngIf="addCpExecutiveForm.get('password')?.hasError('required')">
+                Password is required.
             </mat-error>
         </mat-form-field>
 
-        <app-autocomplete-reusable-component [options]="allChannelPartnerList" class="col-md-3"
-      
-        formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
-        placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
-        <!-- event handler -->
-    </app-autocomplete-reusable-component>
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>PAN</mat-label>
+            <input matInput formControlName="pan_no" placeholder="PAN no" appPANNo maxlength="10" />
+            <mat-error *ngIf="addCpExecutiveForm.get('pan_no')?.hasError('pattern')">
+                Invalid PAN
+            </mat-error>
+            <mat-error *ngIf="addCpExecutiveForm.get('pan_no')?.hasError('required')">
+                PAN is required
+            </mat-error>
+        </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Aadhar</mat-label>
+            <input matInput formControlName="aadhar_no" placeholder="Aadhar no" appAadharcardNoformat maxlength="14"
+                inputmode="numeric" />
+            <mat-error *ngIf="addCpExecutiveForm.get('aadhar_no')?.hasError('required')">
+                Aadhar No is required
+            </mat-error>
+            <mat-error *ngIf="addCpExecutiveForm.get('aadhar_no')?.hasError('pattern')">
+                Incorrect Aadhar
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Section: Professional Details -->
+        <div class="col-12 mt-4">
+            <h6 class="text-primary fw-bold mb-0">Professional Details</h6>
+            <hr class="mt-1 mb-3 opacity-25">
+        </div>
+
+        <app-autocomplete-reusable-component [options]="allChannelPartnerList" class="col-md-4"
+            formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+            placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+        </app-autocomplete-reusable-component>
+
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>City</mat-label>
             <mat-select formControlName="city_id" multiple>
-                <mat-option *ngFor="let city of allCities" [value]="city.city_id">{{ city.city_name
-                    }}</mat-option>
+                <mat-option *ngFor="let city of allCities" [value]="city.city_id">{{ city.city_name }}</mat-option>
             </mat-select>
             <mat-error *ngIf="addCpExecutiveForm.get('city_id')?.hasError('required')">
                 City is required.
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-3">
+        <mat-form-field appearance="outline" class="col-md-4">
             <mat-label>Sub region</mat-label>
             <mat-select formControlName="sub_region_id" multiple>
                 <mat-option *ngFor="let region of allSubregions" [value]="region.sub_region_id">{{
@@ -144,42 +124,93 @@
                 Sub region is required.
             </mat-error>
         </mat-form-field>
-        <div class="col-md-4">
-            <label for="fileInput" class="form-label">Upload Profile Photo</label>
-            <div class="border p-3 rounded-3 shadow-sm">
-                <div class="d-flex align-items-center justify-content-between">
-                    <p *ngIf="imageSize" class="me-auto text-muted">
-                        {{ selectedFile?.name }} - {{ imageSize }}
-                    </p>
-                    <div class="d-flex align-items-center">
-                        <div class="input-group">
-                            <button mat-button>
-                                <input #fileInput type="file" (change)="onChangeFile($event)"
-                                    formControlName="profile_image" class="file-input" />
-                                Choose file
-                            </button>
-                        </div>
-                        <div class="vr mx-3"></div>
-                        <!-- Delete Button with border and color styling -->
-                        <button mat-icon-button type="button" (click)="deleteFile()">
-                            <mat-icon>delete_outline</mat-icon>
-                        </button>
-                    </div>
-                </div>
-                <!-- Display selected image preview if it's an image file -->
-                <div *ngIf="imagePreview">
-                    <div class="mt-3">
-                        <img [src]="imagePreview" alt="Image Preview" class="img-fluid"
-                            style="max-width: 100%; max-height: 200px; object-fit: contain;" />
-                    </div>
-                </div>
 
-            </div>
+        <!-- Section: Address Details -->
+        <div class="col-12 mt-4">
+            <h6 class="text-primary fw-bold mb-0">Address Details</h6>
+            <hr class="mt-1 mb-3 opacity-25">
         </div>
 
-        <mat-dialog-actions align="end">
-            <button mat-raised-button color="primary" type="submit"> Save</button>
-     
-        </mat-dialog-actions>
+        <mat-form-field appearance="outline" class="col-md-6">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address" required />
+            <mat-error *ngIf="addCpExecutiveForm.get('address')?.hasError('required')">
+                Address is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" required />
+            <mat-error *ngIf="addCpExecutiveForm.get('country')?.hasError('required')">
+                Country is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" required />
+            <mat-error *ngIf="addCpExecutiveForm.get('state')?.hasError('required')">
+                State is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>PIN Code</mat-label>
+            <input matInput formControlName="pin_code" required pattern="^[1-9][0-9]{5}$" maxlength="6"
+                inputmode="numeric" />
+            <mat-error *ngIf="addCpExecutiveForm.get('pin_code')?.hasError('required')">
+                PIN Code is required.
+            </mat-error>
+            <mat-error *ngIf="addCpExecutiveForm.get('pin_code')?.hasError('pattern')">
+                Invalid PIN Code.
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Section: Bank Account Details -->
+        <div class="col-12 mt-4">
+            <h6 class="text-primary fw-bold mb-0">Bank Account Details</h6>
+            <hr class="mt-1 mb-3 opacity-25">
+        </div>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Bank Name</mat-label>
+            <input matInput formControlName="bank_name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Branch Name</mat-label>
+            <input matInput formControlName="branch_name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Account Name</mat-label>
+            <input matInput formControlName="account_name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Bank Account No</mat-label>
+            <input matInput formControlName="bank_account_no" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>IFSC Code</mat-label>
+            <input matInput formControlName="ifsc_code" />
+        </mat-form-field>
+
+        <div class="col-md-4">
+            <label class="form-label d-block text-muted small mb-1">Bank Type</label>
+            <mat-radio-group formControlName="bank_type_id" color="primary">
+                <mat-radio-button [value]="1">Saving</mat-radio-button>
+                <mat-radio-button [value]="2" class="ms-3">Current</mat-radio-button>
+            </mat-radio-group>
+        </div>
+
     </form>
 </mat-dialog-content>
+
+<mat-dialog-actions align="end" class="pb-3 px-3">
+    <button [disabled]="!addCpExecutiveForm.valid" (click)="onSubmit()" mat-raised-button color="primary" type="submit">
+        {{ data?.rowData?.user_id ? 'Update' : 'Add' }} CP Executive
+    </button>
+</mat-dialog-actions>

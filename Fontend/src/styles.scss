@@ -1,7 +1,7 @@
 @use './themes/theme';
+@use './variables' as vars;
 
-@import './_variables.scss';
-@import 'quill/dist/quill.snow.css';
+@use 'quill/dist/quill.snow.css';
 @import "tailwindcss";
 
 /* ==================== FONT DEFINITIONS ==================== */
@@ -638,7 +638,7 @@ th.mat-header-cell {
 }
 
 .mat-radio-button.mat-accent .mat-radio-ripple .mat-ripple-element {
-  background-color: $primaryColorDark;
+  background-color: vars.$primaryColorDark;
 }
 
 /* ==================== CARD STYLES ==================== */

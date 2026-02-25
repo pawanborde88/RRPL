@@ -1,8 +1,8 @@
-import { MatSelectClearDirectiveDirective } from './mat-select-clear-directive.directive';
+import { MatSelectClearDirective } from './mat-select-clear-directive.directive';
 
-describe('MatSelectClearDirectiveDirective', () => {
+describe('MatSelectClearDirective', () => {
   it('should create an instance', () => {
-    const directive = new MatSelectClearDirectiveDirective();
+    const directive = new MatSelectClearDirective();
     expect(directive).toBeTruthy();
   });
 });

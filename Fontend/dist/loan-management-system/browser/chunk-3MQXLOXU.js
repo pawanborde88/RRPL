@@ -1,1 +1,0 @@
-import{a}from"./chunk-PKGTYBND.js";import"./chunk-YAPJOUUE.js";import"./chunk-2DE32DCU.js";import"./chunk-ZK4JMTEG.js";import"./chunk-HNEDXOKI.js";import"./chunk-RVFOIZLJ.js";export{a as ForgotPasswordComponent};

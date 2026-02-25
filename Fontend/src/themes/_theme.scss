@@ -1,8 +1,8 @@
+@use 'sass:color';
+@use 'sass:map';
 @use '@angular/material' as mat;
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
+// Include the common styles for Angular Material.
 @include mat.core();
 
 // Define the palettes for your selected color scheme.
@@ -14,7 +14,6 @@ $rrpl-primary: (
     300 : #5692c5,
     400 : #317ab9,
     500 : #0d4678,
-    // Main Brand Color
     600 : #0b3f70,
     700 : #093765,
     800 : #072f5b,
@@ -40,40 +39,8 @@ $rrpl-primary: (
     )
 );
 
-// Accent color: #0d4678 (Same as primary per variables, but usually should be distinct. 
-// However, sticking to requested colors. If accent is same, it might look monochromatic)
-// Using a slightly different one or same is fine if that's the design.
-$rrpl-accent: (
-    50 : #e2ecf5,
-    100 : #b6d0e6,
-    200 : #86b1d6,
-    300 : #5692c5,
-    400 : #317ab9,
-    500 : #0d4678,
-    600 : #0b3f70,
-    700 : #093765,
-    800 : #072f5b,
-    900 : #032048,
-    A100 : #aecaff,
-    A200 : #7ba9ff,
-    A400 : #4887ff,
-    A700 : #2f76ff,
-    contrast: (50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #ffffff,
-        400 : #ffffff,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #ffffff,
-        A700 : #ffffff,
-    )
-);
+// Accent color: #0d4678
+$rrpl-accent: $rrpl-primary;
 
 // Warn color: #D90429
 $rrpl-warn: (
@@ -108,54 +75,49 @@ $rrpl-warn: (
     )
 );
 
-// Define the palettes for your theme using the Material 2 style
-// as it allows for more granular control over the palettes which matches existing design variables.
-$rrpl-primary-palette: mat.define-palette($rrpl-primary);
-$rrpl-accent-palette: mat.define-palette($rrpl-accent, A200, A100, A400);
-$rrpl-warn-palette: mat.define-palette($rrpl-warn);
+// Define the palettes using M2 palettes for compatibility
+$rrpl-primary-palette: mat.m2-define-palette($rrpl-primary);
+$rrpl-accent-palette: mat.m2-define-palette($rrpl-accent, A200, A100, A400);
+$rrpl-warn-palette: mat.m2-define-palette($rrpl-warn);
 
-// Create the theme object. A theme consists of configurations for individual
-// theming systems such as "color" or "typography".
-$rrpl-theme: mat.define-light-theme((color: (primary: $rrpl-primary-palette,
+// Create the theme object (M3 compatible wrapper for custom palettes)
+$rrpl-theme: mat.m2-define-light-theme((color: (primary: $rrpl-primary-palette,
                 accent: $rrpl-accent-palette,
                 warn: $rrpl-warn-palette,
-            )));
+            ),
+            typography: mat.m2-define-typography-config(),
+            density: 0,
+        ));
 
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
+// Include theme styles
 @include mat.all-component-themes($rrpl-theme);
 
 // Custom mixin to apply theme colors to custom components
 @mixin theme-color-grabber($theme) {
-    $color-config: mat.get-color-config($theme);
-    $primary: map-get($color-config, 'primary');
-    $accent: map-get($color-config, 'accent');
-    $warn: map-get($color-config, 'warn');
+    $color-config: mat.m2-get-color-config($theme);
+    $primary: map.get($color-config, 'primary');
+    $accent: map.get($color-config, 'accent');
+    $warn: map.get($color-config, 'warn');
 
-    // Expose colors to CSS variables for easy usage in other files
     :root {
-        --primary-color: #{mat.get-color-from-palette($primary, 500)};
-        --primary-lighter: #{mat.get-color-from-palette($primary, 100)};
-        --primary-darker: #{mat.get-color-from-palette($primary, 700)};
+        --primary-color: #{mat.m2-get-color-from-palette($primary, 500)};
+        --primary-lighter: #{mat.m2-get-color-from-palette($primary, 100)};
+        --primary-darker: #{mat.m2-get-color-from-palette($primary, 700)};
 
-        --accent-color: #{mat.get-color-from-palette($accent, 500)};
-        --warn-color: #{mat.get-color-from-palette($warn, 500)};
+        --accent-color: #{mat.m2-get-color-from-palette($accent, 500)};
+        --warn-color: #{mat.m2-get-color-from-palette($warn, 500)};
 
-        // Derived variables for components
-        $p-500: mat.get-color-from-palette($primary, 500);
+        $p-500: mat.m2-get-color-from-palette($primary, 500);
         --primary-button-color: #{$p-500};
-        --primary-button-hover: #{lighten($p-500, 5%)};
-        --primary-button-disabled: #{lighten($p-500, 25%)};
+        --primary-button-hover: #{color.adjust($p-500, $lightness: 5%)};
+        --primary-button-disabled: #{color.adjust($p-500, $lightness: 25%)};
 
-        // RGB components for rgba usage
-        --primary-rgb: #{red($p-500)},
-        #{green($p-500)},
-        #{blue($p-500)};
-        --focus-shadow-color: rgba(#{red($p-500)}, #{green($p-500)}, #{blue($p-500)}, 0.3);
-        --primary-light-bg: rgba(#{red($p-500)}, #{green($p-500)}, #{blue($p-500)}, 0.05);
+        --primary-rgb: #{color.red($p-500)},
+        #{color.green($p-500)},
+        #{color.blue($p-500)};
+        --focus-shadow-color: rgba(#{color.red($p-500)}, #{color.green($p-500)}, #{color.blue($p-500)}, 0.3);
+        --primary-light-bg: rgba(#{color.red($p-500)}, #{color.green($p-500)}, #{color.blue($p-500)}, 0.05);
 
-        // Dialog Colors based on theme
         --dialog-primary-header: #{$p-500};
     }
 }

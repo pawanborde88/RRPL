@@ -15,11 +15,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { AutocompleteReusableComponent, SelectOption } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { SelectOption, AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -33,6 +31,7 @@ import { RefundTokenPaymentComponent } from '../refund-token-payment/refund-toke
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { UnifiedDocumentDialogComponent } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.component';
 import { DocumentDialogType } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.interfaces';
+import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { of } from 'rxjs';
 import {
   catchError,
@@ -84,14 +83,13 @@ interface SalesExecutive {
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
+    AutocompleteReusableComponent,
+    TemplateComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './all-tokens.component.html',
   styleUrl: './all-tokens.component.scss',

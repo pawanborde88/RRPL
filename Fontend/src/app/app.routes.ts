@@ -456,7 +456,7 @@ export const routes: Routes = [
     {
         path: 'metaSetup/all-digital-leads/list',
         loadComponent: () =>
-            import('./Modules/Facebook/Digital Lead/all-digital-leads/all-digital-leads.component').then(m => m.AllDigitalLeadsComponent),
+            import('./features/digital-leads/pages/all-digital-leads/all-digital-leads.component').then(m => m.AllDigitalLeadsComponent),
         canActivate: [AuthGuard],
         title: pageNames.DIGITAL_LEADS,
     },
@@ -673,6 +673,13 @@ export const routes: Routes = [
             import('./Modules/Setup Files/Courses/lmsdashboard/lmsdashboard.component').then(m => m.LMSDashboardComponent),
         canActivate: [AuthGuard],
         title: pageNames.LMS_DASHBOARD,
+    },
+    {
+        path: 'setup/course-user-report',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Courses/Reports/course-use-rs-report/course-use-rs-report').then(m => m.CourseUseRsReport),
+        canActivate: [AuthGuard],
+        title: pageNames.COURSE_USE_RS_REPORT,
     },
     /// Sections
     {
@@ -1432,5 +1439,12 @@ export const routes: Routes = [
             import('./Modules/IVR/IVR/IVR Users/all-ivrusers/all-ivrusers.component').then(m => m.AllIVRUsersComponent),
         canActivate: [AuthGuard],
         title: pageNames.IVR_USERS,
+    },
+    // Placeholder Tag Setup
+    {
+        path: 'placeholder-tag-setup/all-hashtagplacehodler',
+        loadComponent: () => import('./Modules/Setup Files/placeholderTagSetup/all-hashtagplacehodler/all-hashtagplacehodler').then(m => m.AllHashtagplacehodler),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_HASHTAG_PLACEHOLDERS,
     },
 ];

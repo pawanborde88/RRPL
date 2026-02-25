@@ -49,7 +49,7 @@ export class InactiveUserComponent implements OnInit {
 
     active_status_id: new FormControl(this.data.userId[0].active_status_id, [Validators.required]),
     created_by: new FormControl(this.userId),
-    reason: new FormControl(''),
+    reason: new FormControl('', [Validators.required]),
 
   });
   ngOnInit(): void {

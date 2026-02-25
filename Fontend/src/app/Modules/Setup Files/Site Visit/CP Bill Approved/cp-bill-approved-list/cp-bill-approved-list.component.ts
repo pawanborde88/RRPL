@@ -1,32 +1,30 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormGroup,
-  FormControl,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
+
 import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
-import { AddbookingBillComponent } from '../../../../Channel Partner Meetings/addbooking-bill/addbooking-bill.component';
+import { AuthService } from '../../../../../Service/auth.service';
+import { CommonService } from '../../../../../Service/common/common.service';
 import { ChangeApprovedStatusDialogComponent } from '../change-approved-status-dialog/change-approved-status-dialog.component';
 import { ApprovalLevelDialogComponent } from '../approval-level-dialog/approval-level-dialog.component';
 import { UnifiedDocumentDialogComponent } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.component';
 import { DocumentDialogType } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.interfaces';
+
 interface BookingBill {
   booking_bill_id: number;
   bill_date: string;
@@ -52,82 +50,65 @@ interface BookingBill {
   updated_at: string;
 }
 
-interface LoadingState {
-  pending: boolean;
-  approved: boolean;
-  rejected: boolean;
-}
 @Component({
   selector: 'app-cp-bill-approved-list',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-
-    AutocompleteReusableComponent,
-
-
     ReusableTableComponent,
+    TemplateComponent,
+    BreadcrumbComponent,
+    ConfigurableAgGridDataComponent,
+    AutocompleteReusableComponent
   ],
   templateUrl: './cp-bill-approved-list.component.html',
   styleUrl: './cp-bill-approved-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DatePipe]
 })
-export class CpBillApprovedListComponent {
-  baseUrl = environment.API_URL;
-  storageUrl = environment.STORAGE_URL;
+export class CpBillApprovedListComponent implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly fetch = inject(FetchFunctionsService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
+  private readonly commonService = inject(CommonService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  loading: LoadingState = {
-    pending: false,
-    approved: false,
-    rejected: false,
-  };
+  @ViewChild(ConfigurableAgGridDataComponent) agGridTable!: ConfigurableAgGridDataComponent<any>;
 
-  pendingDataSource = new MatTableDataSource<BookingBill>();
-  approvedDataSource = new MatTableDataSource<BookingBill>();
-  rejectedDataSource = new MatTableDataSource<BookingBill>();
+  readonly baseUrl = environment.API_URL;
+  readonly storageUrl = environment.STORAGE_URL;
+  readonly roleId = Number(sessionStorage.getItem('role_id'));
+  readonly userId = this.authService.userId();
 
-  selectedBooking: any[] = [];
-  roleId = Number(sessionStorage.getItem('role_id'));
-  userId = Number(sessionStorage.getItem('session_id'));
+  // Signals for state management
+  readonly loading = signal<boolean>(false);
+  readonly projectsList = signal<any[]>([]);
+  private readonly formValues = signal<any>({});
+  readonly selectedBooking = signal<any[]>([]);
+  readonly currentStatus = signal<number | null>(3); // Default to Pending (3)
+
   bookingID = 0;
-  searchText = '';
-  pipe = new DatePipe('en-US');
-  // Add these properties to your component class
-  pendingCount: number = 0;
-  approvedCount: number = 0;
-  rejectedCount: number = 0;
-  @ViewChild('pendingPaginator') pendingPaginator!: MatPaginator;
-  @ViewChild('approvedPaginator') approvedPaginator!: MatPaginator;
-  @ViewChild('rejectedPaginator') rejectedPaginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
 
-  channelPartnerMeetingForm = new FormGroup({
-    project_id: new FormControl<number[]>([]),
-    channel_partner_id: new FormControl<number[]>([]),
-    cp_executive_id: new FormControl<number[]>([]),
-    sales_executive_id: new FormControl<number[]>([]),
+  readonly bookingForm = new FormGroup({
+    project_id: new FormControl(null, Validators.required),
   });
 
-  bookingBillsColumns = [
+  readonly bookingDisplayedColumns = [
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
       type: 'actions',
       sticky: true,
       disabled: false,
     },
-    {
-      key: 'sr_no',
-      label: 'Sr. No',
-      type: 'index',
-    },
-    { key: 'bill_date', label: 'Bill Date', type: 'short_date' },
+    { key: 'created_at', label: 'Bill Date', type: 'mediumDate' },
     { key: 'project_name', label: 'Project Name' },
     { key: 'wing_name', label: 'Wing Name' },
     { key: 'applicant_name', label: 'Client Name' },
@@ -166,121 +147,22 @@ export class CpBillApprovedListComponent {
     { key: 'updated_at', label: 'Updated At', type: 'date' },
   ];
 
-  bookingActions = [
+  readonly bookingActions = [
     {
       action: 'editBookingBill',
       icon: 'file_copy',
       tooltip: 'CP Invoice',
       color: 'primary',
-      show: () => [1, 2, 4].includes(this.roleId) // Only show for specific roles
-
+      show: () => [1, 2, 4].includes(this.roleId)
     },
   ];
 
-  constructor(
-    private http: HttpClient,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private route: ActivatedRoute,
-    private fetch: FetchFunctionsService
-  ) { }
-
-  ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      this.bookingID = params['booking_id'];
-      this.fetchAllBookingBills(this.bookingID);
-    });
-  }
-
-  applyFilter(searchText: string, type: keyof LoadingState): void {
-    this.searchText = searchText;
-    this.fetchBillsByStatus(
-      type === 'pending' ? 3 : type === 'approved' ? 1 : 2,
-      type,
-      this.bookingID
-    );
-  }
-
-  fetchAllBookingBills(bookingId?: number): void {
-    this.fetchBillsByStatus(3, 'pending', bookingId);
-    this.fetchBillsByStatus(1, 'approved', bookingId);
-    this.fetchBillsByStatus(2, 'rejected', bookingId);
-  }
-
-  fetchBillsByStatus(
-    status: number,
-    type: keyof LoadingState,
-    bookingId?: number
-  ): void {
-    this.loading[type] = true;
-
-    const payload = {
-      booking_id: bookingId || null,
-      bill_status_id: status,
-    };
-
-    this.http
-      .post<{ success: boolean; data: BookingBill[] }>(
-        `${this.baseUrl}/fetch_all_booking_bill`,
-        payload
-      )
-      .subscribe({
-        next: (res: any) => {
-          // Handle both response structures: { success: true, data: [...] } or direct array
-          let data: BookingBill[] = [];
-          if (Array.isArray(res)) {
-            data = res;
-          } else if (res?.data && Array.isArray(res.data)) {
-            data = res.data;
-          } else if (res?.data) {
-            data = Array.isArray(res.data) ? res.data : [];
-          }
-
-          // Create new MatTableDataSource instance to trigger change detection in reusable table
-          // The reusable table uses OnPush change detection, so we need a new reference
-          switch (type) {
-            case 'pending':
-              this.pendingDataSource = new MatTableDataSource<BookingBill>(data);
-              this.pendingCount = data.length;
-              setTimeout(
-                () => (this.pendingDataSource.paginator = this.pendingPaginator)
-              );
-              break;
-            case 'approved':
-              this.approvedDataSource = new MatTableDataSource<BookingBill>(data);
-              this.approvedCount = data.length;
-              setTimeout(
-                () =>
-                  (this.approvedDataSource.paginator = this.approvedPaginator)
-              );
-              break;
-            case 'rejected':
-              this.rejectedDataSource = new MatTableDataSource<BookingBill>(data);
-              this.rejectedCount = data.length;
-              setTimeout(
-                () =>
-                  (this.rejectedDataSource.paginator = this.rejectedPaginator)
-              );
-              break;
-          }
-          this.loading[type] = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.loading[type] = false;
-          this.snackBar.open(`Unable to fetch ${type} bills.`, 'Close', {
-            duration: 3000,
-          });
-        },
-      });
-  }
-
-  headerButtons = [
+  readonly headerButtons = [
     {
       label: 'Level Approval',
       icon: 'stairs_2',
       color: 'primary',
-      disabled: () => false,
+      disabled: () => this.selectedBooking().length === 0,
       action: () => this.changeApprovalDialog(),
       show: () => true,
     },
@@ -288,12 +170,83 @@ export class CpBillApprovedListComponent {
       label: 'Change Status',
       icon: 'update',
       color: 'primary',
-      disabled: () => false,
+      disabled: () => this.selectedBooking().length === 0,
       action: () => this.changeStatusDialog(),
       show: () => true,
     },
-
   ];
+
+  // Computed signal for AG Grid payload
+  readonly apiPayload = computed(() => {
+    const values = this.formValues();
+    const payload: any = {
+
+      filters: {
+        bill_status_id: this.currentStatus()
+      }
+    };
+
+    if (values.project_id) {
+      payload.filters.project_id = values.project_id;
+    }
+
+    return payload;
+  });
+
+  ngOnInit(): void {
+    this.loadInitialData();
+    this.route.params.subscribe((params) => {
+      this.bookingID = params['booking_id'];
+    });
+
+    this.bookingForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateFormValues());
+  }
+
+  private loadInitialData(): void {
+    const userId = Number(sessionStorage.getItem('session_id')) || 0;
+    this.commonService.fetchUserProjectDropdown(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res: any) => {
+          if (res) this.projectsList.set(res);
+        },
+        error: () => this.showError('Unable to fetch projects.')
+      });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000 });
+  }
+
+  fetchAllBookings(): void {
+    this.updateFormValues();
+    this.agGridTable?.refreshData();
+  }
+
+  private updateFormValues(): void {
+    this.formValues.set(this.bookingForm.value);
+  }
+
+  onBookingSelectionChange(checked: boolean, booking: BookingBill): void {
+    if (checked) {
+      this.selectedBooking.set([booking]);
+    } else {
+      this.selectedBooking.set([]);
+    }
+  }
+
+  onTabChange(event: MatTabChangeEvent): void {
+    const tabIndex = event.index;
+    switch (tabIndex) {
+      case 0: this.currentStatus.set(3); break;
+      case 1: this.currentStatus.set(1); break;
+      case 2: this.currentStatus.set(2); break;
+    }
+    this.fetchAllBookings();
+  }
+
   openAddBookingBillDialog(row?: BookingBill): void {
     const dialogRef = this.dialog.open(UnifiedDocumentDialogComponent, {
       minWidth: '700px',
@@ -303,9 +256,9 @@ export class CpBillApprovedListComponent {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
-        this.fetchAllBookingBills(this.bookingID);
+        this.agGridTable?.refreshData();
       }
     });
   }
@@ -316,61 +269,36 @@ export class CpBillApprovedListComponent {
     }
   }
 
-  onSelectedBookingChange(checked: boolean, booking: BookingBill): void {
-    if (checked) {
-      this.selectedBooking[0] = booking;
-    } else if (
-      this.selectedBooking[0].booking_bill_id === booking.booking_bill_id
-    ) {
-      this.selectedBooking[0] = null;
-    }
-  }
-
-  onTabChange(event: MatTabChangeEvent): void {
-    // Index 0 = Pending, 1 = Approved, 2 = Rejected
-    const tabIndex = event.index;
-
-    switch (tabIndex) {
-      case 0:
-        this.fetchBillsByStatus(3, 'pending', this.bookingID);
-        break;
-      case 1:
-        this.fetchBillsByStatus(1, 'approved', this.bookingID);
-        break;
-      case 2:
-        this.fetchBillsByStatus(2, 'rejected', this.bookingID);
-        break;
-    }
-  }
-
   changeStatusDialog(): void {
-    if (!this.selectedBooking) return;
+    if (this.selectedBooking().length === 0) return;
 
     const dialogRef = this.dialog.open(ChangeApprovedStatusDialogComponent, {
       width: '500px',
       data: {
-        currentStatus: this.selectedBooking[0], // assuming your booking has a status property
+        currentStatus: this.selectedBooking()[0],
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
+        this.agGridTable?.refreshData();
       }
     });
   }
 
   changeApprovalDialog(): void {
-    if (!this.selectedBooking) return;
+    if (this.selectedBooking().length === 0) return;
 
     const dialogRef = this.dialog.open(ApprovalLevelDialogComponent, {
       width: '500px',
       data: {
-        currentStatus: this.selectedBooking[0], // assuming your booking has a status property
+        currentStatus: this.selectedBooking()[0],
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       if (result) {
+        this.agGridTable?.refreshData();
       }
     });
   }

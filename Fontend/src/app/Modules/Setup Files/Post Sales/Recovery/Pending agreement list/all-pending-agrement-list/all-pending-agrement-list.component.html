@@ -59,7 +59,7 @@
             <app-configurable-ag-grid-data #agGridComponent [columns]="agreemnetDetailsColumnsNames"
                 [apiEndpoint]="'fetch_all_booking_agreements'" [apiMethod]="'POST'" [apiPayload]="getAgGridPayload()"
                 [actions]="bookingActions" [headerButtons]="headerButtons()" [showCheckbox]="true"
-                [idProperty]="'booking_id'">
+                [idProperty]="'booking_id'" (rowSelected)="onRowSelected($event)">
             </app-configurable-ag-grid-data>
         </mat-tab>
 

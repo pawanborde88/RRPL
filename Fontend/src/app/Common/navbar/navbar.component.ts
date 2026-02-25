@@ -26,6 +26,7 @@ import { ResetPasswordComponent } from '../../Auth/reset-password/reset-password
 import { NetworkStatusService } from '../../Service/network-status.service';
 import { distinctUntilChanged, filter } from 'rxjs/operators';
 import { NotificationPanelComponent } from '../notification-panel/notification-panel.component';
+import { AutoLogoutService } from '../../Auth/services/auto-logout.service';
 
 /**
  * High-performance Navbar Component with Angular 17+ advanced patterns:
@@ -65,6 +66,7 @@ export class NavbarComponent implements OnInit {
   private readonly networkStatusService = inject(NetworkStatusService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly autoLogoutService = inject(AutoLogoutService);
 
   // Constants
   readonly storageUrl = environment.STORAGE_URL;
@@ -231,14 +233,7 @@ export class NavbarComponent implements OnInit {
    * Logout user and navigate to login
    */
   logout(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      try {
-        sessionStorage.clear();
-      } catch (error) {
-        console.error('Failed to clear session storage:', error);
-      }
-    }
-    this.router.navigate(['/login']);
+    this.autoLogoutService.executeLogout();
   }
 
   /**

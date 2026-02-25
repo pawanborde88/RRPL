@@ -11,11 +11,11 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  
+
   &.scrolled {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
-  
+
   @media (max-width: 768px) {
     margin: 0 -0.5rem;
     padding-left: 0.5rem !important;
@@ -30,7 +30,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
   position: relative;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
@@ -56,7 +56,7 @@
 
 mat-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -84,30 +84,30 @@ mat-card-actions {
     border-radius: 9999px;
     overflow: hidden;
     position: relative;
-    
+
     .progress-fill {
       height: 100%;
       border-radius: 9999px;
       transition: width 0.5s ease;
     }
   }
-  
+
   // Menu button styling
   button[mat-icon-button] {
     &:hover {
       background-color: rgba(0, 0, 0, 0.04) !important;
     }
   }
-  
+
   // Profile picture gradient variations
   .profile-gradient-indigo {
     background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   }
-  
+
   .profile-gradient-blue {
     background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
   }
-  
+
   .profile-gradient-green {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   }
@@ -115,12 +115,13 @@ mat-card-actions {
 
 // Custom search field styles (now using pure Tailwind)
 .sticky-header {
+
   // Custom search input focus states
   input[type="text"] {
     &::placeholder {
       transition: color 0.2s ease;
     }
-    
+
     &:focus::placeholder {
       color: #9ca3af;
     }
@@ -131,12 +132,12 @@ mat-card-actions {
 mat-button-toggle-group {
   border-radius: 0.5rem;
   overflow: hidden;
-  
+
   mat-button-toggle {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    
+
     mat-icon {
       font-size: 1.25rem;
       height: 1.25rem;
@@ -155,7 +156,7 @@ mat-card-actions {
   margin: 0 !important;
   min-height: auto !important;
   border-top: 1px solid #e5e7eb !important;
-  
+
   button {
     mat-icon {
       font-size: 1.125rem;
@@ -178,9 +179,12 @@ mat-icon {
 }
 
 @keyframes shimmer {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -191,7 +195,7 @@ mat-icon {
   .grid {
     grid-template-columns: 1fr;
   }
-  
+
   .user-card {
     mat-card-content {
       min-height: auto;
@@ -208,12 +212,12 @@ mat-icon {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
-  
+
   &.active {
     background-color: #d1fae5;
     color: #065f46;
   }
-  
+
   &.inactive {
     background-color: #fee2e2;
     color: #991b1b;
@@ -232,7 +236,7 @@ mat-icon {
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  
+
   mat-icon {
     font-size: 4rem;
     width: 4rem;
@@ -244,11 +248,11 @@ mat-icon {
 // Mini FAB buttons enhancement
 button[mat-mini-fab] {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  
+
   &:not(:disabled):hover {
     transform: scale(1.05);
   }
-  
+
   &:disabled {
     opacity: 0.4;
   }
@@ -260,6 +264,7 @@ button[mat-mini-fab] {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -271,9 +276,12 @@ button[mat-mini-fab] {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -293,7 +301,7 @@ button[mat-mini-fab] {
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
-  
+
   &:hover {
     background: #94a3b8;
   }
@@ -314,14 +322,14 @@ button[mat-mini-fab] {
   overflow: auto;
   contain: strict;
   will-change: transform;
-  
+
   // Optimize scrolling performance
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  
+
   // Smooth scrolling
   scroll-behavior: smooth;
-  
+
   // Reduce reflows
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -333,38 +341,38 @@ button[mat-mini-fab] {
   width: 100%;
   contain: layout style paint;
   will-change: transform;
-  
+
   // Prevent layout shifts
   min-height: 280px;
   margin-bottom: 1rem;
-  
+
   // Optimize rendering
   transform: translateZ(0);
   backface-visibility: hidden;
-  
+
   // Smooth transitions
   transition: opacity 0.2s ease-in-out;
-  
+
   // Responsive card width within virtual scroll
   mat-card {
     max-width: 100%;
     width: 100%;
-    
+
     @media (min-width: 640px) {
       max-width: calc(50% - 0.5rem);
       display: inline-block;
       margin-right: 1rem;
       vertical-align: top;
     }
-    
+
     @media (min-width: 1024px) {
       max-width: calc(33.333% - 0.67rem);
     }
-    
+
     @media (min-width: 1280px) {
       max-width: calc(25% - 0.75rem);
     }
-    
+
     @media (min-width: 1536px) {
       max-width: calc(20% - 0.8rem);
     }
@@ -386,11 +394,10 @@ button[mat-mini-fab] {
 .all-users-container {
   // Contain layout to prevent layout thrashing
   contain: layout style;
-  
+
   // GPU acceleration
   transform: translateZ(0);
-  
+
   // Optimize repaints
   will-change: scroll-position;
 }
-

@@ -9,19 +9,19 @@ import { MatSort } from '@angular/material/sort';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
-import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
-import { AddPresalesTargetDialogComponent } from '../add-presales-target-dialog/add-presales-target-dialog.component';
-import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+
 import { CommonService } from '../../../../Service/common/common.service';
 import { catchError, tap, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
+import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
+import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+import { AddPresalesTargetDialogComponent } from '../add-presales-target-dialog/add-presales-target-dialog.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
 
 @Component({
   selector: 'app-all-presale-target-list',
@@ -29,14 +29,14 @@ import { DestroyRef } from '@angular/core';
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
-    AngularMaterialModule,
-    FormsModule,
+
+    RouterModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    ReusableTableComponent,
+    AngularMaterialModule,
+    MatExpansionModule,
+    BreadcrumbComponent,
     AutocompleteReusableComponent,
+    TemplateComponent,
     ConfigurableAgGridDataComponent
   ],
   templateUrl: './all-presale-target-list.component.html',

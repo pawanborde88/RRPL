@@ -25,7 +25,8 @@ import {
     ApiResponse,
     TemplateResponse,
     MODULE_ID_MAP,
-    TITLE_MAP
+    TITLE_MAP,
+    ReplacementMap
 } from './unified-document-dialog.interfaces';
 import { UnifiedDocumentDialogService } from './unified-document-dialog.service';
 import { PlaceholderReplacerService } from './placeholder-replacer.service';
@@ -159,7 +160,7 @@ export class UnifiedDocumentDialogStore {
     }
 
     private handleDemandLetter(data: DocumentDialogData) {
-        const demandId = data?.rowData?.demand_id;
+        const demandId = data?.demand_id || data?.rowData?.demand_id;
         if (demandId) {
             this.fetchDemandDetails(demandId);
         } else {
@@ -214,7 +215,7 @@ export class UnifiedDocumentDialogStore {
         ).subscribe();
     }
 
-    private fetchDemandDetails(demandID: number) {
+    private fetchDemandDetails(demandID: number | number[]) {
         this.setLoading(true, 'Fetching demand details...');
         this.documentService.fetchDemandDetails(demandID).pipe(
             switchMap(res => {
@@ -336,15 +337,24 @@ export class UnifiedDocumentDialogStore {
         const type = this._dialogType();
         const replacements = this.getReplacements(type, html);
 
+        if (Array.isArray(replacements)) {
+            return replacements
+                .map(r => this.applyReplacementsToHtml(html, r, type))
+                .join('<div style="page-break-after: always"></div>');
+        }
+
+        return this.applyReplacementsToHtml(html, replacements, type);
+    }
+
+    private applyReplacementsToHtml(html: string, replacements: ReplacementMap, type: DocumentDialogType): string {
         let processed = html;
 
         // Handle receipt payment rows BEFORE regular placeholder replacement
-        // to prevent placeholders from being replaced before pattern matching
         if (type === DocumentDialogType.RECEIPT) {
             processed = this.handleReceiptSpecialReplacements(processed, replacements);
         }
 
-        // Handle booking: 2nd applicant column (merged "NOT AVAILABLE" when absent) and payment stage rows
+        // Handle booking documents
         if (
             type === DocumentDialogType.BOOKING_FORM ||
             type === DocumentDialogType.BOOKING_COST_SHEET ||
@@ -354,22 +364,22 @@ export class UnifiedDocumentDialogStore {
             processed = this.handleBookingSpecialReplacements(processed, replacements);
         }
 
-        // Quotation: payment slab rows (<!--start_payment_slab_row-->...<!--end_payment_slab_row-->)
+        // Quotation report
         if (type === DocumentDialogType.QUATATION_REPORT) {
             processed = this.handleBookingSpecialReplacements(processed, replacements);
         }
 
-        // Handle ledger report receipt rows
+        // Ledger report
         if (type === DocumentDialogType.LEDGER_REPORT) {
             processed = this.handleLedgerReportSpecialReplacements(processed, replacements);
         }
 
-        // Handle letter config: parking table (one row per parking)
+        // Letter config
         if (type === DocumentDialogType.LETTER_CONFIG_PREVIEW) {
             processed = this.handleLetterConfigParkingTable(processed, replacements);
         }
 
-        // Now do regular placeholder replacement
+        // Regular placeholder replacement
         processed = this.placeholderService.replacePlaceholders(processed, replacements);
 
         if (type === DocumentDialogType.TOKEN_FORM || type === DocumentDialogType.TOKEN_RECEIPT) {
@@ -379,7 +389,7 @@ export class UnifiedDocumentDialogStore {
         return this.placeholderService.cleanupPlaceholders(processed, type === DocumentDialogType.RECEIPT ? 'N/A' : '');
     }
 
-    private getReplacements(type: DocumentDialogType, html: string): Record<string, string> {
+    private getReplacements(type: DocumentDialogType, html: string): ReplacementMap | ReplacementMap[] {
         const date = this._currentDate();
         const url = this.storageUrl;
 
@@ -395,10 +405,18 @@ export class UnifiedDocumentDialogStore {
                 const common = this.isReceiptApiResponse(data) ? data.common_data : (data as BookingData)?.common_data;
                 return this.placeholderService.buildReceiptReplacements(receipts, common as any, url);
             }
-            case DocumentDialogType.DEMAND_LETTER:
-                return this.placeholderService.buildDemandReplacements(this._demandData()?.[0]!, date, url, a => this.placeholderService.numberToWords(a));
-            case DocumentDialogType.LETTER_CONFIG_PREVIEW:
-                return this.placeholderService.buildLetterConfigReplacements(this._letterData()?.[0]!, a => this.placeholderService.numberToWords(a), html);
+            case DocumentDialogType.DEMAND_LETTER: {
+                const demandDataList = this._demandData() || [];
+                return demandDataList.map(demand =>
+                    this.placeholderService.buildDemandReplacements(demand, date, url, a => this.placeholderService.numberToWords(a))
+                );
+            }
+            case DocumentDialogType.LETTER_CONFIG_PREVIEW: {
+                const letterDataList = this._letterData() || [];
+                return letterDataList.map(letter =>
+                    this.placeholderService.buildLetterConfigReplacements(letter, a => this.placeholderService.numberToWords(a), html)
+                );
+            }
             case DocumentDialogType.TOKEN_FORM:
             case DocumentDialogType.TOKEN_RECEIPT:
                 return this.placeholderService.buildTokenReplacements(this._tokenData()!, date);
@@ -483,7 +501,7 @@ export class UnifiedDocumentDialogStore {
             case DocumentDialogType.TOKEN_FORM:
             case DocumentDialogType.TOKEN_RECEIPT: return this._tokenData()?.project_id ?? null;
             case DocumentDialogType.RECEIPT: return this.extractProjectIdFromData() ?? null;
-            case DocumentDialogType.LEDGER_REPORT: 
+            case DocumentDialogType.LEDGER_REPORT:
                 return this.extractProjectIdFromData() ?? this._dialogData()?.rowData?.project_id ?? this._dialogData()?.project_id ?? null;
             case DocumentDialogType.QUATATION_REPORT:
                 return (this._bookingData() as any)?.project_id ?? this._dialogData()?.rowData?.project_id ?? this._dialogData()?.project_id ?? null;

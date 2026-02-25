@@ -25,8 +25,8 @@ import { RouterModule } from '@angular/router';
 import { catchError, EMPTY, switchMap, tap } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
+
+
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
 import {
@@ -55,11 +55,11 @@ interface PaymentFormValue {
   imports: [
     CommonModule,
     RouterModule,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
+
     AmountDirective,
     AutocompleteReusableComponent,
   ],
@@ -93,15 +93,15 @@ export class AddPaymentsComponent {
   // ============================================================================
   // Computed Signals
   // ============================================================================
-  readonly isAddPaymentDisabled = computed(() => 
+  readonly isAddPaymentDisabled = computed(() =>
     this.isSubmittingSignal() || this.isLoadingSignal() || this.hasPaymentBeenAddedSignal()
   );
 
-  readonly buttonText = computed(() => 
+  readonly buttonText = computed(() =>
     this.hasPaymentBeenAddedSignal() ? 'Payment Added' : 'Add Payment'
   );
 
-  readonly buttonIcon = computed(() => 
+  readonly buttonIcon = computed(() =>
     this.hasPaymentBeenAddedSignal() ? 'check_circle' : 'payments'
   );
 
@@ -208,7 +208,7 @@ export class AddPaymentsComponent {
       booking_amount: formValue.booking_amount?.toString() || '0',
       payment_mode: formValue.payment_mode_id ?? null,
       transaction_no: formValue.cheque_no || '',
-      transaction_date: formValue.cheque_date 
+      transaction_date: formValue.cheque_date
         ? this.datePipe.transform(formValue.cheque_date, 'yyyy-MM-dd') || null
         : null,
       booking_id: bookingId,
@@ -243,7 +243,7 @@ export class AddPaymentsComponent {
   // ============================================================================
   private loadBookingPaymentDetails(bookingId: number): void {
     this.isLoadingSignal.set(true);
-    
+
     this.bookingService
       .fetchBookingPaymentDetails(bookingId)
       .pipe(

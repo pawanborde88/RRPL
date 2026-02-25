@@ -4,46 +4,75 @@
         <li class="breadcrumb-item">CP Site Visits</li>
         <li class="breadcrumb-item active">CP Bill Approved</li>
     </app-breadcrumb>
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
 
-    <mat-card>
-        <mat-card-content>
-            <mat-tab-group (selectedTabChange)="onTabChange($event)">
-                <!-- Pending Tab -->
-                <mat-tab label="Pending List">
+            <form [formGroup]="bookingForm" class="row w-100 g-3">
+                <!-- Project Dropdown -->
+                <div class="col-md-3">
+                    <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                        displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                    </app-autocomplete-reusable-component>
+                </div>
 
-                    <app-reusable-custom-table [loading]="loading.pending" [headerButtons]="headerButtons"
-                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
-                        (selectedItemsChange)="selectedBooking = $event"
-                        (actionClick)="onBookingAction($event.action, $event.row)" [actions]="bookingActions"
-                        [dataSource]="pendingDataSource" [displayedColumns]="bookingBillsColumns" [showCheckbox]="true"
-                        [showFooter]="true" (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
-                    </app-reusable-custom-table>
-                </mat-tab>
 
-                <!-- Approved Tab -->
-                <mat-tab label="Approved List">
 
-                    <app-reusable-custom-table [loading]="loading.approved" [headerButtons]="headerButtons"
-                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
-                        (selectedItemsChange)="selectedBooking = $event" [actions]="bookingActions"
-                        (actionClick)="onBookingAction($event.action, $event.row)" [dataSource]="approvedDataSource"
-                        [displayedColumns]="bookingBillsColumns" [showCheckbox]="true" [showFooter]="true"
-                        (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
-                    </app-reusable-custom-table>
-                </mat-tab>
 
-                <!-- Rejected Tab -->
-                <mat-tab label="Rejected List">
+                <!-- Apply Filter Button -->
+                <div class="col-md-auto">
+                    <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                        [disabled]="!bookingForm.get('project_id')?.value" (click)="fetchAllBookings()">
+                        <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                    </button>
+                </div>
+            </form>
 
-                    <app-reusable-custom-table [loading]="loading.rejected" [headerButtons]="headerButtons"
-                        [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking"
-                        (selectedItemsChange)="selectedBooking = $event" [actions]="bookingActions"
-                        (actionClick)="onBookingAction($event.action, $event.row)" [dataSource]="rejectedDataSource"
-                        [displayedColumns]="bookingBillsColumns" [showCheckbox]="true" [showFooter]="true"
-                        (checkboxChange)="onSelectedBookingChange($event.checked, $event.row)">
-                    </app-reusable-custom-table>
-                </mat-tab>
-            </mat-tab-group>
-        </mat-card-content>
-    </mat-card>
+        </mat-expansion-panel>
+    </mat-accordion>
+    <mat-tab-group (selectedTabChange)="onTabChange($event)">
+        <!-- Pending Tab -->
+        <mat-tab label="Pending List">
+            <ng-template matTabContent>
+                <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+                    [apiEndpoint]="'fetch_all_booking_bill'" [apiMethod]="'POST'" [apiPayload]="apiPayload()"
+                    [actions]="bookingActions" [headerButtons]="headerButtons" [showCheckbox]="true"
+                    [cacheBlockSize]="100" [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking()"
+                    (actionClick)="onBookingAction($event.action, $event.row)"
+                    (rowSelected)="selectedBooking.set($event)"
+                    (checkboxChange)="onBookingSelectionChange($event.checked, $event.row)">
+                </app-configurable-ag-grid-data>
+            </ng-template>
+        </mat-tab>
+
+        <!-- Approved Tab -->
+        <mat-tab label="Approved List">
+            <ng-template matTabContent>
+                <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+                    [apiEndpoint]="'fetch_all_booking_bill'" [apiMethod]="'POST'" [apiPayload]="apiPayload()"
+                    [actions]="bookingActions" [headerButtons]="headerButtons" [showCheckbox]="true"
+                    [cacheBlockSize]="100" [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking()"
+                    (actionClick)="onBookingAction($event.action, $event.row)"
+                    (rowSelected)="selectedBooking.set($event)"
+                    (checkboxChange)="onBookingSelectionChange($event.checked, $event.row)">
+                </app-configurable-ag-grid-data>
+            </ng-template>
+        </mat-tab>
+
+        <!-- Rejected Tab -->
+        <mat-tab label="Rejected List">
+            <ng-template matTabContent>
+                <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+                    [apiEndpoint]="'fetch_all_booking_bill'" [apiMethod]="'POST'" [apiPayload]="apiPayload()"
+                    [actions]="bookingActions" [headerButtons]="headerButtons" [showCheckbox]="true"
+                    [cacheBlockSize]="100" [idProperty]="'booking_bill_id'" [selectedItems]="selectedBooking()"
+                    (actionClick)="onBookingAction($event.action, $event.row)"
+                    (rowSelected)="selectedBooking.set($event)"
+                    (checkboxChange)="onBookingSelectionChange($event.checked, $event.row)">
+                </app-configurable-ag-grid-data>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>
 </app-template>

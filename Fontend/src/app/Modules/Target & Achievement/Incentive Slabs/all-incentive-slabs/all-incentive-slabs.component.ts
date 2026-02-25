@@ -3,11 +3,7 @@ import { Component, ViewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
+
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -18,6 +14,11 @@ import { environment } from '../../../../../environments/environment';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
 import { AddIncentiveSlabsDialogComponent } from '../add-incentive-slabs-dialog/add-incentive-slabs-dialog.component';
+import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { MatCardModule } from '@angular/material/card';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 @Component({
   selector: 'app-all-incentive-slabs',
@@ -25,13 +26,11 @@ import { AddIncentiveSlabsDialogComponent } from '../add-incentive-slabs-dialog/
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+    ReusableTableComponent,
     AngularMaterialModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TruncatePipe,
-    ReusableTableComponent, // Add the pipe here
+    MatCardModule,
+    BreadcrumbComponent,
+    TemplateComponent,
     AutocompleteReusableComponent
   ],
   templateUrl: './all-incentive-slabs.component.html',
@@ -58,9 +57,9 @@ export class AllIncentiveSlabsComponent {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
   bookingBills = [
-     {
+    {
       key: 'actions',
       label: '',
       type: 'actions',
@@ -73,13 +72,13 @@ export class AllIncentiveSlabsComponent {
       type: 'index',
     },
     { key: 'project_name', label: 'Project Name' },
-        { key: 'wing_name', label: 'Wing Name' },
+    { key: 'wing_name', label: 'Wing Name' },
 
     { key: 'percentage_from', label: '% From' },
     { key: 'percentage_to', label: '% To' },
-    { key: 'incentive_percentage', label: 'Incentive %'},
+    { key: 'incentive_percentage', label: 'Incentive %' },
 
-   
+
     {
       key: 'created_by_name',
       label: 'Created By',
@@ -100,7 +99,7 @@ export class AllIncentiveSlabsComponent {
     },
   ];
   headerButtons = [
-    
+
     {
       label: ' Add Incentive Slab',
       icon: 'add_circle',
@@ -118,18 +117,18 @@ export class AllIncentiveSlabsComponent {
       this.selectedProjectId = projectId;
       this.fetchAllFaceBookList(this.selectedProjectId);
 
-    
+
     }
   }
 
   fetchAllProjects(): void {
     this.loading = true;
     const payload = {
-      user_id:  this.userId,
+      user_id: this.userId,
     };
-  
+
     this.http.post<any>(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
-      next: (res:any) => {
+      next: (res: any) => {
         this.projectsList = res || [];
         this.loading = false;
       },
@@ -146,9 +145,9 @@ export class AllIncentiveSlabsComponent {
   fetchAllFaceBookList(projectId: number): void {
     this.loading = true;
 
-    this.http.post(`${this.baseUrl}/fetch_incentive_slabs`, {project_id: projectId}).subscribe({
+    this.http.post(`${this.baseUrl}/fetch_incentive_slabs`, { project_id: projectId }).subscribe({
       next: (res: any) => {
-                this.dataSource = new MatTableDataSource(res.data);
+        this.dataSource = new MatTableDataSource(res.data);
 
         this.dataSource.data = res.data;
         this.loading = false;
@@ -175,7 +174,7 @@ export class AllIncentiveSlabsComponent {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.fetchAllFaceBookList(this.selectedProjectId);
-      } 
+      }
     });
   }
 
@@ -246,7 +245,7 @@ export class AllIncentiveSlabsComponent {
       if (
         this.selectedfacebookSetupID &&
         this.selectedfacebookSetupID.incentive_slabe_id ===
-          booking.incentive_slabe_id
+        booking.incentive_slabe_id
       ) {
         this.selectedfacebookSetupID = null;
       }

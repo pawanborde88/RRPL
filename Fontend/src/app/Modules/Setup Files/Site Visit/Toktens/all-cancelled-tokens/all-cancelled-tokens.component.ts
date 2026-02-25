@@ -13,32 +13,30 @@ import { FetchFunctionsService } from '../../../../../Service/fetch-functions.se
 import { CancelTokenDialogComponent } from '../cancel-token-dialog/cancel-token-dialog.component';
 import { CommonModule } from '@angular/common';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-
+import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 @Component({
   selector: 'app-all-cancelled-tokens',
   standalone: true,
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-AutocompleteReusableComponent,
-    ReusableTableComponent, // Add the pipe here
+    ReusableTableComponent,
+    AutocompleteReusableComponent,
+    TemplateComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './all-cancelled-tokens.component.html',
   styleUrl: './all-cancelled-tokens.component.scss'
 })
 export class AllCancelledTokensComponent {
-baseUrl = environment.API_URL;
+  baseUrl = environment.API_URL;
   loading: boolean = false; // Initialize loading state
   projectsList: any[] = [];
   // Initialize dataSource as a MatTableDataSource
@@ -58,13 +56,13 @@ baseUrl = environment.API_URL;
     public router: Router,
     private snackBar: MatSnackBar,
     private fetch: FetchFunctionsService
-  ) {}
+  ) { }
   addTokenForm = new FormGroup({
     project_id: new FormControl<any[]>([], Validators.required),
     token_type_id: new FormControl(),
   });
   displayedColumns = [
- 
+
     {
       key: 'sr_no',
       label: 'Sr.no',
@@ -76,12 +74,12 @@ baseUrl = environment.API_URL;
     { key: 'property_name', label: 'Project Name' },
     { key: 'wing_name', label: 'Wing  ' },
     { key: 'floor_unit', label: ' Unit' },
-        { key: 'customer_name', label: 'Client Name' },
+    { key: 'customer_name', label: 'Client Name' },
 
 
     { key: 'token_type', label: 'EOI Type' },
     { key: 'token_amount', label: 'EOI Amount', isAmount: true },
-        { key: 'balance', label: 'Balance', isAmount: true },
+    { key: 'balance', label: 'Balance', isAmount: true },
 
     { key: 'amount_paid', label: 'Pay Till Date' },
 
@@ -95,7 +93,7 @@ baseUrl = environment.API_URL;
     { key: 'source_detail', label: 'Visit Source Type' },
 
     { key: 'created_by_name', label: 'Cancelled  By' },
-    
+
   ];
   columnKeys: string[] = this.displayedColumns.map((col) => col.key); // ✅ Define it as a property
 
@@ -118,7 +116,7 @@ baseUrl = environment.API_URL;
   fetchAllProjects(): void {
     this.loading = true;
     const payload = {
-      user_id:  this.userId,
+      user_id: this.userId,
     };
 
     this.http.post(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
@@ -157,21 +155,21 @@ baseUrl = environment.API_URL;
         },
       });
   }
- 
+
 
   fetchAllTokens(): void {
     this.loading = true;
-       const formData = {
-           project_id: this.addTokenForm.value.project_id, 
-                     token_type_id: this.addTokenForm.value.token_type_id, 
+    const formData = {
+      project_id: this.addTokenForm.value.project_id,
+      token_type_id: this.addTokenForm.value.token_type_id,
 
-    
+
     };
     this.http
       .post(`${this.baseUrl}/fetch_cancel_tokens`, formData)
       .subscribe({
         next: (res: any) => {
-                  this.dataSource = new MatTableDataSource(res);
+          this.dataSource = new MatTableDataSource(res);
 
           this.dataSource = new MatTableDataSource(res);
 
@@ -187,5 +185,5 @@ baseUrl = environment.API_URL;
         },
       });
   }
- 
+
 }

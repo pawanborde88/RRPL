@@ -89,14 +89,10 @@ export class AddNewAgreementComponent implements OnInit {
 
   // Form for agreement details
   readonly addUpdateAgreementDetailsForm = this.fb.group({
-    challan_status_id: ['', Validators.required],
-    challan_date: ['', Validators.required],
     agreement_copy_status_id: ['', Validators.required],
-    agreement_shadule_date: ['', Validators.required],
     agreement_no: ['', Validators.required],
     agreement_date: ['', Validators.required],
     registration_office: ['', Validators.required],
-    date_of_execution: ['', Validators.required],
     remark: [''],
     created_by: [this.userId],
     index_attachment: [null as File | null, Validators.required],
@@ -340,13 +336,9 @@ export class AddNewAgreementComponent implements OnInit {
     }
 
     this.addUpdateAgreementDetailsForm.patchValue({
-      challan_status_id: getValue(data['challan_status_id']),
       agreement_copy_status_id: getValue(data['agreement_copy_status_id']),
       registration_office: getValue(data['registration_office']),
-      challan_date: parseDate(data['challan_date']) as any,
-      agreement_shadule_date: parseDate(data['agreement_shadule_date']) as any,
       agreement_date: parseDate(data['agreement_date']) as any,
-      date_of_execution: parseDate(data['date_of_execution']) as any,
       agreement_no: getValue(data['agreement_no']),
       remark: getValue(data['remark']),
     });
@@ -421,13 +413,9 @@ export class AddNewAgreementComponent implements OnInit {
     const format = (d: any) => this.datePipe.transform(d, 'yyyy-MM-dd') || '';
 
     formData.append('booking_id', String(this.currentBookingId()));
-    formData.append('challan_status_id', String(val.challan_status_id || ''));
-    formData.append('challan_date', format(val.challan_date));
     formData.append('agreement_copy_status_id', String(val.agreement_copy_status_id || ''));
-    formData.append('agreement_shadule_date', format(val.agreement_shadule_date));
     formData.append('agreement_date', format(val.agreement_date));
     formData.append('registration_office', String(val.registration_office || ''));
-    formData.append('date_of_execution', format(val.date_of_execution));
     formData.append('remark', val.remark || '');
     formData.append('agreement_no', val.agreement_no || '');
     formData.append('created_by', String(this.userId));

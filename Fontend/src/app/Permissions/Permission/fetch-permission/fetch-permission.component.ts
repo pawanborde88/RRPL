@@ -11,9 +11,10 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
 import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
+
 
 interface permissionForm {
   institute_name: string;
@@ -48,7 +49,7 @@ interface permissionForm {
 })
 export class FetchPermissionComponent {
   baseUrl = environment.API_URL;
-  constructor(private http: HttpClient, private snackBar: MatSnackBar,  private router: Router) {}
+  constructor(private http: HttpClient, private snackBar: MatSnackBar, private router: Router) { }
   pipe = new DatePipe('en-US');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 

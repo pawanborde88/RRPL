@@ -12,7 +12,7 @@ import { AngularMaterialModule } from '../../../../../../angular-material.module
 import { environment } from '../../../../../../environments/environment';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
+
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
 
 @Component({
@@ -26,8 +26,8 @@ import { FetchFunctionsService } from '../../../../../Service/fetch-functions.se
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-     // Add the pipe here
+
+    // Add the pipe here
   ],
   templateUrl: './booking-details-chart.component.html',
   styleUrl: './booking-details-chart.component.scss',
@@ -55,7 +55,7 @@ export class BookingDetailsChartComponent {
     { key: 'booked', label: 'Booked' },
     { key: 'booked_on', label: 'Booked On' },
   ];
-  
+
   selectedProjectId: number | null = null; // Track selected project
 
   columnKeys: string[] = this.displayedColumns.map((col) => col.key);
@@ -64,7 +64,7 @@ export class BookingDetailsChartComponent {
     private http: HttpClient,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.fetchAllProjects();

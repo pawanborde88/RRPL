@@ -18,17 +18,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../../environments/environment';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
+
+
+
+
 
 @Component({
   selector: 'app-approval-level-dialog',
@@ -36,17 +32,16 @@ import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
+
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    
-    AutocompleteReusableComponent,
-   
 
-    ReusableTableComponent,
+
+
+
+
+
   ],
   templateUrl: './approval-level-dialog.component.html',
   styleUrl: './approval-level-dialog.component.scss',
@@ -86,14 +81,14 @@ export class ApprovalLevelDialogComponent implements OnInit {
           this.approvelevelList = []; // No roles, no approval levels
           return;
         }
-  
+
         const currentRoles = this.roleData.split(',').map(Number);
-        
+
         // Filter approval levels where ALL of the user's roles are included in the approval level's role_id
-        this.approvelevelList = res.data.filter((level: any) => 
+        this.approvelevelList = res.data.filter((level: any) =>
           currentRoles.some(role => level.role_id.includes(role))
         );
-  
+
         // If you want STRICT matching (approval level must have EXACTLY the user's role)
         // this.approvelevelList = res.data.filter((level: any) => 
         //   level.role_id.some(roleId => currentRoles.includes(roleId))

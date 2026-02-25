@@ -30,6 +30,7 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../angular-material.module';
 import { SearchService } from '../../Service/search.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { AutoLogoutService } from '../../Auth/services/auto-logout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -73,6 +74,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private readonly sidebarStateService = inject(SidebarStateService);
   private readonly router = inject(Router);
   private readonly searchService = inject(SearchService);
+  private readonly autoLogoutService = inject(AutoLogoutService);
 
   // Signals for reactive state management
   readonly storageUrl = signal(environment.STORAGE_URL);
@@ -549,10 +551,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    sessionStorage.clear();
-    localStorage.clear();
     this.showUserMenu.set(false);
-    this.router.navigate(['/login']);
+    this.autoLogoutService.executeLogout();
   }
 
   private saveScrollPosition(): void {

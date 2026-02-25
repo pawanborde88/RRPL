@@ -11,11 +11,11 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
-import { AngularMaterialModule } from '../../../../angular-material.module';
-import { environment } from '../../../../environments/environment';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../Common/template/template.component';
 import { ReusableTableComponent } from '../../../Common/Reusable/reusable-table/reusable-table.component';
+import { AngularMaterialModule } from '../../../../angular-material.module';
+import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
+import { environment } from '../../../../environments/environment';
 import { AddRolesComponent } from '../add-roles/add-roles.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -35,9 +35,9 @@ interface CredentialForm {
 
 
 
-  @Component({
-    selector: 'app-fetch-roles',
-    standalone: true,
+@Component({
+  selector: 'app-fetch-roles',
+  standalone: true,
   imports: [
     AngularMaterialModule,
     CommonModule,
@@ -45,15 +45,14 @@ interface CredentialForm {
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,
-    RouterModule,
-    FormsModule,
     MainPermissionComponent,
     ReusableTableComponent
+
   ],
-    templateUrl: './fetch-roles.component.html',
-    styleUrl: './fetch-roles.component.scss'
-  })
-  export class FetchRolesComponent {
+  templateUrl: './fetch-roles.component.html',
+  styleUrl: './fetch-roles.component.scss'
+})
+export class FetchRolesComponent {
   baseUrl = environment.API_URL;
   constructor(
     private http: HttpClient,
@@ -61,19 +60,19 @@ interface CredentialForm {
     private dialog: MatDialog,
 
     private snackBar: MatSnackBar,
-  ) {}  pipe = new DatePipe('en-US');
+  ) { } pipe = new DatePipe('en-US');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   @ViewChild(MatSort) sort!: MatSort;
 
   roleId = sessionStorage.getItem('role_id');
-  accountID =sessionStorage.getItem('account_id');
+  accountID = sessionStorage.getItem('account_id');
   moduleList: CredentialForm[] = [];
   loading: boolean = true;
 
   @Input() value: string = '';
 
-  handleChipClick(event: { index: number; route: string }) {
+  handleChipClick(event: any) {
     const { index, route } = event;
     console.log('Chip clicked:', index);
     console.log('Route:', route);
@@ -103,7 +102,7 @@ interface CredentialForm {
     { key: 'role_name', label: 'Role' },
     { key: 'description', label: 'Description' },
 
-        {
+    {
       key: 'active_status',
       label: 'Status',
       applyChequeStatusColor: true,
@@ -122,7 +121,7 @@ interface CredentialForm {
       action: 'leadAssign',
       color: 'primary',
     },
-   ,
+    ,
   ];
   readonly panelOpenState = signal(false);
   dataSource = new MatTableDataSource(this.moduleList);
@@ -139,7 +138,7 @@ interface CredentialForm {
       show: () => true,
     }
   ];
-  
+
   openAddEditSorceDialog(action: string, row?: any): void {
     const dialogRef = this.dialog.open(AddRolesComponent, {
       minWidth: '40vw',
@@ -171,7 +170,7 @@ interface CredentialForm {
   onProjectAction(action: string, row: any): void {
     switch (action) {
       case 'leadAssign':
-                this.openAddEditSorceDialog('edit', row);
+        this.openAddEditSorceDialog('edit', row);
 
         break;
       // case 'deleteProject':

@@ -54,32 +54,6 @@
     <mat-card-content>
       <form [formGroup]="addUpdateAgreementDetailsForm" class="row g-3">
         <!-- Row 1 -->
-        <div class="col-md-3">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Challan Date</mat-label>
-            <input matInput [matDatepicker]="challanPicker" formControlName="challan_date" required />
-            <mat-datepicker-toggle matSuffix [for]="challanPicker"></mat-datepicker-toggle>
-            <mat-datepicker #challanPicker></mat-datepicker>
-            @if (addUpdateAgreementDetailsForm.get('challan_date')?.hasError('required') &&
-            addUpdateAgreementDetailsForm.get('challan_date')?.touched) {
-            <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="col-md-3">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Challan Status</mat-label>
-            <mat-select formControlName="challan_status_id" required>
-              <mat-option [value]="1">Paid</mat-option>
-              <mat-option [value]="2">Unpaid</mat-option>
-            </mat-select>
-            @if (addUpdateAgreementDetailsForm.get('challan_status_id')?.hasError('required') &&
-            addUpdateAgreementDetailsForm.get('challan_status_id')?.touched) {
-            <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
-        </div>
 
         <div class="col-md-3">
           <mat-form-field appearance="outline" class="w-100">
@@ -110,18 +84,6 @@
         </div>
 
         <!-- Row 2 -->
-        <div class="col-md-3">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Agreement Schedule Date</mat-label>
-            <input matInput [matDatepicker]="schedulePicker" formControlName="agreement_shadule_date" required />
-            <mat-datepicker-toggle matSuffix [for]="schedulePicker"></mat-datepicker-toggle>
-            <mat-datepicker #schedulePicker></mat-datepicker>
-            @if (addUpdateAgreementDetailsForm.get('agreement_shadule_date')?.hasError('required') &&
-            addUpdateAgreementDetailsForm.get('agreement_shadule_date')?.touched) {
-            <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
-        </div>
 
         <div class="col-md-3">
           <mat-form-field appearance="outline" class="w-100">
@@ -153,18 +115,6 @@
           </mat-form-field>
         </div>
 
-        <div class="col-md-3">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Date of Execution</mat-label>
-            <input matInput [matDatepicker]="executionPicker" formControlName="date_of_execution" required />
-            <mat-datepicker-toggle matSuffix [for]="executionPicker"></mat-datepicker-toggle>
-            <mat-datepicker #executionPicker></mat-datepicker>
-            @if (addUpdateAgreementDetailsForm.get('date_of_execution')?.hasError('required') &&
-            addUpdateAgreementDetailsForm.get('date_of_execution')?.touched) {
-            <mat-error>Required</mat-error>
-            }
-          </mat-form-field>
-        </div>
 
         <div class="col-md-6">
           <label class="form-label d-block mb-2">Index 2 Attachment (Max 1 Mb) <span
@@ -204,7 +154,7 @@
         <div class="col-md-6">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Remark</mat-label>
-            <textarea matInput formControlName="remark" rows="2"></textarea>
+            <input matInput formControlName="remark">
           </mat-form-field>
         </div>
       </form>

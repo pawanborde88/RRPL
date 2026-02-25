@@ -13,31 +13,33 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { environment } from '../../../../../../environments/environment';
 import { AddUnitNocComponent } from '../add-unit-noc/add-unit-noc.component';
+import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 
 @Component({
   selector: 'app-all-unit-noc',
   standalone: true,
-   imports: [
-      CommonModule,
-      RouterModule,
-      TemplateComponent,
-      BreadcrumbComponent,
-      AngularMaterialModule,
-      FormsModule,
-      ReactiveFormsModule,
-      TruncatePipe,
-      ActionColumnComponent,
-      
-      ReciptBankMasterSComponent,
-  
-      AddUnitNocComponent
-   
-    ],
+  imports: [
+    CommonModule,
+    RouterModule,
+    TemplateComponent,
+    BreadcrumbComponent,
+    AngularMaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TruncatePipe,
+    ActionColumnComponent,
+
+    ReciptBankMasterSComponent,
+
+    AddUnitNocComponent,
+    ReusableTableComponent
+
+  ],
   templateUrl: './all-unit-noc.component.html',
   styleUrl: './all-unit-noc.component.scss'
 })
 export class AllUnitNocComponent {
- baseUrl = environment.API_URL;
+  baseUrl = environment.API_URL;
   loading: boolean = false;
 
   roleId = Number(sessionStorage.getItem('role_id'));
@@ -66,7 +68,7 @@ export class AllUnitNocComponent {
     { key: 'updated_by', label: 'Updated By' },
     { key: 'updated_at', label: 'Updated At' },
   ];
-  
+
   columnKeys: string[] = this.displayedColumns.map((col) => col.key);
 
   dataSource = new MatTableDataSource<any>([]);
@@ -258,7 +260,7 @@ export class AllUnitNocComponent {
         updated_at: '2024-01-10',
       }
     ];
-    
+
     this.dataSource.data = mockData;
     this.loading = false;
 
@@ -271,5 +273,5 @@ export class AllUnitNocComponent {
       this.deleteProject(event.row);
     }
   }
-  deleteProject(Id: any) {}
+  deleteProject(Id: any) { }
 }

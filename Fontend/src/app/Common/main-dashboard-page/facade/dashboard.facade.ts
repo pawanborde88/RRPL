@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, computed } from '@angular/core';
 import { forkJoin, catchError, of, take } from 'rxjs';
 import { MainDashboardService } from '../../../Service/common/Dashboard/main-dashboard.service';
 import { DashboardStore } from '../store/dashboard.store';
@@ -42,15 +42,35 @@ export class DashboardFacade {
   readonly salesDashboardData = this.store.salesDashboardData;
   readonly digitalCampaigns = this.store.digitalCampaigns;
   readonly recentProperties = this.store.recentProperties;
+  readonly selectedProjectId = computed(() => this.store.state().selectedProjectId);
   readonly selectedProjectIds = this.store.selectedProjectIds;
   readonly state = this.store.state;
   readonly greetingName = this.store.greetingName;
   readonly greetingText = this.store.greetingText;
 
+  // Additional data selectors used by refactored component
+  readonly salesReportsData = computed(() => this.store.state().salesDashboardData);
+  readonly enquiryFlowData = this.store.enquiryFlow;
+  readonly allProjectSummaryData = computed(() => ({
+    project_count: this.store.projects().length,
+    floor_unit_count: this.store.inventoryData().reduce((acc, curr) => acc + (curr.total_unit || 0), 0),
+    booking_count: this.store.bookingStatuses().reduce((acc, curr) => acc + (curr.unit_count || 0), 0),
+    unit_count: this.store.inventoryData(),
+    booking_statuses: this.store.bookingStatuses()
+  }));
+
   initialize(): void {
     const userName = sessionStorage.getItem('user_full_name') || '';
     this.store.setUserFullName(userName);
     this.loadProjects();
+  }
+
+  initializeUser(): void {
+    this.initialize();
+  }
+
+  updateCurrentDate(): void {
+    this.store.updateMetrics({ currentDate: new Date() });
   }
 
   loadProjects(): void {
@@ -60,20 +80,53 @@ export class DashboardFacade {
     });
   }
 
-  fetchDashboardData(): void {
-    const projectIds = this.store.state().selectedProjectIds;
-    const start = this.store.startDate();
-    const end = this.store.endDate();
+  loadTelecallers(projectIds: number[]): void {
+    this.dashboardService.fetchTelecallerDropdown(projectIds).subscribe(telecallers => {
+      this.store.setTelecallers(telecallers || []);
+    });
+  }
 
-    if (!start || !end) return;
+  loadSalesExecutives(projectIds: number[]): void {
+    this.dashboardService.fetchSalesExecutives(projectIds).subscribe(executives => {
+      this.store.setSalesExecutives(executives || []);
+    });
+  }
 
-    const startDateStr = this.formatDate(start);
-    const endDateStr = this.formatDate(end);
+  fetchDashboardData(params?: {
+    projectIds: number[];
+    startDate: string;
+    endDate: string;
+    telecallerIds?: number[];
+    salesExecutiveIds?: number[];
+  }): void {
+    let project_id: number[];
+    let start_date: string;
+    let end_date: string;
+    let telecaller_id: number[] | undefined;
+    let sales_executive_id: number[] | undefined;
+
+    if (params) {
+      project_id = params.projectIds;
+      start_date = params.startDate;
+      end_date = params.endDate;
+      telecaller_id = params.telecallerIds;
+      sales_executive_id = params.salesExecutiveIds;
+    } else {
+      const pIds = this.store.state().selectedProjectIds;
+      const start = this.store.startDate();
+      const end = this.store.endDate();
+      if (!start || !end || pIds.length === 0) return;
+      project_id = pIds;
+      start_date = this.formatDate(start);
+      end_date = this.formatDate(end);
+    }
 
     const payload: DashboardParams = {
-      project_id: projectIds.length === 1 ? projectIds[0] : projectIds,
-      start_date: startDateStr,
-      end_date: endDateStr
+      project_id: Array.isArray(project_id) ? project_id : [project_id],
+      start_date,
+      end_date,
+      telecaller_id,
+      sales_executive_id
     };
 
     this.store.setLoading(true);
@@ -81,18 +134,36 @@ export class DashboardFacade {
     const calls = {
       presale: this.dashboardService.fetchPresaleDashboard({
         ...payload,
-        start_date: `${startDateStr} 00:00:00`,
-        end_date: `${endDateStr} 23:59:59`
+        start_date: `${start_date} 00:00:00`,
+        end_date: `${end_date} 23:59:59`
       }),
-      projectSummary: this.dashboardService.fetchAllProjectSummary({ project_id: payload.project_id }),
-      digitalReport: this.dashboardService.fetchDigitalReport({ project_id: payload.project_id }),
+      projectSummary: this.dashboardService.fetchAllProjectSummary({
+        project_id: payload.project_id,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+        telecaller_id: payload.telecaller_id,
+        sales_executive_id: payload.sales_executive_id
+      }),
+      digitalReport: this.dashboardService.fetchDigitalReport({
+        project_id: payload.project_id,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+        telecaller_id: payload.telecaller_id,
+        sales_executive_id: payload.sales_executive_id
+      }),
       enquiryFlow: this.dashboardService.fetchEnquiryFlow({
-        project_id: Array.isArray(payload.project_id) ? payload.project_id : [payload.project_id as number],
-        start_date: startDateStr,
-        end_date: endDateStr
+        project_id: payload.project_id,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+        telecaller_id: payload.telecaller_id,
+        sales_executive_id: payload.sales_executive_id
       }),
       salesReports: this.dashboardService.fetchSalesReports(payload),
-      salesDashboard: this.dashboardService.fetchSalesDashboard(payload)
+      salesDashboard: this.dashboardService.fetchSalesDashboard({
+        project_id: payload.project_id,
+        start_date: payload.start_date,
+        end_date: payload.end_date
+      })
     };
 
     forkJoin(calls).pipe(take(1)).subscribe({
@@ -112,9 +183,9 @@ export class DashboardFacade {
       const s = results.presale.summary;
       updates.headerMetrics = [
         { id: '1', title: 'Total Leads', description: 'Generated in period', value: s.total_lead_count.toString(), change: '+0%', trend: 'neutral', baseline: 'vs previous', icon: 'analytics' },
-        { id: '2', title: 'Site Visits', description: 'Visits concluded', value: s.site_visit_count.toString(), change: '+0%', trend: 'neutral', baseline: 'vs previous', icon: 'apartment' },
-        { id: '3', title: 'Bookings', description: 'Confirmed deals', value: s.booking_count.toString(), change: '+0%', trend: 'up', baseline: 'vs previous', icon: 'handshake' },
-        { id: '4', title: 'Pending', description: 'Unassigned leads', value: s.unassigned_count.toString(), change: '', trend: 'neutral', baseline: '', icon: 'pending_actions' }
+        { id: '2', title: 'Site Visits', description: 'Visits concluded', value: (s.site_visit_count || 0).toString(), change: '+0%', trend: 'neutral', baseline: 'vs previous', icon: 'apartment' },
+        { id: '3', title: 'Bookings', description: 'Confirmed deals', value: (s.booking_count || 0).toString(), change: '+0%', trend: 'up', baseline: 'vs previous', icon: 'handshake' },
+        { id: '4', title: 'Pending', description: 'Unassigned leads', value: (s.unassigned_count || 0).toString(), change: '', trend: 'neutral', baseline: '', icon: 'pending_actions' }
       ];
       updates.leadLevels = results.presale.lead_level || [];
     }
@@ -178,7 +249,11 @@ export class DashboardFacade {
   setSelectedProjects(projectIds: number[]): void {
     const first = projectIds[0] || null;
     this.store.setSelectedProject(first, projectIds);
-    this.fetchDashboardData();
   }
+
+  setSelectedProject(projectIds: number[]): void {
+    this.setSelectedProjects(projectIds);
+  }
+
 }
 

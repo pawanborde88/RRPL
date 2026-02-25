@@ -125,7 +125,7 @@
                 <span class="text-[11px] font-bold uppercase tracking-wider text-black">Booking Date</span>
               </div>
               <span class="detail-value truncate text-sm font-bold text-slate-900 leading-tight">{{
-                bookingInfo()?.['booking_date'] | date:'mediumDate' || 'N/A' }}</span>
+                (bookingInfo()?.['booking_date'] | date:'mediumDate') || 'N/A' }}</span>
             </div>
             <div
               class="absolute -right-2 -top-2 h-16 w-16 rounded-full bg-emerald-100/30 blur-xl transition-all duration-300 group-hover:bg-emerald-200/40">

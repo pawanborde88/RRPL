@@ -1,0 +1,29 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item"><a routerLink="/all-setupDashboard">Setup Dashboard</a></li>
+
+        <li class="breadcrumb-item active">All Hashtag Placeholders </li>
+    </app-breadcrumb>
+
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+
+
+            <app-autocomplete-reusable-component class="w-50" [ngModel]="selectedCourseId()" [options]="allCourses"
+                idKey="module_id" displayKey="module_name" placeholder="Select Module"
+                (selectedIdChange)="onCourseChange($event)">
+            </app-autocomplete-reusable-component>
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+        [apiEndpoint]="'fetch_tag_setup'" [apiMethod]="'POST'" [apiPayload]="getAgGridApiPayload()"
+        [headerButtons]="headerButtons" [actions]="bookingActions" [idProperty]="'tag_setup_id'"
+        (actionClick)="onBookingAction($event.action, $event.row)">
+    </app-configurable-ag-grid-data>
+</app-template>
