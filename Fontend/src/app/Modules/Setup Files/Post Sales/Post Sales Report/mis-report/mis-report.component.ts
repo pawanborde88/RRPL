@@ -141,6 +141,25 @@ export class MisReportComponent implements OnInit {
   readonly allChannelPartnerList = signal<ChannelPartner[]>([]);
   readonly selectedProjectId = signal<number | null>(null);
 
+  // Status Lists
+  readonly bookingStatusList = signal<{ id: number; name: string }[]>([
+    { id: 1, name: 'Book' },
+    { id: 2, name: 'Cancelled' },
+    { id: 0, name: 'Both' },
+  ]);
+
+  readonly agreementStatusList = signal<{ id: number; name: string }[]>([
+    { id: 1, name: 'Done' },
+    { id: 0, name: 'Pending' },
+    { id: 2, name: 'Both' },
+  ]);
+
+  readonly disbursementStatusList = signal<{ id: number; name: string }[]>([
+    { id: 1, name: 'Done' },
+    { id: 0, name: 'Pending' },
+    { id: 2, name: 'Both' },
+  ]);
+
   // Computed properties
   readonly hasSelectedProject = computed(() => this.selectedProjectId() !== null);
   readonly hasWings = computed(() => this.allWingslist().length > 0);

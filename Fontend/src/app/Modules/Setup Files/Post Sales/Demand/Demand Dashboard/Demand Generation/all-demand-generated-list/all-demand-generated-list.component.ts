@@ -27,6 +27,7 @@ import { DocumentDialogType } from '../../../../../../../Common/Reusable/unified
 import { AddDemandGenerationComponent } from '../add-demand-generation/add-demand-generation.component';
 import { ConfigurableAgGridDataComponent } from '../../../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TableColumn } from '../../../../../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
+import { SuccessDialogComponent } from '../../../../../../../Common/success-dialog/success-dialog.component';
 
 interface Project {
   project_id: number;
@@ -127,8 +128,8 @@ export class AllDemandGeneratedListComponent implements OnInit {
     { key: 'applicable_scheme', label: 'Scheme' },
     { key: 'status', label: 'Status' },
     { key: 'bank_name', label: 'Bank Name' },
-    { key: 'applicant_mobile', label: 'Applicant Mobile' },
-    { key: 'applicant_email', label: 'Applicant Email' },
+    { key: 'applicant_mobile', label: 'Applicant Mobile', type: 'sensitive' },
+    { key: 'applicant_email', label: 'Applicant Email', type: 'sensitive' },
     { key: 'created_by_string', label: 'Created By' },
     { key: 'updated_by_string', label: 'Updated By' },
     { key: 'created_at', label: 'Created At', type: 'date' },
@@ -257,7 +258,7 @@ export class AllDemandGeneratedListComponent implements OnInit {
       icon: 'email',
       color: 'primary',
       disabled: () => this.selectedDemand().length === 0,
-      action: () => this.emailDemand(this.selectedDemand()[0]),
+      action: () => this.emailDemand(this.selectedDemand().map((demand) => demand.demand_id)),
     },
     {
       label: 'Delete Demand',
@@ -276,10 +277,67 @@ export class AllDemandGeneratedListComponent implements OnInit {
 
   ];
   whatsappDemand(demandIds: number[]): void {
+    const projectId = this.selectedDemand()[0]?.project_id || this.formValues().project_id;
 
+    if (!projectId) {
+      this.showSnackBar('Project ID is required.');
+      return;
+    }
+
+    this.loading.set(true);
+    const payload = {
+      demand_id: demandIds,
+      project_id: projectId
+    };
+
+    this.http.post(`${this.baseUrl}/send_demand_by_email`, payload)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.showSnackBar(res?.message || 'Request sent successfully.');
+          this.selectedDemand.set([]);
+          this.refreshAgGridData();
+        },
+        error: (err: any) => {
+          this.showSnackBar(err?.error?.message || 'Unable to send request.');
+        },
+      });
   }
-  emailDemand(row: any): void {
+  emailDemand(demandIds: number[]): void {
+    const projectId = this.selectedDemand()[0]?.project_id || this.formValues().project_id;
 
+    if (!projectId) {
+      this.showSnackBar('Project ID is required.');
+      return;
+    }
+
+    this.loading.set(true);
+    const payload = {
+      demand_id: demandIds,
+      project_id: projectId,
+      wing_id: this.formValues().wing_id,
+    };
+
+    this.http.post(`${this.baseUrl}/send_demand_by_email`, payload)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.dialog.open(SuccessDialogComponent, {
+            data: { message: res.message || 'The selected demand has been successfully sent to the registered email address.' },
+          });
+          this.selectedDemand.set([]);
+
+        },
+        error: (err: any) => {
+          this.showSnackBar(err?.error?.message || 'Unable to send request.');
+        },
+      });
   }
 
 

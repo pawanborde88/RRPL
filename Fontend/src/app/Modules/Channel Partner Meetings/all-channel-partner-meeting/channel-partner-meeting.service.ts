@@ -125,21 +125,23 @@ export class ChannelPartnerMeetingService {
       );
   }
 
-  /**
-   * Fetch meetings with filters
-   */
   fetchMeetings(payload: MeetingPayload | any): Observable<any> {
     return this.http.post(`${this.baseUrl}/fetch_meetings`, payload);
   }
 
-  /**
-   * Fetch route URL for meetings
-   */
+
   fetchRouteUrl(payload: MeetingPayload | any): Observable<{ route_url: string }> {
     return this.http.post<{ route_url: string }>(
       `${this.baseUrl}/fetch_all_meetings`,
       payload
     );
+  }
+
+  /**
+   * Assign sourcing executive to channel partners
+   */
+  assignSourcingExecutive(payload: { channel_partner_id: number[], sourcing_executive_id: number[] }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/assigned_sourcing_executive`, payload);
   }
 }
 

@@ -7,6 +7,9 @@
         </mat-card-header>
         <mat-card-content>
             <div class="row g-3">
+                <app-autocomplete-reusable-component class="col-md-2" [options]="allprojectsPeoples()"
+                    formControlName="closed_by" displayKey="user_name" idKey="user_id" placeholder="Closed By">
+                </app-autocomplete-reusable-component>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Select Wing</mat-label>
                     <mat-select formControlName="wing_id" [disabled]="!allWingslist().length">
@@ -68,9 +71,6 @@
                     <mat-label>Total Carpet (Sq.Ft)</mat-label>
                     <input matInput formControlName="carpet" readonly placeholder="Enter Carpet" />
                 </mat-form-field>
-            </div>
-            <div class="row g-3">
-
                 <mat-form-field appearance="outline" class="col-md-2"
                     [ngClass]="{ 'full-bg-readonly': (+((addBookingForm.get('based_on_id')?.value) ?? 0)) === 2 }">
                     <mat-label>Rate</mat-label>
@@ -214,7 +214,7 @@
                 </mat-form-field>
 
 
-                <mat-form-field appearance="outline" class="col-md-4">
+                <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Remark</mat-label>
                     <input matInput formControlName="remark" placeholder="Enter Remark" />
                 </mat-form-field>

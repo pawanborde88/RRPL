@@ -34,6 +34,8 @@ export class CourseUseRsReport {
     { key: 'course_title', label: 'Course' },
     { key: 'full_name', label: 'Name' },
     { key: 'role_names', label: 'Role' },
+    { key: 'enrolled_lectures', label: 'Enrolled Lectures' },
+    { key: 'completed_lectures', label: 'Completed Lectures' },
     { key: 'user_email', label: 'Email', type: 'sensitive' },
     { key: 'user_phone', label: 'Phone', type: 'sensitive' },
   ];

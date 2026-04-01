@@ -51,13 +51,22 @@ export class DashboardFacade {
   // Additional data selectors used by refactored component
   readonly salesReportsData = computed(() => this.store.state().salesDashboardData);
   readonly enquiryFlowData = this.store.enquiryFlow;
-  readonly allProjectSummaryData = computed(() => ({
-    project_count: this.store.projects().length,
-    floor_unit_count: this.store.inventoryData().reduce((acc, curr) => acc + (curr.total_unit || 0), 0),
-    booking_count: this.store.bookingStatuses().reduce((acc, curr) => acc + (curr.unit_count || 0), 0),
-    unit_count: this.store.inventoryData(),
-    booking_statuses: this.store.bookingStatuses()
-  }));
+  readonly presaleDashboardRaw = this.store.presaleDashboardRaw;
+  readonly allProjectSummaryRaw = this.store.allProjectSummaryRaw;
+  readonly salesReportsRaw = this.store.salesReportsRaw;
+
+  readonly allProjectSummaryData = computed(() => {
+    const raw = this.store.allProjectSummaryRaw();
+    const inventory = this.store.inventoryData();
+    const bookingStatuses = this.store.bookingStatuses();
+    return {
+      project_count: raw?.project_count ?? this.store.projects().length,
+      floor_unit_count: raw?.floor_unit_count ?? inventory.reduce((acc, curr) => acc + (curr.total_unit || 0), 0),
+      booking_count: raw?.booking_count ?? bookingStatuses.reduce((acc, curr) => acc + (curr.unit_count || 0), 0),
+      unit_count: inventory,
+      booking_statuses: bookingStatuses
+    };
+  });
 
   initialize(): void {
     const userName = sessionStorage.getItem('user_full_name') || '';
@@ -129,13 +138,17 @@ export class DashboardFacade {
       sales_executive_id
     };
 
+    // Keep store in sync with the exact project selection used for this fetch
+    // (prevents stale project ids from being sent in subsequent calls)
+    this.store.setSelectedProject(payload.project_id[0] ?? null, payload.project_id);
+
     this.store.setLoading(true);
 
     const calls = {
       presale: this.dashboardService.fetchPresaleDashboard({
         ...payload,
-        start_date: `${start_date} 00:00:00`,
-        end_date: `${end_date} 23:59:59`
+        start_date: start_date,
+        end_date: end_date
       }),
       projectSummary: this.dashboardService.fetchAllProjectSummary({
         project_id: payload.project_id,
@@ -211,6 +224,9 @@ export class DashboardFacade {
     updates.bookingStatuses = results.projectSummary?.booking_statuses || [];
     updates.enquiryFlow = results.enquiryFlow?.data || null;
     updates.salesDashboardData = results.salesDashboard?.data || null;
+    updates.presaleDashboardRaw = results.presale || null;
+    updates.allProjectSummaryRaw = results.projectSummary || null;
+    updates.salesReportsRaw = results.salesReports || null;
 
     this.store.updateMetrics(updates);
   }
@@ -247,8 +263,8 @@ export class DashboardFacade {
   }
 
   setSelectedProjects(projectIds: number[]): void {
-    const first = projectIds[0] || null;
-    this.store.setSelectedProject(first, projectIds);
+    const first = projectIds && projectIds.length > 0 ? projectIds[0] : null;
+    this.store.setSelectedProject(first, projectIds || []);
   }
 
   setSelectedProject(projectIds: number[]): void {

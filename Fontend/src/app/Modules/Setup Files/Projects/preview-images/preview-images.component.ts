@@ -11,6 +11,7 @@ import {
   signal,
   computed,
   effect,
+  DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -27,15 +28,15 @@ import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialo
 import { MatDialog } from '@angular/material/dialog';
 import { fromEvent } from 'rxjs';
 import { debounceTime, filter, switchMap } from 'rxjs/operators';
-import { 
-  ImageSource, 
-  PreviewImagesDialogData, 
+import {
+  ImageSource,
+  PreviewImagesDialogData,
   ScrollState
 } from './preview-images.models';
-import { 
-  ResolveImagePipe, 
-  IsImageSelectedPipe, 
-  ImageUrlPipe 
+import {
+  ResolveImagePipe,
+  IsImageSelectedPipe,
+  ImageUrlPipe
 } from './preview-images.pipes';
 
 /**
@@ -75,13 +76,14 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
   private readonly dialog = inject(MatDialog);
   public readonly dialogRef = inject(MatDialogRef<PreviewImagesComponent>);
   public readonly data = inject<PreviewImagesDialogData>(MAT_DIALOG_DATA);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Environment configuration
   readonly baseUrl = environment.API_URL;
   readonly storageUrl = environment.STORAGE_URL;
 
   // View child with typed element
-  @ViewChild('scrollContainer', { static: false, read: ElementRef }) 
+  @ViewChild('scrollContainer', { static: false, read: ElementRef })
   scrollContainer!: ElementRef<HTMLDivElement>;
 
   // Signal-based state management
@@ -105,11 +107,11 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
   readonly currentImageIndex = computed(() => {
     const selectedImage = this.selectedImageSignal();
     const images = this.imagesSignal();
-    
+
     if (!selectedImage || images.length === 0) return 0;
-    
+
     const imageKey = this.imageKeySignal();
-    return images.findIndex(img => 
+    return images.findIndex(img =>
       this.resolveImagePath(img, imageKey) === selectedImage
     ) || 0;
   });
@@ -124,10 +126,10 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
 
   readonly canDeleteCurrentImage = computed(() => {
     const current = this.currentImage();
-    return current !== null && 
-           typeof current === 'object' && 
-           'project_image_id' in current &&
-           current.project_image_id !== undefined;
+    return current !== null &&
+      typeof current === 'object' &&
+      'project_image_id' in current &&
+      current.project_image_id !== undefined;
   });
 
   readonly currentProjectImageId = computed(() => {
@@ -170,14 +172,14 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
    */
   private initializeComponent(): void {
     this.imageKeySignal.set(this.data.name);
-    
+
     // Ensure images is always an array with type safety
-    const images = Array.isArray(this.data.images) 
-      ? this.data.images 
+    const images = Array.isArray(this.data.images)
+      ? this.data.images
       : [this.data.images];
-    
+
     this.imagesSignal.set(images);
-  
+
     // Set initial selected image - use initialIndex if provided, otherwise use first image
     if (images.length > 0) {
       const initialIndex = this.data.initialIndex !== undefined && this.data.initialIndex >= 0 && this.data.initialIndex < images.length
@@ -194,7 +196,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
   private setupKeyboardNavigation(): void {
     fromEvent<KeyboardEvent>(document, 'keydown')
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         filter((event: KeyboardEvent) => ['ArrowLeft', 'ArrowRight', 'Escape'].includes(event.key))
       )
       .subscribe((event: KeyboardEvent) => {
@@ -212,7 +214,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
         }
       });
   }
-  
+
   /**
    * Delete project image with optimized RxJS
    */
@@ -224,11 +226,11 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
 
     dialogRef.afterClosed()
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         filter(result => !!result),
-        switchMap(() => 
-          this.http.post(`${this.baseUrl}/delete_project_image`, { 
-            project_image_id: projectImageID 
+        switchMap(() =>
+          this.http.post(`${this.baseUrl}/delete_project_image`, {
+            project_image_id: projectImageID
           })
         )
       )
@@ -273,7 +275,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
    */
   viewImage(imagePath: string): void {
     if (imagePath === this.selectedImageSignal()) return;
-    
+
     this.selectedImageSignal.set(imagePath);
     this.imageLoadedSignal.set(false);
   }
@@ -299,7 +301,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
     const container = this.scrollContainer.nativeElement;
     const cardElement = container.querySelector('.thumbnail-card') as HTMLElement;
     const cardWidth = cardElement ? cardElement.offsetWidth + 12 : 112;
-    
+
     container.style.setProperty('--card-width', `${cardWidth}px`);
     this.updateScrollButtons();
   }
@@ -312,7 +314,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
 
     fromEvent(this.scrollContainer.nativeElement, 'scroll')
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         debounceTime(50)
       )
       .subscribe(() => this.updateScrollButtons());
@@ -375,7 +377,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
 
     const currentIndex = this.currentImageIndex();
     const totalImages = images.length;
-    
+
     let newIndex: number;
     if (direction === 'prev') {
       newIndex = currentIndex > 0 ? currentIndex - 1 : totalImages - 1;
@@ -398,12 +400,12 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
     requestAnimationFrame(() => {
       const thumbnails = this.scrollContainer.nativeElement.querySelectorAll('.thumbnail-card');
       const thumbnail = thumbnails[index] as HTMLElement;
-      
+
       if (thumbnail) {
-        thumbnail.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'nearest', 
-          inline: 'center' 
+        thumbnail.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
         });
       }
     });
@@ -421,7 +423,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
     link.href = imageUrl;
     link.setAttribute('download', this.getFileNameFromUrl(selectedImage));
     link.style.display = 'none';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -474,7 +476,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
   private preloadAdjacentImages(currentIndex: number): void {
     const images = this.imagesSignal();
     const imageKey = this.imageKeySignal();
-    
+
     const indicesToPreload = [
       currentIndex - 1 >= 0 ? currentIndex - 1 : images.length - 1,
       currentIndex + 1 < images.length ? currentIndex + 1 : 0,
@@ -483,7 +485,7 @@ export class PreviewImagesComponent implements OnInit, OnDestroy, AfterViewInit 
     indicesToPreload.forEach(index => {
       const imagePath = this.resolveImagePath(images[index], imageKey);
       const fullUrl = `${this.storageUrl}/${imagePath}`;
-      
+
       if (!this.preloadedImages.has(fullUrl)) {
         const img = new Image();
         img.src = fullUrl;

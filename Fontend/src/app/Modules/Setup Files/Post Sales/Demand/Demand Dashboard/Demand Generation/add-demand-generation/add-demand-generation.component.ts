@@ -227,7 +227,7 @@ export class AddDemandGenerationComponent implements OnInit {
   addDemand(): void {
     if (this.addDemandGenerationForm.invalid) {
       this.showError('Please fill all required fields');
-      this.addDemandGenerationForm.markAllAsTouched();
+      this.markInvalidControlsAsTouched();
       return;
     }
 
@@ -258,5 +258,13 @@ export class AddDemandGenerationComponent implements OnInit {
 
   private showError(message: string): void {
     this.snackBar.open(message, 'Close', { duration: 3000 });
+  }
+
+  private markInvalidControlsAsTouched(): void {
+    Object.values(this.addDemandGenerationForm.controls).forEach(control => {
+      if (control.invalid) {
+        control.markAsTouched();
+      }
+    });
   }
 }

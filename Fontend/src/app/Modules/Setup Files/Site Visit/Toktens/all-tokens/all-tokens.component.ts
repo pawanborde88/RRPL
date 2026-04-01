@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -32,12 +32,15 @@ import { SuccessDialogComponent } from '../../../../../Common/success-dialog/suc
 import { UnifiedDocumentDialogComponent } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.component';
 import { DocumentDialogType } from '../../../../../Common/Reusable/unified-document-dialog/unified-document-dialog.interfaces';
 import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import { PayTokenManuallyComponent } from '../pay-token-manually/pay-token-manually.component';
+import { AddTokensComponent } from '../add-tokens/add-tokens.component';
 import { of } from 'rxjs';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
+  finalize,
   retry,
   shareReplay,
   switchMap
@@ -103,6 +106,7 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   public readonly router = inject(Router);
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
 
   // Constants
   readonly baseUrl = environment.API_URL;
@@ -110,6 +114,7 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
   readonly roleId = Number(sessionStorage.getItem('role_id')) || 0;
   readonly userId = Number(sessionStorage.getItem('session_id')) || 0;
   private readonly roleData = sessionStorage.getItem('role_id');
+  private datePipe: DatePipe = new DatePipe('en-US');
 
   // ViewChild references
   @ViewChild(MatSort) sort!: MatSort;
@@ -143,6 +148,8 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
     project_id: new FormControl<number[]>([], [Validators.required]),
     token_type_id: new FormControl<number | null>(null),
     sales_executive_id: new FormControl<number[]>([]),
+    start_date: new FormControl<Date | null>(null),
+    end_date: new FormControl<Date | null>(null),
   });
 
   // Computed signals for derived state
@@ -224,6 +231,13 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       show: () => this.hasOnlyRoles([1, 2]),
     },
     {
+      action: 'editToken',
+      icon: 'edit',
+      tooltip: 'Edit EOI',
+      color: 'primary' as const,
+      show: () => this.hasOnlyRoles([1, 2]),
+    },
+    {
       action: 'cancelToken',
       icon: 'close',
       tooltip: 'Cancel EOI',
@@ -291,6 +305,7 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
   ] as const;
 
   readonly headerButtons = [
+
     {
       label: 'Cancelled EOI',
       icon: 'select_all',
@@ -299,6 +314,23 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       disabled: () => false,
       show: () => true,
     },
+    {
+      label: 'Export Credentials',
+      icon: 'download',
+      color: 'primary' as const,
+      action: () => this.exportCredentials(),
+      disabled: () => false,
+      show: () => true,
+    },
+    {
+      label: 'Send Invite',
+      icon: 'send',
+      color: 'primary' as const,
+      action: () => this.sendInvite(),
+      disabled: () => this.selectedTokens().length === 0,
+      show: () => true,
+    },
+
   ] as const;
 
   constructor() {
@@ -409,7 +441,84 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       this.agGridComponent.refreshData();
     }
   }
+  exportCredentials(): void {
+    const selectedTokens = this.selectedTokens();
 
+    const projectId =
+      selectedTokens[0]?.project_id ||
+      (this.addTokenForm.get('project_id')?.value as number[])?.[0];
+
+    if (!projectId) {
+      this.snackBar.open('Project ID is required.', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    this.loading.set(true);
+
+    const payload = {
+      project_id: projectId,
+    };
+
+    this.http.post(`${this.baseUrl}/create_token_password`, payload)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+
+          const customers = res?.updated_customers || [];
+
+          if (!customers.length) {
+            this.snackBar.open('No credentials found.', 'Close', { duration: 3000 });
+            return;
+          }
+
+          // Convert to CSV
+          const header = ['Username', 'First Name', 'Last Name', 'Token ID', 'Password'];
+
+          const rows = customers.map((c: any) => [
+            c.username,
+            c.first_name,
+            c.last_name,
+            c.token_id,
+            c.new_password
+          ]);
+
+          const csvContent =
+            [header, ...rows]
+              .map(row => row.join(','))
+              .join('\n');
+
+          // Download file
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+
+          link.setAttribute('href', url);
+          link.setAttribute('download', `token_credentials_${Date.now()}.csv`);
+          link.click();
+
+          this.dialog.open(SuccessDialogComponent, {
+            data: { message: 'Credentials exported successfully.' },
+          });
+
+          this.selectedTokens.set([]);
+          this.agGridComponent?.refreshData();
+        },
+
+        error: (err: any) => {
+          this.snackBar.open(
+            err?.error?.message || 'Failed to export credentials.',
+            'Close',
+            { duration: 3000 }
+          );
+        },
+      });
+  }
   // Helper methods
   private hasFiltersApplied(formValues: unknown): boolean {
     const values = formValues as Record<string, unknown>;
@@ -435,7 +544,9 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
 
     return null;
   }
-
+  private formatDate(date: Date): string | null {
+    return this.datePipe.transform(date, this.DATE_FORMAT);
+  }
   private buildFiltersObject(formValues: unknown, telecallerIdValue: number[] | null): Record<string, unknown> {
     const values = formValues as Record<string, unknown>;
 
@@ -451,7 +562,9 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       token_id: this.cpTargetLoggedData
         ? this.cpTargetLoggedData.total_token_id
         : null,
-      user_id: this.userId
+      user_id: this.userId,
+      start_date: this.formatDate(values['start_date'] as Date),
+      end_date: this.formatDate(values['end_date'] as Date),
     };
 
     // Determine the final sales_executive_id value
@@ -574,6 +687,9 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       case 'deleteToken':
         this.deleteTokens(row.token_id);
         break;
+      case 'editToken':
+        this.editToken(row);
+        break;
       case 'addBooking':
         this.router.navigate(['/add-bookings'], {
           state: { data: row, extraText: 'TokenBooking' },
@@ -605,17 +721,49 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
         });
         break;
       case 'payManually':
-        this.router.navigate(
-          ['/setup/tokens/pay-token-manually', row.token_id],
-          {
-            state: { data: row },
-          }
-        );
+        this.openPayManuallyDialog(row);
         break;
     }
   }
 
+  editToken(row: any): void {
+    const dialogRef = this.dialog.open(AddTokensComponent, {
+      width: '70vw',
+      maxWidth: '70vw',
+      maxHeight: '90vh',
+      data: {
+        token_id: row.token_id,
+        data: row
+      },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.fetchAllTokens();
+        }
+      });
+  }
+
   // Dialog methods
+  openPayManuallyDialog(row: any): void {
+    const dialogRef = this.dialog.open(PayTokenManuallyComponent, {
+      minWidth: '50vw',
+      maxWidth: '50vw',
+
+      data: { data: row },
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) {
+          this.fetchAllTokens();
+        }
+      });
+  }
+
   openClaimEnquiryDialog(row: any): void {
     const dialogRef = this.dialog.open(RefundTokenPaymentComponent, {
       minWidth: '25vw',
@@ -799,5 +947,51 @@ export class AllTokensComponent implements OnInit, AfterViewInit {
       sortOrder: paginationState.sortOrder,
       filters: payloadFilters
     };
+  }
+
+  sendInvite(): void {
+    const selectedTokens = this.selectedTokens();
+    if (selectedTokens.length === 0) {
+      this.snackBar.open('Please select at least one token.', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    const tokenIds = selectedTokens.map((token) => token.token_id);
+    const projectId = selectedTokens[0]?.project_id || (this.addTokenForm.get('project_id')?.value as number[])?.[0];
+
+    if (!projectId) {
+      this.snackBar.open('Project ID is required.', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    this.loading.set(true);
+    const payload = {
+      token_id: tokenIds,
+      project_id: projectId,
+    };
+
+    this.http.post(`${this.baseUrl}/send_token_reg_email`, payload)
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.dialog.open(SuccessDialogComponent, {
+            data: { message: res.message || 'Invitation sent successfully to the registered email address.' },
+          });
+          this.selectedTokens.set([]);
+          this.agGridComponent?.refreshData();
+        },
+        error: (err: any) => {
+          this.snackBar.open(err?.error?.message || 'Failed to send invitation.', 'Close', {
+            duration: 3000,
+          });
+        },
+      });
   }
 }

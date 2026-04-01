@@ -97,7 +97,7 @@ export class AllChannelPartnerMeetingComponent implements OnInit, OnDestroy {
     { key: 'created_by_name', label: 'Meeting By' },
     { key: 'created_at', label: 'Meeting At', type: 'date' },
     { key: 'channel_partner', label: 'Channel Partner' },
-    { key: 'sales_executive', label: 'Sourcing/Sales Executive' },
+    { key: 'source_executive', label: 'Sourcing/Sales Executive' },
     { key: 'cp_executive', label: 'CP Executive' },
     { key: 'check_in_time', label: 'Check-In Time' },
     { key: 'check_out_time', label: 'Check-Out Time' },

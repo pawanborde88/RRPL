@@ -28,23 +28,16 @@
 
         <div class="col-md-4">
             <app-autocomplete-reusable-component [options]="units()" formControlName="floor_unit_id"
-                displayKey="full_name" idKey="floor_unit_id" placeholder="Select Unit" class="w-100">
+                displayKey="full_name" [isMultiSelect]="true" idKey="floor_unit_id" placeholder="Select Unit"
+                class="w-100">
             </app-autocomplete-reusable-component>
         </div>
 
         <div class="col-md-4">
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Select Letter Type</mat-label>
-                <mat-select formControlName="letter_type_id" required>
-                    <mat-option *ngFor="let letterType of letterTypes()" [value]="letterType.letter_type_id">
-                        {{ letterType.letter_type }}
-                    </mat-option>
-                </mat-select>
-                <mat-error
-                    *ngIf="form.get('letter_type_id')?.hasError('required') && form.get('letter_type_id')?.touched">
-                    Letter type is required
-                </mat-error>
-            </mat-form-field>
+
+            <app-autocomplete-reusable-component [options]="letterTypes()" formControlName="letter_type_id"
+                displayKey="letter_type" idKey="letter_type_id" placeholder="Select Letter Type" class="w-100">
+            </app-autocomplete-reusable-component>
         </div>
 
         <div class="col-md-4">
@@ -53,8 +46,7 @@
                 <input matInput formControlName="letter_date" [matDatepicker]="picker" placeholder="Select Date">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
-                <mat-error
-                    *ngIf="form.get('letter_date')?.hasError('required') && form.get('letter_date')?.touched">
+                <mat-error *ngIf="form.get('letter_date')?.hasError('required') && form.get('letter_date')?.touched">
                     Letter date is required
                 </mat-error>
             </mat-form-field>
@@ -73,8 +65,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="onSubmit()" type="submit" class="me-2"
-    [disabled]="form.invalid">
+    <button mat-raised-button color="primary" (click)="onSubmit()" type="submit" class="me-2" [disabled]="form.invalid">
         <span *ngIf="loading()">Submitting...</span>
         <span *ngIf="!loading()">Submit</span>
     </button>

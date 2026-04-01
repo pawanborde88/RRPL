@@ -46,9 +46,12 @@ import { EnquiryManagementService } from '../services/enquiry-management.service
 import { ConfirmationDialogComponent } from '../../../../Common/Reusable/ConfirmDialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { AllEnquiryStore } from './all-enquirys.store';
+import { AgGridDataService } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/services/ag-grid-data.service';
+import { AllEnquiryGridDataService } from './all-enquiry-grid-data.service';
 import { QuatationRequestDialogComponent } from '../quatation-request-dialog/quatation-request-dialog.component';
 import { LeadLevel, CallStatus } from '../../comment-log/comment-log.models';
 import { AddEnquiryComponent } from '../add-enquiry/add-enquiry.component';
+import { AddTokensComponent } from '../../Site Visit/Toktens/add-tokens/add-tokens.component';
 
 interface ActionButton {
   label: string;
@@ -104,6 +107,13 @@ interface EnquiryFilterForm {
   templateUrl: './all-enquirys.component.html',
   styleUrls: ['./all-enquirys.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    AllEnquiryStore,
+    {
+      provide: AgGridDataService,
+      useClass: AllEnquiryGridDataService
+    }
+  ]
 })
 export class AllEnquirysComponent implements OnInit {
   // ==================== INJECTED DEPENDENCIES ====================
@@ -332,6 +342,11 @@ export class AllEnquirysComponent implements OnInit {
       this.enquiryFilterForm.patchValue({ project_id: [successData.project_id] });
     }
 
+    // If we have history data, authorize initial load
+    if (cpData?.project_id || successData?.project_id) {
+      this.store.setReady(true);
+    }
+
     // Initial Data Load
     this.store.loadProjects(this.store.userId());
     this.store.loadSources();
@@ -339,9 +354,7 @@ export class AllEnquirysComponent implements OnInit {
 
     this.setupFormListeners();
 
-    if (successData?.project_id) {
-      setTimeout(() => this.refreshGrid(), 500);
-    }
+
   }
 
   // ==================== FORM HANDLING ====================
@@ -394,6 +407,7 @@ export class AllEnquirysComponent implements OnInit {
 
   // ==================== DATA FETCHING & ACTIONS ====================
   refreshGrid(): void {
+    this.store.setReady(true);
     if (this.agGridComponent) {
       this.agGridComponent.refreshData();
     }
@@ -519,7 +533,17 @@ export class AllEnquirysComponent implements OnInit {
     this.router.navigate(['/setup/edit-enquiry', row.project_name, row.project_enq_id]);
   }
   private navigateToAddToken(row: any) {
-    this.router.navigate(['/setup/add-token'], { state: { data: row } });
+    const dialogRef = this.dialog.open(AddTokensComponent, {
+      width: '70vw',
+      maxWidth: '70vw',
+      maxHeight: '50vh',
+      disableClose: true,
+      data: { token_id: null, data: row }
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+      if (result) this.refreshGrid();
+    });
   }
   private navigateToAddBooking(row: any) {
     this.router.navigate(['/add-bookings'], { state: { data: row, extraText: 'EnquiryBooking' } });

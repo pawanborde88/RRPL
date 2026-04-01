@@ -308,6 +308,11 @@ export class MenuConfigService {
             visible: hasPermission('364'),
             items: [
               {
+                routerLink: '/salesManagement-Enquiry-RevisitReport',
+                label: 'Enquiry Revisit Report',
+                visible: hasPermission('308'),
+              },
+              {
                 routerLink: '/salesManagement/allEnquiryTrackingReport',
                 label: 'Enquiry Tracking  Report',
                 visible: hasPermission('237'),
@@ -399,6 +404,23 @@ export class MenuConfigService {
             ],
           },
           {
+            label: 'Setup Config',
+            visible: hasPermission('244'),
+            items: [
+              {
+                routerLink: '/placeholder-tag-setup/all-hashtagplacehodler',
+                label: 'Modify Tags',
+                visible: hasPermission('319'),
+              },
+              {
+                routerLink: '/placeholder-tag-setup/EmailTeamplates',
+                label: 'Email Templates',
+                visible: hasPermission('320'),
+              },
+
+            ],
+          },
+          {
             label: 'Installment',
             visible: hasPermission('244'),
             items: [
@@ -428,6 +450,11 @@ export class MenuConfigService {
             label: 'Reports',
             visible: hasPermission('245'),
             items: [
+              {
+                routerLink: '/after-sales/deleted-receipts-log',
+                label: 'Deleted Receipts Log',
+                visible: hasPermission('234'),
+              },
               {
                 routerLink: '/after-sales/MSEBDetailsReport',
                 label: ' MSEB Report',
@@ -485,7 +512,7 @@ export class MenuConfigService {
         items: [
           {
             routerLink: '/all-channelpartner',
-            label: 'All CPs',
+            label: 'All Channel Partners',
             visible: hasPermission('330'),
           },
           {
@@ -554,6 +581,11 @@ export class MenuConfigService {
             visible: hasPermission('343'),
             items: [
               {
+                routerLink: '/channel-partner/reports/cp-executive-follow-up-report',
+                label: 'CP Follow-up Report',
+                visible: hasPermission('343'),
+              },
+              {
                 routerLink: '/channel-partner/reports/event-attendance-report',
                 label: 'Event Attendance Report',
                 visible: hasPermission('343'),
@@ -603,6 +635,7 @@ export class MenuConfigService {
             label: 'All Events',
             visible: hasPermission('622'),
           },
+
         ],
         visible: hasPermission('622'),
       },

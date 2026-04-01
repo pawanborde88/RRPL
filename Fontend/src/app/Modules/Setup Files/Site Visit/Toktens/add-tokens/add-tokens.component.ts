@@ -129,6 +129,11 @@ export class AddTokensComponent {
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly platformId = inject(PLATFORM_ID);
+  public readonly dialogData = inject<any>(MAT_DIALOG_DATA, { optional: true });
+  private readonly dialogRef = inject(MatDialogRef<AddTokensComponent>, {
+    optional: true,
+  });
+  public readonly isDialog = !!this.dialogData;
 
   readonly roleId = isPlatformBrowser(this.platformId) ? Number(sessionStorage.getItem('role_id')) : 0;
 
@@ -137,134 +142,112 @@ export class AddTokensComponent {
   private readonly baseUrl = environment.API_URL;
   private readonly pipe = new DatePipe('en-US');
   tokenTypeId = signal<number | null>(null);
-  // User context signals
+  tokenID = signal<any>(null);
+  elementData = signal<any>(null);
+  loading = signal<boolean>(false);
+  userId = signal<number>(isPlatformBrowser(this.platformId) ? Number(sessionStorage.getItem('user_id')) : 0);
+  tokenPaymentId = signal<number | null>(null);
 
-  private readonly userId = signal<number>(
-    Number(sessionStorage.getItem('session_id')) || 0
-  );
+  projectsList = signal<ProjectDropdownResponse[]>([]);
+  salutationDropdown = signal<Salutation[]>([]);
+  sourcesList = signal<SourceWithName[]>([]);
+  sourceDetailedList = signal<SourceDetailWithName[]>([]);
+  allSalesExecutive = signal<SalesExecutiveDropdownResponse[]>([]);
+  allPaymentMode = signal<PaymentMode[]>([]);
+  allWingslist = signal<Wing[]>([]);
+  FloorUnitDropdown = signal<Floor[]>([]);
+  confiList = signal<UnitType[]>([]);
+  UnitNo = signal<FloorUnit[]>([]);
+  allTokenType = signal<TokenType[]>([]);
+  preferenceDropdown = signal<WebConfigWithFeet[]>([]);
+  allChannelPartnerList = signal<any[]>([]);
 
-  // State signals
-  readonly loading = signal<boolean>(false);
-  readonly tokenPaymentId = signal<number | null>(null);
-  readonly tokenID = signal<string | null>(null);
-  readonly elementData = signal<any>(null);
-
-  // Dropdown data signals
-  readonly projectsList = signal<ProjectDropdownResponse[]>([]);
-  readonly salutationDropdown = signal<Salutation[]>([]);
-  readonly allPaymentMode = signal<PaymentMode[]>([]);
-  readonly allTokenType = signal<TokenType[]>([]);
-  readonly FloorUnitDropdown = signal<Floor[]>([]);
-  readonly UnitNo = signal<FloorUnit[]>([]);
-  readonly allChannelPartnerList = signal<ChannelPartnerDropdownResponse[]>([]);
-  readonly sourcesList = signal<SourceWithName[]>([]);
-  readonly allSalesExecutive = signal<SalesExecutiveDropdownResponse[]>([]);
-  readonly sourceDetailedList = signal<SourceDetailWithName[]>([]);
-  readonly allWingslist = signal<Wing[]>([]);
-  readonly confiList = signal<UnitType[]>([]);
-  readonly preferenceDropdown = signal<WebConfigWithFeet[]>([]);
-
-  // Form
-  readonly addTokenForm = new FormGroup({
-    token_date: new FormControl(
-      this.pipe.transform(new Date(), 'yyyy-MM-dd'),
-      Validators.required
-    ),
-    project_id: new FormControl('', Validators.required),
-    user_id: new FormControl(this.userId()),
-    sales_executive_id: new FormControl(),
+  addTokenForm: FormGroup = new FormGroup({
+    token_id: new FormControl(''),
+    project_id: new FormControl('', [Validators.required]),
     project_enq_id: new FormControl(''),
-    token_type_id: new FormControl(null, Validators.required),
-    floor_id: new FormControl(''),
-    salution_id: new FormControl(''),
-    wing_id: new FormControl(''),
-    floor_unit_id: new FormControl(''),
-    unit_type: new FormControl(''),
-    first_name: new FormControl('', Validators.required),
+    user_id: new FormControl(''),
+    first_name: new FormControl('', [Validators.required]),
     middle_name: new FormControl(''),
-    last_name: new FormControl('', Validators.required),
-    preference_id: new FormControl(''),
-    token_amount: new FormControl('', [
-      Validators.required,
-      Validators.min(1),
-    ]),
-    unit_id: new FormControl(''),
-    source_detail_id: new FormControl(''),
-    project_configuration_id: new FormControl([]),
-
-    source_description: new FormControl(''),
+    last_name: new FormControl('', [Validators.required]),
+    email_id: new FormControl('', [Validators.required, Validators.email]),
     mob_no: new FormControl('', [
       Validators.required,
       Validators.pattern('^[0-9]{10}$'),
     ]),
-    email_id: new FormControl('', [Validators.required, Validators.email]),
-    comment: new FormControl('', Validators.required),
-    is_agreed: new FormControl(),
-    token_id: new FormControl(),
-    source_id: new FormControl(''),
+    token_date: new FormControl(new Date(), [Validators.required]),
+    token_type_id: new FormControl('', [Validators.required]),
+    wing_id: new FormControl(''),
+    floor_id: new FormControl(''),
+    unit_type: new FormControl(''),
+    floor_unit_id: new FormControl(''),
+    salution_id: new FormControl('', [Validators.required]),
+    project_configuration_id: new FormControl([], [Validators.required]),
+    token_amount: new FormControl('', [Validators.required, Validators.min(1)]),
+    source_id: new FormControl('', [Validators.required]),
+    source_detail_id: new FormControl(''),
     channel_partner_id: new FormControl(''),
+    source_description: new FormControl(''),
+    comment: new FormControl('', [Validators.required]),
+    is_agreed: new FormControl(false),
+    sales_executive_id: new FormControl('', [Validators.required]),
   });
 
-  isHighestTokenSelected(): boolean {
-    const selectedTokenId = this.addTokenForm.get('token_type_id')?.value;
-    if (!selectedTokenId) return false;
-
-    const selectedToken = this.allTokenType().find(
-      token => token.token_type_id === selectedTokenId
+  isHighestTokenSelected = computed(() => {
+    const selectedTypeId = this.tokenTypeId();
+    const selectedType = this.allTokenType().find(
+      (t) => t.token_type_id == selectedTypeId
     );
-
-    return selectedToken?.is_highest === 1;
-  }
-
-
-  readonly isSourceChannelPartner = computed(() => {
-    const sourceId = this.addTokenForm.get('source_id')?.value;
-    return String(sourceId) === '3';
+    return selectedType?.is_highest === 1;
   });
-
-  isSourceFieldsDisabled(): boolean {
-    return this.roleId !== 2;
-  }
-
-  readonly isEditMode = computed(() => !!this.tokenID());
 
   constructor() {
-    console.log(this.elementData);
-
     this.initializeComponent();
-    this.setupFormValueChanges();
   }
 
   private initializeComponent(): void {
-    // Get route params
+    if (this.dialogData) {
+      const { token_id, data } = this.dialogData;
+      this.tokenID.set(token_id);
+      if (data) {
+        this.elementData.set(data);
+        this.patchFormValues(data);
+      }
+    } else {
+      // Get route params
+      this.route.paramMap
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((params) => {
+          const tokenId = params.get('token_id');
+          this.tokenID.set(tokenId);
+        });
 
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        const tokenId = params.get('token_id');
-        this.tokenID.set(tokenId);
-      });
-
-    // Get state data
-    const stateData = history.state.data;
-    if (stateData) {
-      this.elementData.set(stateData);
-
-      this.fetchSingleEnquiry(stateData);
-      this.handleRoleBasedSalesExecutive();
-      this.disableRoleBasedFields();
+      // Get state data
+      const stateData = history.state.data;
+      if (stateData) {
+        this.elementData.set(stateData);
+        this.patchFormValues(stateData);
+      }
     }
 
-    // Load initial data
+    this.setupFormValueChanges();
     this.fetchInitialData();
     this.onPartnerSearch('', true);
 
     if (this.tokenID()) {
       this.fetchSingleToken();
+    } else if (this.elementData()) {
+      this.fetchSingleEnquiry(this.elementData());
     } else {
+      this.handleRoleBasedSalesExecutive();
       this.disableRoleBasedFields();
     }
   }
+
+  isSourceFieldsDisabled(): boolean {
+    return this.roleId !== 2 && !!this.tokenID();
+  }
+
   private fetchSingleEnquiry(stateData: any): void {
     this.loading.set(true);
     this.enquiryService
@@ -283,7 +266,6 @@ export class AddTokensComponent {
         next: (res: any) => {
           if (res) {
             this.patchFormValues(res);
-            this.handleRoleBasedSalesExecutive();
             if (res.channel_partner_id) {
               this.onPartnerSearch('', true, res.channel_partner_id);
             }
@@ -296,47 +278,55 @@ export class AddTokensComponent {
   }
 
   private patchFormValues(res: any): void {
-    const reraNoFromResponse = res.rera_no || res.rera || '';
+    this.addTokenForm.patchValue(
+      {
+        user_id: res.user_id,
+        project_id: res.project_id,
+        project_enq_id: res.project_enq_id,
+        first_name: res.first_name,
+        middle_name: res.middle_name,
+        last_name: res.last_name,
+        email_id: res.email_id,
+        mob_no: res.mobile_no || res.mob_no,
+        source_detail_id: res.source_detail_id,
+        source_description: res.source_description,
+        salution_id: res.salution_id || res.salutation_id,
+        project_configuration_id: Array.isArray(res.project_configuration_id)
+          ? res.project_configuration_id
+          : res.project_configuration_id
+            ? [res.project_configuration_id]
+            : [],
+        sales_executive_id:
+          this.roleId === 7 ? this.userId() : res.sales_executive_id,
+        comment: res.remark || res.comment,
+        source_id: res.source_id,
+        channel_partner_id: res.channel_partner_id,
+        token_date: res.token_date ? new Date(res.token_date) : new Date(),
+        token_type_id: res.token_type_id,
+        wing_id: res.wing_id,
+        floor_id: res.floor_id,
+        unit_type: res.unit_type,
+        floor_unit_id: res.floor_unit_id,
+        token_amount: res.token_amount,
+      },
+      { emitEvent: false }
+    );
 
+    if (res.token_type_id) {
+      this.tokenTypeId.set(res.token_type_id);
+    }
 
-    this.addTokenForm.patchValue({
-      user_id: res.user_id,
-      project_id: res.project_id,
-      project_enq_id: res.project_enq_id,
-      first_name: res.first_name,
-      middle_name: res.middle_name,
-      last_name: res.last_name,
-      email_id: res.email_id,
-      mob_no: res.mobile_no,
-      source_detail_id: res.source_detail_id,
-      source_description: res.source_description,
-      salution_id: res.salution_id || res.salutation_id,
-      project_configuration_id: Array.isArray(res.project_configuration_id)
-        ? res.project_configuration_id
-        : res.project_configuration_id
-          ? [res.project_configuration_id]
-          : [],
-      sales_executive_id: this.roleId === 7 ? this.userId() : res.sales_executive_id,
-      comment: res.remark, // Map remark to comment
-      source_id: res.source_id,
-      channel_partner_id: res.channel_partner_id,
-    }, { emitEvent: false }); // Prevent valueChanges from firing during initial patch
-
-    // Manually update validators after patch since emitEvent is false
     this.updateSourceValidators(res.source_id);
 
-    // Trigger dependent dropdowns
     if (res.project_id) {
       this.fetchAllWings(res.project_id);
       this.fetchAllSalesExecutive(res.project_id);
       this.fetchPreferenceDropdown(res.project_id);
+      this.setupTokenTypeHandler(res.project_id);
     }
-
-
+    this.handleRoleBasedSalesExecutive();
+    this.disableRoleBasedFields();
   }
-
-
-
 
   private fetchInitialData(): void {
     this.fetchAllProjects();
@@ -346,16 +336,6 @@ export class AddTokensComponent {
   }
 
   private setupFormValueChanges(): void {
-    const projectId = this.elementData()?.project_id;
-    if (projectId) {
-      this.setupTokenTypeHandler(projectId);
-      this.fetchAllWings(projectId);
-      this.fetchPreferenceDropdown(projectId);
-      this.fetchAllSalesExecutive(projectId);
-      this.resetDependentFields();
-      this.addTokenForm.get('project_id')?.disable();
-    }
-
     // Project changes
     this.addTokenForm
       .get('project_id')
@@ -427,7 +407,12 @@ export class AddTokensComponent {
           const floorID = this.addTokenForm.get('floor_id')?.value;
 
           if (projectID && wingID && floorID && unitType) {
-            this.fetchTokenFloorUnitDropdown(projectID, wingID, floorID, unitType);
+            this.fetchTokenFloorUnitDropdown(
+              projectID,
+              wingID,
+              floorID,
+              unitType
+            );
             this.addTokenForm.get('floor_unit_id')?.reset();
           }
           return of(unitType);
@@ -538,9 +523,7 @@ export class AddTokensComponent {
       .pipe(
         tap((res) => {
           this.allSalesExecutive.set(res);
-          if (this.roleId === 7) {
-            this.handleRoleBasedSalesExecutive();
-          }
+          this.handleRoleBasedSalesExecutive();
           this.cdr.markForCheck();
         }),
         catchError((err) => {
@@ -717,6 +700,7 @@ export class AddTokensComponent {
                 (t) => t.token_type_id == selectedId
               );
               if (selectedType) {
+                this.tokenTypeId.set(Number(selectedId));
                 this.addTokenForm.patchValue(
                   {
                     token_amount: String(selectedType.amount),
@@ -735,6 +719,7 @@ export class AddTokensComponent {
               (t) => t.token_type_id == currentTokenTypeId
             );
             if (existingType) {
+              this.tokenTypeId.set(Number(currentTokenTypeId));
               this.addTokenForm.patchValue(
                 {
                   token_amount: String(existingType.amount),
@@ -777,6 +762,12 @@ export class AddTokensComponent {
       unitTypeControl?.clearValidators();
       floorUnitIdControl?.clearValidators();
       configControl?.setValidators(Validators.required);
+      
+      // Reset values if not highest
+      wingIdControl?.reset();
+      floorIdControl?.reset();
+      unitTypeControl?.reset();
+      floorUnitIdControl?.reset();
     }
 
     wingIdControl?.updateValueAndValidity();
@@ -784,9 +775,10 @@ export class AddTokensComponent {
     unitTypeControl?.updateValueAndValidity();
     floorUnitIdControl?.updateValueAndValidity();
     configControl?.updateValueAndValidity();
+    
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
-
-
 
   onSubmit(): void {
     if (this.addTokenForm.invalid) {
@@ -805,12 +797,13 @@ export class AddTokensComponent {
       ...this.addTokenForm.getRawValue(),
       user_id: this.userId(),
       is_agreed: this.addTokenForm.getRawValue().is_agreed ? 1 : 0,
-      project_id:
-        this.elementData()?.project_id ||
-        this.addTokenForm.getRawValue().project_id,
+      token_date: this.pipe.transform(
+        this.addTokenForm.get('token_date')?.value,
+        'yyyy-MM-dd'
+      ),
     };
 
-    const apiUrl = formData.token_id
+    const apiUrl = this.tokenID()
       ? `${this.baseUrl}/edit_token`
       : `${this.baseUrl}/add_token`;
 
@@ -819,10 +812,12 @@ export class AddTokensComponent {
       .post<{ message: string; token_id: number }>(apiUrl, formData)
       .pipe(
         tap((res) => {
-          this.dialog.open(SuccessDialogComponent, {
-            data: { message: res.message },
-          });
-          this.tokenPaymentId.set(res.token_id);
+          this.snackBar.open(res.message, 'Close', { duration: 3000 });
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            this.tokenPaymentId.set(res.token_id);
+          }
           this.loading.set(false);
           this.cdr.markForCheck();
         }),
@@ -843,7 +838,7 @@ export class AddTokensComponent {
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach(control => {
+    Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
 
       if (control instanceof FormGroup) {
@@ -851,8 +846,6 @@ export class AddTokensComponent {
       }
     });
   }
-
-
 
   // ==================== Source Logic Helpers ====================
 
@@ -873,7 +866,11 @@ export class AddTokensComponent {
     sourceDetailControl?.updateValueAndValidity({ emitEvent: false });
   }
 
-  onPartnerSearch(searchText: string, loadInitialData?: boolean, channelPartnerId?: any): void {
+  onPartnerSearch(
+    searchText: string,
+    loadInitialData?: boolean,
+    channelPartnerId?: any
+  ): void {
     const trimmedSearch = searchText.trim();
 
     if (!loadInitialData && trimmedSearch.length <= 3) {

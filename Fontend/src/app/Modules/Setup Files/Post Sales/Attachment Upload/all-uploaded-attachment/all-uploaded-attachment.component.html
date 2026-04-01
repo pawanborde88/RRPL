@@ -1,19 +1,51 @@
 <app-template>
-
   <app-breadcrumb>
-    <li class="breadcrumb-item">After Sales</li>
-
-    <li class="breadcrumb-item active">File Upload</li>
+    <li class="breadcrumb-item ">After Sales</li>
+    <li class="breadcrumb-item active"> Document Upload</li>
   </app-breadcrumb>
-  <mat-card>
 
-    <mat-card-content>
+  <mat-accordion class="mb-3">
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="addAttachmentFilterForm">
+        <div class="row">
+          <!-- Project Dropdown -->
+          <div class="col-md-3">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+              displayKey="property_name" idKey="project_id" placeholder="Select Project" class="w-100">
+            </app-autocomplete-reusable-component>
+          </div>
 
-      <app-reusable-custom-table [loading]="loading" [actions]="bookingActions" [dataSource]="dataSource"
-        [displayedColumns]="bookingBills" [headerButtons]="headerButtons" [showFooter]="true"
-        [idProperty]="'project_unit_attachment_id'" (actionClick)="onBookingAction($event.action, $event.row)">
+          <!-- Wing Dropdown -->
+          <div class="col-md-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Select Wing</mat-label>
+              <mat-select formControlName="wing_id">
+                <mat-option *ngFor="let allwings of allWingsList()" [value]="allwings.wing_id">
+                  {{ allwings.wing_name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-      </app-reusable-custom-table>
-    </mat-card-content>
-  </mat-card>
+          <!-- Apply Filter Button -->
+          <div class="col-md-auto">
+            <button mat-raised-button color="primary" class="d-flex align-items-center"
+              [disabled]="!addAttachmentFilterForm.valid" (click)="applyFilters()">
+              <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_unit_attachment'"
+    [apiMethod]="'POST'" [apiPayload]="agGridPayload()" [headerButtons]="headerButtons" [actions]="attachmentActions"
+    [idProperty]="'project_unit_attachment_id'" (actionClick)="onAttachmentAction($event.action, $event.row)"
+    (rowSelected)="selectedAttachment.set($event)">
+  </app-configurable-ag-grid-data>
+
 </app-template>

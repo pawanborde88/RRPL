@@ -15,7 +15,6 @@ import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { ReciptBankMasterSComponent } from '../../Project Bank Master/Receipt Bank Master List/recipt-bank-master-s/recipt-bank-master-s.component';
-import { AddunitBankerComponent } from '../addunit-banker/addunit-banker.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { environment } from '../../../../../../environments/environment';
@@ -52,12 +51,10 @@ interface HeaderButton {
     ReactiveFormsModule,
     TruncatePipe,
     ActionColumnComponent,
-    
-    ReciptBankMasterSComponent,
 
-    AddunitBankerComponent,
+    ReciptBankMasterSComponent,
     AutocompleteReusableComponent,
-    IndianCurrencyPipe ,
+    IndianCurrencyPipe,
     ReusableTableComponent
   ],
   templateUrl: './all-unit-banker-list.component.html',
@@ -81,70 +78,64 @@ export class AllUnitBankerListComponent implements OnInit {
     private router: Router,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
-displayedColumns = [
-  {
-    key: 'actions',
-    label: 'Actions',
-    type: 'actions', // Make sure this is set to 'actions'
-    sticky: true, // boolean, not string
-    disabled: false, // Should be false to show actions
-  },  {
-    key: 'sr_no',
-    label: 'Sr.no',
-    type: 'index',
-  },  { key: 'project_name', label: 'Project Name' },
-  { key: 'wing_name', label: 'Wing' },
-  { key: 'floor_unit', label: 'Unit No' },
-  { key: 'applicant_name', label: 'Client Name' },
-  { key: 'applicant_mobile', label: 'Mobile No', type: 'sensitive' },
-  { key: 'applicant_email', label: 'Email ID', type: 'sensitive' },
+  displayedColumns = [
+    {
+      key: 'actions',
+      label: 'Actions',
+      type: 'actions', // Make sure this is set to 'actions'
+      sticky: true, // boolean, not string
+      disabled: false, // Should be false to show actions
+    }, {
+      key: 'sr_no',
+      label: 'Sr.no',
+      type: 'index',
+    }, { key: 'project_name', label: 'Project Name' },
+    { key: 'wing_name', label: 'Wing' },
+    { key: 'floor_unit', label: 'Unit No' },
+    { key: 'applicant_name', label: 'Client Name' },
+    { key: 'applicant_mobile', label: 'Mobile No', type: 'sensitive' },
+    { key: 'applicant_email', label: 'Email ID', type: 'sensitive' },
 
-  { key: 'banker_mobile_no', label: 'Banker Mobile ' },
-  { key: 'agreement_cost', label: 'Agreement Amt.', isAmount: true },
-  {
-    key: 'agreement_status',
-    label: 'Agreement Status',
-    applyChequeStatusColor: true,
-    colorCondition: (element: any) =>
-      element.agreement_status_id === 1 ? 'green' : 'red',
-  },
+    { key: 'agreement_cost', label: 'Agreement Amt.', isAmount: true },
+    {
+      key: 'agreement_status',
+      label: 'Agreement Status',
+      applyChequeStatusColor: true,
+      colorCondition: (element: any) =>
+        element.agreement_status_id === 1 ? 'green' : 'red',
+    },
 
-  { key: 'gst_per', label: 'GST %' },
-  { key: 'gst', label: 'GST Amt.', isAmount: true },
-  { key: 'sd_per', label: 'Stamp Duty %' },
-  { key: 'stamp_duty', label: 'Stamp Duty Amt.', isAmount: true },
-  { key: 'reg_per', label: 'Registration %' },
-  { key: 'reg', label: 'Reg. Amt.', isAmount: true },
-  { key: 'society_for', label: 'Society For. Charges', isAmount: true },
-  { key: 'legal', label: 'Legal Charges', isAmount: true },
-  { key: 'other_charges', label: 'Other Charges', isAmount: true },
-  { key: 'parking_charges', label: 'Parking Charges', isAmount: true },
-  { key: 'maintenance', label: 'Maintenance ', isAmount: true },
-  { key: 'package_total', label: 'Package Total', isAmount: true },
-  { key: 'sanction_amount', label: 'Sanction Amt.', isAmount: true },
-  { key: 'funding_amount', label: 'Funding Amt.', isAmount: true },
-  { key: 'own_contribution_agr', label: 'Own Contribution (Agr.)', isAmount: true },
-  { key: 'own_contribution_pack', label: 'Own Contribution (Packg.)', isAmount: true },
-  { key: 'banker_email', label: 'Banker Email' },
-  { key: 'banker_name', label: 'Banker Name' },
+    { key: 'gst_per', label: 'GST %' },
+    { key: 'gst', label: 'GST Amt.', isAmount: true },
 
-  { key: 'banker_type_name', label: 'Banker Type' },
-  { key: 'bank_name', label: 'Bank Name' },
-  { key: 'branch_name', label: 'Branch' },
-  { key: 'bank_login_date', label: 'Bank Login Date' },
-  { key: 'sanction_date', label: 'Sanction Date' },
-  { key: 'loan_status_name', label: 'Loan Status' },
-  { key: 'created_at', label: 'Created At', type: 'date' },
-];
+    { key: 'sanction_amount', label: 'Sanction Amt.', isAmount: true },
+    { key: 'funding_amount', label: 'Funding Amt.', isAmount: true },
+    { key: 'own_contribution_agr', label: 'Own Contribution (Agr.)', isAmount: true },
+    { key: 'own_contribution_pack', label: 'Own Contribution (Packg.)', isAmount: true },
+
+    { key: 'bank_name', label: 'Bank Name' },
+    { key: 'loan_status_name', label: 'Loan Status' },
+
+    { key: 'sanction_date', label: 'Sanction Date' },
+    { key: 'banker_type_name', label: 'Banker Type' },
+    { key: 'banker_name', label: 'Banker Name' },
+    { key: 'branch_name', label: 'Branch' },
+
+    { key: 'banker_email', label: 'Banker Email' },
+    { key: 'banker_mobile_no', label: 'Banker Mobile ' },
+
+
+    { key: 'created_at', label: 'Created At', type: 'date' },
+  ];
 
   storageUrl = environment.STORAGE_URL;
 
   columnKeys: string[] = this.displayedColumns.map((col) => col.key);
   ngOnInit(): void {
     this.fetchAllProjects();
-  
+
     this.bookingForm.get('project_id')?.valueChanges.subscribe((projectID) => {
       if (projectID) {
         this.fetchWings(projectID); // Corrected this line
@@ -185,7 +176,7 @@ displayedColumns = [
       .fetchUnitBanker(projectId, wingId)
       .subscribe({
         next: (res: any) => {
-                  this.dataSource = new MatTableDataSource(res);
+          this.dataSource = new MatTableDataSource(res);
 
           this.dataSource.data = res;
           this.loading = false;
@@ -229,9 +220,9 @@ displayedColumns = [
       case 'deleteBooking':
         this.deleteProject(row.unit_banker_id);
         break;
-        case 'downloadUnitBankerDoc':
-          this.openReceiptDialog(row);
-          break;
+      case 'downloadUnitBankerDoc':
+        this.openReceiptDialog(row);
+        break;
       default:
         break;
     }
@@ -304,51 +295,51 @@ displayedColumns = [
   }
   getColumnKeys(): string[] {
     return this.displayedColumns.map(col => col.key);
-}
+  }
   getTotal(columnKey: string): number {
     if (!this.dataSource?.data) return 0;
     return this.dataSource.data
-        .map(t => +t[columnKey] || 0)
-        .reduce((acc, value) => acc + value, 0);
-}
+      .map(t => +t[columnKey] || 0)
+      .reduce((acc, value) => acc + value, 0);
+  }
 
-headerButtons: HeaderButton[] = [
-  {
-    label: 'Add Unit Banker',
-    icon: 'drafts',
-    color: 'primary',
-    disabled: () => false,
-    action: () => this.resendEmail(),
-    show: () => true
-  },
-  
-];
-resendEmail(): void {
-  const dialogRef = this.dialog.open(UnitBankerComponent, {
-    minWidth: '70vw',
-    maxWidth: '50vh',
-    maxHeight: '100vh',
-  });
+  headerButtons: HeaderButton[] = [
+    {
+      label: 'Add Unit Banker',
+      icon: 'drafts',
+      color: 'primary',
+      disabled: () => false,
+      action: () => this.resendEmail(),
+      show: () => true
+    },
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.fetchAllUnitBankers();
-    }
-  });
-}
+  ];
+  resendEmail(): void {
+    const dialogRef = this.dialog.open(UnitBankerComponent, {
+      minWidth: '70vw',
+      maxWidth: '50vh',
+      maxHeight: '100vh',
+    });
 
-editUnitBanker(row: any): void {
-  const dialogRef = this.dialog.open(UnitBankerComponent, {
-    minWidth: '70vw',
-    maxWidth: '50vh',
-    maxHeight: '100vh',
-    data: { unit_banker_id: row.unit_banker_id }
-  });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.fetchAllUnitBankers();
+      }
+    });
+  }
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.fetchAllUnitBankers();
-    }
-  });
-}
+  editUnitBanker(row: any): void {
+    const dialogRef = this.dialog.open(UnitBankerComponent, {
+      minWidth: '70vw',
+      maxWidth: '50vh',
+      maxHeight: '100vh',
+      data: { unit_banker_id: row.unit_banker_id }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.fetchAllUnitBankers();
+      }
+    });
+  }
 }

@@ -19,16 +19,14 @@ import { TableRowData, TableColumn } from '../../../../reusable-table/reusable-t
       <span></span>
     } @else {
       <div class="photo-container">
-        @if (value(); as photoValue) {
           <img
-            [alt]="photoValue"
+            [alt]="value() || 'user'"
             [src]="imageSrc()"
             [class]="logo"
             [style.cursor]="isClickable() ? 'pointer' : 'default'"
             (click)="onImageClick($event)"
             loading="lazy"
           />
-        }
       </div>
     }
   `,
@@ -94,7 +92,7 @@ export class PhotoCellRendererComponent<T extends TableRowData = TableRowData> i
     const column = this.column();
 
     if (!photoValue) {
-      return column?.nullImage || 'assets/Images/dummy.png';
+      return column?.nullImage || 'assets/Images/user.png';
     }
 
     if (typeof photoValue === 'string' && (photoValue.startsWith('http://') || photoValue.startsWith('https://'))) {

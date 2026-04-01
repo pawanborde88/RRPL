@@ -8,4 +8,37 @@
   background-color: #f9f9f9;
   padding: 5px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.dialog-title {
+  color: #3f51b5;
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 15px;
+}
+
+.section-title {
+  color: #3f51b5;
+  font-weight: 500;
+  border-left: 4px solid #3f51b5;
+  padding-left: 10px;
+  margin: 15px 0;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 5px;
+}
+
+hr {
+  opacity: 0.1;
+  margin: 1.5rem 0;
+}
+
+mat-dialog-content {
+  max-height: 70vh;
+  margin-top: 10px;
 }

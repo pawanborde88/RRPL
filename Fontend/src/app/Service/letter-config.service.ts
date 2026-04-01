@@ -30,7 +30,9 @@ export interface LetterConfig {
   effective_date: string;
   project_id: number;
   bank_id: number | null;
-  html_content: string;
+  html_content: string | null;
+  html_file: string | null;
+  word_file: string | null;
   updated_by: number | null;
   created_by: number | null;
 }
@@ -65,8 +67,8 @@ export class LetterConfigService {
   }
 
   fetchLetterConfig(letterConfigId: number): Observable<LetterConfigResponse> {
-    return this.http.post<LetterConfigResponse>(`${this.baseUrl}/fetch_letter_config`, { 
-      letter_config_id: letterConfigId 
+    return this.http.post<LetterConfigResponse>(`${this.baseUrl}/fetch_letter_config`, {
+      letter_config_id: letterConfigId
     });
   }
 

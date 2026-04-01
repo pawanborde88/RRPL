@@ -27,6 +27,7 @@ import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/
 import { AuthService } from '../../../../../Service/auth.service';
 import { CommonService } from '../../../../../Service/common/common.service';
 import { ReceiptsService, type LetterType } from '../../Recovery/Recipts/receipts.service';
+import { DocxWorldviewDialog } from '../../../../../Common/Reusable/unified-document-dialog/docx-worldview-dialog/docx-worldview-dialog';
 
 @Component({
   selector: 'app-all-letter-generated-list',
@@ -44,6 +45,7 @@ import { ReceiptsService, type LetterType } from '../../Recovery/Recipts/receipt
     ConfigurableAgGridDataComponent,
 
     ActionColumnComponent,
+    DocxWorldviewDialog,
   ], templateUrl: './all-letter-generated-list.component.html',
   styleUrl: './all-letter-generated-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -156,7 +158,7 @@ export class AllLetterGeneratedListComponent implements OnInit {
     },
 
   ] as const;
-  
+
 
   // Computed signal for AG Grid payload
   readonly agGridPayload = computed(() => {
@@ -170,27 +172,6 @@ export class AllLetterGeneratedListComponent implements OnInit {
     return { filters };
   });
 
-  readonly bookingActions = [
-    {
-      action: 'OpenViewLadgerReport', // Must match what you check in onBookingAction
-      icon: 'visibility', // Material icon name
-      tooltip: 'View Ledger Report', // Tooltip text
-      color: 'primary', // Optional button color
-
-    },
-
-  ];
-  onBookingAction(action: string, row: any): void {
-    if (action === 'OpenViewLadgerReport') {
-      this.openAddEditFloorRiseDialog(row);
-    }
-    if (action === 'DeleteFloorRise') {
-      this.DeleteFloorRise(row.floor_rise_id);
-    }
-  }
-  DeleteFloorRise(floorRiseId: any): void {
-
-  }
 
 
 
@@ -258,6 +239,19 @@ export class AllLetterGeneratedListComponent implements OnInit {
   }
 
   openLetterConfigDialog(row: any): void {
+    if (row.letter_type_id === 5) {
+      this.dialog.open(DocxWorldviewDialog, {
+
+        maxWidth: '90vw',
+        maxHeight: '80vh',
+        panelClass: 'custom-dialog-container',
+        data: {
+          ...row
+        },
+      });
+      return;
+    }
+
     const dialogRef = this.dialog.open(UnifiedDocumentDialogComponent, {
       width: 'auto',
       height: 'auto',
@@ -354,18 +348,18 @@ export class AllLetterGeneratedListComponent implements OnInit {
   }
   onTokenAction(action: string, row: any): void {
     switch (action) {
-      
       case 'deleteToken':
         this.deleteTokens(row.letter_generation_id);
         break;
-        case 'letterConfig':
-          this.openLetterConfigDialog(row);
-          break;
-        case 'addToken':
-          this.openAddBookingVisitorDialog(row);
-          break;
-       
-      
+      case 'letterConfig':
+        this.openLetterConfigDialog(row);
+        break;
+      case 'addToken':
+        this.openAddBookingVisitorDialog(row);
+        break;
+      case 'viewLedger':
+        this.openAddEditFloorRiseDialog(row);
+        break;
     }
   }
   deleteTokens(Id: any): void {
@@ -412,9 +406,12 @@ export class AllLetterGeneratedListComponent implements OnInit {
       tooltip: 'Letter ',
       color: 'primary',
     },
-
-
-
+    // {
+    //   action: 'viewLedger',
+    //   icon: 'visibility',
+    //   tooltip: 'View Ledger Report',
+    //   color: 'accent',
+    // }
   ];
 
 }

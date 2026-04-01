@@ -49,6 +49,7 @@ export class AllEnquiryStore {
     // ==================== STATE SIGNALS ====================
     readonly loading = signal<boolean>(false);
     readonly showClaimedEnquiries = signal<boolean>(false);
+    readonly isLoadAuthorized = signal<boolean>(false);
     readonly selectedBookings = signal<any[]>([]);
 
     // Dropdown Data
@@ -262,6 +263,9 @@ export class AllEnquiryStore {
 
     updateSelectedBookings(bookings: any[]) {
         this.selectedBookings.set(bookings);
+    }
+    setReady(isReady: boolean = true) {
+        this.isLoadAuthorized.set(isReady);
     }
 
     updateLoading(isLoading: boolean) {

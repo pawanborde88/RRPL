@@ -10,7 +10,8 @@ import {
   effect,
   DestroyRef,
   OnInit,
-  signal
+  signal,
+  computed
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -24,9 +25,8 @@ import { TemplateComponent } from '../../template/template.component';
 import { DocumentDialogData } from './unified-document-dialog.interfaces';
 import { UnifiedDocumentDialogStore } from './unified-document-dialog.store';
 
-// Import jsPDF and html2canvas
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// Import PDF Generator Service
+import { PdfGeneratorService } from './pdf-generator.service';
 
 const PRINT_IFRAME_CLEANUP_DELAY_MS = 100;
 
@@ -54,6 +54,7 @@ export class UnifiedDocumentDialogComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly ngZone = inject(NgZone);
+  public readonly pdfService = inject(PdfGeneratorService);
   public readonly dialogRef = inject(MatDialogRef<UnifiedDocumentDialogComponent>);
   public readonly data = inject<DocumentDialogData>(MAT_DIALOG_DATA);
 
@@ -65,8 +66,15 @@ export class UnifiedDocumentDialogComponent implements OnInit {
   private readonly LOGO_CONFIG = { maxWidth: 150, maxHeight: 80 };
   private readonly PRINT_CONFIG = { cleanupDelay: 1000, printDelay: 100 };
 
-  // Track PDF generation state
-  isGeneratingPDF = false;
+  // PDF viewer state
+  readonly pdfBlobUrl = signal<string | null>(null);
+  readonly viewMode = signal<'html' | 'pdf'>('html');
+  readonly isPdfViewReady = signal(false);
+  readonly isPdfView = computed(() => this.viewMode() === 'pdf');
+
+  // Bridge service signals to template
+  readonly isGeneratingPDF = this.pdfService.isGeneratingPDF;
+  readonly pdfProgress = this.pdfService.pdfProgress;
 
   constructor() {
     effect(() => {
@@ -78,8 +86,17 @@ export class UnifiedDocumentDialogComponent implements OnInit {
 
     this.destroyRef.onDestroy(() => {
       if (this.imageAdjustmentFrameId !== null) cancelAnimationFrame(this.imageAdjustmentFrameId);
+      this.pdfService.cancelGeneration();
+      const url = this.pdfBlobUrl();
+      if (url) URL.revokeObjectURL(url);
+      this.pdfBlobUrl.set(null);
       this.store.clearOutput();
     });
+  }
+
+  /** Call from template to cancel long-running PDF generation. */
+  cancelPdfGeneration(): void {
+    this.pdfService.cancelGeneration();
   }
 
   ngOnInit(): void {
@@ -211,112 +228,103 @@ export class UnifiedDocumentDialogComponent implements OnInit {
     this.printAfterImagesLoaded(iframe, doc);
   }
 
-  async downloadPDF(): Promise<void> {
-    if (!this.receiptContainerRef?.nativeElement || this.isGeneratingPDF) {
-      return;
+  /** Generate PDF and open it in the built-in PDF viewer. */
+  async openInPdfViewer(): Promise<void> {
+    try {
+      const blob = await this.generatePdfBlob(true);
+      if (!blob) return;
+
+      const url = this.pdfBlobUrl();
+      if (url) URL.revokeObjectURL(url);
+
+      this.pdfBlobUrl.set(URL.createObjectURL(blob));
+      this.viewMode.set('pdf');
+      this.isPdfViewReady.set(false);
+      this.cdr.markForCheck();
+    } catch (error) {
+      this.onPdfLoadError();
     }
+  }
 
-    this.isGeneratingPDF = true;
+
+
+  onPdfLoaded(): void {
+    this.isPdfViewReady.set(true);
     this.cdr.markForCheck();
+  }
 
-    // Yield so "Generating..." is painted before blocking work
-    await new Promise<void>((r) => setTimeout(r, 0));
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+  onPdfLoadError(): void {
+    this.isPdfViewReady.set(false);
+    this.snackBar.open('Failed to load PDF in viewer.', 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-snackbar']
+    });
+    this.cdr.markForCheck();
+  }
 
-    const element = this.receiptContainerRef.nativeElement;
+  switchToHtmlView(): void {
+    this.viewMode.set('html');
+    this.cdr.markForCheck();
+  }
+
+  /** Public method to get DEMAND_LETTER PDF blob for email (e.g. send_demand_by_email). */
+  async getPdfBlobForEmail(): Promise<Blob | null> {
+    return this.generatePdfBlob(true);
+  }
+
+  private async generatePdfAndCloseForEmail(): Promise<void> {
+    const blob = await this.getPdfBlobForEmail();
+    if (blob) {
+      this.dialogRef.close({
+        pdfBlob: blob,
+        project_id: this.store.projectId(),
+        demand_id: this.data.demand_id
+      });
+    } else {
+      this.dialogRef.close();
+    }
+  }
+
+  /** Returns PDF as Blob or null on error. Set forViewer true for in-dialog viewer; false for direct download. */
+  private async generatePdfBlob(forViewer = false): Promise<Blob | null> {
+    const chunks = this.store.processedPageChunks();
+    if (!chunks.length) return null;
+
     const title = this.store.dialogTitle();
+    const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.pdf`;
 
-    this.ngZone.runOutsideAngular(async () => {
-      await new Promise<void>((r) => setTimeout(r, 0));
-      const s = (globalThis as any).scheduler;
-      if (typeof s?.yield === 'function') await s.yield();
-      try {
-        const options = {
-          scale: 1.25,
-          useCORS: true,
-          logging: false,
-          backgroundColor: '#ffffff',
-          imageTimeout: 8000,
-          onclone: (_doc: Document, clonedEl: HTMLElement) => this.applyPdfCloneStyles(clonedEl)
-        };
+    try {
+      const result = await this.pdfService.generatePdf(chunks, {
+        fileName,
+        forViewer,
+        scale: 2, // Retain high quality for production
+        imageQuality: 0.9,
+        imageTimeout: 15000 // Extended for large documents
+      });
 
-        const canvas = await html2canvas(element, options as any);
-
-        const imgData = await new Promise<string>((resolve, reject) => {
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error('toBlob failed'));
-                return;
-              }
-              const fr = new FileReader();
-              fr.onload = () => resolve(fr.result as string);
-              fr.onerror = () => reject(fr.error);
-              fr.readAsDataURL(blob);
-            },
-            'image/jpeg',
-            0.95
-          );
-        });
-
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        let position = 0;
-        let heightLeft = imgHeight;
-
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-
-        while (heightLeft > 0) {
-          await new Promise<void>((r) => setTimeout(r, 0));
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
-          heightLeft -= pdfHeight;
-        }
-
-        const fileName = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.pdf`;
-        pdf.save(fileName);
-
-        this.ngZone.run(() => {
-          this.isGeneratingPDF = false;
-          this.cdr.markForCheck();
-          this.snackBar.open('PDF downloaded successfully!', 'Close', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top'
-          });
-        });
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        this.ngZone.run(() => {
-          this.isGeneratingPDF = false;
-          this.cdr.markForCheck();
-          this.snackBar.open('Error generating PDF. Please try again.', 'Close', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-            panelClass: ['error-snackbar']
-          });
+      if (!forViewer && result === null && !this.pdfService.isGeneratingPDF()) {
+        this.snackBar.open('PDF downloaded successfully!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
         });
       }
-    });
+
+      return result;
+    } catch (error) {
+      console.error('UnifiedDocumentDialog PDF Generation Error:', error);
+      this.snackBar.open('Error generating PDF. Please try again.', 'Close', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
+      return null;
+    }
   }
 
-  private applyPdfCloneStyles(el: HTMLElement): void {
-    Object.assign(el.style, {
-      width: '210mm',
-      padding: '20mm',
-      boxSizing: 'border-box',
-      backgroundColor: '#ffffff',
-      overflow: 'hidden'
-    });
-  }
 
   private adjustPrintLogos(doc: Document): void {
     doc.querySelectorAll<HTMLImageElement>('img.document-logo').forEach(img => {

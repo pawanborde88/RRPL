@@ -8,30 +8,34 @@
 
         <!-- CUSTOMER DETAILS (Edit Mode) -->
         <div class="w-full mb-6" *ngIf="isEditMode() && unitBankerDisplayData()">
-            <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Details</h3>
+            <h5 class="text-xl font-semibold text-gray-800 mb-4">Customer Details</h5>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                     <label class="block text-sm font-medium text-gray-600 mb-2">Project Name</label>
-                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.project_name || 'N/A' }}</p>
+                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.project_name || 'N/A'
+                        }}</p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                     <label class="block text-sm font-medium text-gray-600 mb-2">Wing Name</label>
-                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.wing_name || 'N/A' }}</p>
+                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.wing_name || 'N/A' }}
+                    </p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                     <label class="block text-sm font-medium text-gray-600 mb-2">Floor Unit</label>
-                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.floor_unit || 'N/A' }}</p>
+                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.floor_unit || 'N/A' }}
+                    </p>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
                     <label class="block text-sm font-medium text-gray-600 mb-2">Applicant Name</label>
-                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.applicant_name || 'N/A' }}</p>
+                    <p class="text-base font-semibold text-gray-900">{{ unitBankerDisplayData()?.applicant_name || 'N/A'
+                        }}</p>
                 </div>
             </div>
         </div>
 
         <!-- PROJECT DETAILS (Create Mode) -->
         <div class="row" *ngIf="!isEditMode()">
-            <h3>Select Project Details</h3>
+            <h5>Select Project Details</h5>
             <div class="col-md-4">
                 <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
                     displayKey="property_name" idKey="project_id" placeholder="Select Project">
@@ -41,7 +45,8 @@
                 <mat-form-field appearance="outline" class="w-100">
                     <mat-label>Select Wing</mat-label>
                     <mat-select formControlName="wing_id">
-                        <mat-option *ngFor="let allwings of allWingslist(); trackBy: trackByWingId" [value]="allwings.wing_id">
+                        <mat-option *ngFor="let allwings of allWingslist(); trackBy: trackByWingId"
+                            [value]="allwings.wing_id">
                             {{ allwings.wing_name }}
                         </mat-option>
                     </mat-select>
@@ -59,34 +64,36 @@
         <div class="row mt-3">
             <!-- UNIT DETAILS - col-md-4 -->
             <div class="col-md-12">
-                <h3>Area Details</h3>
+                <h5>Area Details</h5>
                 <div class="row">
                     <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Agreement Amount</mat-label>
-                        <input matInput appAmount formControlName="agreement_amt" readonly placeholder="Enter Unit No" />
+                        <input matInput appAmount formControlName="agreement_amt" readonly
+                            placeholder="Enter Unit No" />
                     </mat-form-field>
-                
+
                     <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>GST Amt. %</mat-label>
                         <input matInput appAmount formControlName="gst_amt" readonly placeholder="Enter GST Amount" />
                     </mat-form-field>
-                
-                
+
+
                     <mat-form-field appearance="outline" class="col-md-4">
                         <mat-label>Sanction Amount</mat-label>
                         <input matInput appAmount formControlName="sanction_amount">
                     </mat-form-field>
-                
+
                     <mat-form-field appearance="outline" class="col-md-4">
                         <mat-label>Funding Amount</mat-label>
                         <input matInput appAmount type="number" formControlName="funding_amount">
                     </mat-form-field>
-                
+
                     <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Own Contribution (Agreement)</mat-label>
-                        <input matInput appAmount readonly type="number" readonly class="readonly-input" formControlName="own_contribution_agr">
+                        <input matInput appAmount readonly type="number" readonly class="readonly-input"
+                            formControlName="own_contribution_agr">
                     </mat-form-field>
-                
+
                     <!-- <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Own Contribution (Package)</mat-label>
                         <input matInput type="number" readonly class="readonly-input" formControlName="own_contribution_pack">
@@ -95,29 +102,31 @@
             </div>
 
             <!-- BANKER INFO - col-md-4 -->
-           
+
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h3>Bank Details</h3>
+                <h5>Bank Details</h5>
                 <div class="row">
                     <div class="col-md-4">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Banker Type</mat-label>
                             <mat-select formControlName="banker_type_id">
-                                <mat-option *ngFor="let type of allBankerTypeList(); trackBy: trackByBankerTypeId" [value]="type.banker_type_id">
+                                <mat-option *ngFor="let type of allBankerTypeList(); trackBy: trackByBankerTypeId"
+                                    [value]="type.banker_type_id">
                                     {{ type.banker_type }}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
                     <div class="col-md-4">
-                       
-                        <app-autocomplete-reusable-component class="col-md-4"  [options]="preferredBankDropdown()" formControlName="bank_id"
-                        displayKey="preferred_bank" idKey="preferred_bank_id" placeholder="Select Bank">
-                    </app-autocomplete-reusable-component>
+
+                        <app-autocomplete-reusable-component class="col-md-4" [options]="preferredBankDropdown()"
+                            formControlName="bank_id" displayKey="preferred_bank" idKey="preferred_bank_id"
+                            placeholder="Select Bank">
+                        </app-autocomplete-reusable-component>
                     </div>
-               
+
                     <div class="col-md-4">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Sanction Date</mat-label>
@@ -138,7 +147,7 @@
                             <input matInput type="email" formControlName="banker_email">
                         </mat-form-field>
                     </div>
-                       <div class="col-md-4">
+                    <div class="col-md-4">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Banker Mobile No.</mat-label>
                             <input matInput type="tel" formControlName="banker_mobile_no">
@@ -154,13 +163,14 @@
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Loan Status</mat-label>
                             <mat-select formControlName="loan_status_id">
-                                <mat-option *ngFor="let status of allLoanStatusList(); trackBy: trackByLoanStatusId" [value]="status.loan_status_id">
+                                <mat-option *ngFor="let status of allLoanStatusList(); trackBy: trackByLoanStatusId"
+                                    [value]="status.loan_status_id">
                                     {{ status.loan_staus }}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
-                 
+
                     <div class="col-md-4">
                         <mat-form-field appearance="outline" class="w-100">
                             <mat-label>Remark</mat-label>

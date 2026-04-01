@@ -242,16 +242,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     disabled: false,
     section: 'system',
   },
-  {
-    routerLink: '/placeholder-tag-setup/all-hashtagplacehodler',
-    icon: 'tag',
-    label: 'Placeholder Tag Setup',
-    description: 'Manage Placeholder Tag Setup',
-    color: '#1976d2',
-    requiredPermission: '224',
-    disabled: false,
-    section: 'system',
-  },
+
 ] as const;
 
 /**

@@ -4,13 +4,10 @@ import {
   OnInit,
   ViewChild,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   computed,
   signal,
-  effect,
   inject,
   DestroyRef,
-  AfterViewInit,
 } from '@angular/core';
 import {
   FormControl,
@@ -23,52 +20,37 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../../Common/breadcrumb/breadcrumb.component';
-import {
-  ReusableTableComponent,
-  TableRowData,
-} from '../../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../../Pipes/truncate.pipe';
+import { ConfigurableAgGridDataComponent } from '../../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import type { TableColumn, TableRowData } from '../../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { environment } from '../../../../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FetchFunctionsService } from '../../../../../../Service/fetch-functions.service';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { AddbookingBillComponent } from '../../../../../Channel Partner Meetings/addbooking-bill/addbooking-bill.component';
 import { AddCPBillPaymentDialogComponent } from '../../add-cpbill-payment-dialog/add-cpbill-payment-dialog.component';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ApprovalLevelDialogComponent } from '../../../CP Bill Approved/approval-level-dialog/approval-level-dialog.component';
 import { CpBillApprovedLogComponent } from '../cp-bill-approved-log/cp-bill-approved-log.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  BehaviorSubject,
   EMPTY,
   Observable,
-  Subject,
   combineLatest,
   of,
 } from 'rxjs';
 import {
   catchError,
-  debounceTime,
-  distinctUntilChanged,
-  exhaustMap,
-  filter,
-  finalize,
   map,
   shareReplay,
-  startWith,
-  switchMap,
   tap,
 } from 'rxjs/operators';
+import { ReceiptPreviewDialogComponent } from '../../../../Post Sales/Recovery/receipt-preview-dialog/receipt-preview-dialog.component';
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
-interface BookingBill extends TableRowData {
+interface BookingBill extends Record<string, unknown> {
   booking_bill_id: number;
   bill_date: string;
   project_name: string;
@@ -132,441 +114,90 @@ type TabIndex = 0 | 1 | 2;
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
-    ReusableTableComponent,
+    ConfigurableAgGridDataComponent,
   ],
   templateUrl: './all-cppayout.component.html',
   styleUrl: './all-cppayout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DatePipe],
 })
-export class AllCPPayoutComponent implements OnInit, AfterViewInit {
-  // ============================================================================
-  // Dependency Injection
-  // ============================================================================
+export class AllCPPayoutComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
-  private readonly fetchService = inject(FetchFunctionsService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
 
-  // ============================================================================
-  // Constants
-  // ============================================================================
+  @ViewChild(ConfigurableAgGridDataComponent) agGridTable!: ConfigurableAgGridDataComponent;
+
   readonly baseUrl = environment.API_URL;
   readonly storageUrl = environment.STORAGE_URL;
-  readonly pipe = new DatePipe('en-US');
   readonly roleId = Number(sessionStorage.getItem('role_id')) || 0;
   readonly userId = Number(sessionStorage.getItem('session_id')) || 0;
 
-  // ============================================================================
-  // Signals for Reactive State Management
-  // ============================================================================
-  readonly selectedBooking = signal<BookingBill | null>(null);
+  readonly loading = signal<boolean>(false);
+  readonly selectedBooking = signal<BookingBill[]>([]);
   readonly selectedTabIndex = signal<TabIndex>(0);
   readonly bookingID = signal<number>(0);
 
-  // Loading states
-  readonly loading = signal({
-    pendingApproval: false,
-    pendingPayment: false,
-    paidBills: false,
-  });
-
-  // Data sources
-  readonly pendingApprovalDataSource = signal(
-    new MatTableDataSource<BookingBill>([])
-  );
-  readonly pendingPaymentDataSource = signal(
-    new MatTableDataSource<BookingBill>([])
-  );
-  readonly paidBillsDataSource = signal(
-    new MatTableDataSource<BookingBill>([])
-  );
-
-  // Dropdown data with caching
   readonly projectsList = signal<Project[]>([]);
   readonly approvalLevels = signal<ApprovalLevel[]>([]);
+  private readonly formValues = signal<Record<string, any>>({});
 
-  // ============================================================================
-  // ViewChild References
-  // ============================================================================
-  @ViewChild('pendingApprovalPaginator')
-  pendingApprovalPaginator!: MatPaginator;
-  @ViewChild('pendingPaymentPaginator')
-  pendingPaymentPaginator!: MatPaginator;
-  @ViewChild('paidBillsPaginator')
-  paidBillsPaginator!: MatPaginator;
+  private projects$: Observable<Project[]> | null = null;
+  private approvalLevels$: Observable<ApprovalLevel[]> | null = null;
 
-  // ============================================================================
-  // Form Group
-  // ============================================================================
   readonly bookingForm = new FormGroup({
     project_id: new FormControl<number | null>(null, Validators.required),
     approval_level_id: new FormControl<number | null>(null),
     bill_status_id: new FormControl<number | null>(null),
   });
 
-  // ============================================================================
-  // RxJS Subjects for Reactive Streams
-  // ============================================================================
-  private readonly searchTrigger$ = new Subject<void>();
-  private readonly tabChange$ = new Subject<TabIndex>();
-
-  // ============================================================================
-  // Computed Signals
-  // ============================================================================
-  readonly hasSelectedBooking = computed(() => this.selectedBooking() !== null);
-  readonly isPendingApprovalTab = computed(() => this.selectedTabIndex() === 0);
-  readonly isPendingPaymentTab = computed(() => this.selectedTabIndex() === 1);
-  readonly isPaidBillsTab = computed(() => this.selectedTabIndex() === 2);
-
-  // ============================================================================
-  // Cached Observables (shareReplay for performance)
-  // ============================================================================
-  private projects$: Observable<Project[]> | null = null;
-  private approvalLevels$: Observable<ApprovalLevel[]> | null = null;
-  // ============================================================================
-  // Lifecycle Hooks
-  // ============================================================================
-  ngOnInit(): void {
-    this.initializeRouteParams();
-    this.initializeReactiveStreams();
-    this.fetchInitialData();
-  }
-
-  ngAfterViewInit(): void {
-    this.connectPaginators();
-  }
-
-  // ============================================================================
-  // Initialization Methods
-  // ============================================================================
-  private initializeRouteParams(): void {
-    this.route.params
-      .pipe(
-        map((params) => Number(params['booking_id']) || 0),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((bookingId) => {
-        this.bookingID.set(bookingId);
-        this.cdr.markForCheck();
-      });
-  }
-
-  private initializeReactiveStreams(): void {
-    // Debounced search trigger
-    this.searchTrigger$
-      .pipe(
-        debounceTime(300),
-        exhaustMap(() => this.fetchCurrentTabData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
-
-    // Tab change handler with lazy loading
-    this.tabChange$
-      .pipe(
-        distinctUntilChanged(),
-        tap((tabIndex) => {
-          this.selectedTabIndex.set(tabIndex);
-          this.selectedBooking.set(null);
-          this.cdr.markForCheck();
-        }),
-        exhaustMap(() => this.fetchCurrentTabData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
-  }
-
-  private connectPaginators(): void {
-    // Use setTimeout to ensure ViewChild references are available
-    setTimeout(() => {
-      const pendingApprovalData = this.pendingApprovalDataSource();
-      const pendingPaymentData = this.pendingPaymentDataSource();
-      const paidBillsData = this.paidBillsDataSource();
-
-      if (this.pendingApprovalPaginator) {
-        pendingApprovalData.paginator = this.pendingApprovalPaginator;
-      }
-      if (this.pendingPaymentPaginator) {
-        pendingPaymentData.paginator = this.pendingPaymentPaginator;
-      }
-      if (this.paidBillsPaginator) {
-        paidBillsData.paginator = this.paidBillsPaginator;
-      }
-      this.cdr.markForCheck();
-    }, 0);
-  }
-
-  private fetchInitialData(): void {
-    // Fetch dropdowns in parallel
-    combineLatest([this.fetchAllProjects(), this.fetchApprovalLevels()])
-      .pipe(
-        catchError((err) => {
-          console.error('Error fetching initial data:', err);
-          this.showError('Unable to fetch initial data.');
-          return EMPTY;
-        }),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
-  }
-
-  // ============================================================================
-  // Public Methods - User Interactions
-  // ============================================================================
-  onTabChange(event: MatTabChangeEvent): void {
-    const tabIndex = event.index as TabIndex;
-    this.tabChange$.next(tabIndex);
-  }
-
-  searchCPPayout(): void {
-    if (!this.bookingForm.get('project_id')?.value) {
-      this.snackBar.open('Please select a project first.', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
-    this.searchTrigger$.next();
-  }
-
-  // ============================================================================
-  // Private Helper Methods
-  // ============================================================================
-  private fetchCurrentTabData(): Observable<BookingBill[]> {
-    const tabIndex = this.selectedTabIndex();
-    switch (tabIndex) {
-      case 0:
-        return this.fetchPendingApprovalBills();
-      case 1:
-        return this.fetchPendingPaymentBills();
-      case 2:
-        return this.fetchPaidBills();
-      default:
-        return of([]);
-    }
-  }
-
-  private updateLoadingState(
-    tab: 'pendingApproval' | 'pendingPayment' | 'paidBills',
-    isLoading: boolean
-  ): void {
-    this.loading.update((state) => ({
-      ...state,
-      [tab]: isLoading,
-    }));
-    this.cdr.markForCheck();
-  }
-
-  private updateDataSource(
-    tab: 'pendingApproval' | 'pendingPayment' | 'paidBills',
-    data: BookingBill[]
-  ): void {
-    const newDataSource = new MatTableDataSource<BookingBill>(data);
-    let paginator: MatPaginator | null = null;
-
-    switch (tab) {
-      case 'pendingApproval':
-        paginator = this.pendingApprovalPaginator;
-        this.pendingApprovalDataSource.set(newDataSource);
-        break;
-      case 'pendingPayment':
-        paginator = this.pendingPaymentPaginator;
-        this.pendingPaymentDataSource.set(newDataSource);
-        break;
-      case 'paidBills':
-        paginator = this.paidBillsPaginator;
-        this.paidBillsDataSource.set(newDataSource);
-        break;
-    }
-
-    if (paginator) {
-      newDataSource.paginator = paginator;
-    }
-    this.cdr.markForCheck();
-  }
-
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-    });
-  }
-
-  // ============================================================================
-  // Data Fetching Methods - Optimized with RxJS
-  // ============================================================================
-  private fetchPendingApprovalBills(): Observable<BookingBill[]> {
-    this.updateLoadingState('pendingApproval', true);
-
-    const payload = {
-      ...this.bookingForm.value,
+  // Computed API payloads per tab – request shape: { filters: { ... }, search, offset, limit } (offset/limit added by grid)
+  // 1st tab: approval_level_id null, bill_status_id null, payment_status_id 0
+  readonly apiPayloadPendingApproval = computed(() => {
+    const values = this.formValues();
+    const filters: Record<string, number | null> = {
       bill_status_id: null,
+      approval_level_id: null,
+
     };
+    if (values['project_id'] != null) filters['project_id'] = values['project_id'];
+    return { filters };
+  });
 
-    return this.http
-      .post<ApiResponse<BookingBill[]>>(
-        `${this.baseUrl}/fetch_all_booking_bill`,
-        payload
-      )
-      .pipe(
-        map((res) => res.data || []),
-        tap((data) => {
-          this.updateDataSource('pendingApproval', data);
-          this.updateLoadingState('pendingApproval', false);
-        }),
-        catchError((err) => {
-          console.error('Error fetching pending approval bills:', err);
-          this.updateLoadingState('pendingApproval', false);
-          this.showError('Unable to fetch pending approval bills.');
-          return of([]);
-        })
-      );
-  }
-  private fetchPendingPaymentBills(): Observable<BookingBill[]> {
-    this.updateLoadingState('pendingPayment', true);
-
-    const payload = {
-      project_id: this.bookingForm.get('project_id')?.value,
-      approval_level_id: this.bookingForm.get('approval_level_id')?.value,
-      bill_status_id: this.bookingForm.get('bill_status_id')?.value,
+  // 2nd tab: project_id, approval_level_id null, bill_status_id null, payment_status_id 0
+  readonly apiPayloadPendingPayment = computed(() => {
+    const values = this.formValues();
+    const filters: Record<string, number | null> = {
+      approval_level_id: null,
+      bill_status_id: null,
       payment_status_id: 0,
     };
+    if (values['project_id'] != null) filters['project_id'] = values['project_id'];
+    return { filters };
+  });
 
-    return this.http
-      .post<ApiResponse<BookingBill[]>>(
-        `${this.baseUrl}/fetch_all_booking_bill`,
-        payload
-      )
-      .pipe(
-        map((res) => res.data || []),
-        tap((data) => {
-          this.updateDataSource('pendingPayment', data);
-          this.updateLoadingState('pendingPayment', false);
-        }),
-        catchError((err) => {
-          console.error('Error fetching pending payment bills:', err);
-          this.updateLoadingState('pendingPayment', false);
-          this.showError('Unable to fetch pending payment bills.');
-          return of([]);
-        })
-      );
-  }
-
-  private fetchPaidBills(): Observable<BookingBill[]> {
-    this.updateLoadingState('paidBills', true);
-
-    const payload = {
+  // 3rd tab: booking_id null, bill_status_id 1, payment_status_id 1
+  readonly apiPayloadPaidBills = computed(() => {
+    const values = this.formValues();
+    const filters: Record<string, number | null> = {
       booking_id: null,
       bill_status_id: 1,
       payment_status_id: 1,
     };
+    if (values['project_id'] != null) filters['project_id'] = values['project_id'];
+    return { filters };
+  });
 
-    return this.http
-      .post<ApiResponse<BookingBill[]>>(
-        `${this.baseUrl}/fetch_all_booking_bill`,
-        payload
-      )
-      .pipe(
-        map((res) => res.data || []),
-        tap((data) => {
-          this.updateDataSource('paidBills', data);
-          this.updateLoadingState('paidBills', false);
-        }),
-        catchError((err) => {
-          console.error('Error fetching paid bills:', err);
-          this.updateLoadingState('paidBills', false);
-          this.showError('Unable to fetch paid bills.');
-          return of([]);
-        })
-      );
-  }
-
-  private fetchAllProjects(): Observable<Project[]> {
-    // Return cached observable if available
-    if (this.projects$) {
-      return this.projects$;
-    }
-
-    const payload = {
-      user_id:  this.userId,
-    };
-
-    this.projects$ = this.http
-      .post<Project[]>(`${this.baseUrl}/user_project_dropdown`, payload)
-      .pipe(
-        tap((projects) => {
-          this.projectsList.set(projects || []);
-          this.cdr.markForCheck();
-        }),
-        catchError((err) => {
-          console.error('Error fetching projects:', err);
-          this.showError('Unable to fetch projects.');
-          return of([]);
-        }),
-        shareReplay(1) // Cache the result
-      );
-
-    return this.projects$;
-  }
-
-  private fetchApprovalLevels(): Observable<ApprovalLevel[]> {
-    // Return cached observable if available
-    if (this.approvalLevels$) {
-      return this.approvalLevels$;
-    }
-
-    this.approvalLevels$ = this.http
-      .get<ApiResponse<ApprovalLevel[]>>(`${this.baseUrl}/fetch_approval_levels`)
-      .pipe(
-        map((res) => res.data || []),
-        tap((levels) => {
-          this.approvalLevels.set(levels);
-          this.cdr.markForCheck();
-        }),
-        catchError((err) => {
-          console.error('Error fetching approval levels:', err);
-          this.showError('Unable to fetch approval levels.');
-          return of([]);
-        }),
-        shareReplay(1) // Cache the result
-      );
-
-    return this.approvalLevels$;
-  }
-
-  // ============================================================================
-  // Selection Handling
-  // ============================================================================
-  onSelectedBookingChange(checked: boolean, booking: BookingBill): void {
-    if (checked) {
-      this.selectedBooking.set(booking);
-    } else {
-      const current = this.selectedBooking();
-      if (current?.booking_bill_id === booking.booking_bill_id) {
-        this.selectedBooking.set(null);
-      }
-    }
-    this.cdr.markForCheck();
-  }
-  // ============================================================================
-  // Column Definitions - Memoized for Performance
-  // ============================================================================
-  readonly bookingBillsColumns = [
+  readonly bookingBillsColumns: TableColumn<BookingBill>[] = [
     {
       key: 'actions',
       label: 'Actions',
       type: 'actions',
       sticky: true,
       disabled: false,
-    },
-    {
-      key: 'sr_no',
-      label: 'Sr. No',
-      type: 'index',
     },
     { key: 'bill_no', label: 'Bill No' },
     { key: 'bill_date', label: 'Bill Date', type: 'short_date' },
@@ -593,12 +224,7 @@ export class AllCPPayoutComponent implements OnInit, AfterViewInit {
     { key: 'paid_bill_amount', label: 'Paid Bill Amount' },
     { key: 'payment_remark', label: 'Payment Remark' },
     { key: 'sales_executive', label: 'Executive' },
-    {
-      key: 'attachment',
-      label: 'Attachment',
-      type: 'attachment',
-      nullImage: 'assets/Images/null_image.png',
-    },
+
     { key: 'source', label: 'Source' },
     { key: 'firm_name', label: 'Firm' },
     { key: 'remark', label: 'Bill Remark' },
@@ -606,9 +232,8 @@ export class AllCPPayoutComponent implements OnInit, AfterViewInit {
     { key: 'updated_by_name', label: 'Updated By' },
     { key: 'created_at', label: 'Created At', type: 'date' },
     { key: 'updated_at', label: 'Updated At', type: 'date' },
-  ] as const;
+  ];
 
-  // Computed actions based on role
   readonly bookingActions = computed(() => [
     {
       action: 'CpBillApprovedLog',
@@ -617,27 +242,23 @@ export class AllCPPayoutComponent implements OnInit, AfterViewInit {
       color: 'primary' as const,
       show: () => [1, 2, 4].includes(this.roleId),
     },
+    {
+      action: 'attachmentReceipt',
+      icon: 'attach_file',
+      tooltip: 'View Attachment',
+      color: 'primary',
+      disabled: false,
+    },
   ]);
 
-  onBookingAction(action: string, row: BookingBill): void {
-    if (action === 'CpBillApprovedLog') {
-      this.openCpBillApprovedLogDialog(row);
-    }
-  }
-
-  // ============================================================================
-  // Computed Header Buttons - Reactive to State Changes
-  // ============================================================================
   readonly headerButtons = computed(() => {
-    const selectedBooking = this.selectedBooking();
     const tabIndex = this.selectedTabIndex();
-
     return [
       {
         label: 'Level Approval',
         icon: 'stairs_2',
         color: 'primary' as const,
-        disabled: () => !selectedBooking,
+        disabled: () => this.selectedBooking().length === 0,
         action: () => this.changeApprovalDialog(),
         show: () => tabIndex === 0,
       },
@@ -645,16 +266,140 @@ export class AllCPPayoutComponent implements OnInit, AfterViewInit {
         label: 'Add Payment Bill',
         icon: 'add_circle',
         color: 'primary' as const,
-        disabled: () => !selectedBooking,
+        disabled: () => this.selectedBooking().length === 0,
         action: () => this.changeStatusDialog(),
         show: () => tabIndex === 1,
       },
     ];
   });
 
-  // ============================================================================
-  // Dialog Methods - Optimized with RxJS
-  // ============================================================================
+  ngOnInit(): void {
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        this.bookingID.set(Number(params['booking_id']) || 0);
+      });
+
+    this.bookingForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateFormValues());
+
+    this.fetchInitialData();
+  }
+
+  private updateFormValues(): void {
+    this.formValues.set(this.bookingForm.value ?? {});
+  }
+
+  private fetchInitialData(): void {
+    combineLatest([this.fetchAllProjects(), this.fetchApprovalLevels()])
+      .pipe(
+        catchError((err) => {
+          console.error('Error fetching initial data:', err);
+          this.showError('Unable to fetch initial data.');
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
+
+  searchCPPayout(): void {
+    if (!this.bookingForm.get('project_id')?.value) {
+      this.snackBar.open('Please select a project first.', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+    this.updateFormValues();
+    this.agGridTable?.refreshData();
+  }
+
+  onTabChange(event: MatTabChangeEvent): void {
+    this.selectedTabIndex.set(event.index as TabIndex);
+    this.selectedBooking.set([]);
+    this.agGridTable?.refreshData();
+  }
+
+  onBookingSelectionChange(checked: boolean, row: TableRowData): void {
+    if (checked) {
+      this.selectedBooking.set([row as BookingBill]);
+    } else {
+      this.selectedBooking.set([]);
+    }
+  }
+
+  onRowSelected(rows: TableRowData[]): void {
+    this.selectedBooking.set(rows as BookingBill[]);
+  }
+
+  onBookingAction(action: string, row: TableRowData): void {
+    const booking = row as BookingBill;
+    if (action === 'CpBillApprovedLog') {
+      this.openCpBillApprovedLogDialog(booking);
+    }
+    if (action === 'attachmentReceipt') {
+      this.viewAttachment(booking);
+    }
+  }
+  viewAttachment(bookingData: BookingBill): void {
+    if (!bookingData?.attachment) {
+      this.snackBar.open('Attachment not found', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    const fileUrl = `${this.storageUrl}/${bookingData.attachment}`;
+
+    this.dialog.open(ReceiptPreviewDialogComponent, {
+      width: '80%',
+      maxWidth: '900px',
+      data: {
+        title: 'Receipt Details',
+        fileUrl: fileUrl,
+      },
+    });
+  }
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000 });
+  }
+
+  private fetchAllProjects(): Observable<Project[]> {
+    if (this.projects$) return this.projects$;
+    this.projects$ = this.http
+      .post<Project[]>(`${this.baseUrl}/user_project_dropdown`, {
+        user_id: this.userId,
+      })
+      .pipe(
+        tap((projects) => this.projectsList.set(projects || [])),
+        catchError((err) => {
+          console.error('Error fetching projects:', err);
+          this.showError('Unable to fetch projects.');
+          return of([]);
+        }),
+        shareReplay(1)
+      );
+    return this.projects$;
+  }
+
+  private fetchApprovalLevels(): Observable<ApprovalLevel[]> {
+    if (this.approvalLevels$) return this.approvalLevels$;
+    this.approvalLevels$ = this.http
+      .get<ApiResponse<ApprovalLevel[]>>(`${this.baseUrl}/fetch_approval_levels`)
+      .pipe(
+        map((res) => res.data || []),
+        tap((levels) => this.approvalLevels.set(levels)),
+        catchError((err) => {
+          console.error('Error fetching approval levels:', err);
+          this.showError('Unable to fetch approval levels.');
+          return of([]);
+        }),
+        shareReplay(1)
+      );
+    return this.approvalLevels$;
+  }
+
   openCpBillApprovedLogDialog(row?: BookingBill): void {
     const dialogRef = this.dialog.open(CpBillApprovedLogComponent, {
       width: '600px',
@@ -666,93 +411,53 @@ export class AllCPPayoutComponent implements OnInit, AfterViewInit {
 
     dialogRef
       .afterClosed()
-      .pipe(
-        filter((result: unknown) => !!result),
-        exhaustMap(() => this.fetchCurrentTabData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) this.agGridTable?.refreshData();
+      });
   }
 
   changeStatusDialog(): void {
-    const selectedBooking = this.selectedBooking();
-    if (!selectedBooking) {
+    const selected = this.selectedBooking()[0];
+    if (!selected) {
       this.showError('Please select a booking first.');
       return;
     }
 
     const dialogRef = this.dialog.open(AddCPBillPaymentDialogComponent, {
       width: '40vw',
-      data: selectedBooking,
+      data: selected,
     });
 
     dialogRef
       .afterClosed()
-      .pipe(
-        filter((result: unknown) => !!result),
-        exhaustMap(() => this.fetchCurrentTabData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) this.agGridTable?.refreshData();
+      });
   }
 
   changeApprovalDialog(): void {
-    const selectedBooking = this.selectedBooking();
-    if (!selectedBooking) {
+    const selected = this.selectedBooking()[0];
+    if (!selected) {
       this.showError('Please select a booking first.');
       return;
     }
 
     const dialogRef = this.dialog.open(ApprovalLevelDialogComponent, {
       width: '500px',
-      data: {
-        currentStatus: selectedBooking,
-      },
+      data: { currentStatus: selected },
     });
 
     dialogRef
       .afterClosed()
-      .pipe(
-        filter((result: unknown) => !!result),
-        exhaustMap(() => this.fetchCurrentTabData()),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
-  }
-
-  // ============================================================================
-  // TrackBy Functions for Performance
-  // ============================================================================
-  trackByBookingBillId(_index: number, item: BookingBill): number {
-    return item.booking_bill_id;
-  }
-
-  trackByProjectId(_index: number, item: Project): number {
-    return item.project_id;
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result) this.agGridTable?.refreshData();
+      });
   }
 
   trackByApprovalLevelId(_index: number, item: ApprovalLevel): number {
     return item.approval_level_id;
-  }
-
-  // ============================================================================
-  // Template Helper Methods for Type Safety
-  // ============================================================================
-  getSelectedItemsArray(): BookingBill[] {
-    const selected = this.selectedBooking();
-    return selected ? [selected] : [];
-  }
-
-  onSelectedItemsChange(items: TableRowData[]): void {
-    const firstItem = items[0] as BookingBill | undefined;
-    this.selectedBooking.set(firstItem || null);
-  }
-
-  onCheckboxChange(checked: boolean, row: TableRowData): void {
-    this.onSelectedBookingChange(checked, row as BookingBill);
-  }
-
-  onActionClick(action: string, row: TableRowData): void {
-    this.onBookingAction(action, row as BookingBill);
   }
 }

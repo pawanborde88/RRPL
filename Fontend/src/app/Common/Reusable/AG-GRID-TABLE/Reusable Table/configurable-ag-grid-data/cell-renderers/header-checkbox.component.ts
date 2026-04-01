@@ -9,19 +9,18 @@ import { IHeaderParams } from 'ag-grid-community';
   imports: [CommonModule],
   template: `
     <div class="header-checkbox-container">
-      <div class="form-check">
-        <input 
-          #checkboxInput
-          class="form-check-input" 
-          type="checkbox" 
-          [checked]="checked"
-          (change)="onCheckboxChange($any($event.target).checked)">
-      </div>
+      <input 
+        #checkboxInput
+        type="checkbox" 
+        [checked]="checked"
+        (change)="onCheckboxChange($any($event.target).checked)">
     </div>
   `,
   styles: [`
     :host {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       height: 100%;
     }
@@ -29,28 +28,40 @@ import { IHeaderParams } from 'ag-grid-community';
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      margin: 0;
     }
-    .form-check {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .form-check-input {
-      width: 16px;
-      height: 16px;
-      margin: 0;
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
       cursor: pointer;
-      flex-shrink: 0;
+      margin: 0;
+      border: 2px solid #0d4678;
+      border-radius: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
     }
-    .form-check-input:indeterminate {
+    input[type="checkbox"]:checked {
       background-color: #0d4678;
-      border-color: #0d4678;
+    }
+    input[type="checkbox"]:checked::after {
+      content: '✔';
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      top: -2px;
+      left: 2px;
+    }
+    input[type="checkbox"]:indeterminate {
+      background-color: #0d4678;
+    }
+    input[type="checkbox"]:indeterminate::after {
+      content: '-';
+      position: absolute;
+      color: white;
+      font-size: 20px;
+      top: -6px;
+      left: 4px;
+      font-weight: bold;
     }
   `]
 })
@@ -82,9 +93,10 @@ export class HeaderCheckboxComponent implements IHeaderAngularComp, AfterViewIni
     this.isProcessing = true;
 
     try {
-      const context = (this.params as any).context;
-      const facade = context?.facade;
-      const idProperty = context?.idProperty || 'id';
+      const p = this.params as any;
+      const context = p.context;
+      const facade = p.facade || context?.facade;
+      const idProperty = p.idProperty || context?.idProperty || 'id';
 
       // Update local state immediately to keep UI in sync with click
       this.checked = checked;
@@ -92,16 +104,19 @@ export class HeaderCheckboxComponent implements IHeaderAngularComp, AfterViewIni
       this.updateIndeterminateState();
 
       if (checked) {
-        if (facade) {
-          facade.selectAll(idProperty);
+        if (facade && typeof facade.selectPage === 'function') {
+          facade.selectPage(idProperty);
         } else {
-          console.error('HeaderCheckbox: Facade not found in context!');
+          console.error('HeaderCheckbox: selectPage method not found on facade!', facade);
+          // Fallback to basic API if facade fails
+          this.params.api.selectAll();
         }
       } else {
-        if (facade) {
-          facade.deselectAll();
+        if (facade && typeof facade.deselectPage === 'function') {
+          facade.deselectPage(idProperty);
         } else {
-          console.error('HeaderCheckbox: Facade not found in context!');
+          console.error('HeaderCheckbox: deselectPage method not found on facade!', facade);
+          this.params.api.deselectAll();
         }
       }
     } catch (e) {
@@ -131,7 +146,8 @@ export class HeaderCheckboxComponent implements IHeaderAngularComp, AfterViewIni
     // Only check rows on the current page for much better performance
     for (let i = startRow; i < endRow; i++) {
       const node = api.getDisplayedRowAtIndex(i);
-      if (node && node.data && !node.rowPinned) {
+      // Skip rows that are pinned or are just placeholders for unloaded data
+      if (node && node.data && !node.rowPinned && !node.data.__isPlaceholder) {
         totalPageRows++;
         if (node.isSelected()) {
           selectedPageRows++;

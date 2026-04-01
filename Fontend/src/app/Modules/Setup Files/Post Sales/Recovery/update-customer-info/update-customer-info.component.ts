@@ -28,16 +28,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { MatTableDataSource } from '@angular/material/table';
-import { 
-  catchError, 
-  distinctUntilChanged, 
-  filter, 
-  finalize, 
-  of, 
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  of,
   Subject,
-  switchMap, 
+  switchMap,
   takeUntil,
-  tap 
+  tap
 } from 'rxjs';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AadharcardNoformatDirective } from '../../../../../Common/directives/Aadhar/aadharcard-noformat.directive';
@@ -89,6 +89,7 @@ interface ApplicantFormValue {
   pan_no: string;
   aadhar_no: string;
   dob: Date | null;
+  gender: number | null;
   anniversary_date: Date | null;
   current_address: string;
   permanent_address: string;
@@ -154,7 +155,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
   readonly currentUnitID = signal<number | null>(null);
   readonly currentBookingID = signal<number | null>(null);
   readonly currentProjectID = signal<number | null>(null);
-   readonly roleId = signal(Number(sessionStorage.getItem('role_id')) || 0);
+  readonly roleId = signal(Number(sessionStorage.getItem('role_id')) || 0);
 
   // Computed signals
   readonly hasData = computed(() => this.dataSource().data.length > 0);
@@ -380,7 +381,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
     for (let i = 0; i < applicantsToShow; i++) {
       const applicantData = applicants[i];
       const newForm = this.createApplicantForm();
-      
+
       newForm.patchValue({
         applicant_id: applicantData.applicant_id || null,
         booking_id: bookingIdToUse,
@@ -396,11 +397,12 @@ export class UpdateCustomerInfoComponent implements OnInit {
         pan_no: applicantData.pan_no || '',
         aadhar_no: applicantData.aadhar_no || '',
         dob: applicantData.dob ? new Date(applicantData.dob) : null,
+        gender: applicantData.gender || null,
         anniversary_date: applicantData.anniversary_date ? new Date(applicantData.anniversary_date) : null,
         current_address: applicantData.current_address || '',
         permanent_address: applicantData.permanent_address || ''
       });
-      
+
       this.applicants.push(newForm);
     }
 
@@ -448,6 +450,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
       pan_no: new FormControl<string>('', [Validators.pattern(PAN_PATTERN)]),
       aadhar_no: new FormControl<string>(''),
       dob: new FormControl<Date | null>(null),
+      gender: new FormControl<number | null>(null),
       anniversary_date: new FormControl<Date | null>(null),
       current_address: new FormControl<string>(''),
       permanent_address: new FormControl<string>(''),
@@ -469,8 +472,8 @@ export class UpdateCustomerInfoComponent implements OnInit {
     firstApplicant.markAllAsTouched();
 
     const firstApplicantValue = firstApplicant.value;
-    if (!firstApplicantValue.first_name?.trim() || !firstApplicantValue.last_name?.trim() || 
-        !firstApplicantValue.mobile_no || !firstApplicantValue.email_id) {
+    if (!firstApplicantValue.first_name?.trim() || !firstApplicantValue.last_name?.trim() ||
+      !firstApplicantValue.mobile_no || !firstApplicantValue.email_id) {
       this.showSnackBar('Please fill all required fields for the first applicant', 'error');
       return;
     }
@@ -504,6 +507,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
         pan_no: formValue.pan_no || '',
         aadhar_no: formValue.aadhar_no || '',
         dob: this.formatDate(formValue.dob) || undefined,
+        gender: formValue.gender || undefined,
         anniversary_date: this.formatDate(formValue.anniversary_date) || undefined,
         current_address: formValue.current_address || '',
         permanent_address: formValue.permanent_address || '',
@@ -519,7 +523,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
         finalize(() => this.loading.set(false)),
         catchError((err) => {
           console.error('Error updating applicants:', err);
-          const errorMessage = err.error?.message || 
+          const errorMessage = err.error?.message ||
             (err.status === 0 ? 'Network error - please check your connection' : 'Failed to update applicants');
           this.showSnackBar(errorMessage, 'error');
           return of({ success: false, message: errorMessage });
@@ -594,7 +598,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
           // Check if user confirmed the deletion
           // Dialog returns { confirmed: true, reason?: string } or { confirmed: false }
           const isConfirmed = result === true || (result && (result as any).confirmed === true);
-          
+
           if (!isConfirmed) {
             // User cancelled or closed dialog without confirming
             return;
@@ -602,7 +606,7 @@ export class UpdateCustomerInfoComponent implements OnInit {
 
           // User confirmed, proceed with deletion
           this.loading.set(true);
-          
+
           this.bookingService.deleteApplicant(applicantId)
             .pipe(
               takeUntil(this.destroy$),

@@ -4,22 +4,17 @@
   </app-breadcrumb>
 
 
-  <form [formGroup]="myForm" class="row mt-2">
+  <form [formGroup]="myForm" class="row ">
     <app-autocomplete-reusable-component class="col-md-4" [options]="projectsList" formControlName="project_id"
       displayKey="property_name" idKey="project_id" placeholder="Select Project">
     </app-autocomplete-reusable-component>
   </form>
 
-  <div *ngIf="!loading && (dataSource?.data?.length ?? 0) === 0" class="no-data-message">
-    No brokerages data available
-  </div>
 
   <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
     [actions]="projectActions" [showFooter]="true" (actionClick)="onProjectAction($event.action, $event.row)"
     [headerButtons]="headerButtons">
   </app-reusable-custom-table>
-
-
 
 
 </app-template>

@@ -18,7 +18,15 @@ import { UpdateFloorUnitComponent } from '../update-floor-unit/update-floor-unit
 import { ChangeFloorUnitStatusComponent } from '../change-floor-unit-status/change-floor-unit-status.component';
 import { CommonService } from '../../../../Service/common/common.service';
 import { TableColumn } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
-
+import { AuthService } from '../../../../Service/auth.service';
+interface BookingAction {
+  action: string;
+  icon: string;
+  tooltip: string;
+  color?: string;
+  disabled?: boolean;
+  show: () => boolean;
+}
 @Component({
   selector: 'app-all-floor-units',
   standalone: true,
@@ -44,17 +52,25 @@ export class AllFloorUnitsComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
 
   roleId = Number(sessionStorage.getItem('role_id'));
   userId = Number(sessionStorage.getItem('session_id'));
-  
+
   projectsList: any[] = [];
   allWingslist: any[] = [];
   bookingStatusList: any[] = [];
   selectedFloorUnits: any[] = [];
-  
+
   filterForm!: FormGroup;
   columnDefinitions: TableColumn[] = [
+    {
+      key: 'actions',
+      label: 'Actions',
+      type: 'actions',
+      sticky: true,
+      disabled: false,
+    },
     { key: 'floor_unit_id', label: 'Floor Unit ID' },
     { key: 'wing_name', label: 'Wing' },
     { key: 'floor_id', label: 'Floor No' },
@@ -123,6 +139,7 @@ export class AllFloorUnitsComponent implements OnInit {
     { key: 'west_side_details', label: 'West Side Details' },
     { key: 'updated_by', label: 'Updated By' },
     { key: 'updated_at', label: 'Updated At', type: 'date' },
+    { key: 'created_at', label: 'Created At', type: 'date' },
     { key: 'created_by_name', label: 'Created By' },
     { key: 'updated_by_name', label: 'Updated By' },
   ];
@@ -137,16 +154,17 @@ export class AllFloorUnitsComponent implements OnInit {
       color: 'primary',
       disabled: () => this.selectedFloorUnits.length === 0,
       action: () => this.updateFloorUnitStatus(),
-      show: () => this.hasOnlyRoles([1, 2,14]),
+      show: () => this.hasPermission('431'),
+
     },
-      {
+    {
       label: 'Delete Floor Unit',
       icon: 'delete', // Add appropriate icon
       color: 'warn',
       disabled: () => this.selectedFloorUnits.length === 0,
       action: () => this.deleteFloorUnits(),
-      show: () => this.hasOnlyRoles([1, 2]),
-  
+      show: () => this.hasPermission('432'),
+
     },
     {
       label: 'Update Floor Unit',
@@ -154,8 +172,8 @@ export class AllFloorUnitsComponent implements OnInit {
       color: 'primary',
       disabled: () => false,
       action: () => this.updateImportFloorUnit(),
-      show: () => this.hasOnlyRoles([1, 2]),
-  
+      show: () => this.hasPermission('433'),
+
     },
     {
       label: 'Upload Floor Unit',
@@ -163,9 +181,19 @@ export class AllFloorUnitsComponent implements OnInit {
       color: 'primary',
       disabled: () => false,
       action: () => this.openImportFloorUnit(),
-      show: () => this.hasOnlyRoles([1, 2]),
-      
-  
+      show: () => this.hasPermission('434'),
+
+
+    },
+    {
+      label: 'Add Floor Plan',
+      icon: 'add_plus', // Add appropriate icon
+      color: 'primary',
+      disabled: () => false,
+      action: () => this.openAddEditFloorPlan('add'),
+      show: () => this.hasPermission('435'),
+
+
     },
     // {
     //   label: 'Add Floor Unit',
@@ -174,9 +202,29 @@ export class AllFloorUnitsComponent implements OnInit {
     //   disabled: () => false,
     //   action: () => this.openAddEditFloorUnit('add'),
     //   show: () => this.hasOnlyRoles([1, 2]),
-  
+
     // }
   ];
+  readonly hasPermission = (permission: string): boolean =>
+    this.authService.hasPermission(permission);
+
+  readonly hasOnlyRoles = (allowedRoles: number[]): boolean =>
+    this.authService.hasOnlyRoles(allowedRoles);
+  actions = [
+    {
+      action: 'edit',
+      icon: 'edit_note',
+      tooltip: 'Edit Floor Plan',
+      color: 'primary',
+      show: () => this.hasPermission('435'),
+    },
+  ];
+
+  onBookingAction(action: string, row: any): void {
+    if (action === 'edit') {
+      this.openAddEditFloorPlan('edit', row);
+    }
+  }
   getAgGridApiPayload(): any {
     if (!this.filterForm) {
       return {
@@ -188,7 +236,7 @@ export class AllFloorUnitsComponent implements OnInit {
         filters: {},
       };
     }
-    
+
     const formValue = this.filterForm.value;
     return {
       offset: 0,
@@ -260,14 +308,8 @@ export class AllFloorUnitsComponent implements OnInit {
   }
 
   private readonly roleData = sessionStorage.getItem('role_id');
-  
-  hasOnlyRoles(allowedRoles: number[]): boolean {
-    if (!this.roleData) return false;
-    // Assume roleData is a comma-separated string of role ids, e.g. "1,2,3"
-    const userRoles = this.roleData.split(',').map(role => Number(role.trim()));
-    // Return true if the user has at least one of the allowed roles
-    return userRoles.some(role => allowedRoles.includes(role));
-  }
+
+
 
   fetchAllWings(selectedProjectId: number): void {
     this.commonService.fetchWingDropdown(selectedProjectId).subscribe({
@@ -353,7 +395,7 @@ export class AllFloorUnitsComponent implements OnInit {
 
 
 
-  openAddEditFloorUnit(action: string, row?: any): void {
+  openAddEditFloorPlan(action: string, row?: any): void {
     const dialogRef = this.dialog.open(AddFloorUnitsComponent, {
       minWidth: '50vw',
       maxWidth: '50vh',
@@ -386,12 +428,12 @@ export class AllFloorUnitsComponent implements OnInit {
 
       data: {
         for: 'Floor-unit',
-        API_URL:`import_floor_unit`,
-      }, 
+        API_URL: `import_floor_unit`,
+      },
     });
 
     dialogRef.afterClosed().subscribe({
-      next: (res: any) => {},
+      next: (res: any) => { },
       error: (err: any) => {
         console.error('Error uploading applicant:', err);
         this.snackBar.open('An error occurred, please try later', 'Close', {
@@ -401,15 +443,15 @@ export class AllFloorUnitsComponent implements OnInit {
       },
     });
   }
-    updateImportFloorUnit() {
+  updateImportFloorUnit() {
     let dialogRef = this.dialog.open(UpdateFloorUnitComponent, {
       width: '500px', // Adjust width as needed
       disableClose: true,
-   
+
     });
 
     dialogRef.afterClosed().subscribe({
-      next: (res: any) => {},
+      next: (res: any) => { },
       error: (err: any) => {
         console.error('Error uploading applicant:', err);
         this.snackBar.open('An error occurred, please try later', 'Close', {

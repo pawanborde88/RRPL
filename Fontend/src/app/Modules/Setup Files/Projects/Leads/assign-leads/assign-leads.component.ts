@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { environment } from '../../../../../../environments/environment';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -47,34 +47,38 @@ export class AssignLeadsComponent implements OnInit {
     private http: HttpClient,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any, // Injected dialog data
     private dialogRef: MatDialogRef<AssignLeadsComponent> // Reference to the dialog
   ) { }
 
   ngOnInit(): void {
     console.log(this.data);
-    this.fetchAllProjects();
+    Promise.resolve().then(() => {
+      this.fetchAllProjects();
 
-    // Set initial values for dropdowns with default project_id
-    const defaultProjectId = this.data?.rowData?.[0]?.project_id;
-    if (defaultProjectId) {
-      if (this.data.for === 'leadAssign') {
-        this.fetchSalesExcutives(defaultProjectId);
-        this.leadAssignForm.get('project_id')?.disable();
-      } else {
-        this.fetchalltelecallerList(defaultProjectId);
-        this.leadAssignForm.get('project_id')?.enable();
-      }
-    }
-
-    this.leadAssignForm.get('project_id')?.valueChanges.subscribe((projectID) => {
-      if (projectID) {
+      // Set initial values for dropdowns with default project_id
+      const defaultProjectId = this.data?.rowData?.[0]?.project_id;
+      if (defaultProjectId) {
         if (this.data.for === 'leadAssign') {
-          this.fetchSalesExcutives(projectID);
+          this.fetchSalesExcutives(defaultProjectId);
+          this.leadAssignForm.get('project_id')?.disable();
         } else {
-          this.fetchalltelecallerList(projectID);
+          this.fetchalltelecallerList(defaultProjectId);
+          this.leadAssignForm.get('project_id')?.enable();
         }
       }
+
+      this.leadAssignForm.get('project_id')?.valueChanges.subscribe((projectID) => {
+        if (projectID) {
+          if (this.data.for === 'leadAssign') {
+            this.fetchSalesExcutives(projectID);
+          } else {
+            this.fetchalltelecallerList(projectID);
+          }
+        }
+      });
+      this.cdr.detectChanges();
     });
   }
 
@@ -106,6 +110,7 @@ export class AssignLeadsComponent implements OnInit {
           ...item,
           full_name: `${item.first_name} ${item.last_name}`,
         }));
+        this.cdr.detectChanges();
       },
       error: () => {
         this.snackBar.open('Unable to fetch source details.', 'Close', {
@@ -121,6 +126,7 @@ export class AssignLeadsComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           this.allSalesExecutive = res;
+          this.cdr.detectChanges();
         },
         error: (err: any) => {
           console.error(err);
@@ -149,7 +155,7 @@ export class AssignLeadsComponent implements OnInit {
         remark: this.leadAssignForm.get('remark')?.value,
       };
     } else {
-      const telecallerValue = this.leadAssignForm.get('telecaller_id')?.value;
+      const telecallerValue = this.roleId === 13 ? this.userId : this.leadAssignForm.get('telecaller_id')?.value;
       payload = {
         project_id: this.data?.rowData?.[0]?.property_id,
         project_lead_id: this.leadAssignForm.get('project_lead_id')?.value,

@@ -1,34 +1,33 @@
-<app-template>
-    <app-breadcrumb>
-        <li class="breadcrumb-item"><a routerLink="/setup/sales-tokens">All Tokens</a></li>
-        <li class="breadcrumb-item active">Pay Manually</li>
+<h2 mat-dialog-title class="m-0">Pay Token Manually
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
 
 
-    </app-breadcrumb>
-
-    <mat-card>
+<div mat-dialog-content>
+    <mat-card class="m-0 shadow-none">
         <mat-card-content>
             <form [formGroup]="upgradeTokens" class="row">
 
-
-                <app-autocomplete-reusable-component [options]="projectsList" class="col-md-2"
+                <app-autocomplete-reusable-component [options]="projectsList" class="col-md-4"
                     formControlName="project_id" displayKey="property_name" idKey="project_id"
                     placeholder="Select Project">
                 </app-autocomplete-reusable-component>
-                <mat-form-field appearance="outline" class="col-md-2">
+
+                <mat-form-field appearance="outline" class="col-md-4">
                     <mat-label>Select Token Type</mat-label>
-                    <mat-select formControlName="token_type_id" [disabled]="!upgradeTokens.get('project_id')?.value">
+                    <mat-select formControlName="token_type_id">
                         <mat-option *ngFor="let tokenType of allTokenType" [value]="tokenType.token_type_id">
                             {{ tokenType.token_type }}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
 
-
                 <ng-container *ngIf="isHighestTokenSelected()">
-                    <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-form-field appearance="outline" class="col-md-4">
                         <mat-label>Select Wing</mat-label>
-                        <mat-select formControlName="wing_id" [disabled]="!upgradeTokens.get('project_id')?.value">
+                        <mat-select formControlName="wing_id">
                             <mat-option *ngFor="let wing of allWingslist" [value]="wing.wing_id">
                                 {{ wing.wing_name }}
                             </mat-option>
@@ -38,77 +37,43 @@
                         </mat-error>
                     </mat-form-field>
 
-                    <!-- <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Select Floor</mat-label>
-                        <mat-select formControlName="floor_id">
-                            <mat-option *ngFor="let floor of FloorUnitDropdown" [value]="floor.floor_id">
-                                {{ floor.floor_name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field> -->
-
-                    <!-- <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Unit Type</mat-label>
-                        <mat-select formControlName="unit_type" [disabled]="!confiList.length">
-                            <mat-option *ngFor="let item of confiList" [value]="item.unit_type">
-                                {{ item.unit_type }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field> -->
-                    <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly ">
+                    <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Unit Type</mat-label>
                         <input matInput readonly formControlName="unit_type" />
                     </mat-form-field>
 
-                    <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly ">
+                    <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Floor Id</mat-label>
                         <input matInput readonly formControlName="floor_id" />
                     </mat-form-field>
-                    <!-- 
-                    <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Unit No</mat-label>
-                        <mat-select formControlName="floor_unit_id">
-                            <mat-option *ngFor="let unit of UnitNo" [value]="unit.floor_unit_id">
-                                {{ unit.floor_unit }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field> -->
-                    <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly ">
+
+                    <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                         <mat-label>Unit No</mat-label>
                         <input matInput readonly formControlName="floor_unit" />
                     </mat-form-field>
-
-
                 </ng-container>
 
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly ">
+                <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                     <mat-label>First Name</mat-label>
                     <input matInput readonly formControlName="first_name" />
                 </mat-form-field>
 
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+                <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                     <mat-label>Last Name</mat-label>
-                    <input matInput formControlName="last_name" />
+                    <input matInput readonly formControlName="last_name" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
-                    <mat-label>Email </mat-label>
-                    <input matInput formControlName="email_id" placeholder="Email" />
+
+                <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
+                    <mat-label>Email</mat-label>
+                    <input matInput readonly formControlName="email_id" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
+
+                <mat-form-field appearance="outline" class="col-md-4 full-bg-readonly">
                     <mat-label>Mobile Number</mat-label>
-                    <input type="tel" matInput formControlName="mob_no" maxlength="10" pattern="[0-9]{10}"
-                        inputmode="numeric" autocomplete="tel"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
-                    <mat-error
-                        *ngIf="upgradeTokens.get('mob_no')?.hasError('pattern') && upgradeTokens.get('mob_no')?.touched">
-                        Enter a valid 10-digit number.
-                    </mat-error>
+                    <input type="tel" matInput readonly formControlName="mob_no" />
                 </mat-form-field>
 
-
-                <!-- Payment Mode Dropdown -->
-
-                <mat-form-field appearance="outline" class="col-md-2">
+                <mat-form-field appearance="outline" class="col-md-4">
                     <mat-label>Select Payment Type</mat-label>
                     <mat-select formControlName="payment_mode_id">
                         <mat-option *ngFor="let paymentMode of allPaymentMode" [value]="paymentMode.payment_mode_id">
@@ -117,10 +82,7 @@
                     </mat-select>
                 </mat-form-field>
 
-
-                <!-- Amount -->
-
-                <mat-form-field appearance="outline" class="col-md-2">
+                <mat-form-field appearance="outline" class="col-md-4">
                     <mat-label>Amount</mat-label>
                     <input matInput placeholder="Amount" formControlName="amount" appAmount />
                     <mat-error *ngIf="upgradeTokens.get('amount')?.hasError('amountExceedsBalance')">
@@ -129,21 +91,16 @@
                     <mat-error *ngIf="upgradeTokens.get('amount')?.hasError('required')">
                         Amount is required
                     </mat-error>
-
                 </mat-form-field>
 
-
-                <!-- Cheque No -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
+                <mat-form-field appearance="outline" class="col-md-4"
                     *ngIf="upgradeTokens.controls['payment_mode_id'].value == '1'">
                     <mat-label>Cheque No</mat-label>
                     <input matInput placeholder="Cheque No" formControlName="cheque_no" />
                 </mat-form-field>
 
-
-                <mat-form-field appearance="outline" class="col-md-2"
-                    *ngIf="upgradeTokens.controls['payment_mode_id'].value == '2' || upgradeTokens.controls['payment_mode_id'].value == '3' || upgradeTokens.controls['payment_mode_id'].value == '4'">
+                <mat-form-field appearance="outline" class="col-md-4"
+                    *ngIf="['2', '3', '4'].includes(upgradeTokens.controls['payment_mode_id'].value ?? '')">
                     <mat-label>Transaction ID</mat-label>
                     <input matInput placeholder="Transaction ID" formControlName="transaction_id" />
                     <mat-error *ngIf="upgradeTokens.get('transaction_id')?.hasError('required')">
@@ -151,30 +108,20 @@
                     </mat-error>
                 </mat-form-field>
 
-
-                <!-- UPI ID -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
+                <mat-form-field appearance="outline" class="col-md-4"
                     *ngIf="upgradeTokens.controls['payment_mode_id'].value == '2'">
                     <mat-label>UPI ID</mat-label>
                     <input matInput placeholder="UPI ID" formControlName="upi_id" />
                 </mat-form-field>
 
-
-                <!-- Card No -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
+                <mat-form-field appearance="outline" class="col-md-4"
                     *ngIf="upgradeTokens.controls['payment_mode_id'].value == '4'">
                     <mat-label>Card No</mat-label>
                     <input matInput placeholder="Card No" formControlName="card_no" />
                 </mat-form-field>
 
-
-
-                <!-- Bank Name -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
-                    *ngIf="upgradeTokens.controls['payment_mode_id'].value == '1'  || upgradeTokens.controls['payment_mode_id'].value == '2' || upgradeTokens.controls['payment_mode_id'].value == '3' || upgradeTokens.controls['payment_mode_id'].value == '4'">
+                <mat-form-field appearance="outline" class="col-md-4"
+                    *ngIf="['1', '2', '3', '4'].includes(upgradeTokens.controls['payment_mode_id'].value ?? '')">
                     <mat-label>Bank Name</mat-label>
                     <input matInput placeholder="Bank Name" formControlName="bank_name" />
                     <mat-error *ngIf="upgradeTokens.get('bank_name')?.hasError('required')">
@@ -182,44 +129,30 @@
                     </mat-error>
                 </mat-form-field>
 
-
-                <!-- IFSC Code -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
+                <mat-form-field appearance="outline" class="col-md-4"
                     *ngIf="upgradeTokens.controls['payment_mode_id'].value == '1'">
                     <mat-label>IFSC Code</mat-label>
                     <input matInput placeholder="IFSC Code" formControlName="ifsc_code" />
                 </mat-form-field>
 
-
-                <!-- Bank Branch -->
-
-                <mat-form-field appearance="outline" class="col-md-2"
+                <mat-form-field appearance="outline" class="col-md-4"
                     *ngIf="upgradeTokens.controls['payment_mode_id'].value == '1'">
                     <mat-label>Bank Branch</mat-label>
                     <input matInput placeholder="Bank Branch" formControlName="bank_branch" />
                 </mat-form-field>
 
-
-                <div class="col-md-3 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label d-block">Payment Attachment</label>
                     <input type="file" class="form-control" (change)="onFileChange($event)" />
-
                 </div>
-                <div class="col-md-12 d-flex justify-content-end mt-3">
-                    <button mat-raised-button color="primary" (click)="onSubmit()" type="submit">Submit
-                        Payment</button>
-                </div>
-
             </form>
-
-
-
-
         </mat-card-content>
-
-
     </mat-card>
+</div>
 
-
-</app-template>
+<div mat-dialog-actions class="justify-content-end p-3 border-top">
+    <button mat-button (click)="dialogRef.close()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading || upgradeTokens.invalid">
+        {{ loading ? 'Processing...' : 'Submit Payment' }}
+    </button>
+</div>

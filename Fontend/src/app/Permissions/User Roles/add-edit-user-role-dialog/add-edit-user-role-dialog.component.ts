@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AngularMaterialModule } from '../../../../angular-material.module';
 import { environment } from '../../../../environments/environment';
 import { PermissionService } from '../../../Service/permission.service';
+import { AutocompleteReusableComponent, SelectOption } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 export interface AddEditUserRoleDialogData {
   mode: 'add' | 'edit';
@@ -27,6 +28,7 @@ export interface AddEditUserRoleDialogData {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    AutocompleteReusableComponent
   ],
   templateUrl: './add-edit-user-role-dialog.component.html',
   styleUrl: './add-edit-user-role-dialog.component.scss',
@@ -37,8 +39,8 @@ export class AddEditUserRoleDialogComponent implements OnInit {
   loadingState = false;
   readonly isEditMode: boolean;
 
-  UserList: unknown[] = [];
-  RoleList: unknown[] = [];
+  UserList: SelectOption[] = [];
+  RoleList: SelectOption[] = [];
 
   form = new FormGroup({
     account_id: new FormControl(sessionStorage.getItem('account_id')),
@@ -71,8 +73,8 @@ export class AddEditUserRoleDialogComponent implements OnInit {
 
   fetchAllUsers(): void {
     this.permissionApi.fetchAllUsers().subscribe({
-      next: (res: unknown) => {
-        this.UserList = Array.isArray(res) ? res : (res as { data?: unknown[] })?.data ?? [];
+      next: (res: any) => {
+        this.UserList = Array.isArray(res) ? res : res?.data ?? [];
       },
       error: (err) => {
         console.error(err);
@@ -83,8 +85,8 @@ export class AddEditUserRoleDialogComponent implements OnInit {
 
   fetchAllRoles(): void {
     this.permissionApi.fetchAllRoles().subscribe({
-      next: (res: unknown) => {
-        this.RoleList = Array.isArray(res) ? res : (res as { data?: unknown[] })?.data ?? [];
+      next: (res: any) => {
+        this.RoleList = Array.isArray(res) ? res : res?.data ?? [];
       },
       error: (err) => {
         console.error(err);

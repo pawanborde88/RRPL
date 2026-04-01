@@ -23,15 +23,32 @@
     ::ng-deep {
         .mat-mdc-card {
             background: #ffffff !important;
+            box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid #f1f5f9 !important;
         }
 
         .mat-mdc-button:not(:disabled) {
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
             &:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2) !important;
             }
+        }
+    }
+
+    // Chart container styling
+    .chart-box {
+        position: relative;
+        background: white;
+        border-radius: 1rem;
+        padding: 1rem;
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+
+        &:hover {
+            border-color: #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
     }
 }

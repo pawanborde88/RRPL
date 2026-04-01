@@ -13,6 +13,7 @@ import { CommonService } from '../../../../Service/common/common.service';
 import { AddAminitiesComponent } from '../Aminities/add-aminities/add-aminities.component';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-add-document',
@@ -31,14 +32,15 @@ export class AddDocumentComponent {
   roleId = Number(sessionStorage.getItem('role_id'));
   userId = Number(sessionStorage.getItem('session_id'));
   selectedFileName: string = ''; // To display the selected file nam
+  private readonly storageUrl = environment.STORAGE_URL;
 
   constructor(
     private commonService: CommonService,
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any, // Injected dialog data
     private dialogRef: MatDialogRef<AddDocumentComponent> // Reference to the dialog
-  ) {}
- 
+  ) { }
+
 
   addDocumentForm = new FormGroup({
     user_id: new FormControl(this.userId ?? '',),
@@ -51,7 +53,7 @@ export class AddDocumentComponent {
 
   ngOnInit(): void {
     console.log('Project ID:', this.data?.projectid);
-console.log(this.data);
+    console.log(this.data);
 
   }
 
@@ -81,18 +83,18 @@ console.log(this.data);
     const formData = new FormData();
     formData.append('user_id', this.userId?.toString() || '');
     formData.append('project_id', this.data.projectid?.toString() || '');
-    formData.append('name',this.addDocumentForm.get('name')?.value);
+    formData.append('name', this.addDocumentForm.get('name')?.value);
 
     formData.append('active_status_id', this.addDocumentForm.get('active_status_id')?.value?.toString() || '');
-  
+
     const file = this.addDocumentForm.get('project_attachment')?.value as File;
     if (!file) {
       this.snackBar.open('Please upload a document before submitting', 'Close', { duration: 3000 });
       return;
     }
-  
+
     formData.append('project_attachment', file);
-  
+
     this.commonService.uploadFile(this.data.apiUrl, formData).subscribe({
       next: (response: any) => {
         console.log(response);
@@ -105,6 +107,6 @@ console.log(this.data);
       },
     });
   }
-  
-  
+
+
 }

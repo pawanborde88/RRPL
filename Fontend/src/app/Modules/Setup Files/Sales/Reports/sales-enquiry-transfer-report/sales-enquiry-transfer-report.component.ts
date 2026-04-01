@@ -111,16 +111,30 @@ export class SalesEnquiryTransferReportComponent implements OnInit {
     }
   ] as const;
 
-  // Computed signal for AG Grid payload
-  readonly agGridPayload = computed(() => {
-    const formValues = this.formValues();
-    const filters = this.buildFilters(formValues);
 
+  readonly agGridPayload = computed(() => {
     return {
-      filters,
+      user_id: this.userId(),
+      filters: this.buildFilters(this.formValues())
     };
   });
+  private updateFormValues(): void {
+    const formValue = this.leadForm.value;
+    this.formValues.set({
+      project_id: formValue.project_id || null,
+      transfer_to: formValue.transfer_to || null,
+      transfer_from: formValue.transfer_from || null,
+    });
+  }
 
+  fetchAllProjectDemands(): void {
+    if (this.leadForm.valid) {
+      this.updateFormValues();
+      this.agGridComponent?.refreshData();
+    } else {
+      this.showSnackBar('Please select Project.');
+    }
+  }
   // Computed signal for filter validation
   readonly isFilterValid = computed(() => {
     const filters = this.formValues();
@@ -143,6 +157,13 @@ export class SalesEnquiryTransferReportComponent implements OnInit {
   ngOnInit(): void {
     this.fetchAllProjects();
 
+    // Watch for form changes to update formValues signal
+    this.leadForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateFormValues();
+      });
+
     // Watch for project changes to fetch telecallers
     this.leadForm.get('project_id')?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -155,27 +176,6 @@ export class SalesEnquiryTransferReportComponent implements OnInit {
       });
   }
 
-  /**
-   * Apply filters and refresh grid data
-   */
-  applyFilters(): void {
-    if (!this.leadForm.valid) {
-      this.showSnackBar('Please select at least one project.', 'error');
-      return;
-    }
-
-    const formValue = this.leadForm.value;
-
-    // Update formValues signal with current form values
-    this.formValues.set({
-      project_id: formValue.project_id && formValue.project_id.length > 0 ? formValue.project_id : null,
-      transfer_to: formValue.transfer_to && formValue.transfer_to.length > 0 ? formValue.transfer_to : null,
-      transfer_from: formValue.transfer_from && formValue.transfer_from.length > 0 ? formValue.transfer_from : null,
-    });
-
-    // Refresh AG Grid data
-    this.refreshAgGridData();
-  }
 
   /**
    * Check if user has permission
@@ -238,7 +238,7 @@ export class SalesEnquiryTransferReportComponent implements OnInit {
 
     this.loading.set(true);
 
-   
+
     this.commonService
       .fetchSalesExecutives(projectIds)
       .pipe(takeUntilDestroyed(this.destroyRef))

@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewChild, computed } from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -9,21 +9,31 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
-import { AddbookingBillComponent } from '../../../../Channel Partner Meetings/addbooking-bill/addbooking-bill.component';
+import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import { TableColumn } from '../../../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
 import { AddUploaedAttachmentComponent } from '../add-uploaed-attachment/add-uploaed-attachment.component';
+import { ReceiptPreviewDialogComponent } from '../../Recovery/receipt-preview-dialog/receipt-preview-dialog.component';
+
+interface Project {
+  project_id: number;
+  property_name: string;
+}
+
+interface Wing {
+  wing_id: number;
+  wing_name: string;
+}
 
 @Component({
   selector: 'app-all-uploaded-attachment',
@@ -37,226 +47,209 @@ import { AddUploaedAttachmentComponent } from '../add-uploaed-attachment/add-upl
     FormsModule,
     ReactiveFormsModule,
     TruncatePipe,
-
     AutocompleteReusableComponent,
-
-
-    ReusableTableComponent,
+    ConfigurableAgGridDataComponent,
   ],
   templateUrl: './all-uploaded-attachment.component.html',
   styleUrl: './all-uploaded-attachment.component.scss',
+  providers: [DatePipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AllUploadedAttachmentComponent implements OnInit {
-  baseUrl = environment.API_URL;
-  loading: boolean = false; // Initialize loading state
-  allWingslist: any[] = []; // Initialize allWingslist as an empty array
-  // Initialize dataSource as a MatTableDataSource
-  dataSource = new MatTableDataSource<any>();
-  projectsList: any[] = []; // Initialize confiList as an empty array
-  selectedBooking: any = null; // Change from selectedBookingId to selectedBooking
-  storageUrl = environment.STORAGE_URL;
-  roleId = Number(sessionStorage.getItem('role_id'));
-  userId = Number(sessionStorage.getItem('session_id'));
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  searchText: string = '';
-  pipe = new DatePipe('en-US');
-  bookingID: number = 0;
+  @ViewChild(ConfigurableAgGridDataComponent) agGridComponent!: ConfigurableAgGridDataComponent;
 
-  constructor(
-    private http: HttpClient,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private route: ActivatedRoute,
-    private fetch: FetchFunctionsService
-  ) { }
-  ngOnInit(): void {
-    this.fetchAllAttachments();
-    this.unitSelectForm
-      .get('project_id')
-      ?.valueChanges.subscribe((projectId) => {
-        if (projectId) {
-          this.fetchAllWings(projectId);
-        }
-      });
-  }
+  private readonly http = inject(HttpClient);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
 
-  unitSelectForm = new FormGroup({
-    project_id: new FormControl('', Validators.required),
-    wing_id: new FormControl('', Validators.required),
+  readonly baseUrl = environment.API_URL;
+  readonly storageUrl = environment.STORAGE_URL;
+  readonly roleId = signal(Number(sessionStorage.getItem('role_id')));
+  readonly userId = signal(Number(sessionStorage.getItem('session_id')));
+
+  // Signals for state management
+  readonly loading = signal<boolean>(false);
+  readonly projectsList = signal<Project[]>([]);
+  readonly allWingsList = signal<Wing[]>([]);
+  readonly selectedAttachment = signal<any[]>([]);
+
+  readonly addAttachmentFilterForm = new FormGroup({
+    project_id: new FormControl<number | null>(null, Validators.required),
+    wing_id: new FormControl<number | null>(null),
   });
-  bookingBills = [
-    {
-      key: 'actions',
-      label: 'Actions',
-      type: 'actions',
-      sticky: true,
-      disabled: false,
-    },
-    {
-      key: 'sr_no',
-      label: 'Sr. No',
-      type: 'index',
-    },
-    { key: 'booking_date', label: 'Booking Date', type: 'short_date' },
+
+  // Signal to track form values for reactive computed signals
+  private readonly formValues = signal<{
+    project_id: number | null;
+    wing_id: number | null;
+  }>({
+    project_id: null,
+    wing_id: null,
+  });
+
+  readonly columnDefinitions: readonly TableColumn[] = [
+    { key: 'actions', label: 'Actions', type: 'actions', sticky: true, disabled: false },
+    { key: 'booking_date', label: 'Booking Date', type: 'mediumDate' },
     { key: 'project_name', label: 'Project Name' },
     { key: 'wing_name', label: 'Wing Name' },
     { key: 'unit_no', label: 'Unit No' },
     { key: 'applicant_name', label: 'Client Name' },
-    { key: 'applicant_mobile', label: 'Customer Mobile' },
-    { key: 'applicant_email', label: 'Customer Email' },
-    {
-      key: 'attachment',
-      label: 'Attachment',
-      type: 'attachment',
-      nullImage: 'assets/Images/null_image.png',
-    },
-    { key: 'sales_executive', label: 'Executive' },
-    { key: 'source', label: 'Source' },
-    { key: 'source_detail', label: 'Source Details' },
+    { key: 'applicant_mobile', label: 'Customer Mobile', type: 'sensitive' },
+    { key: 'applicant_email', label: 'Customer Email', type: 'sensitive' },
+
     { key: 'document_name', label: 'Document Name' },
-    { key: 'days_since_booking', label: 'Days Since Booking' },
-    {
-      key: 'link_send_status',
-      label: 'Link Send Status',
-      applyChequeStatusColor: true,
-      colorCondition: (element: any) =>
-        element.link_send_status === 'Sent' ? 'green' : 'red',
-    },
-    {
-      key: 'data_received_status',
-      label: 'Data Received Status',
-      applyChequeStatusColor: true,
-      colorCondition: (element: any) =>
-        element.data_received_status === 'Yes' ? 'green' : 'red',
-    },
     { key: 'created_by_name', label: 'Created By' },
     { key: 'updated_by', label: 'Updated By' },
     { key: 'created_at', label: 'Created At', type: 'date' },
     { key: 'updated_at', label: 'Updated At', type: 'date' },
   ];
 
+  // Computed signal for AG Grid payload
+  readonly agGridPayload = computed(() => {
+    const formValues = this.formValues();
+    const filters: any = {};
+    if (formValues.project_id) filters.project_id = formValues.project_id;
+    if (formValues.wing_id) filters.wing_id = formValues.wing_id;
 
+    return {
+      user_id: this.userId(),
+      filters: filters
+    };
+  });
 
-  bookingActions = [
+  readonly attachmentActions: readonly any[] = [
+    { action: 'editUploadedAttachment', icon: 'edit_note', tooltip: 'Edit File', color: 'primary' },
     {
-      action: 'editUploadedAttachment', // Must match what you check in onBookingAction
-      icon: 'edit_note', // Material icon name
-      tooltip: 'Edit File', // Tooltip text
-      color: 'primary', // Optional button color
-      disabled: false, // Optional disabled state
-    },
-  ];
-  headerButtons = [
+      action: 'attachmentReceipt',
+      icon: 'attach_file',
+      tooltip: 'View Attachment',
+      color: 'primary',
+      disabled: false,
 
+    },
+  ] as const;
+
+  readonly headerButtons = [
     {
       label: 'Add Attachment',
       icon: 'add_circle',
       color: 'primary',
-      action: () => this.openAddBookingVisitorDialog(null),
       disabled: () => false,
-      show: () => true,
+      action: () => this.openAddAttachmentDialog(null),
     },
   ];
-  openAddBookingVisitorDialog(row: any): void {
-    const dialogRef = this.dialog.open(AddUploaedAttachmentComponent, {
-      width: '50vw',
-      data: { row },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-      }
-    });
-  }
-  onBookingAction(action: string, row: any): void {
-    if (action === 'editUploadedAttachment') {
-      this.editUploadedAttachment(row);
-    }
 
-  }
-  editUploadedAttachment(row: any): void {
-    const dialogRef = this.dialog.open(AddUploaedAttachmentComponent, {
-      width: '50vw',
-      data: { row },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-      }
-    });
-  }
-  fetchAllAttachments(): void {
-    this.loading = true;
+  ngOnInit(): void {
+    this.fetchAllProjects();
+    this.setupFormSubscriptions();
 
-    const payload = {};
-
-    this.http.post(`${this.baseUrl}/fetch_unit_attachment`, payload).subscribe({
-      next: (res: any) => {
-        this.dataSource = new MatTableDataSource(res);
-
-        this.dataSource.data = res.data;
-        this.loading = false;
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.loading = false;
-        this.snackBar.open('Unable to fetch bookings.', 'Close', {
-          duration: 3000,
-        });
-      },
-    });
-  }
-  fetchAllProjects(): void {
-    this.loading = true;
-
-    const payload = {
-      user_id: this.userId
-    };
-
-    this.http.post(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
-      next: (res: any) => {
-        if (res) {
-          this.projectsList = res;
-        }
-        this.loading = false;
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.loading = false;
-        this.snackBar.open('Unable to fetch Enquiry.', 'Close', {
-          duration: 3000,
-        });
-      },
-    });
-  }
-
-  fetchAllWings(projectID: any): void {
-    this.http
-      .post(`${this.baseUrl}/wing_dropdown`, { project_id: projectID })
-      .subscribe({
-        next: (res: any) => {
-          this.allWingslist = res;
-        },
-        error: () => {
-          this.snackBar.open('No units available for selection', 'Close', {
-            duration: 3000,
-          });
-        },
+    // Watch for form changes to update formValues signal
+    this.addAttachmentFilterForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.updateFormValues();
       });
   }
 
-  onselectedMeetingChange(checked: boolean, booking: any) {
-    if (checked) {
-      this.selectedBooking = booking;
-      console.log('Selected booking:', this.selectedBooking);
+  private setupFormSubscriptions(): void {
+    this.addAttachmentFilterForm.get('project_id')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((projectId) => {
+        this.addAttachmentFilterForm.get('wing_id')?.reset();
+        this.allWingsList.set([]);
+        if (projectId) this.fetchAllWings(projectId);
+      });
+  }
+
+  private updateFormValues(): void {
+    const formValue = this.addAttachmentFilterForm.value;
+    this.formValues.set({
+      project_id: formValue.project_id || null,
+      wing_id: formValue.wing_id || null,
+    });
+  }
+
+  applyFilters(): void {
+    if (this.addAttachmentFilterForm.valid) {
+      this.updateFormValues();
+      this.agGridComponent?.refreshData();
     } else {
-      // Deselect if the currently selected booking is unchecked
-      if (
-        this.selectedBooking &&
-        this.selectedBooking.project_unit_attachment_id ===
-        booking.project_unit_attachment_id
-      ) {
-        this.selectedBooking = null;
-      }
+      this.showSnackBar('Please select both Project and Wing.');
     }
+  }
+
+  private fetchAllProjects(): void {
+    this.loading.set(true);
+    this.http.post<Project[]>(`${this.baseUrl}/user_project_dropdown`, { user_id: this.userId() })
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (projects) => this.projectsList.set(projects || []),
+        error: () => this.showSnackBar('Unable to fetch projects.'),
+      });
+  }
+
+  private fetchAllWings(projectId: number): void {
+    this.loading.set(true);
+    this.http.post<Wing[]>(`${this.baseUrl}/wing_dropdown`, { project_id: projectId })
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (wings) => this.allWingsList.set(wings || []),
+        error: () => this.showSnackBar('No wings available for selected project.'),
+      });
+  }
+
+  openAddAttachmentDialog(row: any): void {
+    const dialogRef = this.dialog.open(AddUploaedAttachmentComponent, {
+      width: '50vw',
+      data: { row },
+    });
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
+      if (result) {
+        this.refreshAgGridData();
+      }
+    });
+  }
+
+  onAttachmentAction(action: string, row: any): void {
+    if (action === 'editUploadedAttachment') {
+      this.openAddAttachmentDialog(row);
+    } else if (action === 'attachmentReceipt') {
+      this.openReceiptDialog(row);
+    }
+  }
+  openReceiptDialog(receiptData: any): void {
+    if (!receiptData?.attachment) {
+      this.snackBar.open('Receipt attachment not found', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    const fileUrl = `${this.storageUrl}/${receiptData.attachment}`;
+
+    this.dialog.open(ReceiptPreviewDialogComponent, {
+      width: '80%',
+      maxWidth: '900px',
+      data: {
+        title: 'Receipt Details',
+        fileUrl: fileUrl,
+      },
+    });
+  }
+
+
+  refreshAgGridData(): void {
+    this.agGridComponent?.refreshData();
+  }
+
+  private showSnackBar(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000 });
   }
 }

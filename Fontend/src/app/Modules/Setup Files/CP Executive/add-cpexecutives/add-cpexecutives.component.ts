@@ -109,12 +109,9 @@ export class AddCPExecutivesComponent implements OnInit {
     ),
     pin_code: new FormControl(this.data?.rowData?.pin_code || '', [
       Validators.required,
-      Validators.pattern(/^[1-9][0-9]{5}$/), // Assuming it's a 6-digit PIN code
+      Validators.pattern(/^[0-9]{6}$/), // 6-digit PIN code
     ]),
-    password: new FormControl(
-      this.data?.rowData?.password || '',
-      this.data?.rowData?.user_id ? [] : [Validators.required]
-    ),
+    password: new FormControl(this.data?.rowData?.password || ''),
     aadhar_no: new FormControl<string>(
       this.data?.rowData?.aadhar_no || '',
       [
@@ -275,6 +272,14 @@ export class AddCPExecutivesComponent implements OnInit {
       loadInitialData ? undefined : trimmedSearch,
       loadInitialData ? initialPartnerId || this.addCpExecutiveForm.value.channel_partner_id : undefined
     );
+  }
+
+  sanitizePinCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+      this.addCpExecutiveForm.get('pin_code')?.setValue(sanitized, { emitEvent: true });
+    }
   }
 
   onSubmit(): void {

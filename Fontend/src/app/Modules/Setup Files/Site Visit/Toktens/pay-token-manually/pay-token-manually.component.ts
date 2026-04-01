@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, Optional } from '@angular/core';
 import { environment } from '../../../../../../environments/environment';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
@@ -58,6 +58,7 @@ export class PayTokenManuallyComponent implements OnInit {
   isPaymentDone: boolean = false;
   pipe = new DatePipe('en-US');
   selectedFile: File | null = null;
+  outstandingBalance: number = 0;
 
   upgradeTokens = new FormGroup({
     project_id: new FormControl(),
@@ -84,7 +85,11 @@ export class PayTokenManuallyComponent implements OnInit {
     balance: new FormControl(),
     transaction_id: new FormControl(''),
     payment_mode_id: new FormControl('', Validators.required),
-    amount: new FormControl('', [Validators.required, Validators.min(1),]),
+    amount: new FormControl('', [
+      Validators.required,
+      Validators.min(1),
+      this.balanceValidator.bind(this)
+    ]),
 
     cheque_no: new FormControl(''),
     upi_id: new FormControl(''),
@@ -102,7 +107,7 @@ export class PayTokenManuallyComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.elementData = history.state.data;
+    this.elementData = this.data.data;
 
     // Load payment modes immediately
     this.fetchPaymentModeDropdown();
@@ -162,6 +167,12 @@ export class PayTokenManuallyComponent implements OnInit {
         phase_id: this.elementData.phase_id
       });
 
+      this.outstandingBalance = tokenAmount - amountPaid;
+      this.upgradeTokens.patchValue({
+        amount: this.outstandingBalance > 0 ? this.outstandingBalance.toString() : '0',
+        balance: 0
+      });
+
       // If floor_unit_id exists, set it
       if (this.elementData.floor_unit_id) {
         this.upgradeTokens.patchValue({
@@ -209,10 +220,12 @@ export class PayTokenManuallyComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           if (res) {
+            this.outstandingBalance = Number(res.balance) || 0;
             this.upgradeTokens.patchValue({
               amount: res.balance,
               token_id: res.token_id,
             });
+            this.upgradeTokens.get('amount')?.updateValueAndValidity();
           }
         },
         error: () => {
@@ -286,13 +299,21 @@ export class PayTokenManuallyComponent implements OnInit {
         const tokenAmount = Number(this.elementData.token_amount) || 0;
         const amountPaid = Number(this.elementData.amount_paid) || 0;
         const currentAmount = Number(amount) || 0;
-        const newBalance = Math.max(0, tokenAmount - amountPaid - currentAmount);
+        const newBalance = Math.max(0, this.outstandingBalance - currentAmount);
 
         this.upgradeTokens.patchValue({
           balance: newBalance
         }, { emitEvent: false });
       }
     });
+  }
+
+  balanceValidator(control: import('@angular/forms').AbstractControl) {
+    const amount = Number(control.value) || 0;
+    if (amount > this.outstandingBalance) {
+      return { amountExceedsBalance: true };
+    }
+    return null;
   }
 
   FetchProjectUnitType(projectID: any, wingId: any, floorId: any): void {
@@ -427,8 +448,14 @@ export class PayTokenManuallyComponent implements OnInit {
             // Reset only payment-related fields, not the entire form
             this.resetPaymentFields();
 
-            this.dialog.open(SuccessDialogComponent, {
+            const successDialog = this.dialog.open(SuccessDialogComponent, {
               data: { message: res.message },
+            });
+
+            successDialog.afterClosed().subscribe(() => {
+              if (this.dialogRef) {
+                this.dialogRef.close(res);
+              }
             });
 
             // Update the payment status
@@ -485,6 +512,8 @@ export class PayTokenManuallyComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private _activatedRoute: ActivatedRoute,
+    public dialogRef: MatDialogRef<PayTokenManuallyComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 
   fetchAllWings(projectID: any): void {

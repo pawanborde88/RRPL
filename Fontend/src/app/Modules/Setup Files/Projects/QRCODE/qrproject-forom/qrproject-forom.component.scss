@@ -6,61 +6,99 @@
 :host ::ng-deep .mat-mdc-slider {
   width: 100%;
   --mdc-slider-active-track-color: #0d4678;
-  --mdc-slider-inactive-track-color: #e0e7ff;
-  --mdc-slider-with-tick-marks-active-container-color: #0d4678;
-  --mdc-slider-with-tick-marks-inactive-container-color: #e0e7ff;
+  --mdc-slider-inactive-track-color: #e2e8f0;
   --mdc-slider-handle-color: #0d4678;
   --mdc-slider-focus-handle-color: #0d4678;
   --mdc-slider-hover-handle-color: #0d4678;
+  height: 44px;
+  /* Reduced from 54px */
 }
 
 :host ::ng-deep .mat-mdc-slider .mdc-slider__track {
-  height: 8px;
-  /* Slightly thicker */
+  height: 4px;
+  /* Reduced from 6px */
   border-radius: 9999px;
 }
 
 :host ::ng-deep .mat-mdc-slider .mdc-slider__track--active_fill {
-  background: linear-gradient(90deg, #0d4678, #0d4678);
+  background: #0d4678;
   border: none;
 }
 
 :host ::ng-deep .mat-mdc-slider .mdc-slider__track--inactive {
-  background: #e0e7ff;
+  background: #e2e8f0;
   opacity: 1;
 }
 
-:host ::ng-deep .mat-mdc-slider .mdc-slider__track--inactive,
-:host ::ng-deep .mat-mdc-slider .mdc-slider__track--active_fill {
-  border-top-width: 0;
-}
-
 :host ::ng-deep .mat-mdc-slider .mdc-slider__thumb-knob {
-  width: 24px;
-  /* Larger thumb */
-  height: 24px;
-  border: 4px solid #fff;
-  border-radius: 9999px;
+  width: 16px;
+  /* Reduced from 20px */
+  height: 16px;
+  border: 3px solid #fff;
+  border-radius: 50%;
   background: #0d4678;
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4), 0 2px 4px -1px rgba(79, 70, 229, 0.2);
-  transition: transform 0.2s;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 :host ::ng-deep .mat-mdc-slider .mdc-slider__thumb:hover .mdc-slider__thumb-knob {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+  background: #0d4678;
 }
 
-:host ::ng-deep .mat-mdc-slider .mdc-slider__thumb-knob::after {
-  display: none;
-}
+/* -------------------------------------------------------------
+ * FORM FIELD ERROR MESSAGE OVERLAY
+ * - Globally, subscript wrappers are hidden. We unhide them 
+ *   here for this public form and position them absolutely 
+ *   so they don't cause layout jumps.
+ * ------------------------------------------------------------- */
+:host ::ng-deep .mat-mdc-form-field {
+  /* Spacing between form fields */
+  margin-bottom: 24px !important;
 
-:host ::ng-deep .mat-mdc-slider .mdc-slider__value-indicator-text {
-  font-weight: 600;
+  @media (max-width: 639px) {
+    margin-bottom: 20px !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: block !important;
+    height: auto !important;
+    position: absolute !important;
+    width: 100% !important;
+    top: 100% !important;
+    padding: 0 4px !important;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible !important;
+    margin-top: -2px !important;
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+    display: block !important;
+    color: #ef4444 !important;
+    background: white;
+    width: fit-content;
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+
+  /* Compact label fix for the 40px height */
+  .mat-mdc-floating-label {
+    &.mdc-floating-label--float-above {
+      transform: translateY(-26.5px) scale(0.85) !important;
+      background: white;
+      padding: 0 6px;
+      margin-left: -4px;
+    }
+  }
 }
 
 ::ng-deep .full-bg-readonly .mat-mdc-text-field-wrapper {
   z-index: 0;
-  background-color: #f8fafc !important;
-  /* Update to slate-50 */
+  background-color: #f1f5f9 !important;
   cursor: not-allowed;
 }

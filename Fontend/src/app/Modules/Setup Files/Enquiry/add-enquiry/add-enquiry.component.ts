@@ -30,6 +30,9 @@ import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-r
 import { SuccessDialogComponent } from '../../../../Common/success-dialog/success-dialog.component';
 import { IndianCurrencyFormatPipe } from '../../../../Pipes/currency/indian-currency-format.pipe';
 import { AmountDirective } from '../../../../Common/Amount Direcitve/amount.directive';
+import { trigger, transition, style, animate } from '@angular/animations';
+import { EnquiryManagementService } from '../services/enquiry-management.service';
+import { OtpVerificationDialogComponent } from '../../Projects/QRCODE/qrproject-forom/otp-verification-dialog/otp-verification-dialog.component';
 
 @Component({
   selector: 'app-add-enquiry',
@@ -49,6 +52,14 @@ import { AmountDirective } from '../../../../Common/Amount Direcitve/amount.dire
   templateUrl: './add-enquiry.component.html',
   styleUrl: './add-enquiry.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+      ]),
+    ]),
+  ],
 })
 export class AddEnquiryComponent {
   // ============================================================================
@@ -60,6 +71,7 @@ export class AddEnquiryComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogRef = inject(MatDialogRef<AddEnquiryComponent>);
+  private readonly enquiryService = inject(EnquiryManagementService);
   readonly data = inject(MAT_DIALOG_DATA, { optional: true });
   private readonly datePipe = new DatePipe('en-US');
 
@@ -108,6 +120,12 @@ export class AddEnquiryComponent {
   readonly allSubregions = signal<any[]>([]);
   readonly allCallStatus = signal<any[]>([]);
   readonly projectData = signal<any>({});
+  readonly showSourceFields = signal<boolean>(false);
+
+  readonly isOtpSent = signal<boolean>(false);
+  readonly isOtpVerified = signal<boolean>(false);
+  readonly isOtpLoading = signal<boolean>(false);
+  readonly otpErrorMessage = signal<string>('');
 
   // ============================================================================
   // Private State
@@ -192,6 +210,38 @@ export class AddEnquiryComponent {
           this.fetchAllSourceDetails(sourceID);
         }
       });
+
+    // Budget changes - show source fields when both budgets are set
+    this.addEnquiryform
+      .get('min_budget')
+      ?.valueChanges.pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(100),
+        distinctUntilChanged()
+      )
+      .subscribe(() => this.checkAndShowSourceFields());
+
+    this.addEnquiryform
+      .get('max_budget')
+      ?.valueChanges.pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(100),
+        distinctUntilChanged()
+      )
+      .subscribe(() => this.checkAndShowSourceFields());
+
+    this.addEnquiryform.get('mobile_no')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => { this.otpErrorMessage.set(''); this.isOtpVerified.set(false); this.isOtpSent.set(false); });
+    this.addEnquiryform.get('email_id')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => { this.otpErrorMessage.set(''); this.isOtpVerified.set(false); this.isOtpSent.set(false); });
+  }
+
+  private checkAndShowSourceFields(): void {
+    if (this.isEditMode()) {
+      this.showSourceFields.set(true);
+      return;
+    }
+    const minBudget = this.addEnquiryform.get('min_budget')?.value ?? 0;
+    const maxBudget = this.addEnquiryform.get('max_budget')?.value ?? 0;
+    this.showSourceFields.set(minBudget > 0 && maxBudget > 0);
   }
 
   private updateSourceValidators(sourceId: any): void {
@@ -253,8 +303,6 @@ export class AddEnquiryComponent {
       Validators.pattern(/^[6-9]\d{9}$/),
     ]),
     salution_id: new FormControl<string>('', Validators.required),
-    possesion_req_id: new FormControl<string>(' ', Validators.required),
-    channel_partner_id: new FormControl<string>('', Validators.required),
     age_range_id: new FormControl<string>(' ', Validators.required),
     current_living_place_id: new FormControl<string>('', Validators.required),
     native_place_id: new FormControl<string>('', Validators.required),
@@ -274,6 +322,7 @@ export class AddEnquiryComponent {
     ),
     source_id: new FormControl<string>('', Validators.required),
     source_detail_id: new FormControl<string>(''),
+    channel_partner_id: new FormControl<string>(''),
     source_executive_id: new FormControl<number | string | null>(null),
     sourcing_manager: new FormControl<string>(''),
     source_description: new FormControl<string>(''),
@@ -484,7 +533,10 @@ export class AddEnquiryComponent {
       this.fetchAllCPExecutives(responseData.channel_partner_id);
     }
     this.fetchAllSourceList();
-    this.fetchAllSourceDetails(responseData.source_id);
+    if (responseData.source_id) {
+      this.updateSourceValidators(responseData.source_id);
+      this.fetchAllSourceDetails(responseData.source_id);
+    }
 
     // Ensure sales_executive_id is set for roleId 7
     this.ensureSalesExecutiveIdForRole7();
@@ -520,7 +572,10 @@ export class AddEnquiryComponent {
               this.onPartnerSearch('', true, res.channel_partner_id);
               this.fetchAllCPExecutives(res.channel_partner_id);
             }
-            if (res.source_id) this.fetchAllSourceDetails(res.source_id);
+            if (res.source_id) {
+              this.updateSourceValidators(res.source_id);
+              this.fetchAllSourceDetails(res.source_id);
+            }
 
             this.imagePreview.set(
               res.enquiry_photo ? `${this.storageUrl}/${res.enquiry_photo}` : null
@@ -564,11 +619,8 @@ export class AddEnquiryComponent {
           this.addEnquiryform.patchValue({
             min_cost: data?.min_cost,
             max_cost: data?.max_cost,
-            ...(!projectEnqID && {
-              min_budget: data?.min_cost,
-              max_budget: data?.max_cost,
-            }),
           });
+          this.checkAndShowSourceFields();
         },
       });
   }
@@ -596,6 +648,11 @@ export class AddEnquiryComponent {
 
   onSubmit(): void {
     if (this.addEnquiryform.invalid) return;
+
+    if (this.projectData()?.enq_otp_status === 1 && !this.isOtpVerified() && !this.projectEnqID()) {
+      this.snackBar.open('Please verify OTP before submitting.', 'Close', { duration: 3000 });
+      return;
+    }
 
     const formData = new FormData();
     this.loading.set(true);
@@ -676,6 +733,68 @@ export class AddEnquiryComponent {
           }
         },
       });
+  }
+
+  sendOtp(): void {
+    const firstName = this.addEnquiryform.get('first_name')?.value;
+    const lastName = this.addEnquiryform.get('last_name')?.value;
+    const mobileNo = this.addEnquiryform.get('mobile_no')?.value;
+    const emailId = this.addEnquiryform.get('email_id')?.value;
+    const projectId = this.addEnquiryform.get('project_id')?.value;
+
+    if (!firstName || !lastName || !mobileNo || !emailId || !projectId) {
+      this.snackBar.open('Please fill in Name, Mobile, and Email before sending OTP.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const payload = {
+      mobile_no: mobileNo,
+      email_id: emailId,
+      project_id: Number(projectId),
+      first_name: firstName,
+      last_name: lastName
+    };
+
+    this.otpErrorMessage.set('');
+    this.isOtpLoading.set(true);
+    this.enquiryService.sendOtpToEnquiry(payload)
+      .pipe(
+        finalize(() => this.isOtpLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.success && res.status !== false) {
+            this.isOtpSent.set(true);
+            this.snackBar.open('OTP sent successfully. Opening verification window...', 'Close', { duration: 3000, panelClass: ['bg-green-600', 'text-white'] });
+            this.openOtpDialog(payload);
+          } else {
+            const errorMsg = res.message || 'Failed to send OTP. Please try again.';
+            this.otpErrorMessage.set(errorMsg);
+            this.snackBar.open(errorMsg, 'Close', { duration: 3000 });
+          }
+        },
+        error: () => {
+          this.otpErrorMessage.set('An error occurred while sending OTP.');
+          this.snackBar.open('An error occurred while sending OTP.', 'Close', { duration: 3000 });
+        }
+      });
+  }
+
+  private openOtpDialog(data: any): void {
+    const dialogRef = this.dialog.open(OtpVerificationDialogComponent, {
+      data,
+      width: '30vw',
+      disableClose: true,
+      panelClass: 'custom-otp-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.isOtpVerified.set(true);
+        this.isOtpSent.set(true);
+      }
+    });
   }
 
   fetchAllDropdowns(): void {

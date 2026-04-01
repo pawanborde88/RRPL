@@ -38,6 +38,9 @@ export interface BookingData {
   applicant_aadhar_no?: string;
   coapplicant_aadhar_no?: string;
   applicant_email?: string;
+  srg_total?: any;
+  mc_total?: any;
+
   coapplicant_email?: string;
   applicant_mobile?: string;
   coapplicant_mobile?: string;
@@ -51,6 +54,7 @@ export interface BookingData {
   agreement_cost?: number;
   stamp_duty?: number;
   maintenance?: number;
+
   corpus?: number;
   reg?: number;
   gst?: number;
@@ -73,9 +77,11 @@ export interface BookingData {
     total_carpet_area_sqm?: string;
     carpet_sqm?: string;
     balcony_sqm?: string;
+    balcony_sqft?: string;
     enclosed_balcony_sqft?: string;
     enclosed_balcony_sqm?: string;
     parking_type?: string;
+
     maintenance_charges?: string | number;
     corpus_fund?: string | number;
   };
@@ -221,11 +227,21 @@ export interface LetterData {
   letter_type_id?: number;
   bank_id?: number;
   project_name?: string;
+  maintenance_charges?: any | string;
   site_address?: string;
   floor_unit?: string;
+  floor_units?: any;
   wing_name?: string;
   letter_date?: string;
+  applicant1_address?: string;
   applicant1_name?: string;
+  applicant2_name?: string;
+  applicant3_name?: string;
+  applicant4_name?: string;
+  dry_balcony_sqft?: string;
+  dry_balcony_sqm?: string;
+  utility_balcony_sqft?: string;
+  utility_balcony_sqm?: string;
   coapplicant_name?: string;
   all_applicant?: string;
   applicant_mobile?: string;
@@ -233,6 +249,11 @@ export interface LetterData {
   agreement_date?: string;
   agreement_cost?: number;
   booking_date?: string;
+  floor_id?: number;
+  carpet_sqm?: string;
+  balcony_sqm?: string;
+  enclosed_balcony_sqm?: string;
+  terrace_sqm?: string;
   total_carpet_area_sqft?: string;
   total_carpet_area_sqm?: string;
   gst_percent?: string;
@@ -244,6 +265,7 @@ export interface LetterData {
   bank_name?: string;
   branch_name?: string;
   builder_name?: string;
+  registration_office_name?: string;
   created_at?: any;
   /** From API when parkings array is absent; or fallback */
   parking_no?: string;
@@ -251,7 +273,26 @@ export interface LetterData {
   parking_type?: string;
   /** From letter API: array of parking with parking_no, parking_level, parking_type */
   parkings?: LetterParking[];
+  project_banks?: Array<{
+    project_bank_id?: number;
+    project_id?: number;
+    bank_id?: number;
+    wing_id?: number;
+    account_type?: string;
+    bank_name?: string | null;
+    branch_name?: string;
+    account_no?: string;
+    ifsc_code?: string;
+    Ifsc_code?: string;
+    beneficiary_name?: string;
+    address?: string;
+  }>;
+  rera_beneficiary_name?: string;
+  rera_collection_bank_name?: string;
+  rera_account_number?: string;
+  rera_branch_name?: string;
 }
+
 
 export interface TokenData {
   token_id?: number;
@@ -261,6 +302,7 @@ export interface TokenData {
   token_type?: string;
   token_date?: string;
   token_no?: string;
+  amount_paid?: number;
   wing_name?: string;
   total_carpet_area_sqft?: string | number;
   floor_unit_id?: number;

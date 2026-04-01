@@ -20,6 +20,7 @@ export interface AgGridState<T> {
   isBulkOperation: boolean;
   loadedPages: Set<number>;
   fetchingPages: Set<number>;
+  hasInitiatedLoad: boolean;
 }
 
 const initialAgGridState: AgGridState<any> = {
@@ -39,6 +40,7 @@ const initialAgGridState: AgGridState<any> = {
   isBulkOperation: false,
   loadedPages: new Set(),
   fetchingPages: new Set(),
+  hasInitiatedLoad: false,
 };
 
 @Injectable()
@@ -60,6 +62,7 @@ export class AgGridStore<T extends TableRowData = TableRowData> extends BaseStor
   readonly isBulkOperation = this.select(state => state.isBulkOperation);
   readonly loadedPages = this.select(state => state.loadedPages);
   readonly fetchingPages = this.select(state => state.fetchingPages);
+  readonly hasInitiatedLoad = this.select(state => state.hasInitiatedLoad);
 
   // Computed Derived State
   readonly hasData = computed(() =>
@@ -132,6 +135,10 @@ export class AgGridStore<T extends TableRowData = TableRowData> extends BaseStor
 
   updateSelection(items: T[], ids: Set<string | number>): void {
     this.patchState({ selectedItems: items, selectedIds: ids });
+  }
+
+  setHasInitiatedLoad(value: boolean): void {
+    this.patchState({ hasInitiatedLoad: value });
   }
 
   addLoadedPage(pageIndex: number): void {

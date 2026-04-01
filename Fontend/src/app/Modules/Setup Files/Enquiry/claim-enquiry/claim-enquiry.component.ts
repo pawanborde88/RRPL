@@ -131,7 +131,7 @@ export class ClaimEnquiryComponent {
     native_place_id: new FormControl(''),
     industry_id: new FormControl(''),
     company_name: new FormControl(''),
-    sales_executive_id: new FormControl('', Validators.required),
+    sales_executive_id: new FormControl<string | number | null>('', Validators.required),
     buying_purpose_id: new FormControl(''),
     preferred_bank_id: new FormControl(''),
     project_configuration_id: new FormControl('', Validators.required),
@@ -305,7 +305,7 @@ export class ClaimEnquiryComponent {
 
   private handleRoleBasedSalesExecutive(): void {
     if (this.roleId === 7) {
-      this.addEnquiryform.get('sales_executive_id')?.patchValue(this.userId.toString());
+      this.addEnquiryform.get('sales_executive_id')?.patchValue(this.userId);
       this.addEnquiryform.get('sales_executive_id')?.disable();
     }
   }
@@ -680,7 +680,7 @@ export class ClaimEnquiryComponent {
 
     // Ensure sales_executive_id is set for role 7
     if (this.roleId === 7) {
-      this.addEnquiryform.get('sales_executive_id')?.patchValue(this.userId.toString());
+      this.addEnquiryform.get('sales_executive_id')?.patchValue(this.userId);
     }
 
     const formValues = this.addEnquiryform.getRawValue() as any;
@@ -709,7 +709,7 @@ export class ClaimEnquiryComponent {
     }
 
     // Explicitly append disabled fields
-    ['source_id', 'channel_partner_id', 'source_detail_id'].forEach((field) => {
+    ['source_id', 'channel_partner_id', 'source_detail_id', 'sales_executive_id'].forEach((field) => {
       if (!formData.has(field)) {
         const value = this.addEnquiryform.get(field)?.value;
         if (value !== null && value !== undefined) {

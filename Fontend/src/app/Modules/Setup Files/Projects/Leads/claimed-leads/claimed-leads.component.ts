@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { Sort } from '@angular/material/sort';
-import { debounceTime, distinctUntilChanged, filter, skip, startWith, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, filter, startWith, switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
@@ -280,16 +280,14 @@ export class ClaimedLeadsComponent implements OnInit {
       }
     });
 
-    // Project ID Listener
+    // Project ID Listener – only fetch telecallers on select/change; fetch_all_lead runs only on Apply Filter
     this.enquiryFilterForm.get('project_id')?.valueChanges.pipe(
       takeUntilDestroyed(this.destroyRef),
       debounceTime(DEBOUNCE_TIME_MS),
-      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
-      skip(1),
-      filter((projectID): projectID is number[] => Array.isArray(projectID) && projectID.length > 0)
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
     ).subscribe((projectID) => {
-      this.facade.fetchAllTalecallerList(projectID);
-      this.facade.refreshGridSubject.next(Date.now());
+      const ids = Array.isArray(projectID) ? projectID : [];
+      this.facade.fetchAllTalecallerList(ids);
     });
 
     // Lead Level Listener

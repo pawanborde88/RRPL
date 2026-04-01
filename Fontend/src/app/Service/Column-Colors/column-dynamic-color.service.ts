@@ -5,8 +5,8 @@ import { Injectable } from '@angular/core';
 })
 export class ColumnDynamicColorService {
   // Common color constants
-  private readonly LIGHT_GREEN = '#DFF5EA'; // soft mint green
-  private readonly LIGHT_RED = '#FDE2E2';   // soft light red
+  private readonly LIGHT_GREEN = '#E6FFE6'; // soft mint green
+  private readonly LIGHT_RED = '#FFD9D9';   // soft light red
   private readonly DARK_TEXT = '#1F2937';   // dark gray (better than pure black)
 
 
@@ -93,6 +93,21 @@ export class ColumnDynamicColorService {
     if (statusId === 1) {
       return this.greenStyle();
     }
+    return this.redStyle();
+  }
+
+  /* -------------------- Cheque Status -------------------- */
+
+  public getChequeStatusStyle(status?: number | string): Record<string, string> {
+    // 1 = Cleared/Active (good), 0 = Bounced/Inactive (bad)
+    if (this.matchValue(status, [1, '1', 'cleared', 'active'])) {
+      return this.greenStyle();
+    }
+
+    if (this.matchValue(status, [0, '0', 'bounced', 'inactive', 'pending'])) {
+      return this.redStyle();
+    }
+
     return this.redStyle();
   }
 

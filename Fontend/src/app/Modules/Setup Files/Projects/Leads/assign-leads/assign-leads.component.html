@@ -10,8 +10,9 @@
         <div class="row">
 
 
-            <app-autocomplete-reusable-component *ngIf="data.for !== 'leadAssign'" [options]="allTelecallerlist"
-                formControlName="telecaller_id" displayKey="full_name" idKey="user_id" placeholder="Select  Telecaller">
+            <app-autocomplete-reusable-component *ngIf="data.for !== 'leadAssign' && roleId !== 13"
+                [options]="allTelecallerlist" formControlName="telecaller_id" displayKey="full_name" idKey="user_id"
+                placeholder="Select  Telecaller">
             </app-autocomplete-reusable-component>
 
             <div class="col-md-12" *ngIf="data.for === 'leadAssign'">
@@ -35,5 +36,5 @@
 
 <mat-dialog-actions align="end">
     <button mat-raised-button color="primary" [disabled]="leadAssignForm.invalid" (click)="onSubmit()" type="submit">
-        Submit
+        Assign
     </button> </mat-dialog-actions>

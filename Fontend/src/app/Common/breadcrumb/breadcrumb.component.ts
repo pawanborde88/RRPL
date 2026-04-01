@@ -1,16 +1,17 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogConfig, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { inject } from '@angular/core';
-import { AdvancedFilterDialogComponent } from '../Reusable/Column selector Dialog/advanced-filter-dialog/advanced-filter-dialog.component';
 import { AdvancedSearchFilterDialogComponent } from '../advanced-search-filter-dialog/advanced-search-filter-dialog.component';
+
+import { AdvancedFilterDialogComponent } from '../Reusable/Column selector Dialog/advanced-filter-dialog/advanced-filter-dialog.component';
 
 @Component({
   selector: 'app-breadcrumb',
   templateUrl: './breadcrumb.component.html',
+
   standalone: true,
   imports: [
     CommonModule,
@@ -18,7 +19,7 @@ import { AdvancedSearchFilterDialogComponent } from '../advanced-search-filter-d
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    AdvancedFilterDialogComponent
+    AdvancedFilterDialogComponent,
   ],
   styleUrls: ['./breadcrumb.component.scss']
 })

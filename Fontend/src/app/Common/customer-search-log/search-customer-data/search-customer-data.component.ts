@@ -150,12 +150,12 @@ export class SearchCustomerDataComponent implements OnInit {
 
 
   ngOnInit(): void {
-    this.loadInitialData();
-    this.setupFormSubscriptions();
+    // this.loadInitialData();
+    // this.setupFormSubscriptions();
 
-    this.bookingForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.updateFormValues());
+    // this.bookingForm.valueChanges
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe(() => this.updateFormValues());
   }
 
   fetchAllBookings(): void {

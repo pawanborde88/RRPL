@@ -11,6 +11,7 @@ export interface Applicant {
   first_name: string;
   middle_name?: string;
   last_name: string;
+  gender?: number | null;
   occupation_id?: number | null;
   alternate_mobile_no?: string;
   whatsapp_no?: string;
@@ -58,7 +59,8 @@ export interface ApiResponse<T> {
 
 export interface Project {
   project_id: number;
-  property_name: string;
+  project_name: string;
+  property_name?: string;
   [key: string]: unknown;
 }
 
@@ -129,6 +131,15 @@ export class BookingService {
     );
   }
 
+  fetchBookingBySlug(slug: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.baseUrl}/fetch_booking_details`,
+      { slug }
+    ).pipe(
+      catchError(() => of({ success: false, message: 'Failed to fetch booking details' } as ApiResponse<any>))
+    );
+  }
+
   fetchBookingApplicants(bookingId: number): Observable<Applicant[]> {
     return this.http.post<Applicant[]>(
       `${this.baseUrl}/fetch_booking_applicant`,
@@ -150,13 +161,13 @@ export class BookingService {
   }
 
   fetchAllOccupations(): Observable<unknown[]> {
-    return this.http.get<unknown[]>(`${this.baseUrl}/fetch_all_occupation`).pipe(
+    return this.http.get<unknown[]>(`${this.baseUrl}/occupation_dropdown`).pipe(
       catchError(() => of([]))
     );
   }
 
   fetchAllSalutations(): Observable<unknown[]> {
-    return this.http.get<unknown[]>(`${this.baseUrl}/fetch_all_salutation`).pipe(
+    return this.http.get<unknown[]>(`${this.baseUrl}/salutation_dropdown`).pipe(
       catchError(() => of([]))
     );
   }
@@ -306,7 +317,14 @@ export class BookingService {
       catchError(() => of([]))
     );
   }
-
+  fetchAssignedProjects(projectId: number | string): Observable<Array<{ project_id: number; project_name: string }>> {
+    return this.http.post<Array<{ project_id: number; project_name: string }>>(
+      `${this.baseUrl}/fetch_assigned_projects`,
+      { project_id: projectId }
+    ).pipe(
+      catchError(() => of([]))
+    );
+  }
   fetchFloors(projectId: number | string, wingId: number | string): Observable<Array<{ floor_id: number; floor_name: string }>> {
     return this.http.post<Array<{ floor_id: number; floor_name: string }>>(
       `${this.baseUrl}/fetch_floor_dropdown`,
@@ -346,7 +364,7 @@ export class BookingService {
     ).pipe(
       catchError(() => of(null))
     );
-  } 
+  }
   fetchSingleQualtionData(floorUnitId: number | string, projectId?: number | string): Observable<any> {
     const body: { floor_unit_id: number | string; project_id?: number | string } = { floor_unit_id: floorUnitId };
     if (projectId != null && projectId !== '') {
@@ -385,7 +403,7 @@ export class BookingService {
     ).pipe(
       catchError(() => of({ success: false, message: 'Failed to update booking' } as ApiResponse<BookingInfo>))
     );
-  } 
+  }
   editBooking(payload: any): Observable<ApiResponse<BookingInfo>> {
     return this.http.post<ApiResponse<BookingInfo>>(
       `${this.baseUrl}/edit_booking`,

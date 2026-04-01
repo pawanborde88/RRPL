@@ -8,19 +8,13 @@
   <form [formGroup]="addPermissionForm" (ngSubmit)="onSubmit()">
     <div class="row gx-4 my-5">
 
-      <mat-form-field appearance="outline" class="col-md-3">
-        <mat-label>Modules </mat-label>
-        <mat-select formControlName="module_id" (selectionChange)=" fetchSubModules($event)">
-          <mat-option *ngFor="let item of modulesList" [value]="item.module_id">{{ item.module_name }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <app-autocomplete-reusable-component [options]="modulesList" formControlName="module_id"
+        [displayKey]="'module_name'" [idKey]="'module_id'" [placeholder]="'Select Module'"
+        (selectedIdChange)="fetchSubModules($event)" class="col-md-3"></app-autocomplete-reusable-component>
 
-      <mat-form-field appearance="outline" class="col-md-3">
-        <mat-label>Sub-Modules</mat-label>
-        <mat-select formControlName="sub_module_id">
-          <mat-option *ngFor="let item of subModulesList" [value]="item.module_id">{{ item.module_name }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <app-autocomplete-reusable-component [options]="subModulesList" formControlName="sub_module_id"
+        [displayKey]="'module_name'" [idKey]="'module_id'" [placeholder]="'Select Sub Module'"
+        class="col-md-3"></app-autocomplete-reusable-component>
       <!-- Active/Inactive (Select Field) -->
       <mat-form-field appearance="outline" class="col-md-3">
         <mat-label>Status</mat-label>

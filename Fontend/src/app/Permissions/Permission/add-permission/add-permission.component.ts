@@ -16,6 +16,7 @@ import { TemplateComponent } from '../../../Common/template/template.component';
 import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../environments/environment';
 import { PermissionService } from '../../../Service/permission.service';
+import { AutocompleteReusableComponent } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 
 
@@ -24,12 +25,14 @@ import { PermissionService } from '../../../Service/permission.service';
   selector: 'app-add-permission',
   standalone: true,
   imports: [
+    CommonModule,
     AngularMaterialModule,
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,
     RouterModule,
     FormsModule,
+    AutocompleteReusableComponent
   ],
   templateUrl: './add-permission.component.html',
   styleUrl: './add-permission.component.scss',
@@ -89,8 +92,8 @@ export class AddPermissionComponent {
     });
   }
   subModulesList: any;
-  fetchSubModules(event: any) {
-    this.permissionApi.fetchSubModules(event.value).subscribe({
+  fetchSubModules(moduleId: any) {
+    this.permissionApi.fetchSubModules(moduleId).subscribe({
       next: (res: any) => {
         this.subModulesList = res.data;
         console.log(res.data);

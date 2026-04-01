@@ -20,24 +20,17 @@
             </app-autocomplete-reusable-component>
           </div>
 
-          <mat-form-field appearance="outline" class="col-md-2">
-            <mat-label>Select configuration</mat-label>
-            <mat-select formControlName="project_configuration_id" multiple placeholder="Select configurations">
-              @for (item of store.preferenceDropdown(); track item.project_configuration_id) {
-              <mat-option [value]="item.project_configuration_id">
-                @if (item.configuration) { <span>{{ item.configuration }} </span> }
-                @if (item.bhk) { <span> {{ item.bhk }}</span> }
-                @if (item.carpet_area) { <span> ({{ item.carpet_area }}{{ item.feet }})</span> }
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+
+          <app-autocomplete-reusable-component class="col-md-2" formControlName="project_configuration_id"
+            [options]="store.preferenceDropdown()" displayKey="variant_name" idKey="project_configuration_id"
+            [isMultiSelect]="true" placeholder="Select Configuration">
+          </app-autocomplete-reusable-component>
 
           <div class="col-md-2">
             <mat-form-field appearance="outline" class="w-100">
-              <mat-label>Lead Level</mat-label>
+              <mat-label>Enquiry Level</mat-label>
               <mat-select formControlName="lead_level_id">
-                <mat-option [value]="0" disabled>Select Lead Level</mat-option>
+                <mat-option [value]="0" disabled>Select Enquiry Level</mat-option>
                 @for (level of store.leadLevels(); track level.lead_level_id) {
                 <mat-option [value]="level.lead_level_id">
                   {{ level.lead_level }}
@@ -114,9 +107,9 @@
 
   <app-configurable-ag-grid-data [columns]="displayedColumns()" [apiEndpoint]="'fetch_project_enquiries'"
     [apiMethod]="'POST'" [apiPayload]="store.agGridPayload()" [actions]="enquiryActions()"
-    [headerButtons]="headerButtons()" [showCheckbox]="true" [idProperty]="'project_enq_id'" [getRowClass]="getRowClass"
-    [selectedItems]="store.selectedBookings()" [cacheBlockSize]="200" [customTheme]="customTheme()"
-    (actionClick)="getLeadActions($event.action, $event.row)"
+    [headerButtons]="headerButtons()" [showCheckbox]="store.showClaimedEnquiries()" [idProperty]="'project_enq_id'"
+    [getRowClass]="getRowClass" [selectedItems]="store.selectedBookings()" [cacheBlockSize]="200"
+    [customTheme]="customTheme()" (actionClick)="getLeadActions($event.action, $event.row)"
     (checkboxChange)="onLeadSelectionChange($event.checked, $event.row)" (rowSelected)="onRowSelected($event)">
   </app-configurable-ag-grid-data>
 </app-template>

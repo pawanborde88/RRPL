@@ -21,10 +21,10 @@ export class PermissionService {
     return this.http.post(`${this.baseUrl}/fetch_child_module` , { module_id: ID});
   }
   fetchAllUsers() {
-    return this.http.post(`${this.baseUrl}/users_dropdown`, {account_id: sessionStorage.getItem('account_id')});
+    return this.http.get(`${this.baseUrl}/users_dropdown`);
   }
   fetchAllRoles() {
-    return this.http.post(`${this.baseUrl}/roles_dropdown`, {account_id: sessionStorage.getItem('account_id')});
+    return this.http.get(`${this.baseUrl}/roles_dropdown`);
   }
 
   fetchAllRolePermission() {

@@ -160,18 +160,12 @@ export class AllBookingVisitorsListComponent implements OnInit {
 
   // Computed signal for AG Grid payload
   readonly agGridPayload = computed(() => {
-    const formValues = this.formValues();
-    const filters = this.buildFilters(formValues);
-    const pagination = this.paginationConfig();
+    const values = this.formValues();
+    const filters: any = {};
 
-    return {
-      offset: pagination.offset,
-      limit: pagination.limit,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      search: '',
-      filters,
-    };
+    if (values.project_id != null) filters.project_id = values.project_id, filters.booking_status_id = 0;
+
+    return { filters };
   });
 
   // Computed signal for filter validation
@@ -193,17 +187,16 @@ export class AllBookingVisitorsListComponent implements OnInit {
     this.fetchAllProjects();
   }
 
-  /**
-   * Handle project selection change
-   */
   onProjectChange(projectId: number): void {
     if (projectId !== null && projectId !== undefined) {
       this.formValues.set({ project_id: projectId });
-      // Refresh AG Grid data
-      this.refreshAgGridData();
     } else {
       this.formValues.set({ project_id: null });
     }
+    // Refresh AG Grid data
+    setTimeout(() => {
+      this.refreshAgGridData();
+    }, 100);
   }
 
   /**

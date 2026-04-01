@@ -3,25 +3,14 @@
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="dialog-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>User</mat-label>
-        <mat-select formControlName="user_id">
-          <mat-option [value]="">-- Select --</mat-option>
-          <mat-option *ngFor="let item of UserList" [value]="$any(item).user_id">
-            {{ $any(item).username }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Roles</mat-label>
-        <mat-select formControlName="role_id">
-          <mat-option [value]="">-- Select --</mat-option>
-          <mat-option *ngFor="let item of RoleList" [value]="$any(item).role_id">
-            {{ $any(item).role_name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <app-autocomplete-reusable-component [options]="UserList" formControlName="user_id" [displayKey]="'username'"
+        [idKey]="'user_id'" [placeholder]="'Select User'"></app-autocomplete-reusable-component>
+
+
+
+      <app-autocomplete-reusable-component [options]="RoleList" formControlName="role_id" [displayKey]="'role_name'"
+        [idKey]="'role_id'" [placeholder]="'Select Role'"></app-autocomplete-reusable-component>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Valid From</mat-label>
@@ -50,12 +39,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="onCancel()">Cancel</button>
-  <button
-    mat-raised-button
-    color="primary"
-    [disabled]="form.invalid || loadingState"
-    (click)="onSubmit()"
-  >
+  <button mat-raised-button color="primary" [disabled]="form.invalid || loadingState" (click)="onSubmit()">
     {{ isEditMode ? 'Update' : 'Add' }}
   </button>
 </mat-dialog-actions>

@@ -27,7 +27,7 @@
 
   <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_token_visitors'"
     [apiMethod]="'POST'" [headerButtons]="headerButtons" [apiPayload]="agGridPayload()" [actions]="bookingActions"
-    [idProperty]="'project_lead_id'" (actionClick)="onBookingAction($event.action, $event.row)" [cacheBlockSize]="100"
-    [autoLoad]="false">
+    [idProperty]="'token_visitor_id'" (actionClick)="onBookingAction($event.action, $event.row)"
+    (actionClick)="onBookingAction($event.action, $event.row)" [cacheBlockSize]="100" [autoLoad]="false">
   </app-configurable-ag-grid-data>
 </app-template>

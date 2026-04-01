@@ -83,15 +83,18 @@ export class BookingCalculationsComponent {
   // ⚡ Expose state service signals
   readonly floorUnitField = this.stateService.floorUnitField;
   readonly allWingslist = this.stateService.wings;
+  readonly allprojectsPeoples = this.stateService.allprojectPeoples;
   readonly sourceDetailedList = this.stateService.sourceDetails;
   readonly sourcesList = this.stateService.sources;
   readonly allBasedOns = this.stateService.basedOns;
   readonly allChannelPartnerList = this.stateService.channelPartners;
   readonly bookingInfo = this.stateService.bookingInfo;
   readonly isLoading = this.stateService.isLoading;
+  readonly allSalesExecutive = this.stateService.salesExecutives;
   readonly FloorUnitDropdown = this.stateService.floors;
   readonly confiList = this.stateService.unitTypes;
   readonly UnitNo = this.stateService.floorUnits;
+  readonly projects = this.stateService.projects;
 
   // ⚡ Computed values
   readonly canSubmit = computed(() =>
@@ -108,6 +111,7 @@ export class BookingCalculationsComponent {
   readonly addBookingForm = new FormGroup({
     user_id: new FormControl(this.userId),
     project_id: new FormControl(),
+    closed_by: new FormControl('', Validators.required),
     unit_type: new FormControl('', Validators.required),
     package_total_with_parking: new FormControl(''),
     source_id: new FormControl('', Validators.required),
@@ -234,6 +238,8 @@ export class BookingCalculationsComponent {
   private initializeData(data: any): void {
     this.stateService.loadInitialData(data.project_id, data.booking_id);
     this.stateService.fetchAgreementPercentage(data.booking_id);
+    this.stateService.fetchAssignedProjects(data.project_id);
+    this.stateService.fetchSalesExecutives(data.project_id);
 
     // Fetch booking info and handle enquiry if exists
     this.bookingService
@@ -469,14 +475,26 @@ export class BookingCalculationsComponent {
             // Handle both direct object and nested data property response formats
             const data = res.data || res;
 
+            // Calculate rate if it's 0 in response but agreement_cost is present
+            const unit_id = Number(data.unit_id) || 0;
+            const agreement_cost = Number(data.agreement_cost) || 0;
+            let rate = Number(data.rate) || 0;
+
+            if (rate === 0 && agreement_cost > 0 && unit_id > 0) {
+              rate = agreement_cost / unit_id;
+            }
+
             const patchData = {
               carpet: data.total_carpet_area_sqft || null,
-              rate: data.rate || null,
+              rate: rate || null,
               market_value: data.market_value || null,
               idc: data.idc || null,
-              stamp_duty: data.stamp_duty_percent || 7,
+              agreement_cost: data.agreement_cost || null,
+              gst: data.gst || null,
               // Use provided GST/Reg percent, or fallback to default 5/1 if missing or 0
               gst_per: data.gst_percent || data.gst_per || 5,
+              sd_per: data.stamp_duty_percent || data.sd_per || 7,
+              stamp_duty: data.stamp_duty || null,
               reg_per: data.registration_percent || data.reg_per || 1,
               reg: data.registration || null,
               society_for: data.society_formation_charges || null,
@@ -950,6 +968,7 @@ export class BookingCalculationsComponent {
       booking_id: bookingData?.booking_id,
       user_id: this.userId,
       source_id: formValue.source_id,
+      closed_by: formValue.closed_by,
       source_detail_id: formValue.source_detail_id,
       source_executive_id: formValue.source_executive_id,
       channel_partner_id: formValue.channel_partner_id,
@@ -1021,4 +1040,8 @@ export class BookingCalculationsComponent {
         },
       });
   }
+  fetchAssignedProjects(projectId: number | string): void {
+    this.stateService.fetchAssignedProjects(projectId);
+  }
+
 }

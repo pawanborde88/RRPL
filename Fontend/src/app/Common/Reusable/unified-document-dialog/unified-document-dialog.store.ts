@@ -1,6 +1,7 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
     catchError,
     finalize,
@@ -9,7 +10,6 @@ import {
     of,
     EMPTY,
     Observable,
-    shareReplay,
     debounceTime,
     distinctUntilChanged
 } from 'rxjs';
@@ -19,10 +19,8 @@ import {
     BookingData,
     DemandData,
     LetterData,
-    ReceiptData,
     TokenData,
     ReceiptApiResponse,
-    ApiResponse,
     TemplateResponse,
     MODULE_ID_MAP,
     TITLE_MAP,
@@ -35,6 +33,9 @@ import { environment } from '../../../../environments/environment';
 const LOADING_DEBOUNCE_MS = 200;
 const SNACKBAR_DURATION_MS = 3000;
 const LARGE_HTML_THRESHOLD = 50000;
+export const PAGE_BREAK_MARKER = '<div style="page-break-after: always"></div>';
+export const PAGE_BREAK_REGEX = /<div\s+style="page-break-after:\s*always"\s*><\/div>/gi;
+export const LARGE_PAGE_WARNING_THRESHOLD = 20;
 
 @Injectable()
 export class UnifiedDocumentDialogStore {
@@ -42,11 +43,13 @@ export class UnifiedDocumentDialogStore {
     private readonly placeholderService = inject(PlaceholderReplacerService);
     private readonly snackBar = inject(MatSnackBar);
     private readonly sanitizer = inject(DomSanitizer);
+    private readonly destroyRef = inject(DestroyRef);
 
-    // --- State ---
+    // --- State signals ---
     readonly loading = signal(false);
     readonly loadingMessage = signal('');
     readonly processedHtml = signal<SafeHtml | null>(null);
+    private readonly _processedRaw = signal<string | null>(null);
     readonly isLargeContent = signal(false);
     readonly projectName = signal('');
     readonly dialogTitle = signal('');
@@ -59,19 +62,27 @@ export class UnifiedDocumentDialogStore {
     private readonly _currentDate = signal(new Date().toLocaleDateString('en-IN'));
     private readonly _dialogData = signal<DocumentDialogData | null>(null);
 
-    // --- Computed ---
+    // --- Computed signals ---
     readonly dialogType = computed(() => this._dialogType());
     readonly hasContent = computed(() => !!this.processedHtml());
     readonly canPrint = computed(() => this.hasContent() && !this.loading());
 
+    readonly processedPageChunks = computed(() => {
+        const raw = this._processedRaw();
+        if (!raw) return [];
+        const parts = raw.split(PAGE_BREAK_REGEX).map(s => s.trim()).filter(Boolean);
+        return parts.length > 0 ? parts : [raw];
+    });
+    readonly pageCount = computed(() => this.processedPageChunks().length);
+    readonly isLargePageCount = computed(() => this.pageCount() >= LARGE_PAGE_WARNING_THRESHOLD);
+
     readonly projectId = computed(() => this.getProjectId());
     readonly moduleId = computed(() => {
         const type = this._dialogType();
-        if (type === DocumentDialogType.LETTER_CONFIG_PREVIEW) return 0;
-        return MODULE_ID_MAP[type] || 1;
+        return type === DocumentDialogType.LETTER_CONFIG_PREVIEW ? 0 : (MODULE_ID_MAP[type] || 1);
     });
 
-    private loadingTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    private loadingTimeoutId: any = null;
     private readonly storageUrl = environment.STORAGE_URL;
 
     // --- Initialization ---
@@ -87,8 +98,6 @@ export class UnifiedDocumentDialogStore {
     private loadData(data: DocumentDialogData) {
         switch (this._dialogType()) {
             case DocumentDialogType.ALLOTMENT_LETTER:
-                this.handleAllotmentLetter(data);
-                break;
             case DocumentDialogType.BOOKING_COST_SHEET:
             case DocumentDialogType.BOOKING_FORM:
                 this.handleBookingDocument(data);
@@ -121,15 +130,6 @@ export class UnifiedDocumentDialogStore {
     }
 
     // --- Handlers ---
-    private handleAllotmentLetter(data: DocumentDialogData) {
-        const bookingId = data?.rowData?.booking_id;
-        if (bookingId) {
-            this.fetchBookingData(bookingId, 'Fetching booking details...', false);
-        } else {
-            this.fetchAllTemplateHTML();
-        }
-    }
-
     private handleBookingDocument(data: DocumentDialogData) {
         const bookingId = data?.rowData?.booking_id;
         if (bookingId) {
@@ -185,10 +185,23 @@ export class UnifiedDocumentDialogStore {
         }
     }
 
+    private handleLedgerReport(data: DocumentDialogData) {
+        const bookingId = data?.rowData?.booking_id;
+        if (bookingId) this.fetchLedgerReport(bookingId);
+        else this.fetchAllTemplateHTML();
+    }
+
+    private handleQuotationReport(data: DocumentDialogData) {
+        const quotationLogId = data?.rowData?.quotation_log_id;
+        if (quotationLogId) this.fetchQuotationDetails(quotationLogId);
+        else this.fetchAllTemplateHTML();
+    }
+
     // --- Data Fetching ---
     private fetchBookingData(bookingID: number, message: string, setProjectName: boolean) {
         this.setLoading(true, message);
         this.documentService.fetchBookingDetails(bookingID).pipe(
+            takeUntilDestroyed(this.destroyRef),
             tap(res => {
                 this._bookingData.set(res);
                 if (setProjectName && res?.project_name) this.projectName.set(res.project_name);
@@ -205,6 +218,7 @@ export class UnifiedDocumentDialogStore {
     private fetchCPInvoiceDetails(bookingID: number, cpId?: number, projId?: number) {
         this.setLoading(true, 'Fetching invoice details...');
         this.documentService.generateBill(bookingID, cpId, projId).pipe(
+            takeUntilDestroyed(this.destroyRef),
             tap(res => this._bookingData.set(res)),
             switchMap(() => {
                 const pId = projId || this.projectId();
@@ -218,6 +232,7 @@ export class UnifiedDocumentDialogStore {
     private fetchDemandDetails(demandID: number | number[]) {
         this.setLoading(true, 'Fetching demand details...');
         this.documentService.fetchDemandDetails(demandID).pipe(
+            takeUntilDestroyed(this.destroyRef),
             switchMap(res => {
                 if (res.status && res.data?.length) {
                     this._demandData.set(res.data);
@@ -240,6 +255,7 @@ export class UnifiedDocumentDialogStore {
 
         this.setLoading(true, 'Fetching letter details...');
         this.documentService.fetchLetterDetails(letterId).pipe(
+            takeUntilDestroyed(this.destroyRef),
             switchMap(res => {
                 if (res.success && res.data?.length) {
                     this._letterData.set(res.data);
@@ -257,6 +273,7 @@ export class UnifiedDocumentDialogStore {
     private fetchAllBookingReceiptDetails(ids: number[]) {
         this.setLoading(true, 'Fetching receipt details...');
         this.documentService.fetchBookingReceiptDetails(ids).pipe(
+            takeUntilDestroyed(this.destroyRef),
             switchMap(res => {
                 if (res.success && res.data) {
                     this._bookingData.set(res);
@@ -279,6 +296,7 @@ export class UnifiedDocumentDialogStore {
     private fetchTokenDetails(tokenID: number) {
         this.setLoading(true, 'Fetching token details...');
         this.documentService.fetchTokenDetails(tokenID).pipe(
+            takeUntilDestroyed(this.destroyRef),
             switchMap(res => {
                 if (res?.length) {
                     const token = res[0];
@@ -295,6 +313,46 @@ export class UnifiedDocumentDialogStore {
         ).subscribe();
     }
 
+    private fetchLedgerReport(bookingId: number) {
+        this.setLoading(true, 'Fetching ledger report...');
+        this.documentService.fetchLedgerReport(bookingId).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap(res => {
+                if (res.success && res.data?.length) {
+                    const ledgerData = res.data[0];
+                    this._bookingData.set(ledgerData as any);
+                    if (ledgerData.project_name) this.projectName.set(ledgerData.project_name);
+                    const pId = this.projectId();
+                    return pId ? this.fetchTemplateWithProject(pId) : of(null);
+                }
+                this.showError('No ledger report data received');
+                return EMPTY;
+            }),
+            catchError(err => this.handleError('Error fetching ledger report', err)),
+            finalize(() => this.setLoading(false))
+        ).subscribe();
+    }
+
+    private fetchQuotationDetails(quotationLogId: number) {
+        this.setLoading(true, 'Fetching quotation details...');
+        this.documentService.fetchQuotationDetails(quotationLogId).pipe(
+            takeUntilDestroyed(this.destroyRef),
+            switchMap(res => {
+                const payload = res?.data ?? res;
+                if (payload && (res?.success !== false && res?.status !== false)) {
+                    this._bookingData.set(payload as any);
+                    if (payload.project_name) this.projectName.set(payload.project_name);
+                    const pId = payload.project_id ?? this._dialogData()?.rowData?.project_id ?? null;
+                    return pId ? this.fetchTemplateWithProject(pId) : of(null);
+                }
+                this.showError('No quotation data received');
+                return EMPTY;
+            }),
+            catchError(err => this.handleError('Error fetching quotation details', err)),
+            finalize(() => this.setLoading(false))
+        ).subscribe();
+    }
+
     private fetchTemplateWithProject(projectID: number): Observable<TemplateResponse> {
         const title = this.dialogTitle();
         this.setLoading(true, `Loading ${title.toLowerCase()} template...`);
@@ -304,6 +362,7 @@ export class UnifiedDocumentDialogStore {
             : this.documentService.fetchTemplateHTML(projectID, this.moduleId());
 
         return request$.pipe(
+            takeUntilDestroyed(this.destroyRef),
             debounceTime(100),
             distinctUntilChanged((prev, curr) => prev.html_content === curr.html_content),
             tap(res => {
@@ -330,6 +389,7 @@ export class UnifiedDocumentDialogStore {
         this.isLargeContent.set(isLarge);
 
         const processed = this.replacePlaceholders(htmlContent);
+        this._processedRaw.set(processed);
         this.processedHtml.set(this.sanitizer.bypassSecurityTrustHtml(processed));
     }
 
@@ -349,37 +409,27 @@ export class UnifiedDocumentDialogStore {
     private applyReplacementsToHtml(html: string, replacements: ReplacementMap, type: DocumentDialogType): string {
         let processed = html;
 
-        // Handle receipt payment rows BEFORE regular placeholder replacement
         if (type === DocumentDialogType.RECEIPT) {
             processed = this.handleReceiptSpecialReplacements(processed, replacements);
         }
 
-        // Handle booking documents
-        if (
-            type === DocumentDialogType.BOOKING_FORM ||
-            type === DocumentDialogType.BOOKING_COST_SHEET ||
-            type === DocumentDialogType.ALLOTMENT_LETTER
-        ) {
+        if ([DocumentDialogType.BOOKING_FORM, DocumentDialogType.BOOKING_COST_SHEET, DocumentDialogType.ALLOTMENT_LETTER].includes(type)) {
             processed = this.handleApplicant2ColumnReplacement(processed, replacements);
             processed = this.handleBookingSpecialReplacements(processed, replacements);
         }
 
-        // Quotation report
         if (type === DocumentDialogType.QUATATION_REPORT) {
             processed = this.handleBookingSpecialReplacements(processed, replacements);
         }
 
-        // Ledger report
         if (type === DocumentDialogType.LEDGER_REPORT) {
             processed = this.handleLedgerReportSpecialReplacements(processed, replacements);
         }
 
-        // Letter config
         if (type === DocumentDialogType.LETTER_CONFIG_PREVIEW) {
             processed = this.handleLetterConfigParkingTable(processed, replacements);
         }
 
-        // Regular placeholder replacement
         processed = this.placeholderService.replacePlaceholders(processed, replacements);
 
         if (type === DocumentDialogType.TOKEN_FORM || type === DocumentDialogType.TOKEN_RECEIPT) {
@@ -435,10 +485,6 @@ export class UnifiedDocumentDialogStore {
         return html.replace(pattern, rows);
     }
 
-    /**
-     * When 2nd applicant is not available: replace the first #Applicant2# td with a single
-     * merged cell (rowspan) showing "NOT AVAILABLE" centered, and remove the other Applicant2 tds.
-     */
     private handleApplicant2ColumnReplacement(html: string, replacements: Record<string, string>): string {
         const mergedBlock = replacements['__applicant2MergeBlock__'];
         if (!mergedBlock) return html;
@@ -465,11 +511,9 @@ export class UnifiedDocumentDialogStore {
 
     private handleLetterConfigParkingTable(html: string, replacements: Record<string, string>): string {
         const rows = replacements['__parkingTableRows__'] || '';
-        // 1) Replace <!--start_parking_row-->...<!--end_parking_row--> block with one row per parking
         if (html.includes('<!--start_parking_row-->')) {
             return html.replace(/<!--start_parking_row-->[\s\S]*?<!--end_parking_row-->/g, rows);
         }
-        // 2) Fallback: replace first <tr> that contains #ParkingNo# and #ParkingLevel# (combined row → one row per parking)
         const trPattern = /<tr[^>]*>[\s\S]*?<\/tr>/gi;
         let replaced = false;
         return html.replace(trPattern, (m) => {
@@ -500,12 +544,11 @@ export class UnifiedDocumentDialogStore {
             case DocumentDialogType.LETTER_CONFIG_PREVIEW: return this._letterData()?.[0]?.project_id ?? null;
             case DocumentDialogType.TOKEN_FORM:
             case DocumentDialogType.TOKEN_RECEIPT: return this._tokenData()?.project_id ?? null;
-            case DocumentDialogType.RECEIPT: return this.extractProjectIdFromData() ?? null;
+            case DocumentDialogType.RECEIPT: return this.extractProjectIdFromData();
             case DocumentDialogType.LEDGER_REPORT:
-                return this.extractProjectIdFromData() ?? this._dialogData()?.rowData?.project_id ?? this._dialogData()?.project_id ?? null;
             case DocumentDialogType.QUATATION_REPORT:
                 return (this._bookingData() as any)?.project_id ?? this._dialogData()?.rowData?.project_id ?? this._dialogData()?.project_id ?? null;
-            default: return this.extractProjectIdFromData() ?? null;
+            default: return this.extractProjectIdFromData();
         }
     }
 
@@ -531,10 +574,7 @@ export class UnifiedDocumentDialogStore {
         if (loading) {
             this.loadingMessage.set(message);
             if (this.loadingTimeoutId) clearTimeout(this.loadingTimeoutId);
-            this.loadingTimeoutId = setTimeout(() => {
-                this.loading.set(true);
-                this.loadingTimeoutId = null;
-            }, LOADING_DEBOUNCE_MS);
+            this.loadingTimeoutId = setTimeout(() => this.loading.set(true), LOADING_DEBOUNCE_MS);
         } else {
             if (this.loadingTimeoutId) {
                 clearTimeout(this.loadingTimeoutId);
@@ -556,61 +596,12 @@ export class UnifiedDocumentDialogStore {
         return EMPTY;
     }
 
+    getPrintableHtml(): string {
+        return this._processedRaw() ?? '';
+    }
+
     clearOutput() {
+        this._processedRaw.set(null);
         this.processedHtml.set(null);
-    }
-    private handleLedgerReport(data: DocumentDialogData) {
-        const bookingId = data?.rowData?.booking_id;
-        if (bookingId) {
-            this.fetchLedgerReport(bookingId);
-        } else {
-            this.fetchAllTemplateHTML();
-        }
-    }
-
-    private handleQuotationReport(data: DocumentDialogData) {
-        const quotationLogId = data?.rowData?.quotation_log_id;
-        if (quotationLogId) {
-            this.fetchQuotationDetails(quotationLogId);
-        } else {
-            this.fetchAllTemplateHTML();
-        }
-    }
-
-    private fetchQuotationDetails(quotationLogId: number) {
-        this.setLoading(true, 'Fetching quotation details...');
-        this.documentService.fetchQuotationDetails(quotationLogId).pipe(
-            switchMap(res => {
-                const payload = res?.data ?? res;
-                if (payload && (res?.success !== false && res?.status !== false)) {
-                    this._bookingData.set(payload as any);
-                    if (payload.project_name) this.projectName.set(payload.project_name);
-                    const pId = payload.project_id ?? this._dialogData()?.rowData?.project_id ?? null;
-                    return pId ? this.fetchTemplateWithProject(pId) : of(null);
-                }
-                this.showError('No quotation data received');
-                return EMPTY;
-            }),
-            catchError(err => this.handleError('Error fetching quotation details', err)),
-            finalize(() => this.setLoading(false))
-        ).subscribe();
-    }
-    private fetchLedgerReport(bookingId: number) {
-        this.setLoading(true, 'Fetching ledger report...');
-        this.documentService.fetchLedgerReport(bookingId).pipe(
-            switchMap(res => {
-                if (res.success && res.data && Array.isArray(res.data) && res.data.length > 0) {
-                    const ledgerData = res.data[0];
-                    this._bookingData.set(ledgerData as any);
-                    if (ledgerData.project_name) this.projectName.set(ledgerData.project_name);
-                    const pId = this.projectId();
-                    return pId ? this.fetchTemplateWithProject(pId) : of(null);
-                }
-                this.showError('No ledger report data received');
-                return EMPTY;
-            }),
-            catchError(err => this.handleError('Error fetching ledger report', err)),
-            finalize(() => this.setLoading(false))
-        ).subscribe();
     }
 }

@@ -466,11 +466,7 @@ export class AllProjectsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Dialog closed with:', result);
-        // Navigate to QR code page with slug
-        this.router.navigate(['/qrcode', result.project_slug]);
-      }
+      // Handle result if needed
     });
   }
   openHTMLTemplateDialog(selectedRows: any): void {
@@ -482,11 +478,7 @@ export class AllProjectsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Dialog closed with:', result);
-        // Navigate to QR code page with slug
-        this.router.navigate(['/qrcode', result.project_slug]);
-      }
+      // Handle result if needed
     });
   }
   parkingTypeDialog(selectedRows: any): void {
@@ -498,11 +490,7 @@ export class AllProjectsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Dialog closed with:', result);
-        // Navigate to QR code page with slug
-        this.router.navigate(['/qrcode', result.project_slug]);
-      }
+      // Handle result if needed
     });
   }
   whatsAppKeyDialog(selectedRows: any): void {
@@ -514,11 +502,7 @@ export class AllProjectsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Dialog closed with:', result);
-        // Navigate to QR code page with slug
-        this.router.navigate(['/qrcode', result.project_slug]);
-      }
+      // Handle result if needed
     });
   }
   fetchAllAssignedProjects(data: {

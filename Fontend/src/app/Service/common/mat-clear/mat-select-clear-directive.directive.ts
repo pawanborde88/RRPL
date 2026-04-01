@@ -33,8 +33,8 @@ export class MatSelectClearDirective implements OnInit, OnDestroy {
     this.clearBtn = this.renderer.createElement('span');
     this.clearBtn.innerHTML = '&#10005;'; // Thin Unicode multiplication X
 
-    // Add CSS Class for styling (see CSS section below)
-    this.renderer.addClass(this.clearBtn, 'custom-clear-icon');
+    // Add CSS Class for styling (from styles.scss)
+    this.renderer.addClass(this.clearBtn, 'mat-select-clear-btn');
 
     // 3. Insert it into the trigger
     this.renderer.appendChild(trigger, this.clearBtn);
@@ -46,22 +46,32 @@ export class MatSelectClearDirective implements OnInit, OnDestroy {
     });
 
     // 5. Visibility Logic
-    merge(this.matSelect.valueChange, this.ngControl?.valueChanges || new Subject())
+    // We listen to both value changes and stateChanges (which includes empty state transitions)
+    merge(
+      this.matSelect.valueChange,
+      this.matSelect.stateChanges,
+      this.ngControl?.valueChanges || new Subject()
+    )
       .pipe(takeUntil(this.destroy$))
-      .subscribe(value => this.toggleVisibility(value));
+      .subscribe(() => this.updateVisibility());
 
-    this.toggleVisibility(this.matSelect.value);
+    // Initial check
+    this.updateVisibility();
   }
 
   private clearValue(): void {
-    this.ngControl?.control?.setValue(null);
-    this.matSelect.value = null;
+    if (this.ngControl?.control) {
+      this.ngControl.control.setValue(null);
+    } else {
+      this.matSelect.value = null;
+    }
     this.matSelect.stateChanges.next(); // Refresh UI
   }
 
-  private toggleVisibility(value: any): void {
-    const hasValue = value !== null && value !== undefined && value !== '';
-    this.renderer.setStyle(this.clearBtn, 'display', hasValue ? 'inline-block' : 'none');
+  private updateVisibility(): void {
+    // matSelect.empty handles null, undefined, and empty arrays correctly
+    const show = !this.matSelect.empty;
+    this.renderer.setStyle(this.clearBtn, 'display', show ? 'flex' : 'none');
   }
 
   ngOnDestroy(): void {

@@ -222,4 +222,34 @@ export class FetchUpcomingEventsComponent implements OnInit {
 
   readonly hasOnlyRoles = (allowedRoles: number[]): boolean =>
     this.authService.hasOnlyRoles(allowedRoles);
+
+
+  deleteEvent(eventID: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      minWidth: '25vw',
+      data: { message: 'Are you sure you want to delete Event?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        let requestPayload = {
+          event_id: eventID,
+        };
+        this.http
+          .post(`${this.baseUrl}/delete_event`, requestPayload)
+          .subscribe({
+            next: (data: any) => {
+              this.snackBar.open('Event deleted successfully', 'Close', {
+                duration: 3000,
+              });
+            },
+            error: (err: any) => {
+              this.snackBar.open('Unable to Delete Team.', 'Close', {
+                duration: 3000,
+              });
+            },
+          });
+      }
+    });
+  }
 }

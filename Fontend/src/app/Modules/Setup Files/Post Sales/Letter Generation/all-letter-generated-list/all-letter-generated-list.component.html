@@ -21,26 +21,21 @@
                 </div>
 
                 <!-- Wing Dropdown -->
-                <mat-form-field appearance="outline" class="col-md-3">
-                    <mat-label>Select Wing</mat-label>
-                    <mat-select formControlName="wing_id">
-                        <mat-option *ngFor="let allwings of allWingslist()" [value]="allwings.wing_id">
-                            {{ allwings.wing_name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+
+                <div class="col-md-3">
+                    <app-autocomplete-reusable-component [options]="allWingslist()" formControlName="wing_id"
+                        displayKey="wing_name" idKey="wing_id" placeholder="Select Wing">
+                    </app-autocomplete-reusable-component>
+                </div>
 
                 <!-- Letter Type Dropdown -->
-                <mat-form-field appearance="outline" class="col-md-3">
-                    <mat-label>Select Letter Type</mat-label>
-                    <mat-select formControlName="letter_type_id">
-                        <mat-option [value]="null">All Letter Types</mat-option>
-                        <mat-option *ngFor="let letterType of letterTypes()" [value]="letterType.letter_type_id">
-                            {{ letterType.letter_type }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
 
+
+                <div class="col-md-3">
+                    <app-autocomplete-reusable-component [options]="letterTypes()" formControlName="letter_type_id"
+                        displayKey="letter_type" idKey="letter_type_id" placeholder="Select Letter Type">
+                    </app-autocomplete-reusable-component>
+                </div>
 
                 <!-- Apply Filter Button -->
                 <div class="col-md-auto">
@@ -55,7 +50,7 @@
     </mat-accordion>
     <app-configurable-ag-grid-data [loading]="loading()" [columns]="agreementDetailsColumnsNames"
         [apiEndpoint]="'fetch_all_letters'" [headerButtons]="headerButtons" [apiMethod]="'POST'"
-        [apiPayload]="agGridPayload()" [actions]="projectActions" [idProperty]="'letter_config_id'"
+        [apiPayload]="agGridPayload()" [actions]="projectActions" [idProperty]="'letter_generation_id'"
         (actionClick)="onTokenAction($event.action, $event.row)">
     </app-configurable-ag-grid-data>
 

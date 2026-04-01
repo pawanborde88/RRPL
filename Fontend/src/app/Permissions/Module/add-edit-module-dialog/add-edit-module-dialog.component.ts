@@ -13,6 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AngularMaterialModule } from '../../../../angular-material.module';
 import { environment } from '../../../../environments/environment';
 import { PermissionService } from '../../../Service/permission.service';
+import { AutocompleteReusableComponent } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 export interface AddEditModuleDialogData {
   mode: 'add' | 'edit';
@@ -27,6 +28,8 @@ export interface AddEditModuleDialogData {
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
+    AutocompleteReusableComponent,
+
   ],
   templateUrl: './add-edit-module-dialog.component.html',
   styleUrl: './add-edit-module-dialog.component.scss',

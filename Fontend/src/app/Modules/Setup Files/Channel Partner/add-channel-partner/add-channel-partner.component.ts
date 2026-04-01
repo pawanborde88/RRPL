@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../../../environments/environment';
@@ -10,7 +10,7 @@ import {
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TemplateComponent } from '../../../../Common/template/template.component';
@@ -49,29 +49,27 @@ export class AddChannelPartnerComponent implements OnInit {
     passbook_photo: string | null;
     rera_certificate: string | null;
   } = {
-    passbook_photo: null,
-    rera_certificate: null,
-  };
+      passbook_photo: null,
+      rera_certificate: null,
+    };
 
   selectedFiles: { passbook_photo?: File; rera_certificate?: File } = {};
 
+  private readonly dialogRef = inject(MatDialogRef<AddChannelPartnerComponent>);
+  public readonly data = inject(MAT_DIALOG_DATA, { optional: true });
+
   constructor(
     private http: HttpClient,
-        private dialog: MatDialog,
-    
+    private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private route: ActivatedRoute,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      this.channelPartnerID = params['channel_partner_id'] || null;
-      this.isEditMode = !!this.channelPartnerID;
-      
-      if (this.isEditMode) {
-        this.fetchSingleChannelPartner();
-      }
-    });
+    if (this.data?.data) {
+      this.channelPartnerID = this.data.data.channel_partner_id;
+      this.isEditMode = true;
+      this.fetchSingleChannelPartner();
+    }
   }
 
   addChannelPartnerForm = new FormGroup({
@@ -107,7 +105,9 @@ export class AddChannelPartnerComponent implements OnInit {
     firm_website: new FormControl(''),
     bank_account_no: new FormControl(''),
     bank_type_id: new FormControl(1),
-    pin_code: new FormControl(''),
+    pin_code: new FormControl('', [
+      Validators.pattern(/^[0-9]{6}$/)
+    ]),
     bank_address: new FormControl(''),
     passbook_photo: new FormControl<string | null>(null),
     rera_certificate: new FormControl<string | null>(null),
@@ -130,23 +130,23 @@ export class AddChannelPartnerComponent implements OnInit {
         next: (res: any) => {
           if (!res) return;
 
-          const { 
-            passbook_photo, 
-            rera_certificate, 
+          const {
+            passbook_photo,
+            rera_certificate,
             rera_expiry_date,
             firm_phone,
             channel_partner_id,
-            ...formData 
+            ...formData
           } = res;
 
           // Format date if it exists
-          const formattedDate = rera_expiry_date 
-            ? new Date(rera_expiry_date) 
+          const formattedDate = rera_expiry_date
+            ? new Date(rera_expiry_date)
             : null;
 
           // Convert firm_phone to string if it's a number
-          const phoneValue = firm_phone !== null && firm_phone !== undefined 
-            ? String(firm_phone) 
+          const phoneValue = firm_phone !== null && firm_phone !== undefined
+            ? String(firm_phone)
             : '';
 
           // Update form with fetched data
@@ -214,6 +214,14 @@ export class AddChannelPartnerComponent implements OnInit {
     }
   }
 
+  sanitizePinCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+      this.addChannelPartnerForm.get('pin_code')?.setValue(sanitized, { emitEvent: true });
+    }
+  }
+
   onSubmit(): void {
     if (this.addChannelPartnerForm.invalid) {
       this.snackBar.open('Please fill all required fields correctly', 'Close', {
@@ -229,7 +237,7 @@ export class AddChannelPartnerComponent implements OnInit {
     Object.keys(formValue).forEach((key: string) => {
       const typedKey = key as keyof typeof formValue;
       let value = formValue[typedKey];
-      
+
       // Handle date formatting
       if (typedKey === 'rera_expiry_date' && value) {
         value = this.pipe.transform(value, 'yyyy-MM-dd') || '';
@@ -237,9 +245,9 @@ export class AddChannelPartnerComponent implements OnInit {
 
       // Skip file fields and null/undefined values
       if (
-        value !== null && 
-        value !== undefined && 
-        typedKey !== 'passbook_photo' && 
+        value !== null &&
+        value !== undefined &&
+        typedKey !== 'passbook_photo' &&
         typedKey !== 'rera_certificate'
       ) {
         formData.append(typedKey, value.toString());
@@ -253,22 +261,22 @@ export class AddChannelPartnerComponent implements OnInit {
     if (this.selectedFiles.rera_certificate) {
       formData.append('rera_certificate', this.selectedFiles.rera_certificate);
     }
-    if(this.channelPartnerID){
+    if (this.channelPartnerID) {
       formData.append('updated_by', this.userId.toString());
     }
 
-    const apiUrl = this.isEditMode 
+    const apiUrl = this.isEditMode
       ? `${this.baseUrl}/edit_channel_partner`
       : `${this.baseUrl}/add_channel_partner`;
 
     this.http.post(apiUrl, formData).subscribe({
       next: (response: any) => {
         this.snackBar.open(
-          `Channel partner ${this.isEditMode ? 'updated' : 'added'} successfully!`, 
-          'Close', 
+          `Channel partner ${this.isEditMode ? 'updated' : 'added'} successfully!`,
+          'Close',
           { duration: 3000 }
         );
-        
+        this.dialogRef.close(true);
       },
       error: (error) => {
         console.error(error);
@@ -286,11 +294,9 @@ export class AddChannelPartnerComponent implements OnInit {
     delete this.selectedFiles[fieldName];
     this.addChannelPartnerForm.patchValue({ [fieldName]: null });
   }
-   openReceiptDialog(receiptData: any): void {
-    if (receiptData) {
-      console.log(receiptData);
-      
 
+  openReceiptDialog(receiptData: any): void {
+    if (receiptData) {
       this.dialog.open(ReceiptPreviewDialogComponent, {
         width: '80%',
         maxWidth: '900px',
@@ -299,6 +305,10 @@ export class AddChannelPartnerComponent implements OnInit {
           fileUrl: receiptData,
         },
       });
-    } 
+    }
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
   }
 }

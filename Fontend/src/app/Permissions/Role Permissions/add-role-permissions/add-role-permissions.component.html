@@ -8,20 +8,16 @@
   <form [formGroup]="addPermissionForm" (ngSubmit)="onSubmit()">
     <div class="row gx-4 my-5">
 
-      <mat-form-field appearance="outline" class="col-md-3">
-        <mat-label>Roles </mat-label>
-        <mat-select formControlName="role_id">
-          <mat-option *ngFor="let item of  RoleList" [value]="item.role_id">{{ item.role_name }}</mat-option>
-        </mat-select>
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="col-md-3">
-        <mat-label>Roles Permission</mat-label>
-        <mat-select multiple formControlName="permission_id">
-          <mat-option *ngFor="let item of RolePermission" [value]="item.permission_id">{{ item.permission_name
-            }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+      <app-autocomplete-reusable-component class="col-md-3" [options]="RoleList" formControlName="role_id"
+        [displayKey]="'role'" [idKey]="'role_id'" [placeholder]="'Select Role'"></app-autocomplete-reusable-component>
+
+
+
+      <app-autocomplete-reusable-component class="col-md-3" [options]="RolePermission" formControlName="permission_id"
+        [displayKey]="'permission_name'" [idKey]="'permission_id'"
+        [placeholder]="'Select Permission'"></app-autocomplete-reusable-component>
+
 
       <mat-form-field appearance="outline" class="col-md-3">
         <mat-label>Valid From</mat-label>

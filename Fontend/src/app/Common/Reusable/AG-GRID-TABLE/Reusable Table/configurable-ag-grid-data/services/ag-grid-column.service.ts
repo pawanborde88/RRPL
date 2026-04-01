@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ColDef, ColGroupDef } from 'ag-grid-community';
+import { GridApi, ColDef, ColGroupDef, ITooltipParams, SuppressKeyboardEventParams } from 'ag-grid-community';
 import { TableColumn, TableRowData, ActionButton } from '../../../../reusable-table/reusable-table.component';
 import { ActionCellRendererComponent } from '../cell-renderers/action-cell-renderer.component';
 import { SensitiveCellRendererComponent } from '../cell-renderers/sensitive-cell-renderer.component';
@@ -150,7 +150,7 @@ export class AgGridColumnService {
 
     if (col.isAmount) {
       formatter = (params: { value: unknown }) => {
-        if (typeof params.value === 'string' && params.value.startsWith('Total')) {
+        if (typeof params.value === 'string' && params.value.toLowerCase().startsWith('total')) {
           return params.value;
         }
         const value = (params.value as number) || 0;
@@ -270,18 +270,26 @@ export class AgGridColumnService {
     col: TableColumn<T>,
     actions: readonly ActionButton<T>[] | ActionButton<T>[] = [],
     onActionClick?: (event: { action: string; row: T }) => void,
-    allowCheckbox: boolean = false
+    allowCheckbox: boolean = false,
+    roleId: number = 0
   ): ColDef | ColGroupDef {
+    // Role-based visibility check
+    if (col.onlyRoles && col.onlyRoles.length > 0) {
+      if (!col.onlyRoles.includes(roleId)) {
+        return { hide: true } as ColDef; // Hide column if role doesn't match
+      }
+    }
     // Handle Column Groups
     if (col.children && col.children.length > 0) {
       return {
         headerName: col.label,
         headerClass: `ag-header-group-center ${col.headerClass || ''}`.trim(), // Append custom class
-        children: col.children.map(child => this.createColumnDef(child, actions, onActionClick, allowCheckbox)),
+        children: col.children.map(child => this.createColumnDef(child, actions, onActionClick, allowCheckbox, roleId)),
         groupId: col.key, // Optional: useful for API manipulation
       } as ColGroupDef;
     }
 
+    // Handle Single Columns
     const filterType = this.getFilterType(col);
     const filterParams = this.getFilterParams(col);
     const cellRenderer = this.getCellRenderer(col);

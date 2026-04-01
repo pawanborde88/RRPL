@@ -24,6 +24,7 @@ export interface DashboardState {
   loading: boolean;
   currentDate: Date;
   userFullName: string;
+  error: string | null;
 
   // Filter State
   selectedProjectId: number | null;
@@ -47,6 +48,11 @@ export interface DashboardState {
   bookingStatuses: BookingStatus[];
   enquiryFlow: EnquiryFlowData | null;
   salesDashboardData: any | null;
+
+  // Raw API responses for full dashboard coverage
+  presaleDashboardRaw: any | null;
+  allProjectSummaryRaw: any | null;
+  salesReportsRaw: any | null;
 
   // Mock/Static Data
   topAgents: Agent[];
@@ -77,11 +83,15 @@ const initialState: DashboardState = {
   bookingStatuses: [],
   enquiryFlow: null,
   salesDashboardData: null,
+  presaleDashboardRaw: null,
+  allProjectSummaryRaw: null,
+  salesReportsRaw: null,
   topAgents: [],
   marketInsights: [],
   scheduledViewings: [],
   clientInquiries: [],
   recentProperties: [],
+  error: null,
 };
 
 @Injectable()
@@ -96,6 +106,7 @@ export class DashboardStore {
   readonly loading = computed(() => this._state().loading);
   readonly currentDate = computed(() => this._state().currentDate);
   readonly userFullName = computed(() => this._state().userFullName);
+  readonly error = computed(() => this._state().error);
   readonly startDate = computed(() => this._state().startDate);
   readonly endDate = computed(() => this._state().endDate);
 
@@ -108,6 +119,9 @@ export class DashboardStore {
   readonly bookingStatuses = computed(() => this._state().bookingStatuses);
   readonly enquiryFlow = computed(() => this._state().enquiryFlow);
   readonly salesDashboardData = computed(() => this._state().salesDashboardData);
+  readonly presaleDashboardRaw = computed(() => this._state().presaleDashboardRaw);
+  readonly allProjectSummaryRaw = computed(() => this._state().allProjectSummaryRaw);
+  readonly salesReportsRaw = computed(() => this._state().salesReportsRaw);
   readonly digitalCampaigns = computed(() => this._state().digitalCampaigns);
 
   readonly projects = computed(() => this._state().projects);
@@ -133,7 +147,11 @@ export class DashboardStore {
 
   // Actions
   setLoading(loading: boolean): void {
-    this._state.update(state => ({ ...state, loading }));
+    this._state.update(state => ({ ...state, loading, error: loading ? null : state.error }));
+  }
+
+  setError(error: string | null): void {
+    this._state.update(state => ({ ...state, error, loading: false }));
   }
 
   setDates(start: Date | null, end: Date | null): void {

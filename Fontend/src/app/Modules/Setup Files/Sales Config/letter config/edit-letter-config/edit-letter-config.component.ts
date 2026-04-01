@@ -7,6 +7,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, filter, Observable, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../../../environments/environment';
 
 // Components
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
@@ -15,19 +16,18 @@ import { AutocompleteReusableComponent } from '../../../../../Common/autocomplet
 // Modules
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 
-// Service
-import { 
-  LetterConfigService, 
-  LetterType, 
-  Project, 
-  Wing, 
-  PreferredBank 
+import {
+  LetterConfigService,
+  LetterType,
+  Project,
+  Wing,
+  PreferredBank
 } from '../../../../../Service/letter-config.service';
 
 // Interfaces
 interface LetterConfigForm {
   letter_type_id: FormControl<number | null>;
-  wing_id: FormControl<number | null>;
+  wing_id: FormControl<number[] | null>;
   effective_date: FormControl<string | null>;
   project_id: FormControl<number | null>;
   bank_id: FormControl<number | null>;
@@ -73,11 +73,14 @@ export class EditLetterConfigComponent {
   readonly preferredBanks = signal<PreferredBank[]>([]);
   readonly shouldShowBankDropdown = signal(false);
   readonly isEditMode = computed(() => !!this.data?.rowData?.letter_config_id);
+  readonly existingHtmlFileUrl = signal<string | null>(null);
+  readonly existingWordFileUrl = signal<string | null>(null);
+  readonly storageUrl = environment.STORAGE_URL;
 
   // Form
   readonly letterConfigForm = new FormGroup<LetterConfigForm>({
     letter_type_id: new FormControl<number | null>(null, [Validators.required]),
-    wing_id: new FormControl<number | null>(null, [Validators.required]),
+    wing_id: new FormControl<number[] | null>(null, [Validators.required]),
     effective_date: new FormControl<string | null>(
       this.datePipe.transform(new Date(), 'yyyy-MM-dd') || null,
       [Validators.required]
@@ -92,11 +95,11 @@ export class EditLetterConfigComponent {
   });
 
   // Computed signals
-  readonly showHtmlEditor = computed(() => 
+  readonly showHtmlEditor = computed(() =>
     this.letterConfigForm.controls.letter_type_id.value !== 5
   );
 
-  readonly showFileUpload = computed(() => 
+  readonly showFileUpload = computed(() =>
     this.letterConfigForm.controls.letter_type_id.value === 5
   );
 
@@ -110,7 +113,7 @@ export class EditLetterConfigComponent {
     this.initializeForm();
     this.setupFormReactions();
     this.loadInitialData();
-    
+
     if (this.isEditMode()) {
       this.fetchLetterConfig(this.data.rowData.letter_config_id);
     }
@@ -144,15 +147,11 @@ export class EditLetterConfigComponent {
         // Reset wing_id when project changes
         this.letterConfigForm.controls.wing_id.setValue(null, { emitEvent: false });
         this.wings.set([]);
-        
+
         // Fetch wings only if project_id is valid
         if (projectId && typeof projectId === 'number') {
           this.fetchWings(projectId);
         }
-        
-        // Fetch letter types and banks (these don't depend on project)
-        this.fetchLetterTypes();
-        this.fetchPreferredBanks();
       });
   }
 
@@ -192,8 +191,10 @@ export class EditLetterConfigComponent {
   private loadInitialData(): void {
     const roleId = Number(sessionStorage.getItem('role_id'));
     const userId = roleId === 2 ? null : Number(sessionStorage.getItem('session_id'));
-    
+
     this.fetchProjects(userId);
+    this.fetchLetterTypes();
+    this.fetchPreferredBanks();
   }
 
   private fetchProjects(userId: number | null): void {
@@ -310,53 +311,78 @@ export class EditLetterConfigComponent {
             const letterConfig = response.data[0];
             this.shouldShowBankDropdown.set(letterConfig.letter_type_id === 2);
 
-            const effectiveDate = letterConfig.effective_date === '0000-00-00' 
-              ? null 
+            // Set existing file URLs if available
+            if (letterConfig.html_file) {
+              this.existingHtmlFileUrl.set(this.getFileUrl(letterConfig.html_file));
+            }
+            if (letterConfig.word_file) {
+              this.existingWordFileUrl.set(this.getFileUrl(letterConfig.word_file));
+            }
+
+            const effectiveDate = letterConfig.effective_date === '0000-00-00'
+              ? null
               : letterConfig.effective_date;
-            
+
             // First, set project_id and fetch wings for that project
             if (letterConfig.project_id) {
               this.letterConfigForm.patchValue({
                 project_id: letterConfig.project_id
               }, { emitEvent: false });
-              
+
               // Fetch wings for the selected project (don't auto-subscribe, we'll handle it)
               this.fetchWings(letterConfig.project_id, false)
                 .pipe(takeUntilDestroyed(this.destroyRef))
                 .subscribe({
                   next: (wings) => {
                     // After wings are loaded, patch the rest of the form values
+                    const wingIds = Array.isArray(letterConfig.wing_id)
+                      ? letterConfig.wing_id
+                      : (letterConfig.wing_id != null ? [Number(letterConfig.wing_id)] : null);
+
                     this.letterConfigForm.patchValue({
                       letter_config_id: letterConfig.letter_config_id,
                       letter_type_id: letterConfig.letter_type_id,
-                      wing_id: letterConfig.wing_id,
+                      wing_id: wingIds,
                       bank_id: letterConfig.bank_id,
                       effective_date: effectiveDate
                     }, { emitEvent: false });
+
+                    // Explicitly call handleLetterTypeChange to setup visibility
+                    this.handleLetterTypeChange(letterConfig.letter_type_id);
 
                   },
                   error: () => {
                     // Even if wings fail, still patch other values
+                    const wingIds = Array.isArray(letterConfig.wing_id)
+                      ? letterConfig.wing_id
+                      : (letterConfig.wing_id != null ? [Number(letterConfig.wing_id)] : null);
+
                     this.letterConfigForm.patchValue({
                       letter_config_id: letterConfig.letter_config_id,
                       letter_type_id: letterConfig.letter_type_id,
-                      wing_id: letterConfig.wing_id,
+                      wing_id: wingIds,
                       bank_id: letterConfig.bank_id,
                       effective_date: effectiveDate
                     }, { emitEvent: false });
 
+                    this.handleLetterTypeChange(letterConfig.letter_type_id);
                   }
                 });
             } else {
               // If no project_id, just patch other values
+              const wingIds = Array.isArray(letterConfig.wing_id)
+                ? letterConfig.wing_id
+                : (letterConfig.wing_id != null ? [Number(letterConfig.wing_id)] : null);
+
               this.letterConfigForm.patchValue({
                 letter_config_id: letterConfig.letter_config_id,
                 letter_type_id: letterConfig.letter_type_id,
-                wing_id: letterConfig.wing_id,
+                wing_id: wingIds,
                 bank_id: letterConfig.bank_id,
                 effective_date: effectiveDate
               }, { emitEvent: false });
 
+              this.handleLetterTypeChange(letterConfig.letter_type_id);
             }
           }
         },
@@ -364,14 +390,25 @@ export class EditLetterConfigComponent {
       });
   }
 
+  getFileUrl(filePath?: string | null): string {
+    if (!filePath) {
+      return '';
+    }
+    return `${this.storageUrl}/${filePath}`;
+  }
+
   onHtmlFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      
+
       // Validate file type
-      if (!file.name.toLowerCase().endsWith('.html') && !file.name.toLowerCase().endsWith('.htm')) {
-        this.showError('Please select a valid HTML file (.html or .htm)');
+      const fileName = file.name.toLowerCase();
+      const allowedExtensions = ['.html', '.htm', '.docx'];
+      const isValid = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+      if (!isValid) {
+        this.showError('Please select a valid file (.html, .htm, or .docx)');
         input.value = '';
         return;
       }
@@ -394,13 +431,13 @@ export class EditLetterConfigComponent {
 
   onSubmit(): void {
 
-  
+
     this.isLoading.set(true);
-  
+
     const formData = new FormData();
     const formValue = this.letterConfigForm.getRawValue();
     const letterTypeId = formValue.letter_type_id;
-  
+
     // Append form values to FormData
     Object.keys(formValue).forEach(key => {
       const value = formValue[key as keyof typeof formValue];
@@ -410,19 +447,21 @@ export class EditLetterConfigComponent {
         formData.append(key, value, value.name);
       } else if (key === 'effective_date' && value) {
         formData.append(key, this.datePipe.transform(value as string, 'yyyy-MM-dd') || '');
-      } else if (value !== null && value !== undefined) {
+      } else if (key === 'wing_id' && Array.isArray(value) && value.length > 0) {
+        value.forEach((id: number, index: number) => formData.append(`wing_id[${index}]`, String(id)));
+      } else if (value !== null && value !== undefined && key !== 'wing_id') {
         formData.append(key, String(value));
       }
     });
-  
+
     if (this.isEditMode()) {
       formData.set('letter_config_id', String(this.data.rowData.letter_config_id));
     }
-  
+
     const request$ = this.isEditMode()
       ? this.letterConfigService.editLetterConfig(formData)
       : this.letterConfigService.addLetterConfig(formData);
-  
+
     request$
       .pipe(
         catchError(err => {

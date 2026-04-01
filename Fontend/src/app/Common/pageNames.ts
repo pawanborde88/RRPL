@@ -15,6 +15,8 @@ export const USER_ATTENDANCE_PAGE = 'User Attendance Page - Relation Realtech PV
 export const QR_ATTENDENCE_SCANNER = 'QR Attendence Scanner - Relation Realtech PVT.LTD.';
 export const ALL_QUATATION_LOG = 'All Quatation Log - Relation Realtech PVT.LTD.';
 export const LMS_DASHBOARD = 'LMS Dashboard - Relation Realtech PVT.LTD.';
+export const EVENT_CUSTOMERS_CREDENTIALS = 'Event Customers Credentials - Relation Realtech PVT.LTD.';
+export const ENQUIRY_REVISIT_REPORT = 'Enquiry Revisit Report - Relation Realtech PVT.LTD.';
 // SOP Module
 export const ALL_SOP = 'All SOP - Relation Realtech PVT.LTD.';
 export const ADD_SOP = 'Add SOP - Relation Realtech PVT.LTD.';
@@ -27,16 +29,16 @@ export const LEAD_CALL_LOGS = 'Lead Call Logs - Relation Realtech PVT.LTD.';
 export const ALL_PARKING_UNITS = 'All Parking Units - Relation Realtech PVT.LTD.';
 export const PARKING_INVENTORY_CHART = 'Parking Inventory Chart - Relation Realtech PVT.LTD.';
 export const ALL_EVENTS_USER_LOG = 'All Events User Log - Relation Realtech PVT.LTD.';
-// Team Module
 export const ALL_TEAMS = 'All Teams - Relation Realtech PVT.LTD.';
 export const DIGITAL_HOARDING_LEADS_REPORT = 'Digital Hoarding Leads Report - Relation Realtech PVT.LTD.';
+export const DELETED_RECEIPTS_LOG = 'Deleted Receipts Log - Relation Realtech PVT.LTD.';
 // Feedback Module
 export const ALL_FEEDBACKS = 'All Feedbacks - Relation Realtech PVT.LTD.';
 export const DIGITAL_LEADS = 'Digital Leads - Relation Realtech PVT.LTD.';
 // City & Location
 export const CITY_SUBREGION = 'City Subregion - Relation Realtech PVT.LTD.';
 export const PREFERRED_LOCATION = 'Preferred Location - Relation Realtech PVT.LTD.';
-
+export const CP_EXECUTIVE_FOLLOW_UP_REPORT = 'CP Executive Follow-up Report - Relation Realtech PVT.LTD.';
 // Settings & Dashboard
 export const SETUP_DASHBOARD = 'Setup Dashboard - Relation Realtech PVT.LTD.';
 export const SALES_REPORT_DASHBOARD = 'Sales Report Dashboard - Relation Realtech PVT.LTD.';

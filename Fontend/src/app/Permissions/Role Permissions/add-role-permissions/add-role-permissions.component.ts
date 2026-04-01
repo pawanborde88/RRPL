@@ -16,6 +16,7 @@ import { TemplateComponent } from '../../../Common/template/template.component';
 import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../environments/environment';
 import { PermissionService } from '../../../Service/permission.service';
+import { AutocompleteReusableComponent } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 
 
@@ -24,11 +25,13 @@ import { PermissionService } from '../../../Service/permission.service';
   standalone: true,
   imports: [
     AngularMaterialModule,
+    CommonModule,
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,
     RouterModule,
     FormsModule,
+    AutocompleteReusableComponent
   ],
   templateUrl: './add-role-permissions.component.html',
   styleUrl: './add-role-permissions.component.scss'
@@ -81,8 +84,7 @@ export class AddRolePermissionsComponent {
   fetchAllRolePermission() {
     this.permissionApi.fetchAllRolePermission().subscribe({
       next: (res: any) => {
-        this.RolePermission = res;
-        console.log(res.message);
+        this.RolePermission = Array.isArray(res) ? res : res?.data ?? [];
       },
       error: (err: any) => {
         console.log(err);
@@ -96,12 +98,11 @@ export class AddRolePermissionsComponent {
   fetchAllRoles() {
     this.permissionApi.fetchAllRoles().subscribe({
       next: (res: any) => {
-        this.RoleList = res;
-        console.log(res.message);
+        this.RoleList = Array.isArray(res) ? res : res?.data ?? [];
       },
       error: (err: any) => {
         console.log(err);
-        this.snackBar.open('Unable to fetch ROles.');
+        this.snackBar.open('Unable to fetch Roles.');
       },
       complete: () => { },
     });

@@ -5,12 +5,12 @@
     </app-breadcrumb>
 
     <div class="min-h-screen bg-[#f8fafc]">
-        <div class="max-w-[1800px] mx-auto px-2 py-3">
+        <div class="max-w-[1800px] mx-auto px-2">
 
             <!-- Ultra-Compact Header & Filters -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden mb-3">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
                 <div
-                    class="px-4 py-2 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+                    class="px-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <h5 class="text-base font-bold text-slate-900 leading-none">Parking Inventory Chart</h5>
                         @if (selectedProjectId() && hasData()) {
@@ -40,7 +40,7 @@
                     }
                 </div>
 
-                <div class="px-4 py-2.5 bg-white">
+                <div class="px-4 bg-white">
                     <div class="flex flex-wrap items-center gap-4">
                         <div class="flex-1 min-w-[200px] max-w-[300px]">
                             <app-autocomplete-reusable-component class="w-full mini-autocomplete"
@@ -153,54 +153,56 @@
                                 <td mat-cell *matCellDef="let element" class="px-8 py-8 border-b border-slate-50">
                                     <div class="flex flex-wrap gap-4">
                                         @for (unit of element.units; track unit.parking_plan_id) {
-                                        <div class="group relative w-28 h-24 rounded-2xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 border border-slate-200/60 shadow-sm hover:border-indigo-300"
-                                            (click)="onUnitClick(unit)"
-                                            [style.background-color]="unit.color_code || '#FFFFFF'"
+                                        <div class="group relative w-32 h-24 rounded-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col p-2.5 border border-slate-200 shadow-sm hover:border-indigo-400"
+                                            (click)="onUnitClick(unit)" [style.background-color]="unit.color_code"
                                             [class.ring-2]="isUnitSelected(unit)"
                                             [class.ring-indigo-500]="isUnitSelected(unit)"
-                                            [class.ring-offset-2]="isUnitSelected(unit)">
+                                            [class.ring-offset-1]="isUnitSelected(unit)">
 
-                                            <!-- Custom Checkbox - Improved scale and position -->
-                                            <div class="absolute top-2 right-2 z-20">
-                                                <div class="relative flex items-center justify-center">
+                                            <!-- Header: Wing & Selection -->
+                                            <div class="flex items-start justify-between z-10">
+                                                <span
+                                                    class="font-extrabold uppercase tracking-tighter leading-none pt-1">
+                                                    {{ unit.wing_name || 'WING' }}
+                                                </span>
+                                                <div class="flex items-center gap-1.5 h-4">
+
                                                     <input type="checkbox" [checked]="isUnitSelected(unit)"
                                                         (click)="$event.stopPropagation()"
                                                         (change)="toggleUnitSelection(unit)"
-                                                        class="peer h-5 w-5 cursor-pointer appearance-none rounded-lg border border-slate-300 bg-white/90 shadow-sm transition-all checked:border-indigo-600 checked:bg-indigo-600 focus:outline-none" />
-
+                                                        class="h-3.5 w-3.5 cursor-pointer appearance-none rounded border border-slate-300 shadow-sm transition-all checked:border-indigo-600 checked:bg-indigo-600 focus:outline-none" />
                                                 </div>
                                             </div>
 
-                                            <!-- Status Indicator -->
-                                            <div class="absolute top-3 left-3 flex items-center gap-1">
-                                                <div class="w-1.5 h-1.5 rounded-full"
-                                                    [class.bg-emerald-500]="!isBooked(unit)"
-                                                    [class.bg-rose-500]="isBooked(unit)"></div>
-                                            </div>
-
-                                            <!-- Unit Number -->
-                                            <span
-                                                class="text-xl font-black leading-none mb-1.5 relative z-10 tracking-tighter text-slate-900">
-                                                {{ unit.floor_unit }}
-                                            </span>
-
-                                            <!-- Unit ID (if exists) -->
-                                            <div class="flex flex-col items-center gap-0.5 mt-auto">
+                                            <!-- Hero: Unit Number -->
+                                            <div class="flex-1 flex flex-col items-center justify-center z-10 py-1">
                                                 <span
-                                                    class="text-[9px] font-black text-slate-500/80 uppercase tracking-tighter">
-                                                    {{ unit.parking_type }}
+                                                    class="text-base font-black text-slate-900 tracking-tight leading-none">
+                                                    {{ unit.floor_unit || unit.parking_no }}
                                                 </span>
-                                                @if (unit.unit_id) {
-                                                <span class="text-[8px] font-medium text-slate">
-                                                    U: {{ unit.unit_id }}
-                                                </span>
-                                                }
                                             </div>
 
-                                            <!-- Hover effect glass overlay -->
+                                            <!-- Footer: Metadata -->
                                             <div
-                                                class="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-all duration-300">
+                                                class="flex flex-col gap-0.5 z-10 border-t border-slate-100 pt-1.5 mt-auto min-h-[36px]">
+                                                <div class="flex items-center justify-between w-full">
+                                                    <span
+                                                        class="text-[8px] font-bold text-slate-700 uppercase tracking-tight truncate max-w-[70%]">
+                                                        {{ unit.parking_type }}
+                                                    </span>
+                                                    @if (unit.unit_id) {
+                                                    <span class="text-[8px] font-black">{{ unit.unit_id
+                                                        }}</span>
+                                                    } @else {
+                                                    <span class="text-[8px] opacity-0">-</span>
+                                                    }
+                                                </div>
+
                                             </div>
+
+                                            <!-- Subtle Accent Bar -->
+                                            <div class="absolute bottom-0 left-0 w-full h-0.5"
+                                                [style.background-color]="unit.color_code || '#e2e8f0'"></div>
                                         </div>
                                         }
                                     </div>
@@ -215,7 +217,7 @@
                             <!-- Data Rows -->
                             <tr mat-row *matRowDef="let row; columns: displayedColumns; let even = even"
                                 [ngClass]="{ 'bg-slate-50/30': even, 'bg-white': !even }"
-                                class="hover:bg-slate-100/50 transition-colors duration-150 border-b border-slate-100">
+                                class=" transition-colors duration-150 border-b border-slate-100">
                             </tr>
                         </table>
 

@@ -16,7 +16,8 @@ import {
   PLATFORM_ID,
   Injector,
   runInInjectionContext,
-  NgZone
+  NgZone,
+  HostListener
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -36,16 +37,25 @@ import {
   Theme,
   RowSelectionOptions,
   themeQuartz,
-  AllCommunityModule,
   AutoSizeStrategy,
   RowClassParams,
   PaginationNumberFormatterParams,
   AutoGroupColumnDef,
   ModuleRegistry,
-  PaginationChangedEvent
+  PaginationChangedEvent,
+  CellKeyDownEvent,
+  RowApiModule,
+  CellStyleModule,
+  ClientSideRowModelModule,
+  ValidationModule
 } from 'ag-grid-community';
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  RowApiModule,
+  CellStyleModule,
+  ClientSideRowModelModule,
+  ValidationModule
+]);
 
 import { environment } from '../../../../../../environments/environment';
 import {
@@ -104,10 +114,11 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
   readonly idProperty = input<string>('id');
   readonly selectedItems = input<T[]>([]);
   readonly autoLoad = input<boolean>(false);
+  readonly customStorageKey = input<string | undefined>(undefined, { alias: 'storageKey' });
   readonly getRowClass = input<((params: RowClassParams<T>) => string | string[] | undefined) | undefined>(undefined);
   readonly customTheme = input<Partial<Parameters<typeof themeQuartz.withParams>[0]> | undefined>(undefined);
   readonly paginationPageSize = input<number>(100);
-  readonly paginationPageSizeSelector = input<number[] | boolean>([30, 50, 100, 200, 500, 1000]);
+  readonly paginationPageSizeSelector = input<number[] | boolean>([30, 50, 100, 200, 500, 1000, 10000]);
 
   // Re-added deprecated or missing inputs for template compatibility
   readonly animateRows = input<boolean>(true);
@@ -176,6 +187,17 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     this.facade.hasData() && this.exportPermissionIds.some(id => this.hasPermission(id))
   );
 
+  readonly isFullView = signal(false);
+  readonly gridColumns = signal<{ id: string, name: string, visible: boolean }[]>([]);
+  readonly columnSearchTerm = signal('');
+
+  readonly filteredGridColumns = computed(() => {
+    const term = this.columnSearchTerm().toLowerCase();
+    const cols = this.gridColumns();
+    if (!term) return cols;
+    return cols.filter(c => c.name.toLowerCase().includes(term));
+  });
+
   // Expose facade state
   readonly isLoading = computed(() => this.facade.loading() || this.loading());
   readonly rowData = this.facade.allLoadedData; // Bind this to [rowData]
@@ -210,6 +232,31 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     return this.showCheckbox() ? { mode: 'multiRow' } : undefined;
   });
 
+  readonly effectiveSelectionColumnDef = computed<ColDef<T> | undefined>(() => {
+    if (!this.showCheckbox()) return undefined;
+    const userDef = this.selectionColumnDef() || {};
+    return {
+      width: 50,
+      minWidth: 50,
+      maxWidth: 50,
+      pinned: 'right',
+      suppressHeaderMenuButton: true,
+      sortable: false,
+      filter: false,
+      resizable: false,
+      cellClass: 'ag-center-aligned-cell',
+      headerClass: 'ag-center-aligned-header',
+      ...userDef,
+      // Ensure these override any user-provided settings
+      headerComponent: HeaderCheckboxComponent,
+      headerComponentParams: {
+        facade: this.facade,
+        idProperty: this.idProperty()
+      },
+      headerCheckboxSelection: false
+    } as ColDef<T>;
+  });
+
   readonly suppressRowClickSelection = computed(() => this.showCheckbox());
 
   readonly theme = computed<Theme>(() => {
@@ -228,15 +275,59 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
 
   readonly effectiveCacheBlockSize = computed(() => this.cacheBlockSize());
 
+  readonly gridContext = computed(() => ({
+    facade: this.facade,
+    idProperty: this.idProperty(),
+    ...(this.context() || {})
+  }));
+
   readonly effectiveGetRowClass = computed(() => {
     return this.getRowClass();
+  });
+
+  // Inline style getter — always highlights pinned bottom rows regardless of CSS theming
+  readonly effectiveGetRowStyle = computed(() => {
+    const userStyle = this.getRowStyle();
+    return (params: any) => {
+      const base = typeof userStyle === 'function' ? userStyle(params) : {};
+      if (params.node?.rowPinned === 'bottom') {
+        return {
+          ...base,
+          backgroundColor: '#f8fafc',
+          fontWeight: '700',
+        };
+      }
+      return base;
+    };
+  });
+
+  readonly effectiveGetRowId = computed(() => {
+    return (params: any) => {
+      const data = params.data;
+      if (!data) return '';
+
+      // Use internal unique facade ID if available (guaranteed unique and stable)
+      if (data.__facade_row_id) return data.__facade_row_id;
+
+      // Fallback to user-defined ID property
+      const idProp = this.idProperty();
+      const id = data[idProp];
+      if (id != null && id !== '') return String(id);
+
+      // Secondary fallback for missing/null IDs to prevent collision
+      const fallbackId = data['id'] || data['uuid'] || data['_id'] || data['token_id'] || data['user_id'];
+      if (fallbackId != null && fallbackId !== '') return String(fallbackId);
+
+      // Final fallback: use row index if available
+      return `row-${params.node?.id || params.node?.rowIndex || Math.random()}`;
+    };
   });
 
 
 
 
   // Grid state
-  private cachedColumnDefs: ColDef[] | null = null;
+  private cachedColumnDefs: ColDef<T>[] | null = null;
   private lastColumnsHash = '';
   private rafScheduled = false;
   private pendingUpdates: (() => void)[] = [];
@@ -244,12 +335,25 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
   private wasBulk = false;
   private lastPageSize = 0;
   private autoSizeTimeout: any;
+  private searchTimeout: any;
+
+  readonly storageKey = computed(() => {
+    const customKey = this.customStorageKey();
+    if (customKey) return customKey.replace(/[^a-zA-Z0-9]/g, '_');
+
+    const endpoint = this.apiEndpoint();
+    if (!endpoint) return '';
+    // Create a safe key from endpoint
+    return endpoint.replace(/[^a-zA-Z0-9]/g, '_');
+  });
 
 
 
   // AG Grid configuration
   readonly rowModelType = signal<RowModelType>('clientSide');
   readonly rowBuffer = 20;
+  readonly valueCache = true;
+  readonly suppressColumnVirtualisation = false;
   readonly autoSizeStrategy: AutoSizeStrategy = {
     type: 'fitCellContents',
     defaultMaxWidth: 300,
@@ -259,7 +363,7 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
 
   readonly domLayout: 'normal' | 'autoHeight' | 'print' = 'normal';
 
-  readonly defaultColDef = computed<ColDef>(() => ({
+  readonly defaultColDef = computed<ColDef<T>>(() => ({
     minWidth: 100,
     maxWidth: 500,
     sortable: true,
@@ -269,7 +373,6 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     sortingOrder: ['asc', 'desc', null],
     resizable: true,
     suppressHeaderMenuButton: true,
-    enableCellChangeFlash: true,
     wrapText: this.wrapText(),
     autoHeight: this.autoHeight(),
 
@@ -363,7 +466,7 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     }
   }
 
-  private buildColumnDefs(): ColDef[] {
+  private buildColumnDefs(): ColDef<T>[] {
     let columnsArray = Array.isArray(this.columns()) ? this.columns() : [...this.columns()];
 
     // Filter out checkbox-related columns
@@ -392,17 +495,17 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     }
 
     const hasSerialNoColumn = columnsArray.some(col => col.type === 'index');
-    const finalColumns: ColDef[] = [];
+    const finalColumns: ColDef<T>[] = [];
 
     if (!hasSerialNoColumn) {
       finalColumns.push({
         headerName: 'S.No',
         colId: 'serialNo',
-        valueGetter: 'node.rowIndex + 1',
+        valueGetter: (params) => params.node?.rowPinned ? '' : (params.node?.rowIndex ?? 0) + 1,
         width: 70,
         minWidth: 70,
         maxWidth: 70,
-        pinned: 'left',
+        pinned: 'right',
         sortable: false,
         filter: false,
         suppressHeaderMenuButton: true,
@@ -419,8 +522,8 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     };
 
     for (const col of columnsArray) {
-      const colDef = this.columnService.createColumnDef(col, actions, onActionClick, this.showCheckbox());
-      finalColumns.push(colDef as ColDef);
+      const colDef = this.columnService.createColumnDef(col, actions, onActionClick, this.showCheckbox(), this.roleId);
+      finalColumns.push(colDef as ColDef<T>);
     }
 
     return finalColumns;
@@ -440,6 +543,9 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     this.store.setBasePayload(basePayload);
 
     this.configureOverlay();
+    this.facade.loadColumnState(this.storageKey());
+
+    // Auto-size listener
 
     // Auto-size listener
     params.api.addEventListener('modelUpdated', () => {
@@ -470,13 +576,42 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     }
 
     this.lastPageSize = params.api.paginationGetPageSize();
+    this.updateGridColumnsList();
     this.gridReady.emit(params);
     this.cdr.markForCheck();
+  }
+
+  private updateGridColumnsList(): void {
+    const api = this.facade.gridApi();
+    if (!api) return;
+    const cols = api.getColumns() || [];
+    this.gridColumns.set(cols.map(c => ({
+      id: c.getColId(),
+      name: c.getColDef().headerName || c.getColId(),
+      visible: c.isVisible()
+    })));
+  }
+
+  toggleColumn(colId: string): void {
+    const api = this.facade.gridApi();
+    if (!api) return;
+    const isVisible = api.getColumn(colId)?.isVisible();
+    api.setColumnsVisible([colId], !isVisible);
+    this.updateGridColumnsList();
+    this.onColumnChanged();
+  }
+
+  onColumnSearch(term: string): void {
+    this.columnSearchTerm.set(term);
   }
 
   onPaginationChanged(event?: PaginationChangedEvent) {
     const api = this.facade.gridApi();
     if (!api) return;
+
+    if (!this.autoLoad() && !this.facade.hasInitiatedLoad()) {
+      return;
+    }
 
     if (api.paginationIsLastPageFound()) {
       // If we know the total rows, and we are at the end, do nothing?
@@ -507,6 +642,25 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
         });
       }
     );
+  }
+
+  onCellKeyDown(event: CellKeyDownEvent): void {
+    const key = (event.event as KeyboardEvent)?.key?.toLowerCase();
+    if (!key) return;
+
+    // F: Toggle Fullscreen
+    if (key === 'f') {
+      this.toggleFullView();
+    }
+    // R: Reset Columns
+    else if (key === 'r') {
+      this.resetColumnState();
+    }
+    // /: Focus Search
+    else if (key === '/') {
+      event.event?.preventDefault();
+      this.searchInputRef?.nativeElement?.focus();
+    }
   }
 
 
@@ -597,21 +751,46 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
   }
 
   loadData(): void {
+    this.facade.setHasInitiatedLoad(true);
     this.store.resetLoadedPages();
     this.onPaginationChanged();
   }
 
 
   refreshData(): void {
+    this.facade.setHasInitiatedLoad(true);
     this.facade.refreshData();
     this.loadData();
   }
 
+  onSearchChange(value: string): void {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.facade.updateSearchText(value);
+      this.store.resetLoadedPages();
+      this.onPaginationChanged();
+    }, 500); // 500ms debounce
+  }
 
+  onColumnChanged(): void {
+    this.facade.saveColumnState(this.storageKey());
+    this.updateGridColumnsList();
+  }
+
+  resetColumnState(): void {
+    const api = this.facade.gridApi();
+    if (api) {
+      api.resetColumnState();
+      this.facade.saveColumnState(this.storageKey());
+    }
+  }
 
   onSearchEnter(): void {
     if (!this.searchInputRef?.nativeElement) return;
     const searchValue = this.searchInputRef.nativeElement.value || '';
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
     this.facade.updateSearchText(searchValue);
     this.store.resetLoadedPages();
     this.onPaginationChanged();
@@ -622,6 +801,7 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     if (this.searchInputRef?.nativeElement) {
       this.searchInputRef.nativeElement.value = '';
     }
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
     this.store.resetLoadedPages();
     this.onPaginationChanged();
   }
@@ -639,10 +819,27 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
       this.columns(),
       this.facade.allLoadedData(),
       this.facade.totalRowCount(),
-      this.columnsHash()
+      this.columnsHash(),
+      this.apiEndpoint() // Pass endpoint for cache isolation
     );
 
     this.facade.setPinnedBottomRowData(pinnedData.data);
+  }
+
+  toggleFullView(): void {
+    this.isFullView.update(v => !v);
+    this.cdr.markForCheck();
+    // Refresh grid size when toggling so AG Grid recalculates
+    setTimeout(() => {
+      this.facade.gridApi()?.sizeColumnsToFit();
+    }, 100);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isFullView()) {
+      this.toggleFullView();
+    }
   }
 
   exportData(): void {

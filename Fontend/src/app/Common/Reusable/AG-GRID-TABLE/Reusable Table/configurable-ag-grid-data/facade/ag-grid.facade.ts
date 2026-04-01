@@ -1,4 +1,4 @@
-import { Injectable, inject, computed } from '@angular/core';
+import { Injectable, inject, computed, NgZone } from '@angular/core';
 import { GridReadyEvent, IGetRowsParams, IDatasource, GridApi } from 'ag-grid-community';
 import { finalize, tap } from 'rxjs/operators';
 import { AgGridStore } from '../store/ag-grid.store';
@@ -13,6 +13,7 @@ import { TableRowData } from '../../../../reusable-table/reusable-table.componen
 export class AgGridFacade<T extends TableRowData = TableRowData> {
   private readonly store = inject(AgGridStore<T>);
   private readonly dataService = inject(AgGridDataService);
+  private readonly ngZone = inject(NgZone);
 
   // Read-only Signals from Store
   readonly gridApi = this.store.gridApi;
@@ -31,6 +32,7 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
   readonly isBulkOperation = this.store.isBulkOperation;
   readonly loadedPages = this.store.loadedPages;
   readonly fetchingPages = this.store.fetchingPages;
+  readonly hasInitiatedLoad = this.store.hasInitiatedLoad;
 
   // Computed Signals
   readonly hasData = this.store.hasData;
@@ -114,11 +116,15 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
       )
       .subscribe({
         next: (response) => {
-          const offset = (overridePayload?.['offset'] as number) || 0;
-          const rowData = this.handleDataSuccess(response, idProperty, offset);
-          onDataLoaded?.(rowData);
+          this.ngZone.runOutsideAngular(() => {
+            const offset = (overridePayload?.['offset'] as number) || 0;
+            const rowData = this.handleDataSuccess(response, idProperty, offset);
+            if (onDataLoaded) {
+              this.ngZone.run(() => onDataLoaded(rowData));
+            }
+          });
         },
-        error: (error) => {
+        error: (error: any) => {
           this.store.setError(error?.message || 'Data loading failed');
           console.error('AgGridFacade: Data loading failed', error);
         }
@@ -135,6 +141,10 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
 
   setActiveOverlay(overlay: string | undefined): void {
     this.store.setActiveOverlay(overlay);
+  }
+
+  setHasInitiatedLoad(value: boolean): void {
+    this.store.setHasInitiatedLoad(value);
   }
 
   setPinnedBottomRowData(data: Record<string, unknown>[]): void {
@@ -156,6 +166,47 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
 
   clearSearch(): void {
     this.updateSearchText('');
+  }
+
+  /**
+   * Saves the current column state (order, width, visibility, sort) to localStorage.
+   */
+  saveColumnState(storageKey: string): void {
+    const api = this.store.gridApi();
+    if (!api || !storageKey) return;
+
+    const state = {
+      columnState: api.getColumnState(),
+      filterModel: api.getFilterModel(),
+    };
+
+    localStorage.setItem(`ag-grid-state-${storageKey}`, JSON.stringify(state));
+  }
+
+  /**
+   * Loads and applies the column state from localStorage.
+   */
+  loadColumnState(storageKey: string): void {
+    const api = this.store.gridApi();
+    if (!api || !storageKey) return;
+
+    const savedState = localStorage.getItem(`ag-grid-state-${storageKey}`);
+    if (savedState) {
+      try {
+        const parsedState = JSON.parse(savedState);
+        if (parsedState.columnState) {
+          api.applyColumnState({
+            state: parsedState.columnState,
+            applyOrder: true,
+          });
+        }
+        if (parsedState.filterModel) {
+          api.setFilterModel(parsedState.filterModel);
+        }
+      } catch (e) {
+        console.warn('Failed to parse saved grid state', e);
+      }
+    }
   }
 
   updateSelectionState(selectedRows: T[], idProperty: string): void {
@@ -214,7 +265,11 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
     mergeOffset: number = 0
   ): T[] {
     const res = response as any;
-    const rowData: T[] = res?.rowData || res?.data || res?.rows || res?.result || [];
+    let rowData: T[] = res?.rowData || res?.data || res?.rows || res?.result || [];
+
+    // Filter out invalid items
+    rowData = rowData.filter(item => item != null);
+
     const totalCount = res?.totalCount || res?.total || rowData.length;
 
     if (totalCount >= 0) {
@@ -224,17 +279,27 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
     let currentData = [...this.store.allLoadedData()];
     const requiredLength = Math.max(currentData.length, mergeOffset + rowData.length);
 
+    // Ensure array has correct length with placeholders
     if (currentData.length < requiredLength) {
       const newArray = new Array(requiredLength);
       for (let i = 0; i < currentData.length; i++) newArray[i] = currentData[i];
       for (let i = currentData.length; i < requiredLength; i++) {
-        newArray[i] = { [idProperty]: `placeholder-${i}`, __isPlaceholder: true } as unknown as T;
+        newArray[i] = {
+          [idProperty]: `placeholder-${i}`,
+          __facade_row_id: `facade-placeholder-${i}`,
+          __isPlaceholder: true
+        } as unknown as T;
       }
       currentData = newArray;
     }
 
+    // Merge new data and inject unique internal IDs
     for (let i = 0; i < rowData.length; i++) {
-      currentData[mergeOffset + i] = rowData[i];
+      const row = { ...rowData[i] };
+      // Inject unique stable ID based on absolute offset to prevent collision
+      const absoluteIndex = mergeOffset + i;
+      (row as any).__facade_row_id = `facade-row-${absoluteIndex}`;
+      currentData[absoluteIndex] = row;
     }
 
     const total = this.store.totalRowCount();
@@ -242,7 +307,11 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
       const newArray = new Array(total);
       for (let i = 0; i < currentData.length; i++) newArray[i] = currentData[i];
       for (let i = currentData.length; i < total; i++) {
-        newArray[i] = { [idProperty]: `placeholder-${i}`, __isPlaceholder: true } as unknown as T;
+        newArray[i] = {
+          [idProperty]: `placeholder-${i}`,
+          __facade_row_id: `facade-placeholder-${i}`,
+          __isPlaceholder: true
+        } as unknown as T;
       }
       currentData = newArray;
     }

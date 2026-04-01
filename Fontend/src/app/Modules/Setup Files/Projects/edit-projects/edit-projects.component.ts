@@ -110,6 +110,7 @@ interface ProjectData {
   max_cost: number | null;
   active_status_id: number;
   project_status_id: number;
+  enq_otp_status: number;
   created_by?: number;
   created_at?: string;
   updated_by?: number;
@@ -429,7 +430,11 @@ export class EditProjectComponent implements OnInit {
         [Validators.required]
       ),
       event_status_id: new FormControl(0),
+      event_description: new FormControl('', [
+      ]),
       call_masking_id: new FormControl(0),
+      enq_otp_status: new FormControl(0),
+
       event_remark: new FormControl('', [
         Validators.maxLength(200)
       ]),
@@ -467,7 +472,6 @@ export class EditProjectComponent implements OnInit {
       active_status_id: new FormControl('', [
         Validators.required
       ]),
-
       is_retro: new FormControl(0),
       footer_description: new FormControl('', [
         Validators.maxLength(200)
@@ -508,7 +512,8 @@ export class EditProjectComponent implements OnInit {
       project_code,
       project_thumbnail_img,
       project_logo,
-      call_masking_id
+      call_masking_id,
+      enq_otp_status
     } = projectData;
 
     // Convert receipt_no_start to string if it's a number
@@ -550,6 +555,7 @@ export class EditProjectComponent implements OnInit {
       is_retro: is_retro ?? 0,
       footer_description: footer_description || '',
       project_code: project_code || '',
+      enq_otp_status: enq_otp_status ?? 0,
       project_id: projectData.project_id || '',
       updated_at: projectData.updated_at || ''
     }, { emitEvent: false }); // Prevent unnecessary value change events
@@ -1212,6 +1218,7 @@ export class EditProjectComponent implements OnInit {
     'active_status_id',
     'is_retro',
     'footer_description',
+    'enq_otp_status',
   ] as const;
 
   /**

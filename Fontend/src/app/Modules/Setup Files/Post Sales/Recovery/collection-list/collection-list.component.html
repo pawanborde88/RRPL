@@ -21,15 +21,11 @@
           </app-autocomplete-reusable-component>
         </div>
 
-        <!-- Wing Dropdown -->
-        <mat-form-field appearance="outline" class="col-md-2">
-          <mat-label>Select Wing</mat-label>
-          <mat-select formControlName="wing_id">
-            <mat-option *ngFor="let allwings of allWingslist()" [value]="allwings.wing_id">
-              {{ allwings.wing_name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="col-md-2">
+          <app-autocomplete-reusable-component [options]="allWingslist()" formControlName="wing_id"
+            displayKey="wing_name" idKey="wing_id" placeholder="Select Wing">
+          </app-autocomplete-reusable-component>
+        </div>
 
 
         <!-- Apply Filter Button -->

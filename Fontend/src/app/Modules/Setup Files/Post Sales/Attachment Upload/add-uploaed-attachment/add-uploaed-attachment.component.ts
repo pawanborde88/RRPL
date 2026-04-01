@@ -11,11 +11,10 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dial
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { catchError, combineLatest, EMPTY, finalize, map, of } from 'rxjs';
+import { catchError, combineLatest, distinctUntilChanged, EMPTY, finalize, map, of } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { AllUploadedAttachmentComponent } from '../all-uploaded-attachment/all-uploaded-attachment.component';
 import { ReceiptsService, type Project, type Wing, type Unit, type DocMaster } from '../../Recovery/Recipts/receipts.service';
 
 interface AttachmentFormValue {
@@ -37,7 +36,6 @@ interface AttachmentFormValue {
     FormsModule,
     ReactiveFormsModule,
     AutocompleteReusableComponent,
-    AllUploadedAttachmentComponent,
   ],
   templateUrl: './add-uploaed-attachment.component.html',
   styleUrl: './add-uploaed-attachment.component.scss',
@@ -52,8 +50,6 @@ export class AddUploaedAttachmentComponent {
   private readonly data = inject<{ row: any }>(MAT_DIALOG_DATA, { optional: true });
 
   private readonly userId = Number(sessionStorage.getItem('session_id')) || 0;
-
-  @ViewChild('attachmentList') attachmentList!: AllUploadedAttachmentComponent;
 
   // Signals for reactive state management
   readonly loading = signal<boolean>(false);
@@ -75,17 +71,6 @@ export class AddUploaedAttachmentComponent {
     attachment: new FormControl<File | null>(null),
   });
 
-  // Computed signals for reactive dependencies
-  readonly selectedProjectId = toSignal(
-    this.form.get('project_id')!.valueChanges,
-    { initialValue: null }
-  );
-
-  readonly selectedWingId = toSignal(
-    this.form.get('wing_id')!.valueChanges,
-    { initialValue: null }
-  );
-
   // Reactive form validation state
   readonly isFormValid = computed(() => this.form.valid);
 
@@ -97,24 +82,22 @@ export class AddUploaedAttachmentComponent {
 
   constructor() {
     this.initializeData();
-    this.setupReactiveFormDependencies();
   }
 
   private initializeData(): void {
-    // Load initial data
     this.loading.set(true);
 
     combineLatest([
       this.receiptsService.fetchUserProjects(this.userId).pipe(
         catchError(() => {
           this.showError('Unable to fetch projects.');
-          return EMPTY;
+          return of([]);
         })
       ),
       this.receiptsService.fetchDocMasters().pipe(
         catchError(() => {
           this.showError('Unable to fetch attachment types.');
-          return EMPTY;
+          return of([]);
         })
       ),
     ])
@@ -125,7 +108,8 @@ export class AddUploaedAttachmentComponent {
           this.docMasters.set(docMasters);
           this.loading.set(false);
 
-          // If editing, patch data after initial load
+          this.setupReactiveFormDependencies();
+
           if (this.data?.row) {
             this.patchData(this.data.row);
           }
@@ -137,65 +121,97 @@ export class AddUploaedAttachmentComponent {
   }
 
   private patchData(row: any): void {
+    if (!row) return;
+
     this.skipReset.set(true);
 
-    // Manually trigger loads before patching to ensure lists are populated (or will be)
-    // Note: The effects will trigger loads when we patch IDs, but we need skipReset true during that.
-    // However, the lists need to be populated for the values to show correctly in dropdowns?
-    // Actually, setting value works even if list empty, but display might be weak until list loads.
+    const projectId = row.project_id || row.projectId;
+    const wingId = row.wing_id || row.wingId;
+    const unitId = row.floor_unit_id || row.unit_id || row.booking_unit_id || row.booking_id;
+    const attachmentTypeId = row.attachment_type_id || row.attachmentTypeId || row.doc_master_id;
 
-    // We rely on the effects to call loadWings/fetchUnits. 
-    // We just keep skipReset = true for a bit.
+    console.log('Patching data:', { projectId, wingId, unitId, attachmentTypeId, row });
 
+    // 1. Patch initial fields
     this.form.patchValue({
       project_unit_attachment_id: row.project_unit_attachment_id,
-      project_id: row.project_id,
-      wing_id: row.wing_id,
-      floor_unit_id: row.floor_unit_id || row.unit_id, // check which one is used
-      attachment_type_id: row.attachment_type_id,
+      project_id: projectId ? Number(projectId) : null,
+      attachment_type_id: attachmentTypeId ? Number(attachmentTypeId) : null,
       created_by: this.userId
     });
 
     if (row.attachment) {
-      this.existingFileName.set(row.attachment); // Or document_name if that's the display name
+      this.existingFileName.set(row.attachment);
+    } else if (row.document_name) {
+      this.existingFileName.set(row.document_name);
     }
 
-    // Reset the flag after a short delay to allow effects to run without wiping data
-    setTimeout(() => {
+    // 2. Load wings and patch wing_id
+    if (projectId) {
+      this.receiptsService.fetchWings(Number(projectId))
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((wings) => {
+          this.wings.set(wings);
+          if (wingId) {
+            this.form.patchValue({ wing_id: Number(wingId) });
+
+            // 3. Load units and patch floor_unit_id
+            this.receiptsService.fetchUnits(Number(projectId), Number(wingId))
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe((response) => {
+                const units = (response.data || []).map((item: Unit) => ({
+                  ...item,
+                  full_name: `${item.floor_unit} - ${item.applicant_name}`,
+                }));
+                this.units.set(units);
+                if (unitId) {
+                  this.form.patchValue({ floor_unit_id: Number(unitId) });
+                }
+
+                // Finalize patching
+                setTimeout(() => this.skipReset.set(false), 500);
+              });
+          } else {
+            this.skipReset.set(false);
+          }
+        });
+    } else {
       this.skipReset.set(false);
-    }, 500);
+    }
   }
 
   private setupReactiveFormDependencies(): void {
-    // React to project selection changes
-    effect(() => {
-      const projectId = this.selectedProjectId();
-      if (projectId) {
-        this.loadWings(projectId);
-        // Reset dependent fields only if not skipping reset (e.g. during patching)
-        if (!this.skipReset()) {
+    // Project selection changes
+    this.form.get('project_id')?.valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((projectId) => {
+        if (projectId && !this.skipReset()) {
+          this.loadWings(Number(projectId));
           this.form.patchValue({ wing_id: null, floor_unit_id: null }, { emitEvent: false });
+        } else if (!projectId) {
+          this.wings.set([]);
+          this.units.set([]);
         }
-      } else {
-        this.wings.set([]);
-        this.units.set([]);
-      }
-    }, { allowSignalWrites: true });
+      });
 
-    // React to wing selection changes
-    effect(() => {
-      const projectId = this.selectedProjectId();
-      const wingId = this.selectedWingId();
-      if (projectId && wingId) {
-        this.fetchUnits(projectId, wingId);
-        // Reset dependent field only if not skipping reset
-        if (!this.skipReset()) {
+    // Wing selection changes
+    this.form.get('wing_id')?.valueChanges
+      .pipe(
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((wingId) => {
+        const projectId = this.form.get('project_id')?.value;
+        if (projectId && wingId && !this.skipReset()) {
+          this.fetchUnits(Number(projectId), Number(wingId));
           this.form.patchValue({ floor_unit_id: null }, { emitEvent: false });
+        } else if (!wingId) {
+          this.units.set([]);
         }
-      } else {
-        this.units.set([]);
-      }
-    }, { allowSignalWrites: true });
+      });
   }
 
   private loadWings(projectId: number): void {
@@ -239,11 +255,6 @@ export class AddUploaedAttachmentComponent {
   }
 
 
-  onTabChange(event: MatTabChangeEvent): void {
-    if (event.index === 1 && this.attachmentList) {
-      this.attachmentList.fetchAllAttachments();
-    }
-  }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -271,8 +282,11 @@ export class AddUploaedAttachmentComponent {
         next: (response) => {
           this.loading.set(false);
           this.form.reset({ created_by: this.userId });
-          this.dialog.open(SuccessDialogComponent, {
+          const dialogSuccess = this.dialog.open(SuccessDialogComponent, {
             data: { message: response.message || 'Attachment uploaded successfully' },
+          });
+          dialogSuccess.afterClosed().subscribe(() => {
+            this.dialogRef.close(true);
           });
         },
       });
@@ -281,10 +295,10 @@ export class AddUploaedAttachmentComponent {
   private buildFormData(formValue: AttachmentFormValue): FormData {
     const formData = new FormData();
 
-    formData.append(
-      'project_unit_attachment_id',
-      formValue.project_unit_attachment_id?.toString() || 'null'
-    );
+    if (formValue.project_unit_attachment_id) {
+      formData.append('project_unit_attachment_id', formValue.project_unit_attachment_id.toString());
+    }
+    
     formData.append('project_id', formValue.project_id?.toString() || '');
     formData.append('wing_id', formValue.wing_id?.toString() || '');
     formData.append('floor_unit_id', formValue.floor_unit_id?.toString() || '');

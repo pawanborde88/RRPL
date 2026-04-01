@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -13,14 +13,15 @@ import { CommonModule } from '@angular/common';
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   standalone: true,
-  imports: [ AngularMaterialModule, ReactiveFormsModule, CommonModule],
+  imports: [AngularMaterialModule, ReactiveFormsModule, CommonModule],
   styleUrls: ['./forgot-password.component.scss']
 })
-export class ForgotPasswordComponent implements OnInit, OnDestroy  {
+export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
   private readonly http = inject(HttpClient);
   private readonly snackBar = inject(MatSnackBar);
   public readonly dialogRef = inject(MatDialogRef<ForgotPasswordComponent>);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   constructor() { }
 
@@ -41,9 +42,10 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
   enterEmailDiv: boolean = true;
   enterOtpDiv: boolean = false;
   enterPasswordDiv: boolean = false;
-  
+  isLoading: boolean = false;
+
   userEmail: string = '';
-  
+
   // Password visibility toggles
   showNewPassword: boolean = false;
   showConfirmPassword: boolean = false;
@@ -60,38 +62,49 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
 
   // Step 1: Send OTP to email
   emailSubmit() {
-    if (this.emailForm.valid) {
-      const obj = { email: this.emailForm.value.email };
-
-      this.http.post(`${this.baseUrl}/send_otp_forgot_password`, obj)
-        .subscribe({
-          next: (res: any) => {
-            console.log(res);
-            if (res.success) {
-              this.snackBar.open('OTP sent successfully to your email', 'Close', { duration: 3000 });
-              this.userEmail = this.emailForm.value.email || '';
-              this.enterEmailDiv = false;
-              this.enterOtpDiv = true;
-              // Start the resend countdown timer
-              this.startResendTimer();
-              // Auto-focus first OTP input after view updates
-              setTimeout(() => {
-                const firstInput = document.getElementById('otp-input-1');
-                if (firstInput) {
-                  firstInput.focus();
-                }
-              }, 100);
-            } else {
-              console.log(res);
-              this.snackBar.open(res.message || "An error occurred, please try again", 'Close', { duration: 3000 });
-            }
-          }, 
-          error: (err: any) => {
-            console.log(err);
-            this.snackBar.open(err.error?.message || "An error occurred, please try again", 'Close', { duration: 3000 });
-          }
-        });
+    if (this.emailForm.invalid) {
+      this.emailForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading = true;
+    const obj = { email: this.emailForm.value.email };
+
+    this.http.post(`${this.baseUrl}/send_otp_forgot_password`, obj)
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          console.log(res);
+          if (res.success) {
+            this.snackBar.open('OTP sent successfully to your email', 'Close', { duration: 3000 });
+            this.userEmail = this.emailForm.value.email || '';
+            this.enterEmailDiv = false;
+            this.enterOtpDiv = true;
+            // Start the resend countdown timer
+            this.startResendTimer();
+            // Force change detection to ensure the OTP div shows immediately
+            this.cdr.detectChanges();
+
+            // Auto-focus first OTP input after view updates
+            setTimeout(() => {
+              const firstInput = document.getElementById('otp-input-1');
+              if (firstInput) {
+                firstInput.focus();
+              }
+            }, 100);
+          } else {
+            console.log(res);
+            this.snackBar.open(res.message || "An error occurred, please try again", 'Close', { duration: 3000 });
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          console.log(err);
+          this.snackBar.open(err.error?.message || "An error occurred, please try again", 'Close', { duration: 3000 });
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // Start the 30-second countdown timer
@@ -143,11 +156,13 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
           } else {
             console.log(res);
             this.snackBar.open(res.message || "An error occurred, please try again", 'Close', { duration: 3000 });
+            this.cdr.detectChanges();
           }
         },
         error: (err: any) => {
           console.log(err);
           this.snackBar.open(err.error?.message || "An error occurred, please try again", 'Close', { duration: 3000 });
+          this.cdr.detectChanges();
         }
       });
   }
@@ -164,34 +179,43 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
 
   // Step 2: Verify OTP
   otpSubmit() {
-    if (this.otpForm.valid) {
-      // Combine all OTP digits into a single string
-      const otpValue = `${this.otpForm.value.otp1}${this.otpForm.value.otp2}${this.otpForm.value.otp3}${this.otpForm.value.otp4}${this.otpForm.value.otp5}${this.otpForm.value.otp6}`;
-      
-      const obj = {
-        email: this.userEmail,
-        otp: otpValue
-      };
-
-      console.log('Verifying OTP:', obj);
-      this.http.post(`${this.baseUrl}/verify_otp_forgot_password`, obj)
-        .subscribe({
-          next: (res: any) => {
-            if (res.success) {
-              this.snackBar.open('OTP verified successfully', 'Close', { duration: 3000 });
-              this.enterOtpDiv = false;
-              this.enterPasswordDiv = true;
-            } else {
-              console.log(res);
-              this.snackBar.open(res.message || "OTP was incorrect, please try again", 'Close', { duration: 3000 });
-            }
-          }, 
-          error: (err: any) => {
-            console.log(err);
-            this.snackBar.open(err.error?.message || "OTP was incorrect, please try again", 'Close', { duration: 3000 });
-          }
-        });
+    if (this.otpForm.invalid) {
+      this.otpForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading = true;
+    // Combine all OTP digits into a single string
+    const otpValue = `${this.otpForm.value.otp1}${this.otpForm.value.otp2}${this.otpForm.value.otp3}${this.otpForm.value.otp4}${this.otpForm.value.otp5}${this.otpForm.value.otp6}`;
+
+    const obj = {
+      email: this.userEmail,
+      otp: otpValue
+    };
+
+    console.log('Verifying OTP:', obj);
+    this.http.post(`${this.baseUrl}/verify_otp_forgot_password`, obj)
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          if (res.success) {
+            this.snackBar.open('OTP verified successfully', 'Close', { duration: 3000 });
+            this.enterOtpDiv = false;
+            this.enterPasswordDiv = true;
+            this.cdr.detectChanges();
+          } else {
+            console.log(res);
+            this.snackBar.open(res.message || "OTP was incorrect, please try again", 'Close', { duration: 3000 });
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          console.log(err);
+          this.snackBar.open(err.error?.message || "OTP was incorrect, please try again", 'Close', { duration: 3000 });
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // Step 3: Password Form
@@ -269,14 +293,14 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
   onOtpPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const pastedData = event.clipboardData?.getData('text').trim() || '';
-    
+
     // Only process if pasted data contains 6 digits
     if (/^[0-9]{6}$/.test(pastedData)) {
       for (let i = 0; i < 6; i++) {
         const controlName = `otp${i + 1}` as keyof typeof this.otpForm.controls;
         this.otpForm.controls[controlName].setValue(pastedData[i]);
       }
-      
+
       // Focus on the last input
       const lastInput = document.getElementById('otp-input-6');
       if (lastInput) {
@@ -287,35 +311,42 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy  {
 
   // Step 3: Create new password
   passwordSubmit() {
-    if (this.passwordForm.valid) {
-      const obj = {
-        email: this.userEmail,
-        new_password: this.passwordForm.value.new_password,
-        confirm_password: this.passwordForm.value.confirm_password
-      };
-
-      console.log('Creating new password:', { email: obj.email });
-      this.http.post(`${this.baseUrl}/create_password`, obj)
-        .subscribe({
-          next: (res: any) => {
-            if (res.success) {
-              this.snackBar.open('Password updated successfully! Please login with your new password.', 'Close', { duration: 4000 });
-              this.dialogRef.close(true);
-            } else {
-              console.log(res);
-              this.snackBar.open(res.message || "Failed to update password, please try again", 'Close', { duration: 3000 });
-            }
-          }, 
-          error: (err: any) => {
-            console.log(err);
-            this.snackBar.open(err.error?.message || "Failed to update password, please try again", 'Close', { duration: 3000 });
-          }
-        });
-    } else {
+    if (this.passwordForm.invalid) {
       if (this.passwordForm.controls.confirm_password.value !== "" && this.passwordForm.hasError('mismatch')) {
         this.snackBar.open('Passwords do not match', 'Close', { duration: 3000 });
       }
+      this.passwordForm.markAllAsTouched();
+      return;
     }
+
+    this.isLoading = true;
+    const obj = {
+      email: this.userEmail,
+      new_password: this.passwordForm.value.new_password,
+      confirm_password: this.passwordForm.value.confirm_password
+    };
+
+    console.log('Creating new password:', { email: obj.email });
+    this.http.post(`${this.baseUrl}/create_password`, obj)
+      .subscribe({
+        next: (res: any) => {
+          this.isLoading = false;
+          if (res.success) {
+            this.snackBar.open('Password updated successfully! Please login with your new password.', 'Close', { duration: 4000 });
+            this.dialogRef.close(true);
+          } else {
+            console.log(res);
+            this.snackBar.open(res.message || "Failed to update password, please try again", 'Close', { duration: 3000 });
+            this.cdr.detectChanges();
+          }
+        },
+        error: (err: any) => {
+          this.isLoading = false;
+          console.log(err);
+          this.snackBar.open(err.error?.message || "Failed to update password, please try again", 'Close', { duration: 3000 });
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // Close dialog

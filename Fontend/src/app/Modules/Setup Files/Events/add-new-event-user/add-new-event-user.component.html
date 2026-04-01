@@ -1,157 +1,196 @@
 <!-- ================= MAIN CONTAINER ================= -->
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 md:p-6">
-    <div class="max-w-4xl mx-auto space-y-6 md:space-y-8">
+<div class="min-h-screen bg-[#fcfdff] py-8 px-4 flex items-center justify-center overflow-x-hidden relative">
+    <!-- Sophisticated Background Decor -->
+    <div
+        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-sky-100/30 via-transparent to-indigo-50/20 -z-10">
+    </div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-sky-200/10 blur-[100px] rounded-full -mr-48 -mt-48"></div>
+    <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-200/10 blur-[100px] rounded-full -ml-48 -mb-48"></div>
 
+    <div class="fluid-container animate-in fade-in zoom-in-95 duration-700">
+        <div class="unified-card group">
 
-        <!-- ================= EVENT DETAILS CARD ================= -->
-        <div *ngIf="eventDetails"
-            class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden ring-1 ring-black/5">
-            <!-- Event Image Section -->
-            <div class="relative h-44 md:h-52 overflow-hidden group">
-                <img [src]="eventImageUrl" [alt]="eventDetails.event_title"
-                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <!-- 1. Hero Image & Ultra-Modern Overlay -->
+            <div *ngIf="eventDetails()" class="relative h-52 overflow-hidden shadow-sm">
+                <img [src]="eventImageUrl" [alt]="eventDetails()?.event_title"
+                    class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.03]" />
 
-                <!-- Improved Overlay for Readability -->
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <!-- Multi-layer Gradient Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
 
                 <!-- Floating Date Badge -->
-                <div class="absolute top-4 right-4 animate-in fade-in slide-in-from-top-2 duration-700">
+                <div class="absolute top-4 left-6 animate-float">
                     <div
-                        class="flex flex-col items-center bg-white/95 backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-lg border border-white/20">
-                        <span class="text-[10px] uppercase tracking-wider font-bold text-sky-600 leading-none">
-                            {{ eventDetails.event_date | date:'MMM' }}
+                        class="glass-morphism rounded-xl p-2.5 flex flex-col items-center min-w-[54px] shadow-xl border-white/40 ring-1 ring-black/5">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600 leading-none mb-1">
+                            {{ eventDetails()?.event_date | date:'MMM' }}
                         </span>
-                        <span class="text-lg font-black text-sky-950 leading-none mt-0.5">
-                            {{ eventDetails.event_date | date:'d' }}
+                        <span class="text-xl font-black text-slate-800 leading-none">
+                            {{ eventDetails()?.event_date | date:'d' }}
                         </span>
                     </div>
                 </div>
 
-                <!-- Compact Event Title & Venue -->
-                <div class="absolute bottom-4 left-5 right-5 space-y-1">
-                    <h2 class="text-xl md:text-2xl font-black text-white leading-tight drop-shadow-md line-clamp-2">
-                        {{ eventDetails.event_title }}
-                    </h2>
-
+                <!-- Dynamic Title & Breadcrumb-style info -->
+                <div class="absolute bottom-5 left-6 right-6 space-y-1">
+                    <div class="flex items-center gap-2 opacity-70">
+                        <span class="h-0.5 w-6 bg-sky-400"></span>
+                        <span class="text-[9px] font-bold text-sky-300 uppercase tracking-[0.2em]">Official
+                            Registration</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-black text-white leading-tight drop-shadow-lg tracking-tight">
+                        {{ eventDetails()?.event_title }}
+                    </h3>
                 </div>
             </div>
 
-            <!-- Compact Event Content Area -->
-            <div class="p-4 md:p-6 space-y-6">
-                <!-- Description - More Compact -->
-                <div class="bg-gray-50/50 rounded-2xl p-3 border border-gray-100">
-                    <p class="text-gray-600 text-[13px] leading-relaxed line-clamp-3">
-                        {{ eventDetails.event_description }}
-                    </p>
-                </div>
+            <!-- Integrated Content Area -->
+            <div class="p-6 md:p-8 space-y-6">
 
-                <!-- Streamlined Info Grid -->
-                <div>
-
-
-                    <!-- Location Info -->
-                    <div class="flex items-center gap-3 bg-orange-50/80 rounded-2xl p-3 border border-orange-100/50">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-                            <mat-icon class="!text-xl">near_me</mat-icon>
+                <!-- Enhanced Info Section -->
+                <div *ngIf="eventDetails()" class="space-y-4">
+                    <div class="flex flex-wrap gap-2.5">
+                        <div class="info-chip">
+                            <div class="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center">
+                                <mat-icon class="!text-sm text-sky-600">place</mat-icon>
+                            </div>
+                            <span class="text-[12px] font-semibold text-slate-600 pr-1">
+                                {{ (eventDetails()?.event_venue || '') | truncate:40 }}
+                            </span>
                         </div>
-                        <div class="min-w-0">
-                            <p class="font-bold text-orange-950 text-[13px] truncate">
-                                {{ eventDetails.event_venue }}
-                            </p>
+
+                        <div *ngIf="eventDetails()?.event_start_time" class="info-chip">
+                            <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                                <mat-icon class="!text-sm text-amber-500">schedule</mat-icon>
+                            </div>
+                            <span class="text-[12px] font-semibold text-slate-600 pr-1">
+                                {{ '1970-01-01T' + eventDetails()?.event_start_time | date:'h:mm a' }} -
+                                {{ '1970-01-01T' + eventDetails()?.event_end_time | date:'h:mm a' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Exclusive User Tokens -->
+                    <div *ngIf="userData()?.token_type || userData()?.is_highest === 1"
+                        class="flex flex-wrap gap-2.5 border-t border-slate-50 pt-4">
+                        <div *ngIf="userData()?.token_type"
+                            class="info-chip !bg-gradient-to-r from-amber-50/50 to-orange-50/50 !border-amber-100/30">
+                            <mat-icon class="!text-sm text-amber-600">stars</mat-icon>
+                            <span class="text-[10px] font-black text-amber-900 uppercase tracking-[0.1em]">
+                                {{ userData()?.token_type }}
+                            </span>
+                        </div>
+
+                        <div *ngIf="userData()?.is_highest === 1"
+                            class="info-chip !bg-gradient-to-r from-sky-50/50 to-indigo-50/50 !border-sky-100/30">
+                            <mat-icon class="!text-sm text-sky-500">apartment</mat-icon>
+                            <span class="text-[10px] font-bold text-sky-900 uppercase tracking-wide">
+                                {{ userData()?.wing_name }} • {{ userData()?.floor_unit }} • {{ userData()?.unit_type }}
+                            </span>
                         </div>
                     </div>
                 </div>
-                <!-- Integrated Registration Form -->
-                <div class="pt-2 border-t border-gray-100">
-                    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="space-y-5">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="h-4 w-1 bg-sky-600 rounded-full"></div>
-                            <h3 class="text-sm font-bold text-gray-800">Your Details</h3>
+
+                <!-- Registration Form Section -->
+                <div class="relative pt-2">
+                    <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="space-y-4">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-black text-slate-800 tracking-tight">Register for the Exclusive
+                                Event</h3>
+                            <p class="text-[13px] text-slate-500 mt-0.5 font-medium">Please confirm your registration
+                                details.</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-1">
-                            <!-- Name -->
-                            <mat-form-field appearance="outline" class="w-full dense-form-field">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2">
+                            <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Full Name</mat-label>
-                                <input matInput formControlName="name" placeholder="Enter Your name">
-                                <mat-icon matPrefix class="opacity-40">person_outline</mat-icon>
-                                <mat-error *ngIf="hasError('name', 'required')">{{ getError('name', 'required')
-                                    }}</mat-error>
+                                <input matInput formControlName="name">
+                                <mat-icon matPrefix>person_outline</mat-icon>
                             </mat-form-field>
 
-                            <!-- Email -->
-                            <mat-form-field appearance="outline" class="w-full dense-form-field">
+                            <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Email Address</mat-label>
-                                <input matInput formControlName="email" placeholder="john@example.com">
-                                <mat-icon matPrefix class="opacity-40">mail_outline</mat-icon>
-                                <mat-error *ngIf="hasError('email', 'required')">{{ getError('email', 'required')
-                                    }}</mat-error>
+                                <input matInput formControlName="email">
+                                <mat-icon matPrefix>mail_outline</mat-icon>
                             </mat-form-field>
 
-                            <!-- Mobile -->
-                            <mat-form-field appearance="outline" class="w-full dense-form-field">
+                            <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Mobile Number</mat-label>
-                                <input matInput formControlName="mobile" placeholder="10-digit number" maxlength="10"
-                                    (keypress)="numberOnly($event)">
-                                <mat-icon matPrefix class="opacity-40">phone</mat-icon>
-                                <mat-error *ngIf="hasError('mobile', 'required')">{{ getError('mobile', 'required')
-                                    }}</mat-error>
+                                <input matInput formControlName="mobile" maxlength="10">
+                                <mat-icon matPrefix>smartphone</mat-icon>
                             </mat-form-field>
 
-                            <!-- Firm Name -->
-                            <mat-form-field appearance="outline" class="w-full dense-form-field">
-                                <mat-label>Firm / Company Name</mat-label>
-                                <input matInput formControlName="firm_name" placeholder="Your firm name">
-                                <mat-icon matPrefix class="opacity-40">business</mat-icon>
-                                <mat-error *ngIf="hasError('firm_name', 'required')">{{ getError('firm_name',
-                                    'required') }}</mat-error>
+                            <mat-form-field appearance="outline" class="premium-field"
+                                *ngIf="eventDetails()?.event_type_id == 1">
+                                <mat-label>No. of Guests</mat-label>
+                                <input matInput type="number" formControlName="no_of_guest">
+                                <mat-icon matPrefix>group_add</mat-icon>
+                                <mat-error *ngIf="userForm.get('no_of_guest')?.hasError('required')"> No. of Guests
+                                    Required</mat-error>
+                                <mat-error *ngIf="userForm.get('no_of_guest')?.hasError('min')">At least 1</mat-error>
                             </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="premium-field">
+                                <mat-label> Type</mat-label>
+                                <mat-select formControlName="cp_type">
+                                    <mat-option [value]="'CP Executive'">CP Executive</mat-option>
+                                    <mat-option [value]="'CP Owner'">CP Owner</mat-option>
+                                    <mat-option [value]="'CP TL'">CP TL</mat-option>
+
+                                </mat-select>
+                            </mat-form-field>
+
+                            <ng-container *ngIf="eventDetails()?.event_type_id !== 1">
+                                <mat-form-field appearance="outline" class="premium-field">
+                                    <mat-label>Firm Name</mat-label>
+                                    <input matInput formControlName="firm_name">
+                                    <mat-icon matPrefix>corporate_fare</mat-icon>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline" class="premium-field">
+                                    <mat-label>RERA No</mat-label>
+                                    <input matInput formControlName="rera_no">
+                                    <mat-icon matPrefix>security</mat-icon>
+                                </mat-form-field>
+                            </ng-container>
                         </div>
 
-                        <!-- RERA Section -->
-                        <div class="space-y-4">
-                            <mat-form-field appearance="outline" class="w-full dense-form-field">
-                                <mat-label>RERA Registration Number</mat-label>
-                                <input matInput formControlName="rera_no" placeholder="RERA/123/456">
-                                <mat-icon matPrefix class="opacity-40">verified_user</mat-icon>
-                                <mat-error *ngIf="hasError('rera_no', 'required')">{{ getError('rera_no', 'required')
-                                    }}</mat-error>
-                            </mat-form-field>
-                        </div>
+                        <!-- Action Button -->
+                        <div class="pt-2">
+                            <button mat-flat-button color="primary" type="submit"
+                                [disabled]="userForm.invalid || isSubmitting()"
+                                class="btn-premium w-full group/btn relative">
+                                <div class="btn-gradient"></div>
+                                <div class="relative flex items-center justify-center gap-3">
+                                    <mat-icon *ngIf="!isSubmitting()"
+                                        class="!text-lg transition-transform duration-300 group-hover/btn:translate-x-1">
+                                        arrow_forward
+                                    </mat-icon>
+                                    <mat-spinner *ngIf="isSubmitting()" diameter="18" color="accent" strokeWidth="2"
+                                        class="!m-0"></mat-spinner>
+                                    <span class="text-[13px] font-black uppercase tracking-[0.2em] text-white">
+                                        {{ isSubmitting() ? 'Processing...' : 'Confirm Registration' }}
+                                    </span>
+                                </div>
+                            </button>
 
-                        <!-- Hidden Field -->
-                        <input type="hidden" formControlName="event_id">
-
-                        <!-- Premium Action Footer -->
-                        <div class="pt-6 mt-2 border-t border-gray-100">
-                            <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
-
-                                <button mat-raised-button color="primary" type="submit"
-                                    [disabled]="userForm.invalid || isSubmitting"
-                                    class="!h-14 !px-10 !rounded-2xl hover:!bg-sky-700 !transition-all !duration-300 !shadow-lg hover:!shadow-sky-200/50 disabled:!opacity-50 group overflow-hidden relative">
-                                    <div class="flex items-center justify-center gap-3 relative z-10">
-                                        <mat-icon *ngIf="!isSubmitting"
-                                            class="text-xl group-hover:scale-110 transition-transform">send</mat-icon>
-                                        <mat-spinner *ngIf="isSubmitting" diameter="24" strokeWidth="3"
-                                            color="accent"></mat-spinner>
-                                        <span class="text-base font-bold tracking-tight">
-                                            {{ isSubmitting ? 'Registering...' : 'Complete Registration' }}
-                                        </span>
-                                    </div>
-                                    <!-- Subtle button shine effect -->
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
-                                    </div>
-                                </button>
-                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-
-
+        <!-- Skeleton Loader -->
+        <div *ngIf="showEventLoader" class="unified-card animate-pulse">
+            <div class="h-52 bg-slate-100"></div>
+            <div class="p-6 space-y-4">
+                <div class="h-4 bg-slate-100 w-2/3 rounded"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="h-10 bg-slate-50 rounded-lg"></div>
+                    <div class="h-10 bg-slate-50 rounded-lg"></div>
+                </div>
+                <div class="h-12 bg-slate-100 w-full rounded-xl"></div>
+            </div>
+        </div>
     </div>
 </div>

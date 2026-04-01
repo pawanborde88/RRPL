@@ -116,7 +116,7 @@ export class CollectionListComponent implements OnInit {
       label: 'Booking Status & Cost',
       headerClass: 'bg-booking-details',
       children: [
-        { key: 'booking_date', label: 'Booking Date', width: '120px', headerClass: 'bg-booking-details', cellClass: 'bg-booking-details' },
+        { key: 'booking_date', label: 'Booking Date', type: 'mediumDate', width: '120px', headerClass: 'bg-booking-details', cellClass: 'bg-booking-details' },
         {
           key: 'agreement_status',
           label: 'Agreement Status',
@@ -164,7 +164,7 @@ export class CollectionListComponent implements OnInit {
       label: 'Installment Summary',
       headerClass: 'bg-installment-summary',
       children: [
-        { key: 'installment.total', label: 'Total', isAmount: true, width: '120px', headerClass: 'bg-installment-summary', cellClass: 'bg-installment-summary' },
+        { key: 'installment.total', label: 'Due As Per stage', isAmount: true, width: '120px', headerClass: 'bg-installment-summary', cellClass: 'bg-installment-summary' },
         { key: 'installment.received', label: 'Received', isAmount: true, width: '120px', headerClass: 'bg-installment-summary', cellClass: 'bg-installment-summary' },
         { key: 'installment.pending', label: 'Pending', isAmount: true, width: '120px', headerClass: 'bg-installment-summary', cellClass: 'bg-installment-summary' },
       ]

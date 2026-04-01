@@ -35,6 +35,7 @@ export class BookingCalculationsStateService {
 
   // Private state signals
   private readonly _wings = signal<Array<{ wing_id: number; wing_name: string }>>([]);
+  private readonly _allprojectPeoples = signal<Array<{ user_id: number; user_name: string }>>([]);
   private readonly _floors = signal<Array<{ floor_id: number; floor_name: string }>>([]);
   private readonly _unitTypes = signal<Array<{ unit_type: string }>>([]);
   private readonly _floorUnits = signal<Array<{ floor_unit_id: number; floor_unit: string }>>([]);
@@ -52,10 +53,11 @@ export class BookingCalculationsStateService {
   private readonly _tokenTypes = signal<Array<{ token_type_id: number; token_type: string }>>([]);
   private readonly _tokens = signal<Array<{ token_id: number; full_name: string; mob_no?: string; mobile_no?: string }>>([]);
   private readonly _bookingFroms = signal<Array<{ booking_from_id: number; booking_from: string }>>([]);
-  private readonly _projects = signal<Array<{ project_id: number; property_name: string }>>([]);
+  private readonly _projects = signal<Array<{ project_id: number; project_name: string }>>([]);
 
   // Public readonly signals
   readonly wings = this._wings.asReadonly();
+  readonly allprojectPeoples = this._allprojectPeoples.asReadonly();
   readonly floors = this._floors.asReadonly();
   readonly unitTypes = this._unitTypes.asReadonly();
   readonly floorUnits = this._floorUnits.asReadonly();
@@ -88,6 +90,7 @@ export class BookingCalculationsStateService {
 
   // Observable streams for RxJS compatibility
   readonly wings$ = toObservable(this.wings);
+  readonly projects$ = toObservable(this.projects);
   readonly floors$ = toObservable(this.floors);
   readonly unitTypes$ = toObservable(this.unitTypes);
   readonly floorUnits$ = toObservable(this.floorUnits);
@@ -165,6 +168,29 @@ export class BookingCalculationsStateService {
       .subscribe({
         next: (wings: Array<{ wing_id: number; wing_name: string }>) => {
           this._wings.set(wings);
+        }
+      });
+  }
+
+  fetchAssignedProjects(projectId: number | string): void {
+    this.bookingService.fetchAssignedProjects(projectId)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching assigned projects:', error);
+          this.snackBar.open('Unable to fetch assigned projects.', 'Close', { duration: 3000 });
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.length && 'user_id' in response[0]) {
+            // ✅ It's user array
+            this._allprojectPeoples.set(response as { user_id: number; user_name: string }[]);
+          } else {
+            // ❌ It's project array (ignore or handle separately)
+            console.warn('Received project list instead of users:', response);
+            this._allprojectPeoples.set([]);
+          }
         }
       });
   }
@@ -393,7 +419,7 @@ export class BookingCalculationsStateService {
         })
       )
       .subscribe({
-        next: (projects: Array<{ project_id: number; property_name: string }>) => {
+        next: (projects: Array<{ project_id: number; project_name: string }>) => {
           this._projects.set(projects);
         }
       });

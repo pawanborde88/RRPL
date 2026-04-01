@@ -6,7 +6,10 @@ import {
   effect,
   inject,
   signal,
-  DestroyRef
+  DestroyRef,
+  AfterViewInit,
+  ElementRef,
+  ViewChild
 } from '@angular/core';
 import {
   FormControl,
@@ -21,6 +24,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged } from 'rxjs';
 import { toPng, toBlob } from 'html-to-image';
 
+
 // Components
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
@@ -33,6 +37,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // Local Imports
 import { DsrReportStore } from './dsr-report.store';
@@ -55,12 +60,17 @@ import { generateSimpleReportHtml } from './dsr-report.utils';
     MatIconModule,
     MatInputModule,
     MatDividerModule,
+    MatExpansionModule,
   ],
   templateUrl: './all-daily-dsrreport.component.html',
   styleUrl: './all-daily-dsrreport.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllDailyDSRReportComponent {
+export class AllDailyDSRReportComponent implements AfterViewInit {
+
+  @ViewChild('reportContainer') reportContainerRef?: ElementRef;
+
+
   // Inject store and other dependencies
   readonly store = inject(DsrReportStore);
   private readonly snackBar = inject(MatSnackBar);
@@ -79,14 +89,19 @@ export class AllDailyDSRReportComponent {
 
   // Computed properties
   readonly hasProjectSelected = computed(() => !!this.projectIdSignal());
-  readonly isTelecallerMode = computed(() => this.store.roleId === 7);
-  readonly isSalesExecutiveMode = computed(() => this.store.roleId === 13);
+  readonly isTelecallerMode = computed(() => this.store.roles().includes(7));
+  readonly isSalesExecutiveMode = computed(() => this.store.roles().includes(13));
 
   constructor() {
     this.store.fetchAllProjects();
     this.setupFormListeners();
     this.applyRoleRestrictions();
   }
+
+  ngAfterViewInit(): void {
+  }
+
+
 
   private setupFormListeners(): void {
     // Project ID change listener
@@ -133,14 +148,15 @@ export class AllDailyDSRReportComponent {
 
   private patchAndDisable(controlName: string): void {
     const control = this.addUnitBankerForm.get(controlName);
-    if (control && this.store.userId) {
+    const userId = this.store.userId();
+    if (control && userId) {
       const wasDisabled = control.disabled;
       // Enable temporarily if disabled to allow patching
       if (wasDisabled) {
         control.enable({ emitEvent: false });
       }
       // Patch value with user ID
-      control.patchValue([this.store.userId], { emitEvent: false });
+      control.patchValue([userId], { emitEvent: false });
       // Disable the control
       control.disable({ emitEvent: false });
     }
@@ -171,29 +187,23 @@ export class AllDailyDSRReportComponent {
     }
 
     this.isDownloading.set(true);
-    let capturedElement: HTMLElement | null = null;
-
     try {
-      capturedElement = generateSimpleReportHtml(report);
-      this.prepareElementForCapture(capturedElement);
+      const capturedElement = this.reportContainerRef?.nativeElement;
+      if (!capturedElement) throw new Error('Report element not found');
 
-      // Long timeout to ensure all styles/fonts are fully resolved
-      await new Promise(r => setTimeout(r, 2000));
+      // Small delay to ensure all styles/fonts are fully resolved
+      await new Promise(r => setTimeout(r, 800));
 
-      const width = capturedElement.offsetWidth || 794;
-      const height = capturedElement.offsetHeight || 1123;
+      const width = capturedElement.offsetWidth;
+      const height = capturedElement.offsetHeight;
 
       const imageData = await toPng(capturedElement, {
         backgroundColor: '#ffffff',
-        pixelRatio: 2, // Adjusted for balance of quality and reliability
+        pixelRatio: 2,
         width: width,
         height: height,
         cacheBust: true,
-        style: {
-          opacity: '1',
-          visibility: 'visible',
-          transform: 'none'
-        }
+        style: { opacity: '1', visibility: 'visible', transform: 'none' }
       });
 
       const fileName = `${report.project_name?.replace(/\s+/g, '_')}_DSR_${report.date?.replace(/\s+/g, '_')}.png`;
@@ -202,12 +212,12 @@ export class AllDailyDSRReportComponent {
       link.download = fileName;
       link.click();
 
-      this.snackBar.open('Report downloaded successfully!', 'Close', { duration: 3000 });
+      this.snackBar.open('Report exported successfully!', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Download error:', error);
-      this.snackBar.open('Failed to download report.', 'Close', { duration: 3000 });
+      this.snackBar.open('Failed to export report.', 'Close', { duration: 3000 });
     } finally {
-      this.cleanupCapture(capturedElement);
+      this.isDownloading.set(false);
     }
   }
 
@@ -224,17 +234,15 @@ export class AllDailyDSRReportComponent {
     }
 
     this.isDownloading.set(true);
-    let capturedElement: HTMLElement | null = null;
-
     try {
-      capturedElement = generateSimpleReportHtml(report);
-      this.prepareElementForCapture(capturedElement);
+      const capturedElement = this.reportContainerRef?.nativeElement;
+      if (!capturedElement) throw new Error('Report element not found');
 
-      // Long timeout to ensure all styles/fonts are fully resolved
-      await new Promise(r => setTimeout(r, 2000));
+      // Small delay to ensure all styles/fonts are fully resolved
+      await new Promise(r => setTimeout(r, 800));
 
-      const width = capturedElement.offsetWidth || 794;
-      const height = capturedElement.offsetHeight || 1123;
+      const width = capturedElement.offsetWidth;
+      const height = capturedElement.offsetHeight;
 
       const blob = await toBlob(capturedElement, {
         backgroundColor: '#ffffff',
@@ -242,11 +250,7 @@ export class AllDailyDSRReportComponent {
         width: width,
         height: height,
         cacheBust: true,
-        style: {
-          opacity: '1',
-          visibility: 'visible',
-          transform: 'none'
-        }
+        style: { opacity: '1', visibility: 'visible', transform: 'none' }
       });
 
       if (blob) {
@@ -265,7 +269,7 @@ export class AllDailyDSRReportComponent {
         this.snackBar.open('Failed to share report.', 'Close', { duration: 3000 });
       }
     } finally {
-      this.cleanupCapture(capturedElement);
+      this.isDownloading.set(false);
     }
   }
 
@@ -304,7 +308,7 @@ export class AllDailyDSRReportComponent {
   }
 
   hasOnlyRoles(roles: number[]): boolean {
-    const userRoleId = this.store.roleId;
+    const userRoleId = this.store.roleId();
     return userRoleId ? roles.includes(userRoleId) : false;
   }
 }

@@ -71,7 +71,7 @@ export function generateSimpleReportHtml(report: DailyReportResponse): HTMLEleme
     rightCol.style.cssText = `flex: 1; display: flex; flex-direction: column; gap: 25px;`;
     bodyCols.appendChild(rightCol);
 
-    const createSection = (title: string, headers: string[], rows: string[][]) => {
+    const createSection = (title: string, headers: string[], rows: string[][], footer?: string[]) => {
         const section = document.createElement('div');
         section.style.cssText = `
             border: 1px solid #cbd5e1;
@@ -135,6 +135,24 @@ export function generateSimpleReportHtml(report: DailyReportResponse): HTMLEleme
             tbody.appendChild(tr);
         });
 
+        if (footer) {
+            const trF = document.createElement('tr');
+            trF.style.backgroundColor = '#f1f5f9';
+            footer.forEach((cell, i) => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                td.style.cssText = `
+                    padding: 8px 10px;
+                    text-align: ${i === 0 ? 'left' : 'center'};
+                    border: 1px solid #cbd5e1;
+                    font-weight: 800;
+                    color: #0f172a;
+                `;
+                trF.appendChild(td);
+            });
+            tbody.appendChild(trF);
+        }
+
         table.appendChild(tbody);
         section.appendChild(table);
         return section;
@@ -142,51 +160,30 @@ export function generateSimpleReportHtml(report: DailyReportResponse): HTMLEleme
 
     // Populate Left Column
     if (hasReportData(report.leads_report)) {
-        leftCol.appendChild(createSection('Leads Summary', ['Source', 'Today', 'Month', 'Total'],
-            report.leads_report!.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()])
-        ));
+        const r = report.leads_report!;
+        const rows = r.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()]);
+        const footer = ['Total', r.totals.today.toString(), r.totals.monthly.toString(), r.totals.till_date.toString()];
+        leftCol.appendChild(createSection('Leads Summary', ['Source', 'Today', 'Month', 'Total'], rows, footer));
     }
     if (hasReportData(report.booking_report)) {
-        leftCol.appendChild(createSection('Booking Summary', ['Source', 'Today', 'Month', 'Total'],
-            report.booking_report!.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()])
-        ));
+        const r = report.booking_report!;
+        const rows = r.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()]);
+        const footer = ['Total', r.totals.today.toString(), r.totals.monthly.toString(), r.totals.till_date.toString()];
+        leftCol.appendChild(createSection('Booking Summary', ['Source', 'Today', 'Month', 'Total'], rows, footer));
     }
 
     // Populate Right Column
     if (hasReportData(report.enquiry_report)) {
-        rightCol.appendChild(createSection('Enquiry Summary', ['Source', 'Today', 'Month', 'Total'],
-            report.enquiry_report!.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()])
-        ));
+        const r = report.enquiry_report!;
+        const rows = r.sources.map(s => [s.source, s.today.toString(), s.monthly.toString(), s.till_date.toString()]);
+        const footer = ['Total', r.totals.today.toString(), r.totals.monthly.toString(), r.totals.till_date.toString()];
+        rightCol.appendChild(createSection('Enquiry Summary', ['Source', 'Today', 'Month', 'Total'], rows, footer));
     }
 
     if (report.token_report?.types?.length) {
-        const tokenSection = createSection('Token Collection Detail', ['Payment Type', 'Today', 'Month', 'Total'], []);
-        const table = tokenSection.querySelector('table')!;
-        const tbody = table.querySelector('tbody')!;
-
-        report.token_report.types.forEach((t, rowIndex) => {
-            const tr = document.createElement('tr');
-            if (rowIndex % 2 !== 0) tr.style.backgroundColor = '#f8fafc';
-            [t.token_type, t.today.toString(), t.monthly.toString(), t.till_date.toString()].forEach((cell, i) => {
-                const td = document.createElement('td');
-                td.textContent = cell;
-                td.style.cssText = `padding: 7px 10px; text-align: ${i === 0 ? 'left' : 'center'}; border: 1px solid #e2e8f0; font-weight: ${i === 0 ? '600' : '500'}; color: ${i === 0 ? '#1e293b' : '#475569'} !important;`;
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-        });
-
-        const footerTr = document.createElement('tr');
-        footerTr.style.backgroundColor = '#f1f5f9';
-        ['Total Collections', report.token_report.totals.today.toString(), report.token_report.totals.monthly.toString(), report.token_report.totals.till_date.toString()]
-            .forEach((cell, i) => {
-                const td = document.createElement('td');
-                td.textContent = cell;
-                td.style.cssText = `padding: 8px 10px; text-align: ${i === 0 ? 'left' : 'center'}; border: 1px solid #cbd5e1; font-weight: 800; color: #0f172a;`;
-                footerTr.appendChild(td);
-            });
-        tbody.appendChild(footerTr);
-        rightCol.appendChild(tokenSection);
+        const rows = report.token_report.types.map(t => [t.token_type, t.today.toString(), t.monthly.toString(), t.till_date.toString()]);
+        const footer = ['Total Collections', report.token_report.totals.today.toString(), report.token_report.totals.monthly.toString(), report.token_report.totals.till_date.toString()];
+        rightCol.appendChild(createSection('Token Collection Detail', ['Type', 'Today', 'Month', 'Total'], rows, footer));
     }
 
     if (report.post_sales_report) {

@@ -122,7 +122,7 @@ export type TableRowData = Record<string, unknown> & {
   readonly [key: string]: unknown;
 };
 
-export type TableColumnType = 'photo' | 'sensitive' | 'attachment' | 'file' | 'date' | 'short_date' | 'truncate' | 'index' | 'actions' | string;
+export type TableColumnType = 'photo' | 'sensitive' | 'attachment' | 'file' | 'date' | 'short_date' | 'truncate' | 'index' | 'actions' | 'status' | 'pill' | string;
 export type ColumnAlign = 'left' | 'center' | 'right';
 export type EditType = 'text' | 'number' | 'select' | 'date';
 export type ColorConditionResult = 'green' | 'red' | string;
@@ -173,6 +173,9 @@ export interface TableColumn<T extends TableRowData = TableRowData> {
   readonly children?: readonly TableColumn<T>[];
   readonly headerClass?: string;
   readonly cellClass?: string;
+  readonly applyChequeStatusColor?: boolean;
+  readonly cellStyle?: (params: { data: T }) => Record<string, string> | undefined;
+  readonly onlyRoles?: number[];
 }
 
 export interface EditEvent<T extends TableRowData = TableRowData> {
@@ -462,7 +465,7 @@ export class ReusableTableComponent<T extends TableRowData = TableRowData> imple
   // Optimized Virtual scrolling properties
   // Default to true since cdk-virtual-scroll-viewport is always rendered in template
   @Input() virtualScrolling: boolean = true;
-  @Input() itemSize: number = 48;
+  @Input() itemSize: number = 40;
   @Input() bufferSize: number = 15;
   @ViewChild(CdkVirtualScrollViewport) virtualScroll!: CdkVirtualScrollViewport;
   @Output() scrollIndexChange = new EventEmitter<number>();
@@ -743,6 +746,18 @@ export class ReusableTableComponent<T extends TableRowData = TableRowData> imple
   readonly memoizedActionsArray = computed(() => {
     return [...this.actionsArraySignal()];
   });
+
+  /**
+   * Returns the CSS class for status badges based on the value
+   */
+  getStatusClass(value: any): string {
+    if (!value) return '';
+    const str = String(value).toLowerCase();
+    if (str.includes('paid') || str.includes('success') || str.includes('yes') || str.includes('active') || str.includes('completed')) return 'badge-success';
+    if (str.includes('partial') || str.includes('pending') || str.includes('warning') || str.includes('progress')) return 'badge-warning';
+    if (str.includes('unpaid') || str.includes('error') || str.includes('no') || str.includes('inactive') || str.includes('cancelled') || str.includes('failed')) return 'badge-danger';
+    return 'badge-info';
+  }
 
   // Optimized computed signal for filtered data with memoization
   // Uses cache key to avoid unnecessary recomputation
@@ -3404,11 +3419,13 @@ export class ReusableTableComponent<T extends TableRowData = TableRowData> imple
       );
     }
     this.selectedItemsChange.emit(this.selectedItems);
+    this.checkboxChange.emit(event);
     this.cdr.markForCheck();
   }
 
   handleActionClick(event: { action: string; row: T }): void {
     this.onActionClick.emit(event);
+    this.actionClick.emit(event);
   }
 
   // ==================== OPTIMIZED VIRTUAL SCROLL DATA MANAGEMENT ====================

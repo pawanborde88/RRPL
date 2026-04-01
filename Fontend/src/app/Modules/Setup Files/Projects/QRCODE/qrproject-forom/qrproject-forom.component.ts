@@ -33,6 +33,7 @@ import {
   map,
   shareReplay,
   switchMap,
+  combineLatest,
 } from 'rxjs';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
@@ -40,6 +41,7 @@ import { EnquiryManagementService } from '../../../Enquiry/services/enquiry-mana
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { IndianCurrencyFormatPipe } from '../../../../../Pipes/currency/indian-currency-format.pipe';
+import { OtpVerificationDialogComponent } from './otp-verification-dialog/otp-verification-dialog.component';
 
 // ==================== TYPE DEFINITIONS ====================
 
@@ -48,9 +50,12 @@ interface Project {
   min_cost: number;
   max_cost: number;
   city_id: number;
+  enq_otp_status?: number;
   project_name?: string;
   property_name?: string;
   project_logo?: string | null;
+  source_id?: number;
+  channel_partner_id?: number;
   [key: string]: unknown;
 }
 
@@ -214,6 +219,7 @@ export class QRProjectForomComponent {
   readonly storageUrl = environment.STORAGE_URL;
   readonly roleId = isPlatformBrowser(this.platformId) ? Number(sessionStorage.getItem('role_id')) || 0 : 0;
   readonly userId = isPlatformBrowser(this.platformId) ? Number(sessionStorage.getItem('session_id')) || 0 : 0;
+  private readonly DRAFT_STORAGE_KEY = 'qr_enquiry_draft';
 
   // ==================== SIGNALS ====================
   readonly slug = signal<string>('');
@@ -224,6 +230,10 @@ export class QRProjectForomComponent {
   readonly isEnquirySubmitted = signal<boolean>(false);
   readonly leadID = signal<number>(0);
   readonly isPatching = signal<boolean>(false);
+  readonly isOtpSent = signal<boolean>(false);
+  readonly isOtpVerified = signal<boolean>(false);
+  readonly isOtpLoading = signal<boolean>(false);
+  readonly otpErrorMessage = signal<string>('');
 
   // Project data
   readonly projectData = signal<Project | null>(null);
@@ -358,27 +368,32 @@ export class QRProjectForomComponent {
   constructor() {
     this.initializeComponent();
     this.setupFormValueChanges();
+    this.loadDraft();
   }
 
   private initializeComponent(): void {
-    this.route.paramMap
+    combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap
+    ])
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        switchMap((params: { get: (key: string) => string | null }) => {
+        map(([params, queryParams]) => {
           const slug = params.get('slug') || '';
-          this.slug.set(slug);
-          return slug ? of(slug) : of(null);
+          const queryString = window.location.search;
+          return slug + queryString;
         }),
-        filter((slug): slug is string => !!slug)
+        filter((fullSlug): fullSlug is string => !!fullSlug)
       )
-      .subscribe(() => {
-        this.loadInitialData();
+      .subscribe((fullSlug) => {
+        this.slug.set(fullSlug);
+        this.loadInitialData(fullSlug);
       });
 
   }
 
-  private loadInitialData(): void {
-    this.fetchSingleProject();
+  private loadInitialData(slug?: string): void {
+    this.fetchSingleProject(slug);
     this.fetchAllDropdowns();
   }
 
@@ -568,16 +583,31 @@ export class QRProjectForomComponent {
         distinctUntilChanged()
       )
       .subscribe(() => this.checkAndShowSourceFields());
+
+    this.addEnquiryform.get('mobile_no')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.otpErrorMessage.set(''));
+    this.addEnquiryform.get('email_id')?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.otpErrorMessage.set(''));
+
+    // Auto-save logic
+    this.addEnquiryform.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        debounceTime(1000)
+      )
+      .subscribe(() => {
+        this.saveDraft();
+      });
   }
 
   private handleSourceIdChange(sourceId: number): void {
     const sourceDetailControl = this.addEnquiryform.get('source_detail_id');
     const channelPartnerControl = this.addEnquiryform.get('channel_partner_id');
     const sourceExecutiveControl = this.addEnquiryform.get('source_executive_id');
-    // Reset all source-related fields
-    sourceDetailControl?.reset();
-    channelPartnerControl?.reset();
-    sourceExecutiveControl?.reset();
+    // Reset all source-related fields ONLY if not patching
+    if (!this.isPatching()) {
+      sourceDetailControl?.reset();
+      channelPartnerControl?.reset();
+      sourceExecutiveControl?.reset();
+    }
 
     if (sourceId === 3) {
       // Channel Partner source (source_id = 3)
@@ -628,12 +658,66 @@ export class QRProjectForomComponent {
 
   // ==================== VALIDATION METHODS ====================
   get isFormInvalid(): boolean {
-    return this.addEnquiryform.invalid;
+    const isBasicInvalid = this.addEnquiryform.invalid;
+    const project = this.projectData();
+
+    if (project?.enq_otp_status === 1) {
+      return isBasicInvalid || !this.isOtpVerified();
+    }
+
+    return isBasicInvalid;
   }
 
 
+  // ==================== AUTO-SAVE METHODS ====================
+  private saveDraft(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const formValue = this.addEnquiryform.getRawValue();
+      sessionStorage.setItem(this.DRAFT_STORAGE_KEY, JSON.stringify(formValue));
+    }
+  }
+
+  private loadDraft(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const draft = sessionStorage.getItem(this.DRAFT_STORAGE_KEY);
+      if (draft) {
+        try {
+          this.isPatching.set(true);
+          const parsedDraft = JSON.parse(draft);
+          this.addEnquiryform.patchValue(parsedDraft);
+
+          // Force update dependent state
+          const sourceId = this.addEnquiryform.get('source_id')?.value;
+          if (sourceId) {
+            this.handleSourceIdChange(Number(sourceId));
+          }
+
+          this.checkAndShowSourceFields();
+          this.isPatching.set(false);
+        } catch (e) {
+          this.isPatching.set(false);
+          console.error('Error restoring form draft:', e);
+        }
+      }
+    }
+  }
+
+  private clearDraft(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem(this.DRAFT_STORAGE_KEY);
+    }
+  }
+
   // ==================== API CALLS ====================
-  private fetchSingleProject(): void {
+  private fetchSingleProject(slug?: string): void {
+    if (slug) {
+      this.slug.set(slug);
+    }
+
+    if (!this.slug()) {
+      return;
+    }
+
     this.loading.set(true);
     this.enquiryService
       .fetchProjectInfo(this.slug())
@@ -678,8 +762,10 @@ export class QRProjectForomComponent {
         // Set initial budget values if not already set
         min_budget: minBudget || project.min_cost || null,
         max_budget: maxBudget || project.max_cost || null,
+        source_id: project.source_id || null,
+        channel_partner_id: project.channel_partner_id || null,
       },
-      { emitEvent: false }
+      { emitEvent: true }
     );
   }
 
@@ -702,6 +788,72 @@ export class QRProjectForomComponent {
           this.allSubregions.set(res || []);
         },
       });
+  }
+
+  // ==================== OTP METHODS ====================
+
+  sendOtp(): void {
+    const firstName = this.addEnquiryform.get('first_name')?.value;
+    const lastName = this.addEnquiryform.get('last_name')?.value;
+    const mobileNo = this.addEnquiryform.get('mobile_no')?.value;
+    const emailId = this.addEnquiryform.get('email_id')?.value;
+    const projectId = this.projectData()?.project_id;
+
+    if (!firstName || !lastName || !mobileNo || !emailId || !projectId) {
+      this.showError('Please fill in Name, Mobile, and Email before sending OTP.', 3000);
+      return;
+    }
+
+    const payload = {
+      mobile_no: mobileNo,
+      email_id: emailId,
+      project_id: projectId,
+      first_name: firstName,
+      last_name: lastName
+    };
+
+    this.otpErrorMessage.set('');
+    this.isOtpLoading.set(true);
+    this.enquiryService.sendOtpToEnquiry(payload)
+      .pipe(
+        finalize(() => this.isOtpLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (res: any) => {
+          if (res.success && res.status !== false) {
+            this.isOtpSent.set(true);
+            this.showSuccess('OTP sent successfully. Opening verification window...');
+            this.openOtpDialog(payload);
+          } else {
+            const errorMsg = res.message || 'Failed to send OTP. Please try again.';
+            this.otpErrorMessage.set(errorMsg);
+            this.showError(errorMsg);
+          }
+        },
+        error: () => {
+          this.otpErrorMessage.set('An error occurred while sending OTP.');
+          this.showError('An error occurred while sending OTP.');
+        }
+      });
+  }
+
+  private openOtpDialog(data: any): void {
+    const dialogRef = this.dialog.open(OtpVerificationDialogComponent, {
+      data,
+      width: '100%',
+      maxWidth: '430px',
+      minWidth: '320px',
+      disableClose: true,
+      panelClass: 'custom-otp-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.isOtpVerified.set(true);
+        this.isOtpSent.set(true);
+      }
+    });
   }
 
   private handleProjectFetchError(err: unknown): void {
@@ -835,6 +987,12 @@ export class QRProjectForomComponent {
       .subscribe({
         next: (res: ChannelPartner[]) => {
           this.allChannelPartnerList.set(res || []);
+          // On initial load, if we have a partner, patch their RERA number
+          if (loadInitialData && res && res.length > 0) {
+            this.addEnquiryform.patchValue({
+              rera_no: res[0].rera || ' '
+            }, { emitEvent: false });
+          }
         },
       });
   }
@@ -964,6 +1122,7 @@ export class QRProjectForomComponent {
     });
 
     dialogRef.afterClosed().subscribe(() => {
+      this.clearDraft();
       this.addEnquiryform.reset();
       this.fetchSingleProject();
       this.showSourceFields.set(false);
@@ -1160,6 +1319,13 @@ export class QRProjectForomComponent {
 
   private showError(message: string, duration = 3000): void {
     this.snackBar.open(message, 'Close', { duration });
+  }
+
+  private showSuccess(message: string, duration = 3000): void {
+    this.snackBar.open(message, 'Close', {
+      duration,
+      panelClass: ['bg-green-600', 'text-white']
+    });
   }
 
   private showErrorDialog(message: string, status: boolean): void {

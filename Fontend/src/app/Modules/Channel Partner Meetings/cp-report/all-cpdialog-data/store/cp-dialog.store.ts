@@ -257,8 +257,8 @@ export class CpDialogStore {
             { key: 'site_visit_count', label: 'CP Visit' },
             { key: 'token_count', label: 'Token Count' },
             { key: 'booking_count', label: 'CP Booking' },
-            { key: 'firm_address', label: 'Firm Address' },
-            { key: 'firm_email', label: 'Firm Email' },
+            { key: 'firm_address', label: 'Firm Address', type: 'sensitive' },
+            { key: 'firm_email', label: 'Firm Email', type: 'sensitive' },
 
         ] as const;
     }

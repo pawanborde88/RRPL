@@ -8,20 +8,22 @@
   height: 100%;
 
   --sidebar-bg: #f8fafc;
-  --sidebar-border: rgba(226, 232, 240, 0.8);
+  --sidebar-border: rgba(0, 0, 0, 0.06);
   --active-bg: #0d4678;
   --active-text: #ffffff;
-  --hover-bg: #f1f5f9;
-  --sub-hover-bg: #f1f5f9;
-  --text-primary: #334155;
+  --hover-bg: #0d4678;
+  --sub-hover-bg: rgba(13, 70, 120, 0.08);
+  --text-primary: #1e293b;
   --text-secondary: #64748b;
   --accent-color: #0d4678;
-  --guide-line: #cbd5e1;
+  --guide-line: rgba(0, 0, 0, 0.08);
+  --glass-bg: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.05);
 
   ::ng-deep {
     a {
       text-decoration: none !important;
-      color: inherit !important;
+      color: inherit;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover,
@@ -38,7 +40,7 @@
       font-size: 20px;
       width: 20px;
       height: 20px;
-      color: #64748b;
+      color: var(--text-secondary);
       transition: color 0.2s ease;
     }
 
@@ -74,6 +76,7 @@
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   box-shadow: 4px 0 24px -12px rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary);
 }
 
 .section-header {
@@ -103,12 +106,25 @@
 
 /* Sidebar Menu Item Base Hover */
 .group {
-  &.hover\:bg-slate-100:hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-secondary);
+  position: relative;
+
+  &.hover\:bg-slate-100:hover,
+  &:hover {
     background-color: var(--hover-bg) !important;
+    color: white !important;
+    transform: translateX(4px);
 
     .mat-icon {
-      color: var(--accent-color);
+      color: #f5932e !important;
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px rgba(245, 147, 46, 0.2));
     }
+  }
+
+  .mat-icon {
+    transition: all 0.3s ease;
   }
 }
 
@@ -131,13 +147,14 @@
   a {
     position: relative;
     margin: 2px 0;
+    color: var(--text-secondary) !important;
 
     &:hover {
-      background-color: var(--sub-hover-bg) !important;
-      color: var(--accent-color) !important;
+      background-color: var(--hover-bg) !important;
+      color: white !important;
 
       .mat-icon {
-        color: var(--accent-color);
+        color: #f5932e !important;
       }
     }
   }
@@ -161,24 +178,40 @@
 .nav-item-active {
   background: var(--active-bg) !important;
   color: var(--active-text) !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 12px -2px rgba(13, 70, 120, 0.35);
+  font-weight: 700 !important;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2), 0 4px 8px -4px rgba(0, 0, 0, 0.1);
+  transform: translateX(0) !important;
 
   .mat-icon {
     color: var(--active-text) !important;
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24 !important;
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24 !important;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
   }
 
   span {
     color: var(--active-text) !important;
   }
+
+  /* Transition for icons inside active item */
+  ::ng-deep .mat-icon {
+    color: var(--active-text) !important;
+  }
 }
 
-.sub-item-active {
-  color: var(--accent-color) !important;
-  background-color: #f1f5f9 !important;
+.submenu-wrapper a.sub-item-active {
+  color: #f8fafc !important;
+  background-color: #0d4678 !important;
   font-weight: 700 !important;
   position: relative;
+  box-shadow: 0 4px 12px rgba(13, 70, 120, 0.3);
+
+  span {
+    color: #f8fafc !important;
+  }
+
+  .mat-icon {
+    color: #f8fafc !important;
+  }
 
   &::before {
     content: '';
@@ -188,9 +221,9 @@
     transform: translateY(-50%);
     width: 6px;
     height: 6px;
-    background: var(--accent-color);
+    background: #0d4678;
     border-radius: 50%;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(13, 70, 120, 0.1);
+    box-shadow: 0 0 0 2px rgba(13, 70, 120, 0.2);
   }
 }
 
@@ -213,25 +246,59 @@
 
 /* Search Bar Enhancement */
 .search-input-wrapper {
-  &:focus-within {
-    .search-icon {
-      color: var(--accent-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  input {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
 
-    input {
-      box-shadow: 0 0 0 4px rgba(13, 70, 120, 0.05);
+    &:focus {
+      background: rgba(255, 255, 255, 0.15) !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &:focus-within {
+    .search-icon {
+      color: #ffffff;
+      transform: translateY(-50%) scale(1.1);
     }
   }
 }
 
 /* User Section Refinement */
 .user-section {
-  background: white;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--glass-border) !important;
+  margin: 8px;
+  border-radius: 12px;
 
-  &:hover {
-    .text-slate-800 {
-      color: var(--accent-color);
+  .group:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+
+    .text-slate-800,
+    .text-slate-500 {
+      color: #ffffff !important;
     }
+  }
+
+  .text-slate-800 {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+  }
+
+  .text-slate-500 {
+    color: var(--text-secondary) !important;
   }
 }
 

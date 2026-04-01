@@ -329,6 +329,7 @@ export class AddProjectleadComponent implements OnInit {
     };
 
     this.addProjectLeadForm.patchValue(formData);
+    this.addProjectLeadForm.markAsUntouched();
 
     // Trigger source validators after patching
     if (leadData.source_id) {
@@ -381,7 +382,7 @@ export class AddProjectleadComponent implements OnInit {
 
   onSubmit(): void {
     if (this.addProjectLeadForm.invalid) {
-      this.markAllFieldsAsTouched();
+      this.markInvalidControlsAsTouched();
       return;
     }
 
@@ -421,9 +422,11 @@ export class AddProjectleadComponent implements OnInit {
     };
   }
 
-  private markAllFieldsAsTouched(): void {
+  private markInvalidControlsAsTouched(): void {
     Object.values(this.addProjectLeadForm.controls).forEach(control => {
-      control.markAsTouched();
+      if (control.invalid) {
+        control.markAsTouched();
+      }
     });
   }
 

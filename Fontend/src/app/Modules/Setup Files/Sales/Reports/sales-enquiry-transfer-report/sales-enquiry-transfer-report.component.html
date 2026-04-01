@@ -7,16 +7,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
     <mat-accordion>
         <mat-expansion-panel hideToggle [expanded]="true">
             <mat-expansion-panel-header>
@@ -44,7 +34,7 @@
                     <!-- Apply Filter Button -->
                     <div class="col-md-auto">
                         <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
-                            [disabled]="!leadForm.get('project_id')?.value?.length" (click)="refreshAgGridData()">
+                            [disabled]="!leadForm.get('project_id')?.value?.length" (click)="fetchAllProjectDemands()">
                             Apply Filter
                         </button>
                     </div>

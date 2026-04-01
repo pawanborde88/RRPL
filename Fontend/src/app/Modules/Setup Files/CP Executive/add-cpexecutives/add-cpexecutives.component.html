@@ -16,7 +16,7 @@
             <hr class="mt-1 mb-3 opacity-25">
         </div>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>First Name</mat-label>
             <input matInput formControlName="first_name" required />
             <mat-error *ngIf="addCpExecutiveForm.get('first_name')?.hasError('required')">
@@ -24,7 +24,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Last Name</mat-label>
             <input matInput formControlName="last_name" required />
             <mat-error *ngIf="addCpExecutiveForm.get('last_name')?.hasError('required')">
@@ -32,7 +32,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Email</mat-label>
             <input matInput formControlName="user_email" required email />
             <mat-error *ngIf="addCpExecutiveForm.get('user_email')?.hasError('required')">
@@ -43,7 +43,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Phone Number</mat-label>
             <input matInput formControlName="user_phone" required pattern="^[6789]\d{9}$" maxlength="10"
                 inputmode="numeric" />
@@ -55,22 +55,16 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Birth Date</mat-label>
             <input matInput formControlName="dob" [matDatepicker]="picker" placeholder="Select Date" />
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4" *ngIf="!data?.rowData?.user_id">
-            <mat-label>Password</mat-label>
-            <input matInput formControlName="password" [required]="!data?.rowData?.user_id" />
-            <mat-error *ngIf="addCpExecutiveForm.get('password')?.hasError('required')">
-                Password is required.
-            </mat-error>
-        </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>PAN</mat-label>
             <input matInput formControlName="pan_no" placeholder="PAN no" appPANNo maxlength="10" />
             <mat-error *ngIf="addCpExecutiveForm.get('pan_no')?.hasError('pattern')">
@@ -81,7 +75,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Aadhar</mat-label>
             <input matInput formControlName="aadhar_no" placeholder="Aadhar no" appAadharcardNoformat maxlength="14"
                 inputmode="numeric" />
@@ -104,7 +98,7 @@
             placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
         </app-autocomplete-reusable-component>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>City</mat-label>
             <mat-select formControlName="city_id" multiple>
                 <mat-option *ngFor="let city of allCities" [value]="city.city_id">{{ city.city_name }}</mat-option>
@@ -114,7 +108,7 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Sub region</mat-label>
             <mat-select formControlName="sub_region_id" multiple>
                 <mat-option *ngFor="let region of allSubregions" [value]="region.sub_region_id">{{
@@ -157,8 +151,8 @@
 
         <mat-form-field appearance="outline" class="col-md-2">
             <mat-label>PIN Code</mat-label>
-            <input matInput formControlName="pin_code" required pattern="^[1-9][0-9]{5}$" maxlength="6"
-                inputmode="numeric" />
+            <input matInput formControlName="pin_code" required pattern="^[0-9]{6}$" maxlength="6" inputmode="numeric"
+                (input)="sanitizePinCodeInput($event)" />
             <mat-error *ngIf="addCpExecutiveForm.get('pin_code')?.hasError('required')">
                 PIN Code is required.
             </mat-error>
@@ -173,27 +167,27 @@
             <hr class="mt-1 mb-3 opacity-25">
         </div>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Bank Name</mat-label>
             <input matInput formControlName="bank_name" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Branch Name</mat-label>
             <input matInput formControlName="branch_name" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Account Name</mat-label>
             <input matInput formControlName="account_name" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Bank Account No</mat-label>
             <input matInput formControlName="bank_account_no" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>IFSC Code</mat-label>
             <input matInput formControlName="ifsc_code" />
         </mat-form-field>

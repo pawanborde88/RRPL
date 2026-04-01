@@ -1,246 +1,151 @@
-<div class="relative min-h-screen overflow-hidden bg-[oklch(98.4%_0.003_247.858)] text-gray-900">
-  <!-- Light Gray Themed Background -->
-  <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-    <!-- Subtle Grid Pattern Overlay -->
-    <div
-      class="absolute inset-0 bg-[linear-gradient(to_right,oklch(95%_0.003_247.858)_1px,transparent_1px),linear-gradient(to_bottom,oklch(95%_0.003_247.858)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20">
-    </div>
-    <div
-      class="absolute left-1/4 top-20 h-9 6 w-96 rounded-full bg-gradient-to-br from-amber-200/20 via-yellow-200/15 to-transparent blur-3xl animate-pulse [animation-duration:6s]">
-    </div>
-    <div
-      class="absolute right-1/4 bottom-20 h-[32rem] w-[32rem] rounded-full bg-gradient-to-br from-blue-200/15 via-indigo-200/10 to-transparent blur-3xl animate-pulse [animation-duration:8s]">
-    </div>
+<div class="flex min-h-[100dvh] font-sans bg-[#e2e8f0] text-gray-900 justify-center items-center py-12 px-4">
+  <!-- Main Centered Card -->
+  <div
+    class="flex flex-col bg-white rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.1)] w-full max-w-[500px] overflow-hidden">
 
-    <!-- Subtle Radial Gradient -->
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(251,191,36,0.05),transparent_50%)]"></div>
+    <!-- Top Padding area -->
+    <div class="p-8 sm:p-12">
+      <!-- Form Container -->
+      <div class="w-full flex flex-col justify-center">
 
-    <!-- Bottom Gradient -->
-    <div
-      class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[oklch(96%_0.003_247.858)]/30 to-transparent">
-    </div>
-  </div>
+        <!-- Top Logo area -->
+        <div class="flex flex-col items-center mb-8 text-center">
+          <div class="mb-4">
+            <!-- Dynamic Logo image -->
+            <img
+              [src]="showOtpForm() ? 'assets/Images/RRPL growth arrow.png' : 'assets/Images/relationrealtechupdatedvideo-1.png'"
+              alt="Logo" class="h-16 w-auto object-contain">
+          </div>
+          <h2 class="text-3xl font-semibold text-gray-900 mb-2">Welcome back</h2>
+          <p class="text-[14px] text-gray-500 font-normal">
+            Glad to see you again 👋<br>
+            Login to your account below
+          </p>
+        </div>
 
-  <!-- Main Content Container -->
-  <div class="relative z-10 flex min-h-screen items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-    <div class="mx-auto w-full max-w-md">
-      <section
-        class="relative rounded-2xl border border-gray-300/60 bg-white/90 backdrop-blur-xl p-8 shadow-2xl shadow-gray-400/20 transition-all duration-500 hover:shadow-amber-300/20 sm:p-10">
-
-        <!-- Login Form -->
+        <!-- Login Form View -->
         @if (!showOtpForm()) {
-        <div class="mb-8 space-y-6 text-center">
-          <!-- Company Logo -->
+        <div class="space-y-6">
 
 
-          <div class="space-y-3">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Welcome Back
-            </h2>
-            <p class="text-sm font-medium text-gray-600 sm:text-base">
-              Sign in to continue to your account
-            </p>
-          </div>
-        </div>
-
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
-          <!-- Email Field -->
-          <div class="space-y-2">
-            <label for="email" class="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-              Email
-            </label>
-            <div class="group relative">
-              <div class="absolute inset-y-0 left-0 flex items-center pl-4 z-10 pointer-events-none">
-                <mat-icon
-                  class="text-lg text-gray-400 transition-colors duration-300 group-focus-within:text-sky-900">mail_outline</mat-icon>
-              </div>
-              <input id="email" type="email" formControlName="email" placeholder="Enter your email address" required
-                autocomplete="username" autofocus [attr.aria-invalid]="isEmailInvalid()"
-                [attr.aria-describedby]="isEmailInvalid() ? 'email-error' : null"
-                class="block w-full rounded-xl border-2 bg-gray-50 py-3.5 pl-12 pr-4 text-sm font-medium text-gray-900 placeholder:text-gray-400 shadow-sm outline-none transition-all duration-300 focus:border-sky-900 focus:shadow-lg focus:shadow-sky-900/20 focus:ring-2 focus:ring-sky-900/30 border-gray-300"
-                [ngClass]="{
-                    'border-red-500 bg-red-50 text-red-900 placeholder:text-red-400 focus:border-red-500 focus:shadow-red-500/20 focus:ring-red-500/30': isEmailInvalid(),
-                    'border-gray-300 bg-gray-50 focus:border-sky-900 focus:shadow-sky-900/20 focus:ring-sky-900/30': !isEmailInvalid()
-                  }" />
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5 mt-8">
+            <!-- Email Field -->
+            <div class="space-y-1.5">
+              <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+              <input id="email" type="email" formControlName="email" placeholder="Enter Email..." required
+                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none"
+                [ngClass]="{'border-red-400 focus:border-red-400 focus:ring-red-100': isEmailInvalid() }">
+              @if (isEmailInvalid()) {
+              <p class="text-xs text-red-500 mt-1">
+                @if (hasEmailError('required')) { Email is required }
+                @if (hasEmailError('email')) { Invalid email format }
+              </p>
+              }
             </div>
-            @if (isEmailInvalid()) {
-            <div id="email-error"
-              class="mt-2 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-200 p-3 text-xs font-medium text-red-800 shadow-sm animate-fade-in">
-              <mat-icon class="mt-0.5 text-base text-red-500 shrink-0">error_outline</mat-icon>
-              <div class="space-y-0.5">
-                @if (hasEmailError('required')) {
-                <p>Email address is required</p>
-                }
-                @if (hasEmailError('email')) {
-                <p>Please enter a valid email address</p>
-                }
-                @if (hasEmailError('dangerousInput')) {
-                <p>Invalid characters detected</p>
-                }
-              </div>
-            </div>
-            }
-          </div>
 
-          <!-- Password Field -->
-          <div class="space-y-2">
-            <label for="password" class="block text-sm font-semibold text-gray-700 flex items-center gap-2">
-              Password
-            </label>
-            <div class="group relative">
-              <div class="absolute inset-y-0 left-0 flex items-center pl-4 z-10 pointer-events-none">
-                <mat-icon
-                  class="text-lg text-gray-400 transition-colors duration-300 group-focus-within:text-sky-900">lock_outline</mat-icon>
+            <!-- Password Field -->
+            <div class="space-y-1.5">
+              <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+              <div class="relative">
+                <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                  placeholder="Enter Password..." required
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none"
+                  [ngClass]="{'border-red-400 focus:border-red-400 focus:ring-red-100': isPasswordInvalid() }">
+                <button type="button" (click)="togglePasswordVisibility()"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none">
+                  <mat-icon class="text-lg">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
               </div>
-              <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
-                placeholder="Enter your password" required autocomplete="current-password"
-                [attr.aria-invalid]="isPasswordInvalid()"
-                [attr.aria-describedby]="isPasswordInvalid() ? 'password-error' : null"
-                class="block w-full rounded-xl border-2 bg-gray-50 py-3.5 pl-12 pr-12 text-sm font-medium text-gray-900 placeholder:text-gray-400 shadow-sm outline-none transition-all duration-300 focus:border-sky-900 focus:shadow-lg focus:shadow-sky-900/20 focus:ring-2 focus:ring-sky-900/30 border-gray-300"
-                [ngClass]="{
-                    'border-red-500 bg-red-50 text-red-900 placeholder:text-red-400 focus:border-red-500 focus:shadow-red-500/20 focus:ring-red-500/30': isPasswordInvalid(),
-                    'border-gray-300 bg-gray-50 focus:border-sky-900 focus:shadow-sky-900/20 focus:ring-sky-900/30': !isPasswordInvalid()
-                  }" />
-              <button type="button" (click)="togglePasswordVisibility()"
-                class="absolute inset-y-0 right-0 flex items-center pr-4 z-10 text-gray-400 transition-all duration-200 hover:text-sky-900 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-900 focus-visible:ring-offset-2"
-                [ngClass]="{
-                    'text-red-500 hover:text-red-600': isPasswordInvalid(),
-                    'text-gray-400 hover:text-sky-900': !isPasswordInvalid()
-                  }" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-                [attr.aria-pressed]="showPassword()">
-                <mat-icon class="text-lg">{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              @if (isPasswordInvalid()) {
+              <p class="text-xs text-red-500 mt-1">
+                @if (hasPasswordError('required')) { Password is required }
+                @if (hasPasswordError('minlength')) { Minimum {{ PASSWORD_MIN_LENGTH }} characters }
+              </p>
+              }
+            </div>
+
+            <!-- Options Row (Optional based on image, but keeping for functionality) -->
+            <div class="flex items-center justify-between pt-1">
+
+              <button type="button" (click)="openForgotPasswordDialog()" class="text-sm font-medium ">
+                Forgot Password?
               </button>
             </div>
 
-            @if (isPasswordInvalid()) {
-            <div id="password-error"
-              class="mt-2 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-200 p-3 text-xs font-medium text-red-800 shadow-sm animate-fade-in">
-              <mat-icon class="mt-0.5 text-base text-red-500 shrink-0">error_outline</mat-icon>
-              <div class="space-y-0.5">
-                @if (hasPasswordError('required')) {
-                <p>Password is required</p>
+            <!-- Action Button -->
+            <div class="pt-2">
+              <button type="submit" mat-raised-button color="primary" [disabled]="!canSignIn()"
+                class="w-full flex items-center justify-center rounded-lg  py-3.5 text-base font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                @if (isLoading()) {
+                <mat-spinner diameter="20" class="mr-2"></mat-spinner>
                 }
-                @if (hasPasswordError('minlength')) {
-                <p>Password must be at least {{ PASSWORD_MIN_LENGTH }} characters long</p>
-                }
-              </div>
+                Login
+              </button>
             </div>
-            }
-          </div>
+          </form>
 
-          <!-- Forgot Password -->
-          <div class="flex items-center justify-end pt-1">
-            <button type="button" (click)="openForgotPasswordDialog()"
-              class="text-sm font-semibold transition-all duration-200 hover:text-amber-700 hover:underline focus-visible:outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 active:text-amber-800">
-              Forgot password?
-            </button>
-          </div>
 
-          <!-- Submit Button -->
-          <button mat-raised-button type="submit" color="primary"
-            class="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 px-6 py-4 text-base font-bold text-white shadow-xl shadow-amber-500/30 transition-all duration-300 hover:from-amber-400 hover:via-yellow-400 hover:to-amber-500 hover:shadow-2xl hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:from-gray-400 disabled:via-gray-400 disabled:to-gray-500 disabled:shadow-none disabled:hover:scale-100 disabled:opacity-60 disabled:text-gray-300"
-            [disabled]="!canSignIn()">
-            <!-- Animated gradient overlay -->
-            <div
-              class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000">
-            </div>
-
-            <span class="relative z-10 flex items-center justify-center gap-2.5">
-              @if (isLoading()) {
-              <mat-spinner diameter="20" color="accent" class="mr-1"></mat-spinner>
-              <span>Signing in...</span>
-              } @else {
-              <mat-icon class="text-lg">login</mat-icon>
-              <span>Sign In</span>
-              }
-            </span>
-          </button>
-
-          <!-- Security Notice -->
-
-        </form>
+        </div>
         }
 
-        <!-- OTP Verification Form -->
         @if (showOtpForm()) {
-        <div class="mb-8 space-y-6 text-center">
-          <div class="space-y-3">
-            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Verify OTP
-            </h2>
-            <p class="text-sm font-medium text-gray-600 sm:text-base">
-              We sent an OTP to <strong class="font-semibold text-gray-900">{{ userEmail() }}</strong> Enter it below to
-              continue.
-            </p>
-          </div>
-        </div>
+        <!-- OTP Form (Keeping existing but matching styles) -->
+        <div class="space-y-6 pt-2">
+          <p class="text-[14px] text-gray-500 text-center leading-relaxed">
+            We sent an OTP to <br /><strong class="font-bold text-gray-900">{{ userEmail() }}</strong><br />Enter it
+            below to continue.
+          </p>
 
-        <form [formGroup]="otpForm" (ngSubmit)="onOtpSubmit()" class="space-y-6">
-          <!-- OTP Input Fields -->
-          <div class="space-y-4">
-            <div class="flex justify-center gap-3 sm:gap-4" (paste)="onOtpPaste($event)">
-              @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-              <input [id]="'otp-input-' + i" type="text" [formControlName]="'otp' + i" maxlength="1" inputmode="numeric"
-                pattern="[0-9]" autocomplete="off" (input)="onOtpInput($event, i - 1)"
-                (keydown)="onOtpKeyDown($event, i - 1)" class="otp-input" [attr.aria-label]="'OTP digit ' + i" />
+          <form [formGroup]="otpForm" (ngSubmit)="onOtpSubmit()" class="space-y-6 mt-6">
+            <div class="space-y-4">
+              <div class="flex justify-center gap-3" (paste)="onOtpPaste($event)">
+                @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+                <input [id]="'otp-input-' + i" type="text" [formControlName]="'otp' + i" maxlength="1"
+                  inputmode="numeric" autocomplete="off" (input)="onOtpInput($event, i - 1)"
+                  (keydown)="onOtpKeyDown($event, i - 1)"
+                  class="h-14 w-12 rounded-lg bg-gray-50 border border-gray-200 text-center text-xl font-bold text-gray-900 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all outline-none" />
+                }
+              </div>
+
+              <!-- Resend -->
+              <div class="flex justify-center mt-3">
+                @if (canResendOtp()) {
+                <button type="button" (click)="onResendOtp()" class="font-semibold  text-sm hover:underline">
+                  Resend OTP
+                </button>
+                } @else {
+                <span class="font-medium text-gray-400 text-sm">
+                  Resend in {{ resendCountdown() }}s
+                </span>
+                }
+              </div>
+
+              @if (isOtpInvalid()) {
+              <p class="text-xs text-red-500 text-center">Please enter all 6 digits</p>
               }
             </div>
 
-            <!-- Resend OTP -->
-            <div class="flex items-center justify-center gap-2 text-sm text-slate-300">
-              <span>Resend available:</span>
-              @if (canResendOtp()) {
-              <button type="button" (click)="onResendOtp()"
-                class="text-sm font-semibold text-blue-400 hover:text-blue-300 underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:rounded-md">
-                Resend OTP
-              </button>
-              } @else {
-              <span class="text-sm font-medium text-slate-500">
-                Resend in {{ resendCountdown() }}s
-              </span>
-              }
-            </div>
-
-            <!-- Error Message -->
-            @if (isOtpInvalid()) {
-            <div id="otp-error"
-              class="mt-2 flex items-center justify-center gap-2.5 rounded-lg bg-red-900/30 border border-red-700/50 p-3 text-xs font-medium text-red-200 shadow-sm animate-fade-in">
-              <mat-icon class="text-base text-red-400 shrink-0">error_outline</mat-icon>
-              <p>Please enter all 6 digits</p>
+            @if (isLoadingOtp()) {
+            <div class="flex justify-center space-x-2 py-2 items-center">
+              <mat-spinner diameter="18" class="text-indigo-600"></mat-spinner>
+              <p class="text-sm font-medium text-gray-500">Verifying...</p>
             </div>
             }
-          </div>
 
-          <!-- Verify Button -->
-          <button mat-raised-button type="submit" color="primary"
-            class="group relative w-full overflow-hidden rounded-xl bg-blue-600 px-6 py-4 text-base font-bold text-white shadow-xl shadow-blue-600/30 transition-all duration-300 hover:bg-blue-700 hover:shadow-2xl hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:shadow-none disabled:hover:scale-100 disabled:opacity-60 disabled:text-slate-400"
-            [disabled]="!canVerifyOtp()">
-            <div
-              class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000">
+            <div class="flex gap-4 pt-4">
+              <button type="button" (click)="goBackToLogin()"
+                class="flex-1 items-center justify-center rounded-lg bg-white border border-gray-200 py-3.5 text-base font-semibold text-gray-600 hover:bg-gray-50 transition-all">
+                Back
+              </button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="!canVerifyOtp()"
+                class="flex-1 items-center justify-center rounded-lg  py-3.5 text-base font-semibold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                Verify
+              </button>
             </div>
-
-            <span class="relative z-10 flex items-center justify-center gap-2.5">
-              @if (isLoadingOtp()) {
-              <mat-spinner diameter="20" color="accent" class="mr-1"></mat-spinner>
-              <span>Verifying...</span>
-              } @else {
-              <span>Verify</span>
-              }
-            </span>
-          </button>
-
-          <!-- Back to Login Link -->
-          <button type="button" (click)="goBackToLogin()"
-            class="flex items-center justify-center gap-2 text-sm font-semibold text-slate-400 transition-all duration-200 hover:text-slate-300 hover:underline active:text-slate-500 focus-visible:outline-none focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800">
-            <mat-icon class="text-lg">arrow_back</mat-icon>
-            <span>Back to Log In</span>
-          </button>
-        </form>
+          </form>
+        </div>
         }
-      </section>
+      </div>
     </div>
   </div>
-
-  <!-- Footer -->
-
 </div>

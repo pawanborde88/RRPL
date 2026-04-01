@@ -2,6 +2,20 @@
 <mat-dialog-content class="mat-typography">
 
     <form [formGroup]="addEvents" class="row">
+
+        <div class="col-md-3">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                displayKey="property_name" idKey="project_id" placeholder="Select Project" class="w-100">
+            </app-autocomplete-reusable-component>
+        </div>
+
+        <div class="col-md-3">
+            <app-autocomplete-reusable-component [options]="eventTypeList()" formControlName="event_type_id"
+                displayKey="event_type" idKey="event_type_id" placeholder="Select Event Type" class="w-100">
+            </app-autocomplete-reusable-component>
+        </div>
+
+
         <mat-form-field appearance="outline" class="col-md-6">
             <mat-label>Event Title</mat-label>
             <input matInput formControlName="event_title" />
@@ -97,10 +111,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="col-12 mt-3">
-    <button mat-icon-button color="warn" *ngIf="this.data.rowData?.event_id"
-        (click)="$event.stopPropagation(); deleteEvent(this.data.rowData?.event_id)">
-        <mat-icon>delete</mat-icon>
-    </button>
-    <button mat-raised-button color="primary" (click)="onSubmit()">Submit</button>
+
+    <button mat-raised-button [disabled]=" addEvents.invalid" color="primary" (click)="onSubmit()">Submit</button>
     <button mat-raised-button color="warn" mat-dialog-close>Cancel</button>
 </mat-dialog-actions>

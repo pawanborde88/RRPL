@@ -18,26 +18,30 @@
           </div>
 
           <!-- Search Input -->
-          <input type="text" [(ngModel)]="searchText" (input)="applyFilter($event)" [placeholder]="
-              searchText
+          <input type="text" [value]="searchTextSignal()" (input)="applyFilter($event)" [placeholder]="
+              searchTextSignal()
                 ? 'Showing ' + filteredUsers().length + ' of ' + allUsers().length + ' ' + pageConfig().collectionLabelPlural
                 : pageConfig().searchPlaceholder
             "
             class="w-full pl-10 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white transition-all duration-200 hover:bg-gray-100 hover:border-gray-300" />
 
           <!-- Clear Button -->
-          <button *ngIf="searchText" (click)="clearSearch()" type="button"
-            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          @if (searchTextSignal()) {
+          <button (click)="clearSearch()" type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200  hover: transition-colors duration-200"
             aria-label="Clear search">
             <mat-icon class="!text-base !w-4 !h-4">close</mat-icon>
           </button>
+          }
         </div>
 
         <!-- Search Results Hint -->
-        <p *ngIf="searchText" class="mt-1.5 text-xs font-semibold text-indigo-600 px-1">
+        @if (searchTextSignal()) {
+        <p class="mt-1.5 text-xs font-semibold text-indigo-600 px-1">
           Found {{ filteredUsers().length }} {{ pageConfig().collectionLabelSingular }}{{ filteredUsers().length !== 1 ?
           's' : '' }}
         </p>
+        }
       </div>
 
       <!-- User Count Badge -->
@@ -45,381 +49,298 @@
         <div class="flex items-center justify-center w-7 h-7 rounded-full bg-indigo-50">
           <mat-icon class="text-indigo-600 !text-lg !w-4 !h-4">{{ pageConfig().countIcon }}</mat-icon>
         </div>
-        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold whitespace-nowrap">
+        <span class="px-3 py-1 bg-gray-100  rounded-full text-xs font-semibold whitespace-nowrap">
           {{ allUsers().length }} {{ pageConfig().collectionLabelPlural }}
         </span>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex items-center gap-2 flex-shrink-0">
-        <ng-container *ngFor="let btn of headerButtons()">
-          <button *ngIf="btn.show()" mat-mini-fab [color]="btn.color" [disabled]="btn.disabled()" (click)="btn.action()"
-            [matTooltip]="btn.label" matTooltipPosition="below"
-            class="!w-9 !h-9 !shadow-sm hover:!shadow-md transition-all duration-200">
-            <mat-icon class="!text-lg">{{ btn.icon }}</mat-icon>
-          </button>
-        </ng-container>
+        @for (btn of headerButtons(); track btn.label) {
+        @if (btn.show()) {
+        <button mat-mini-fab [color]="btn.color" [disabled]="btn.disabled()" (click)="btn.action()"
+          [matTooltip]="btn.label" matTooltipPosition="below"
+          class="!w-9 !h-9 !shadow-sm hover:!shadow-md transition-all duration-200">
+          <mat-icon class="!text-lg">{{ btn.icon }}</mat-icon>
+        </button>
+        }
+        }
       </div>
     </div>
   </div>
 
   <app-costom-loading [loading]="loading()" [text]="pageConfig().loadingText"></app-costom-loading>
 
-  <ng-container [ngSwitch]="mode()">
-    <ng-container *ngSwitchCase="'users'">
-      <div *ngIf="!loading() && filteredUsers().length > 0"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-        <mat-card *ngFor="let user of filteredUsers(); trackBy: trackByUserId" [class]="
-            'user-card group !rounded-xl !shadow-sm hover:!shadow-xl transition-all duration-300 ease-out cursor-pointer relative overflow-hidden !p-0 border border-gray-100 bg-linear-to-b from-white to-gray-50/30' +
-            (isSelected(user) ? ' !ring-2 !ring-indigo-500 !border-indigo-300 !bg-indigo-50/30' : ' hover:border-indigo-200')
-          ">
-          <mat-card-content class="!p-4">
-            <!-- Profile Picture and Name Section -->
-            <div class="flex items-center gap-3.5 mb-4">
-              <div class="relative flex-shrink-0">
-                <div class="p-0.5 rounded-full bg-linear-to-tr from-indigo-100 to-white shadow-xs">
-                  <img [src]="user.profile_image ? storageUrl + '/' + user.profile_image : 'assets/Images/user.png'"
-                    [alt]="user.full_name" class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-white" />
-                </div>
-                <div *ngIf="user.email_confirm === 1"
-                  class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm"
-                  matTooltip="Email Verified" matTooltipPosition="above">
-                  <mat-icon class="!text-[10px] !w-2.5 !h-2.5 text-white">check</mat-icon>
-                </div>
-              </div>
+  @switch (mode()) {
+  @case ('users') {
+  @if (!loading() && filteredUsers().length > 0) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+    @for (user of paginatedUsers(); track user.user_id || user['id'] || $index) {
+    <mat-card [class]="
+        'user-card group !rounded-2xl !shadow-xs hover:!shadow-2xl transition-all duration-500 ease-out cursor-pointer relative overflow-hidden !p-0 border bg-white flex flex-col items-center ' +
+        (isSelected(user) ? '!ring-2 !ring-[#3EC3B4] !border-[#3EC3B4] !bg-[#3EC3B4]/5' : 'border-gray-100')
+      ">
 
-              <div class="flex-1 min-w-0">
-                <h3
-                  class="text-sm font-bold text-gray-900 mb-0.5 leading-tight truncate group-hover:text-indigo-600 transition-colors"
-                  [title]="user.full_name">
-                  {{ user.full_name }}
-                </h3>
-                <span
-                  class="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                  {{ user.role || 'User' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="grid grid-cols-1 gap-2 border-t border-gray-100 pt-4">
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">phone</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none" [title]="user.user_phone">
-                  {{ user.user_phone || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">email</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none" [title]="user.user_email">
-                  {{ user.user_email || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">calendar_today</mat-icon>
-                </div>
-                <div class="flex flex-col justify-center min-h-[32px]">
-                  <p class="text-[9px] text-gray-400 uppercase font-bold leading-none mb-1 tracking-wider">Joined</p>
-                  <p class="text-[11px] font-bold text-gray-700 leading-none truncate"
-                    [title]="user.created_at | date:'d MMM y'">
-                    {{ user.created_at | date:'d MMM y' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-
-          <!-- Status Badge -->
-          <div class="absolute top-4 right-4">
-            <div class="flex items-center gap-1.5 px-2 py-1 rounded-full ring-1 ring-inset shadow-xs" [ngClass]="{
-                'bg-emerald-50 text-emerald-700 ring-emerald-600/10': user.active_status_id === 1,
-                'bg-rose-50 text-rose-700 ring-rose-600/10': user.active_status_id !== 1
-              }">
-              <span class="relative flex h-1.5 w-1.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  [ngClass]="user.active_status_id === 1 ? 'bg-emerald-400' : 'bg-rose-400'"></span>
-                <span class="relative inline-flex rounded-full h-1.5 w-1.5"
-                  [ngClass]="user.active_status_id === 1 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-              </span>
-              <span class="text-[9px] font-black uppercase tracking-widest">{{ user.active_status }}</span>
-            </div>
+      <mat-card-content class="!p-0 w-full flex flex-col items-center pt-6 pb-4 relative z-0">
+        <!-- Profile Picture Section -->
+        <div
+          class="relative flex-shrink-0 mb-4 transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105">
+          <div class="absolute top-4 left-4 flex-shrink-0">
+            <img [src]="user.profile_image ? storageUrl + '/' + user.profile_image : 'assets/Images/user.png'"
+              [alt]="user.full_name"
+              class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100 bg-gray-50 bg-clip-border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
           </div>
+        </div>
 
-          <!-- Card Footer -->
-          <mat-card-actions
-            class="!border-t !border-gray-100 !px-3 !py-2 !m-0 !flex !items-center !justify-between bg-gray-50/40">
-            <mat-checkbox [checked]="isSelected(user)" (change)="onCheckboxSelected($any($event).checked, user)"
-              (click)="$event.stopPropagation()" color="primary" class="!scale-90">
-              <span class="text-[11px] text-gray-500 font-bold uppercase tracking-wide">Select</span>
-            </mat-checkbox>
-            <button *ngIf="roleId === 2" mat-icon-button (click)="onCardAction('edit', user); $event.stopPropagation()"
-              class="!w-8 !h-8 text-indigo-500 hover:!bg-indigo-50 hover:scale-110 transition-all"
-              matTooltip="Edit User" matTooltipPosition="above">
-              <mat-icon class="!text-lg">edit</mat-icon>
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </ng-container>
+        <!-- Name & Role -->
+        <h5
+          class="text-[17px] font-bold text-gray-800 mb-1 leading-tight truncate w-full px-6 text-center group-hover: transition-colors"
+          [title]="user.full_name">
+          {{ user.full_name }}
+        </h5>
+        <p class="text-[13px] font-medium  mb-6 truncate w-full px-6 text-center">
+          {{ user.role || 'User Profile' }}
+        </p>
 
-    <ng-container *ngSwitchCase="'cp-executives'">
-      <div *ngIf="!loading() && filteredUsers().length > 0"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-        <mat-card *ngFor="let executive of filteredUsers(); trackBy: trackByUserId" [class]="
-            'user-card group !rounded-xl !shadow-sm hover:!shadow-xl transition-all duration-300 ease-out cursor-pointer relative overflow-hidden !p-0 border border-gray-100 bg-linear-to-b from-white to-gray-50/30' +
-            (isSelected(executive) ? ' !ring-2 !ring-indigo-500 !border-indigo-300 !bg-indigo-50/30' : ' hover:border-indigo-200')
-          ">
-          <mat-card-content class="!p-4">
-            <!-- Profile Picture and Name Section -->
-            <div class="flex items-center gap-3.5 mb-4">
-              <div class="relative flex-shrink-0">
-                <div class="p-0.5 rounded-full bg-linear-to-tr from-indigo-100 to-white shadow-xs">
-                  <img
-                    [src]="executive.profile_image ? storageUrl + '/' + executive.profile_image : 'assets/Images/user.png'"
-                    [alt]="executive.full_name"
-                    class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-white" />
-                </div>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <h3
-                  class="text-sm font-bold text-gray-900 mb-0.5 leading-tight truncate group-hover:text-indigo-600 transition-colors"
-                  [title]="executive.full_name">
-                  {{ executive.full_name }}
-                </h3>
-                <div class="flex flex-col gap-0.5">
-                  <span
-                    class="inline-flex w-fit items-center px-1.5 py-0.5 rounded bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider truncate"
-                    [title]="executive['designation'] || executive['firm_name']">
-                    {{ executive['designation'] || executive['firm_name'] || 'CP Executive' }}
-                  </span>
-                  <p *ngIf="executive['channel_partner']"
-                    class="text-[11px] text-indigo-600 font-bold truncate flex items-center gap-1 mt-1 bg-indigo-50/50 px-1.5 py-0.5 rounded-md border border-indigo-100/50"
-                    [title]="executive['channel_partner']">
-                    <mat-icon class="!text-[12px] !w-3 !h-3 !flex !items-center !justify-center">business</mat-icon>
-                    {{ executive['channel_partner'] }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="grid grid-cols-1 gap-2 border-t border-gray-100 pt-4">
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">phone</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none"
-                  [title]="executive.user_phone">
-                  {{ executive.user_phone || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">email</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none"
-                  [title]="executive.user_email">
-                  {{ executive.user_email || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">calendar_today</mat-icon>
-                </div>
-                <div class="flex flex-col justify-center min-h-[32px]">
-                  <p class="text-[9px] text-gray-400 uppercase font-bold leading-none mb-1 tracking-wider">Joined</p>
-                  <p class="text-[11px] font-bold text-gray-700 leading-none truncate"
-                    [title]="executive.created_at | date:'d MMM y'">
-                    {{ executive.created_at | date:'d MMM y' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-
-          <!-- Status Badge -->
-          <div class="absolute top-4 right-4">
-            <div class="flex items-center gap-1.5 px-2 py-1 rounded-full ring-1 ring-inset shadow-xs" [ngClass]="{
-                'bg-emerald-50 text-emerald-700 ring-emerald-600/10': executive.active_status_id === 1,
-                'bg-rose-50 text-rose-700 ring-rose-600/10': executive.active_status_id !== 1
-              }">
-              <span class="relative flex h-1.5 w-1.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  [ngClass]="executive.active_status_id === 1 ? 'bg-emerald-400' : 'bg-rose-400'"></span>
-                <span class="relative inline-flex rounded-full h-1.5 w-1.5"
-                  [ngClass]="executive.active_status_id === 1 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-              </span>
-              <span class="text-[9px] font-black uppercase tracking-widest">{{ executive.active_status }}</span>
-            </div>
+        <!-- Stats Grid -->
+        <div class="flex justify-center w-[85%] border-t border-b border-gray-100 py-3 mb-5 mx-auto">
+          <div class="w-1/2 text-center border-r border-gray-100">
+            <p class="text-[11px] text-gray-400 font-semibold mb-1 capitalize tracking-wider">Joined</p>
+            <p class="text-[14px] font-bold ">{{ user.created_at ? (user.created_at | date:'MMM y') : '-'
+              }}</p>
           </div>
-
-          <!-- Card Footer -->
-          <mat-card-actions
-            class="!border-t !border-gray-100 !px-3 !py-2 !m-0 !flex !items-center !justify-between bg-gray-50/40">
-            <mat-checkbox [checked]="isSelected(executive)"
-              (change)="onCheckboxSelected($any($event).checked, executive)" (click)="$event.stopPropagation()"
-              color="primary" class="!scale-90">
-              <span class="text-[11px] text-gray-500 font-bold uppercase tracking-wide">Select</span>
-            </mat-checkbox>
-            <button *ngIf="roleId === 2" mat-icon-button
-              (click)="onCardAction('edit', executive); $event.stopPropagation()"
-              class="!w-8 !h-8 text-indigo-500 hover:!bg-indigo-50 hover:scale-110 transition-all"
-              matTooltip="Edit CP Executive" matTooltipPosition="above">
-              <mat-icon class="!text-lg">edit</mat-icon>
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </ng-container>
-
-    <ng-container *ngSwitchCase="'cp-owners'">
-      <div *ngIf="!loading() && filteredUsers().length > 0"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-        <mat-card *ngFor="let owner of filteredUsers(); trackBy: trackByUserId" [class]="
-            'user-card group !rounded-xl !shadow-sm hover:!shadow-xl transition-all duration-300 ease-out cursor-pointer relative overflow-hidden !p-0 border border-gray-100 bg-linear-to-b from-white to-gray-50/30' +
-            (isSelected(owner) ? ' !ring-2 !ring-indigo-500 !border-indigo-300 !bg-indigo-50/30' : ' hover:border-indigo-200')
-          ">
-          <mat-card-content class="!p-4">
-            <!-- Profile Picture and Name Section -->
-            <div class="flex items-center gap-3.5 mb-4">
-              <div class="relative flex-shrink-0">
-                <div class="p-0.5 rounded-full bg-linear-to-tr from-indigo-100 to-white shadow-xs">
-                  <img [src]="owner.profile_image ? storageUrl + '/' + owner.profile_image : 'assets/Images/user.png'"
-                    [alt]="owner.full_name" class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-white" />
-                </div>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <h3
-                  class="text-sm font-bold text-gray-900 mb-0.5 leading-tight truncate group-hover:text-indigo-600 transition-colors"
-                  [title]="owner.full_name">
-                  {{ owner.full_name }}
-                </h3>
-                <div class="flex flex-col gap-0.5">
-                  <span
-                    class="inline-flex w-fit items-center px-1.5 py-0.5 rounded bg-gray-100 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                    CP Owner
-                  </span>
-                  <p *ngIf="owner['channel_partner']"
-                    class="text-[11px] text-indigo-600 font-bold truncate flex items-center gap-1 mt-1 bg-indigo-50/50 px-1.5 py-0.5 rounded-md border border-indigo-100/50"
-                    [title]="owner['channel_partner']">
-                    <mat-icon class="!text-[12px] !w-3 !h-3 !flex !items-center !justify-center">business</mat-icon>
-                    {{ owner['channel_partner'] }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="grid grid-cols-1 gap-2 border-t border-gray-100 pt-4">
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">phone</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none"
-                  [title]="owner.user_phone">
-                  {{ owner.user_phone || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-center gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">email</mat-icon>
-                </div>
-                <p class="text-[12px] font-medium text-gray-600 truncate flex-1 leading-none"
-                  [title]="owner.user_email">
-                  {{ owner.user_email || 'Not provided' }}
-                </p>
-              </div>
-
-              <div class="flex items-start gap-3 group/info">
-                <div
-                  class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover/info:bg-indigo-50 group-hover/info:scale-105 transition-all duration-200">
-                  <mat-icon
-                    class="!text-[16px] !w-4 !h-4 text-gray-400 group-hover/info:text-indigo-500">calendar_today</mat-icon>
-                </div>
-                <div class="flex flex-col justify-center min-h-[32px]">
-                  <p class="text-[9px] text-gray-400 uppercase font-bold leading-none mb-1 tracking-wider">Joined</p>
-                  <p class="text-[11px] font-bold text-gray-700 leading-none truncate"
-                    [title]="owner.created_at | date:'d MMM y'">
-                    {{ owner.created_at | date:'d MMM y' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-
-          <!-- Status Badge -->
-          <div class="absolute top-4 right-4">
-            <div class="flex items-center gap-1.5 px-2 py-1 rounded-full ring-1 ring-inset shadow-xs" [ngClass]="{
-                'bg-emerald-50 text-emerald-700 ring-emerald-600/10': owner.active_status_id === 1,
-                'bg-rose-50 text-rose-700 ring-rose-600/10': owner.active_status_id !== 1
-              }">
-              <span class="relative flex h-1.5 w-1.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                  [ngClass]="owner.active_status_id === 1 ? 'bg-emerald-400' : 'bg-rose-400'"></span>
-                <span class="relative inline-flex rounded-full h-1.5 w-1.5"
-                  [ngClass]="owner.active_status_id === 1 ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-              </span>
-              <span class="text-[9px] font-black uppercase tracking-widest">{{ owner.active_status }}</span>
-            </div>
+          <div class="w-1/2 text-center">
+            <p class="text-[11px] text-gray-400 font-semibold mb-1 capitalize tracking-wider">Status</p>
+            <p class="text-[14px] font-bold" [ngClass]="user.active_status_id === 1 ? '' : 'text-rose-500'">
+              {{ user.active_status || '-' }}
+            </p>
           </div>
+        </div>
 
-          <!-- Card Footer -->
-          <mat-card-actions
-            class="!border-t !border-gray-100 !px-3 !py-2 !m-0 !flex !items-center !justify-between bg-gray-50/40">
-            <mat-checkbox [checked]="isSelected(owner)" (change)="onCheckboxSelected($any($event).checked, owner)"
-              (click)="$event.stopPropagation()" color="primary" class="!scale-90">
-              <span class="text-[11px] text-gray-500 font-bold uppercase tracking-wide">Select</span>
-            </mat-checkbox>
-            <button *ngIf="roleId === 2" mat-icon-button (click)="onCardAction('edit', owner); $event.stopPropagation()"
-              class="!w-8 !h-8 text-indigo-500 hover:!bg-indigo-50 hover:scale-110 transition-all"
-              matTooltip="Edit CP Owner" matTooltipPosition="above">
-              <mat-icon class="!text-base !w-4 !h-4">edit</mat-icon>
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </ng-container>
-  </ng-container>
+        <!-- Text snippet with contact info -->
+        <div class="px-6 text-center mb-6 w-full  text-[12px] leading-relaxed line-clamp-2 h-[36px] overflow-hidden">
+          <div class="truncate w-full" [title]="user.user_email">{{ user.user_email || 'Lorem ipsum dolor sit amet,
+            consectetur adip' }}</div>
+          <div class="truncate w-full mt-0.5" [title]="user.user_phone">{{ user.user_phone || 'iscing elit. Sed et est
+            et velit.' }}</div>
+        </div>
 
-  <div *ngIf="!loading() && filteredUsers().length === 0" class="text-center py-12 px-4">
+
+      </mat-card-content>
+
+      <!-- Card Footer -->
+      <mat-card-actions
+        class="!border-t !border-gray-100 !px-4 !py-3 !m-0 !flex !items-center !justify-between bg-gray-50/40 w-full mt-auto">
+        <mat-checkbox [checked]="isSelected(user)" (change)="onCheckboxSelected($any($event).checked, user)"
+          (click)="$event.stopPropagation()" color="primary" class="!scale-90">
+        </mat-checkbox>
+
+        <button (click)="roleId === 2 ? onCardAction('edit', user) : null; $event.stopPropagation()"
+          class="px-5 py-1.5 rounded-full border border-[#3EC3B4] text-[12px] font-semibold  bg-white transition-all duration-300"
+          matTooltipPosition="above">
+          {{ roleId === 2 ? 'Edit Profile' : 'View Profile' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+  }
+
+  @case ('cp-executives') {
+  @if (!loading() && filteredUsers().length > 0) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+    @for (executive of paginatedUsers(); track executive.user_id || executive['id'] || $index) {
+    <mat-card [class]="
+        'user-card group !rounded-2xl !shadow-xs hover:!shadow-2xl transition-all duration-500 ease-out cursor-pointer relative overflow-hidden !p-0 border bg-white flex flex-col items-center ' +
+        (isSelected(executive) ? '!ring-2 !ring-[#3EC3B4] !border-[#3EC3B4] !bg-[#3EC3B4]/5' : 'border-gray-100')
+      ">
+
+      <mat-card-content class="!p-0 w-full flex flex-col pt-12 pb-2 relative z-0">
+        <!-- Profile Picture Section (Top Left) -->
+        <div class="absolute top-4 left-4 flex-shrink-0">
+          <img [src]="executive.profile_image ? storageUrl + '/' + executive.profile_image : 'assets/Images/user.png'"
+            [alt]="executive.full_name"
+            class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100 bg-gray-50 bg-clip-border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
+        </div>
+
+        <!-- Name & Role -->
+        <h5
+          class="text-[19px] font-bold  mb-0.5 mt-2 leading-tight truncate w-full px-4 text-center group-hover: transition-colors"
+          [title]="executive.full_name">
+          {{ executive.full_name }}
+        </h5>
+
+        <div class="flex flex-col items-center w-full px-4 mb-3">
+          <p class="text-[13px] font-medium  mb-1 truncate w-full text-center">
+            {{ executive['designation'] || executive['firm_name'] || 'CP Executive' }}
+          </p>
+          @if (executive['channel_partner']) {
+          <span class="text-[10px] font-bold   border border-[#3EC3B4]/20 px-2 py-0.5 rounded-full truncate max-w-full"
+            [title]="executive['channel_partner']">
+            {{ executive['channel_partner'] }}
+          </span>
+          } @else {
+          <span class="h-[22px]"></span>
+          }
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="flex justify-center w-[90%] border-t border-b border-gray-100 py-3 mb-4 mx-auto">
+          <div class="w-1/2 text-center border-r border-gray-100">
+            <p class="text-[12px] text-[#9ca3af] font-bold mb-1 tracking-wide">Joined</p>
+            <p class="text-[13px] font-bold text-[#374151]">{{ executive.created_at ? (executive.created_at | date:'MMM
+              dd yyyy') : '-' }}</p>
+          </div>
+          <div class="w-1/2 text-center">
+            <p class="text-[12px] text-[#9ca3af] font-bold mb-1 tracking-wide">Status</p>
+            <p class="text-[13px] font-bold" [ngClass]="executive.active_status_id === 1 ? '' : 'text-rose-500'">
+              {{ executive.active_status || '-' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Text snippet with contact info -->
+        <div class="px-6 text-center mb-2 w-full text-[#6b7280] text-[13px] leading-relaxed relative">
+          <div class="truncate w-full font-medium" [title]="executive.user_email">{{ executive.user_email || 'Lorem
+            ipsum dolor sit amet' }}</div>
+          <div class="flex items-center justify-center gap-2 mt-0.5">
+            <div class="truncate font-medium text-[#9ca3af]" [title]="executive.user_phone">{{ executive.user_phone ||
+              '9876543210' }}</div>
+          </div>
+        </div>
+
+      </mat-card-content>
+
+      <!-- Card Footer -->
+      <mat-card-actions
+        class="!border-t !border-gray-100 !px-4 !py-3 !m-0 !flex !items-center !justify-between bg-white w-full mt-auto">
+        <mat-checkbox [checked]="isSelected(executive)" (change)="onCheckboxSelected($any($event).checked, executive)"
+          (click)="$event.stopPropagation()" color="primary"
+          class="!scale-[1.15] opacity-80 border-gray-400 rounded-sm">
+        </mat-checkbox>
+
+        <button (click)="roleId === 2 ? onCardAction('edit', executive) : null; $event.stopPropagation()"
+          class="px-5 py-1.5 border border-[#3EC3B4] text-[13px] font-bold  bg-white transition-all duration-300 hover:bg-gray-50/80 rounded"
+          [matTooltip]="roleId === 2 ? 'Edit Executive' : 'View Profile'" matTooltipPosition="above">
+          {{ roleId === 2 ? 'Edit Profile' : 'View Profile' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+  }
+
+  @case ('cp-owners') {
+  @if (!loading() && filteredUsers().length > 0) {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+    @for (owner of paginatedUsers(); track owner.user_id || owner['id'] || $index) {
+    <mat-card [class]="
+        'user-card group !rounded-2xl !shadow-xs hover:!shadow-2xl transition-all duration-500 ease-out cursor-pointer relative overflow-hidden !p-0 border bg-white flex flex-col items-center ' +
+        (isSelected(owner) ? '!ring-2 !ring-[#3EC3B4] !border-[#3EC3B4] !bg-[#3EC3B4]/5' : 'border-gray-100')
+      ">
+
+      <mat-card-content class="!p-0 w-full flex flex-col pt-12 pb-2 relative z-0">
+        <!-- Profile Picture Section (Top Left) -->
+        <div class="absolute top-4 left-4 flex-shrink-0">
+          <img [src]="owner.profile_image ? storageUrl + '/' + owner.profile_image : 'assets/Images/user.png'"
+            [alt]="owner.full_name"
+            class="w-16 h-16 rounded-full object-cover ring-2 ring-gray-100 bg-gray-50 bg-clip-border shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]" />
+        </div>
+
+        <!-- Name & Role -->
+        <h5
+          class="text-[19px] font-bold  mb-0.5 mt-2 leading-tight truncate w-full px-4 text-center group-hover: transition-colors"
+          [title]="owner.full_name">
+          {{ owner.full_name }}
+        </h5>
+
+        <div class="flex flex-col items-center w-full px-4 mb-3">
+          <p class="text-[13px] font-medium  mb-1 truncate w-full text-center">
+            CP Owner
+          </p>
+          @if (owner['channel_partner']) {
+          <span class="text-[10px] font-bold   border border-[#3EC3B4]/20 px-2 py-0.5 rounded-full truncate max-w-full"
+            [title]="owner['channel_partner']">
+            {{ owner['channel_partner'] }}
+          </span>
+          } @else {
+          <span class="h-[22px]"></span>
+          }
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="flex justify-center w-[90%] border-t border-b border-gray-100 py-3 mb-4 mx-auto">
+          <div class="w-1/2 text-center border-r border-gray-100">
+            <p class="text-[12px] text-[#9ca3af] font-bold mb-1 tracking-wide">Joined</p>
+            <p class="text-[13px] font-bold text-[#374151]">{{ owner.created_at ? (owner.created_at | date:'MMM y') :
+              '-' }}</p>
+          </div>
+          <div class="w-1/2 text-center">
+            <p class="text-[12px] text-[#9ca3af] font-bold mb-1 tracking-wide">Status</p>
+            <p class="text-[13px] font-bold" [ngClass]="owner.active_status_id === 1 ? '' : 'text-rose-500'">
+              {{ owner.active_status || '-' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Text snippet with contact info -->
+        <div class="px-6 text-center mb-2 w-full text-[#6b7280] text-[13px] leading-relaxed relative">
+          <div class="truncate w-full font-medium" [title]="owner.user_email">{{ owner.user_email || 'Lorem ipsum dolor
+            sit amet' }}</div>
+          <div class="flex items-center justify-center gap-2 mt-0.5">
+            <div class="truncate font-medium text-[#9ca3af]" [title]="owner.user_phone">{{ owner.user_phone ||
+              '9876543210' }}</div>
+          </div>
+        </div>
+
+      </mat-card-content>
+
+      <!-- Card Footer -->
+      <mat-card-actions
+        class="!border-t !border-gray-100 !px-4 !py-3 !m-0 !flex !items-center !justify-between bg-white w-full mt-auto">
+        <mat-checkbox [checked]="isSelected(owner)" (change)="onCheckboxSelected($any($event).checked, owner)"
+          (click)="$event.stopPropagation()" color="primary"
+          class="!scale-[1.15] opacity-80 border-gray-400 rounded-sm">
+        </mat-checkbox>
+
+        <button (click)="roleId === 2 ? onCardAction('edit', owner) : null; $event.stopPropagation()"
+          class="px-5 py-1.5 border border-[#3EC3B4] text-[13px] font-bold  bg-white transition-all duration-300 hover:bg-gray-50/80 rounded"
+          [matTooltip]="roleId === 2 ? 'Edit Owner' : 'View Profile'" matTooltipPosition="above">
+          {{ roleId === 2 ? 'Edit Profile' : 'View Profile' }}
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+  }
+  }
+  }
+
+  @if (!loading() && filteredUsers().length > 0) {
+  <div
+    class="sticky bottom-2 z-20 mt-4 bg-white/90 backdrop-blur-md rounded-xl shadow-[0_4px_15px_-3px_rgba(0,0,0,0.1),_0_-4px_15px_-3px_rgba(0,0,0,0.05)] border border-gray-200 px-2 py-0.5 mx-auto max-w-fit transition-all duration-300">
+    <mat-paginator [length]="filteredUsers().length" [pageSize]="pageSizeSignal()"
+      [pageSizeOptions]="[25, 50, 100, 200, 500]" [pageIndex]="pageIndexSignal()" (page)="onPageChange($event)"
+      aria-label="Select page" class="!bg-transparent">
+    </mat-paginator>
+  </div>
+  }
+
+  @if (!loading() && filteredUsers().length === 0) {
+  <div class="text-center py-12 px-4">
     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-3">
       <mat-icon class="!text-5xl text-gray-400">{{ pageConfig().emptyIcon }}</mat-icon>
     </div>
-    <h3 class="text-lg font-semibold text-gray-700 mb-1">{{ pageConfig().emptyTitle }}</h3>
-    <p class="text-sm text-gray-500 mb-4">
-      {{ searchText ? pageConfig().emptySearchDescription : pageConfig().emptyDescription }}
+    <h5 class="text-lg font-semibold  mb-1">{{ pageConfig().emptyTitle }}</h5>
+    <p class="text-sm  mb-4">
+      {{ searchTextSignal() ? pageConfig().emptySearchDescription : pageConfig().emptyDescription }}
     </p>
     <button mat-raised-button color="primary" class="!shadow-md" (click)="onEmptyAction()">
       <mat-icon class="!text-lg">{{ pageConfig().emptyActionIcon }}</mat-icon>
       <span class="ml-1">{{ pageConfig().emptyActionLabel }}</span>
     </button>
   </div>
+  }
 </app-template>

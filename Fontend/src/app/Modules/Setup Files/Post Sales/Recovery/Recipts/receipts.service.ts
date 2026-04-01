@@ -237,13 +237,17 @@ export class ReceiptsService {
 
   deleteReceipt(
     bookingReceiptId: number,
-    floorUnitId: number
+    floorUnitId: number,
+    createdBy: number,
+    reason: string
   ): Observable<ReceiptResponse> {
     return this.http.post<ReceiptResponse>(
       `${this.baseUrl}/delete_booking_receipt`,
       {
         booking_receipt_id: bookingReceiptId,
         floor_unit_id: floorUnitId,
+        created_by: createdBy,
+        reason: reason
       }
     );
   }

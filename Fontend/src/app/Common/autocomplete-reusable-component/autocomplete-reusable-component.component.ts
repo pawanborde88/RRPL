@@ -17,13 +17,13 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {
-  ControlContainer,
   FormControl,
   FormsModule,
-  NG_VALUE_ACCESSOR,
+  NgControl,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatFormFieldControl } from '@angular/material/form-field';
 import { MatSelectChange } from '@angular/material/select';
 import { MatOptionSelectionChange } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
@@ -72,13 +72,6 @@ export interface SelectOption<T = any> {
   templateUrl: './autocomplete-reusable-component.component.html',
   styleUrl: './autocomplete-reusable-component.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => AutocompleteReusableComponent),
-      multi: true,
-    },
-  ],
 })
 export class AutocompleteReusableComponent
   implements OnInit, OnChanges, OnDestroy {
@@ -121,8 +114,12 @@ export class AutocompleteReusableComponent
 
   constructor(
     private cdr: ChangeDetectorRef,
-    @Optional() private controlContainer: ControlContainer
-  ) { }
+    @Optional() public ngControl: NgControl
+  ) {
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
+    }
+  }
 
   // Internal state using signals for reactive updates
   private readonly _searchTerm = signal<string>('');
@@ -179,16 +176,10 @@ export class AutocompleteReusableComponent
     // First, check if required input is manually set
     if (this.required) return true;
 
-    // Check internal FormControl (for standalone usage)
-    if (this.selectedCtrl?.validator) {
-      const v = this.selectedCtrl.validator({} as any);
-      if (v?.['required']) return true;
-    }
-
-    // **Check parent FormControl from formControlName**
-    if (this.controlContainer && this.idKey) {
-      const parentControl = this.controlContainer.control?.get(this.idKey);
-      if (parentControl?.hasValidator(Validators.required)) return true;
+    // Check if the control has Validators.required
+    const control = this.ngControl?.control;
+    if (control?.hasValidator(Validators.required)) {
+      return true;
     }
 
     return false;

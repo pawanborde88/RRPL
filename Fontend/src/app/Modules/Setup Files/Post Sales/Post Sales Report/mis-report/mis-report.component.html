@@ -22,15 +22,10 @@
                         </app-autocomplete-reusable-component>
                     </div>
 
-                    <!-- Wing Dropdown -->
-                    <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Select Wing</mat-label>
-                        <mat-select formControlName="wing_id" [disabled]="!hasSelectedProject() || !hasWings()">
-                            <mat-option *ngFor="let wing of allWingslist()" [value]="wing.wing_id">
-                                {{ wing.wing_name }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="allWingslist()"
+                        formControlName="wing_id" displayKey="wing_name" idKey="wing_id" placeholder="Select Wing">
+                    </app-autocomplete-reusable-component>
 
                     <!-- Sales Executive Dropdown -->
                     <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
@@ -46,34 +41,22 @@
                     </app-autocomplete-reusable-component>
 
                     <!-- Booking Status Dropdown -->
-                    <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Booking Status</mat-label>
-                        <mat-select formControlName="booking_status_id" multiple>
-                            <mat-option [value]="1">Book</mat-option>
-                            <mat-option [value]="2">Cancelled</mat-option>
-                            <mat-option [value]="0">Both</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="bookingStatusList()"
+                        formControlName="booking_status_id" [isMultiSelect]="true" displayKey="name" idKey="id"
+                        placeholder="Booking Status">
+                    </app-autocomplete-reusable-component>
 
                     <!-- Agreement Status Dropdown -->
-                    <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Agreement Status</mat-label>
-                        <mat-select formControlName="agreement_status_id" multiple>
-                            <mat-option [value]="1">Done</mat-option>
-                            <mat-option [value]="0">Pending</mat-option>
-                            <mat-option [value]="2">Both</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="agreementStatusList()"
+                        formControlName="agreement_status_id" [isMultiSelect]="true" displayKey="name" idKey="id"
+                        placeholder="Agreement Status">
+                    </app-autocomplete-reusable-component>
 
                     <!-- Disbursement Status Dropdown -->
-                    <mat-form-field appearance="outline" class="col-md-2">
-                        <mat-label>Disbursement Status</mat-label>
-                        <mat-select formControlName="disbursement_status_id" multiple>
-                            <mat-option [value]="1">Done</mat-option>
-                            <mat-option [value]="0">Pending</mat-option>
-                            <mat-option [value]="2">Both</mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <app-autocomplete-reusable-component class="col-md-2" [options]="disbursementStatusList()"
+                        formControlName="disbursement_status_id" [isMultiSelect]="true" displayKey="name" idKey="id"
+                        placeholder="Disbursement Status">
+                    </app-autocomplete-reusable-component>
 
                     <!-- Date Range -->
                     <div class="col-md-2">

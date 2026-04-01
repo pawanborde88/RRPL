@@ -36,9 +36,10 @@
   </mat-accordion>
 
   <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_floor_unit'"
-    [apiPayload]="getAgGridApiPayload()" [headerButtons]="headerButtons" [showCheckbox]="true" [apiMethod]="'POST'"
-    [idProperty]="'floor_unit_id'" [cacheBlockSize]="100" [selectedItems]="selectedFloorUnits"
-    (rowSelected)="selectedFloorUnits = $event"
+    [apiPayload]="getAgGridApiPayload()" [headerButtons]="headerButtons" [actions]="actions"
+    [showCheckbox]="true" [apiMethod]="'POST'" [idProperty]="'floor_unit_id'"
+    (actionClick)="onBookingAction($event.action, $event.row)" [cacheBlockSize]="100"
+    [selectedItems]="selectedFloorUnits" (rowSelected)="selectedFloorUnits = $event"
     (checkboxChange)="onFloorUnitSelectionChange($event.checked, $event.row)">
   </app-configurable-ag-grid-data>
 </app-template>

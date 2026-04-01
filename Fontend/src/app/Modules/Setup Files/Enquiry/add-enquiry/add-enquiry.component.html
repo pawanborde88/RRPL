@@ -4,14 +4,10 @@
         <mat-icon>close</mat-icon>
     </button>
 </h2>
-
 <mat-dialog-content>
     <form [formGroup]="addEnquiryform">
 
-        <!-- ==================== SUBMIT BUTTON ==================== -->
-
-        <!-- ==================== SECTION 1: BASIC INFORMATION ==================== -->
-        <mat-card>
+        <mat-card @fadeIn>
             <mat-card-header>
                 <mat-card-title class=" font-semibold text-gray-800">Basic Information</mat-card-title>
             </mat-card-header>
@@ -86,7 +82,7 @@
                     <div class="col-md-2">
                         <app-autocomplete-reusable-component [options]="allSalesExecutive()"
                             formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
-                            placeholder="Sales Executive ">
+                            placeholder="Sales Executive">
                         </app-autocomplete-reusable-component>
                         <mat-error class="text-danger"
                             *ngIf="addEnquiryform.get('sales_executive_id')?.hasError('required') && addEnquiryform.get('sales_executive_id')?.touched">
@@ -318,31 +314,106 @@
                             placeholder="Select Bank">
                         </app-autocomplete-reusable-component>
                     </div>
-                    <div *ngIf="projectEnqID()">
-                        <div class="row g-3">
-                            <div class="col-md-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>Min Budget</mat-label>
-                                    <input matInput appAmount formControlName="min_budget"
-                                        placeholder="Enter minimum budget" />
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-2">
-                                <mat-form-field appearance="outline" class="w-100">
-                                    <mat-label>Max Budget</mat-label>
-                                    <input matInput appAmount formControlName="max_budget"
-                                        placeholder="Enter maximum budget" />
-                                </mat-form-field>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
             </mat-card-content>
         </mat-card>
 
-        <!-- ==================== SECTION 2: SOURCE INFORMATION ==================== -->
-        <mat-card class="mt-2">
+        <!-- ==================== SECTION 2: BUDGET RANGE ==================== -->
+        <mat-card class="mt-2" *ngIf="addEnquiryform.get('project_id')?.value">
+            <mat-card-header>
+                <mat-card-title class=" font-semibold text-gray-800">Budget Preferences</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="pt-4">
+
+                <!-- ADD MODE: Slider Control -->
+                <div *ngIf="!projectEnqID()">
+                    <div class="rounded-2xl border border-slate-200 bg-gray-50 p-6 shadow-sm ring-1 ring-slate-100/70">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <label for="budgetRange" class="text-base font-semibold text-slate-800">
+                                Select Budget Range <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500">Min Cost</span>
+                                    <strong class="text-slate-900">{{ (addEnquiryform.get('min_cost')?.value ??
+                                        0) |
+                                        indianCurrencyFormat }}</strong>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-slate-500">Max Cost</span>
+                                    <strong class="text-slate-900">{{ (addEnquiryform.get('max_cost')?.value ??
+                                        0) |
+                                        indianCurrencyFormat }}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <mat-slider id="budgetRange" [min]="addEnquiryform.get('min_cost')?.value"
+                            [max]="addEnquiryform.get('max_cost')?.value" [step]="currentStep"
+                            class="custom-slider mt-4 w-full">
+                            <!-- Min Budget -->
+                            <input matSliderStartThumb formControlName="min_budget"
+                                [value]="addEnquiryform.get('min_budget')?.value || addEnquiryform.get('min_cost')?.value">
+                            <!-- Max Budget -->
+                            <input matSliderEndThumb formControlName="max_budget"
+                                [value]="addEnquiryform.get('max_budget')?.value || addEnquiryform.get('max_cost')?.value">
+                        </mat-slider>
+
+                        <div class="mt-3 text-sm font-medium"
+                            [ngClass]="hasValidBudgetRange() ? 'text-emerald-700' : 'text-rose-600'">
+                            <span>
+                                Min Budget:
+                                <strong>{{ getBudgetValue('min_budget', 'min_cost') | indianCurrencyFormat
+                                    }}</strong>
+                                –
+                                Max Budget:
+                                <strong>{{ getBudgetValue('max_budget', 'max_cost') | indianCurrencyFormat
+                                    }}</strong>
+                            </span>
+                        </div>
+                        <div class="mt-2 text-xs font-medium text-rose-600"
+                            *ngIf="addEnquiryform.get('min_budget')?.invalid && addEnquiryform.get('min_budget')?.touched">
+                            Min budget is required
+                        </div>
+                        <div class="text-xs font-medium text-rose-600"
+                            *ngIf="addEnquiryform.get('max_budget')?.invalid && addEnquiryform.get('max_budget')?.touched">
+                            Max budget is required
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDIT MODE: Direct Input Fields -->
+                <div *ngIf="projectEnqID()">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Min Budget</mat-label>
+                                <input matInput appAmount formControlName="min_budget"
+                                    placeholder="Enter minimum budget" />
+                                <mat-error *ngIf="addEnquiryform.get('min_budget')?.hasError('required')">
+                                    Min budget is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Max Budget</mat-label>
+                                <input matInput appAmount formControlName="max_budget"
+                                    placeholder="Enter maximum budget" />
+                                <mat-error *ngIf="addEnquiryform.get('max_budget')?.hasError('required')">
+                                    Max budget is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+            </mat-card-content>
+        </mat-card>
+
+        <!-- ==================== SECTION 3: SOURCE INFORMATION ==================== -->
+        <mat-card class="mt-2" @fadeIn>
             <mat-card-header>
                 <mat-card-title class=" font-semibold text-gray-800">How did you hear about us?</mat-card-title>
             </mat-card-header>
@@ -417,81 +488,69 @@
             </mat-card-content>
         </mat-card>
 
-
-        <!-- ==================== SECTION 5: BUDGET RANGE ==================== -->
-        <mat-card class="mt-2" *ngIf="!projectEnqID() && addEnquiryform.get('project_id')?.value">
-            <mat-card-header>
-                <mat-card-title class=" font-semibold text-gray-800">Budget Preferences</mat-card-title>
-            </mat-card-header>
-            <mat-card-content class="pt-4">
-
-                <!-- ADD MODE: Slider Control -->
-                <div>
-                    <div class="rounded-2xl border border-slate-200 bg-gray-50 p-6 shadow-sm ring-1 ring-slate-100/70">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <label for="budgetRange" class="text-base font-semibold text-slate-800">
-                                Select Budget Range <span class="text-rose-500">*</span>
-                            </label>
-                            <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-600">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-slate-500">Min Cost</span>
-                                    <strong class="text-slate-900">{{ (addEnquiryform.get('min_cost')?.value ??
-                                        0) |
-                                        indianCurrencyFormat }}</strong>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-slate-500">Max Cost</span>
-                                    <strong class="text-slate-900">{{ (addEnquiryform.get('max_cost')?.value ??
-                                        0) |
-                                        indianCurrencyFormat }}</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <mat-slider id="budgetRange" [min]="addEnquiryform.get('min_cost')?.value"
-                            [max]="addEnquiryform.get('max_cost')?.value" [step]="currentStep"
-                            class="custom-slider mt-4 w-full">
-                            <!-- Min Budget -->
-                            <input matSliderStartThumb formControlName="min_budget">
-                            <!-- Max Budget -->
-                            <input matSliderEndThumb formControlName="max_budget">
-                        </mat-slider>
-
-                        <div class="mt-3 text-sm font-medium"
-                            [ngClass]="hasValidBudgetRange() ? 'text-emerald-700' : 'text-rose-600'">
-                            <span>
-                                Min Budget:
-                                <strong>{{ getBudgetValue('min_budget', 'min_cost') | indianCurrencyFormat
-                                    }}</strong>
-                                –
-                                Max Budget:
-                                <strong>{{ getBudgetValue('max_budget', 'max_cost') | indianCurrencyFormat
-                                    }}</strong>
-                            </span>
-                        </div>
-                        <div class="mt-2 text-xs font-medium text-rose-600"
-                            *ngIf="addEnquiryform.get('min_budget')?.invalid && addEnquiryform.get('min_budget')?.touched">
-                            Min budget is required
-                        </div>
-                        <div class="text-xs font-medium text-rose-600"
-                            *ngIf="addEnquiryform.get('max_budget')?.invalid && addEnquiryform.get('max_budget')?.touched">
-                            Max budget is required
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EDIT MODE: Direct Input Fields -->
-
-            </mat-card-content>
-        </mat-card>
-
-
     </form>
-
 </mat-dialog-content>
 <mat-dialog-actions align="end">
 
-    <button (click)="onSubmit()" mat-raised-button color="primary" type="submit" [disabled]="addEnquiryform.invalid"
+    <!-- OTP Verification Block -->
+    <div class="mt-2 w-full mb-2" *ngIf="projectData()?.enq_otp_status === 1 && !projectEnqID()">
+        <div
+            class="bg-gradient-to-r from-indigo-50/80 to-blue-50/80 rounded-md p-2 border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <div
+                    class="p-1.5 bg-white rounded shadow-sm border border-indigo-100/50 flex align-items-center justify-content-center">
+                    <mat-icon class="scale-90 transition-colors duration-300" [class.text-indigo-600]="!isOtpVerified()"
+                        [class.text-emerald-500]="isOtpVerified()" style="height: 20px; width: 20px; font-size: 20px;">
+                        {{ isOtpVerified() ? 'verified' : 'security' }}
+                    </mat-icon>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <h4 class="text-[13px] font-bold text-slate-800 m-0 leading-tight">Email & Mobile Verification</h4>
+                    <p class="text-[11px] text-slate-500 font-medium m-0 leading-tight mt-0.5">
+                        <ng-container *ngIf="isOtpVerified(); else notVerifiedMsg">
+                            Your details are verified securely.
+                        </ng-container>
+                        <ng-template #notVerifiedMsg>
+                            Please verify your information to proceed.
+                        </ng-template>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                <!-- Verified Badge -->
+                <div *ngIf="isOtpVerified()"
+                    class="w-full sm:w-auto px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded flex items-center justify-center gap-1 border border-emerald-200 shadow-sm">
+                    <mat-icon
+                        style="height: 16px; width: 16px; font-size: 16px; margin-bottom: 2px;">check_circle</mat-icon>
+                    Verified
+                </div>
+
+                <!-- Send/Re-verify Button -->
+                <button mat-raised-button color="primary" type="button" (click)="sendOtp()" *ngIf="!isOtpVerified()"
+                    [disabled]="isOtpLoading() || addEnquiryform.get('first_name')?.invalid || addEnquiryform.get('last_name')?.invalid || addEnquiryform.get('mobile_no')?.invalid || addEnquiryform.get('email_id')?.invalid"
+                    class="w-full sm:w-auto !rounded !px-4 shadow-sm shadow-indigo-200 font-semibold text-xs h-7 min-h-0 min-w-0"
+                    style="padding: 0 16px; line-height: 28px;">
+                    <mat-icon *ngIf="!isOtpLoading()"
+                        style="height: 16px; width: 16px; font-size: 16px; margin-right: 4px;">send</mat-icon>
+                    <mat-spinner *ngIf="isOtpLoading()" diameter="16" class="inline-block mr-1 mt-1"></mat-spinner>
+                    {{ isOtpLoading() ? 'Sending...' : (isOtpSent() ? 'Resend' : 'Send OTP') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="otpErrorMessage()"
+            class="mt-2 text-[12px] font-bold text-red-600 bg-red-50 py-1.5 px-3 rounded border border-red-100 flex items-center gap-2">
+            <mat-icon style="height: 16px; width: 16px; font-size: 16px; margin-top:2px;"
+                class="text-red-500">error_outline</mat-icon>
+            <span>{{ otpErrorMessage() }}</span>
+        </div>
+    </div>
+
+    <button (click)="onSubmit()" mat-raised-button color="primary" type="submit"
+        [disabled]="addEnquiryform.invalid || (projectData()?.enq_otp_status === 1 && !isOtpVerified() && !projectEnqID())"
         class="px-6 py-2">
         {{ projectEnqID() ? 'Update Enquiry' : 'Submit Enquiry' }}
-    </button></mat-dialog-actions>
+    </button>
+</mat-dialog-actions>

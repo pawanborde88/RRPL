@@ -236,70 +236,57 @@
 
             </div>
 
+            <div class="row">
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Enquiry Level</mat-label>
+                    <mat-select formControlName="lead_level_id">
+                        <mat-option *ngFor="let level of allLeadLevels()" [value]="level['lead_level_id']">
+                            {{ level['lead_level'] }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="addEnquiryform.get('lead_level_id')?.hasError('required')">
+                        Enquiry Level is required
+                    </mat-error>
+                </mat-form-field>
 
-            <mat-card class="mt-2">
-                <mat-card-header>
-                    <mat-card-title>Office Use</mat-card-title>
-                </mat-card-header>
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Call Status</mat-label>
+                    <mat-select formControlName="call_status_id">
+                        <mat-option *ngFor="let callStatus of allCallStatus()" [value]="callStatus['call_status_id']">
+                            {{ callStatus['call_status'] }}
+                        </mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="addEnquiryform.get('call_status_id')?.hasError('required')">
+                        Call Status is required
+                    </mat-error>
+                </mat-form-field>
 
-                <mat-card-content>
-                    <div class="row">
-                        <mat-form-field appearance="outline" class="col-md-2">
-                            <mat-label>Lead Level</mat-label>
-                            <mat-select formControlName="lead_level_id">
-                                <mat-option *ngFor="let level of allLeadLevels()" [value]="level['lead_level_id']">
-                                    {{ level['lead_level'] }}
-                                </mat-option>
-                            </mat-select>
-                            <mat-error *ngIf="addEnquiryform.get('lead_level_id')?.hasError('required')">
-                                Lead Level is required
-                            </mat-error>
-                        </mat-form-field>
+                <mat-form-field class="col-md-2" *ngIf="this.addEnquiryform.get('lead_level_id')?.value !== '13'"
+                    appearance="outline">
+                    <mat-label>Follow-up Date</mat-label>
+                    <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="followUpPicker"
+                        formControlName="follow_up_date" />
+                    <mat-datepicker-toggle matSuffix [for]="followUpPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #followUpPicker></mat-datepicker>
+                    <mat-error *ngIf="addEnquiryform.get('follow_up_date')?.hasError('required')">
+                        Follow-up date is required
+                    </mat-error>
+                </mat-form-field>
 
-                        <mat-form-field appearance="outline" class="col-md-2">
-                            <mat-label>Call Status</mat-label>
-                            <mat-select formControlName="call_status_id">
-                                <mat-option *ngFor="let callStatus of allCallStatus()"
-                                    [value]="callStatus['call_status_id']">
-                                    {{ callStatus['call_status'] }}
-                                </mat-option>
-                            </mat-select>
-                            <mat-error *ngIf="addEnquiryform.get('call_status_id')?.hasError('required')">
-                                Call Status is required
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field class="col-md-2"
-                            *ngIf="this.addEnquiryform.get('lead_level_id')?.value !== '13'" appearance="outline">
-                            <mat-label>Follow-up Date</mat-label>
-                            <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="followUpPicker"
-                                formControlName="follow_up_date" />
-                            <mat-datepicker-toggle matSuffix [for]="followUpPicker"></mat-datepicker-toggle>
-                            <mat-datepicker #followUpPicker></mat-datepicker>
-                            <mat-error *ngIf="addEnquiryform.get('follow_up_date')?.hasError('required')">
-                                Follow-up date is required
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field class="col-md-2"
-                            *ngIf="this.addEnquiryform.get('lead_level_id')?.value !== '13'" appearance="outline">
-                            <mat-label>Follow Up Time</mat-label>
-                            <input matInput formControlName="follow_up_period" type="time" />
-                            <mat-icon matSuffix>alarm_add</mat-icon>
-                            <mat-error *ngIf="addEnquiryform.get('follow_up_period')?.hasError('required')">
-                                Follow-up time is required
-                            </mat-error>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="col-md-4">
-                            <mat-label>Remark</mat-label>
-                            <input matInput formControlName="remark" />
-                        </mat-form-field>
-                    </div>
-
-
-                </mat-card-content>
-            </mat-card>
-
+                <mat-form-field class="col-md-2" *ngIf="this.addEnquiryform.get('lead_level_id')?.value !== '13'"
+                    appearance="outline">
+                    <mat-label>Follow Up Time</mat-label>
+                    <input matInput formControlName="follow_up_period" type="time" />
+                    <mat-icon matSuffix>alarm_add</mat-icon>
+                    <mat-error *ngIf="addEnquiryform.get('follow_up_period')?.hasError('required')">
+                        Follow-up time is required
+                    </mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>Remark</mat-label>
+                    <input matInput formControlName="remark" />
+                </mat-form-field>
+            </div>
 
         </div>
     </form>

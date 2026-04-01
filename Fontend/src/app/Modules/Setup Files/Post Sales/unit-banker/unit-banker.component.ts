@@ -30,10 +30,8 @@ import { ReciptBankMasterSComponent } from '../Project Bank Master/Receipt Bank 
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AddunitBankerComponent } from './addunit-banker/addunit-banker.component';
-import { AllUnitBankerListComponent } from './all-unit-banker-list/all-unit-banker-list.component';
 import { SuccessDialogComponent } from '../../../../Common/success-dialog/success-dialog.component';
-import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { 
@@ -63,9 +61,7 @@ import { AmountDirective } from '../../../../Common/Amount Direcitve/amount.dire
     AmountDirective,
     ActionColumnComponent,
     AutocompleteReusableComponent,
-    ReciptBankMasterSComponent,
-    AddunitBankerComponent,
-    AllUnitBankerListComponent
+    ReciptBankMasterSComponent
   ],
   templateUrl: './unit-banker.component.html',
   styleUrl: './unit-banker.component.scss',
@@ -79,6 +75,7 @@ export class UnitBankerComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialogRef = inject(MatDialogRef<UnitBankerComponent>, { optional: true });
   private readonly datePipe = new DatePipe('en-US');
   private readonly userId = Number(sessionStorage.getItem('session_id') || '0');
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true });
@@ -110,7 +107,6 @@ export class UnitBankerComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(AllUnitBankerListComponent) unitBankerList!: AllUnitBankerListComponent;
 
   /**
    * TrackBy functions for optimized *ngFor rendering
@@ -280,29 +276,8 @@ export class UnitBankerComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Method to switch to list tab
-   */
-  switchToListTab(): void {
-    this.selectedTabIndex.set(1);
-    // Use requestAnimationFrame instead of setTimeout for better performance
-    requestAnimationFrame(() => {
-      if (this.unitBankerList) {
-        this.unitBankerList.fetchAllUnitBankers();
-      }
-    });
-  }
-
-  /**
-   * Method to handle tab change
-   */
   onTabChange(event: any): void {
     this.selectedTabIndex.set(event.index);
-    if (event.index === 1 && this.unitBankerList) {
-      requestAnimationFrame(() => {
-        this.unitBankerList.fetchAllUnitBankers();
-      });
-    }
   }
 
   handleTableAction(event: { row: any; action: string }): void {
@@ -357,7 +332,7 @@ export class UnitBankerComponent implements OnInit, OnDestroy {
                 data: { message: res.message || 'Record added successfully' },
               });
             }
-            this.switchToListTab();
+            this.dialogRef?.close(true);
           }
         }
       });

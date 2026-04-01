@@ -4,15 +4,14 @@
     <li class="breadcrumb-item"><a>Add Booking</a></li>
   </app-breadcrumb>
 
-  <div class="container-fluid ">
+  <div>
     <mat-card *ngIf="!bookingIdValue" class="border border-slate-200 shadow-sm">
       <mat-card-content>
         <div class="info">
           <form [formGroup]="addBookingForm" class="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <app-autocomplete-reusable-component class="md:col-span-1 xl:col-span-1" [options]="projectsList()"
-              formControlName="project_id" displayKey="property_name" idKey="project_id" placeholder="Select Project">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+              displayKey="property_name" idKey="project_id" placeholder="Select Project">
             </app-autocomplete-reusable-component>
-
             <mat-form-field appearance="outline" class="md:col-span-1 xl:col-span-1">
               <mat-label>Booking Date</mat-label>
               <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="bookingDate"

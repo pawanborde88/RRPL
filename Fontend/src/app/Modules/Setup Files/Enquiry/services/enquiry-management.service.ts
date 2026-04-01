@@ -77,6 +77,7 @@ export interface ProjectInfoResponse {
   min_cost: number;
   max_cost: number;
   city_id: number;
+  enq_otp_status?: number;
   [key: string]: any;
 }
 
@@ -665,6 +666,40 @@ export class EnquiryManagementService {
       .pipe(
         retry({ count: this.RETRY_ATTEMPTS, delay: 1000 }),
         catchError(this.handleError<{ data: any }>('fetchSingleLead'))
+      );
+  }
+
+  /**
+   * Send OTP to enquiry
+   */
+  sendOtpToEnquiry(payload: {
+    mobile_no: string;
+    email_id: string;
+    project_id: number;
+    first_name: string;
+    last_name: string;
+  }): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/send_otp_to_enquiry`, payload)
+      .pipe(
+        retry({ count: this.RETRY_ATTEMPTS, delay: 1000 }),
+        catchError(this.handleError<any>('sendOtpToEnquiry'))
+      );
+  }
+
+  /**
+   * Verify enquiry OTP
+   */
+  verifyEnqOtp(payload: {
+    mobile_no: string;
+    project_id: number;
+    otp: string;
+  }): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/verify_enq_otp`, payload)
+      .pipe(
+        retry({ count: this.RETRY_ATTEMPTS, delay: 1000 }),
+        catchError(this.handleError<any>('verifyEnqOtp'))
       );
   }
 

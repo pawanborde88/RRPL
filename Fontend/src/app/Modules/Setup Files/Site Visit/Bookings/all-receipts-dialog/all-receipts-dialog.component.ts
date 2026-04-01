@@ -295,11 +295,13 @@ export class AllReceiptsDialogComponent implements OnInit {
     });
 
     dialogRef.afterClosed().pipe(
-      filter(result => !!result),
-      switchMap(() =>
+      filter(result => result && result.confirmed),
+      switchMap(result =>
         this.receiptsService.deleteReceipt(
           receiptData.booking_receipt_id,
-          receiptData.floor_unit_id
+          receiptData.floor_unit_id,
+          this.userId,
+          result.reason
         )
       ),
       takeUntilDestroyed(this.destroyRef)

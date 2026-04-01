@@ -91,43 +91,20 @@ export class AllAgreementDetialsListComponent implements OnInit {
       sticky: true,
       disabled: false,
     },
-
-    { key: 'agreement_no', label: 'Agreement Number' },
-    { key: 'agreement_date', label: 'Agreement Date', type: 'mediumDate' },
-
+    { key: 'booking_date', label: 'Booking Date', type: 'mediumDate' },
     { key: 'project_name', label: 'Project Name' },
     { key: 'wing_name', label: 'Wing' },
     { key: 'floor_unit', label: 'Unit' },
-
     { key: 'applicant_name', label: 'Client Name' },
 
-    // Updated from link_send_status to date_of_execution
-    {
-      key: 'date_of_execution',
-      label: 'Date of Execution',
-      type: 'mediumDate'
-    },
+    { key: 'agreement_no', label: 'Agreement No.' },
+    { key: 'agreement_date', label: 'Agreement Date', type: 'mediumDate' },
 
-    {
-      key: 'applicant_mobile',
-      label: 'Mobile',
-      type: 'sensitive'
-    },
-    {
-      key: 'applicant_email',
-      label: 'Email ID',
-      type: 'sensitive'
-    },
 
-    { key: 'sales_executive', label: 'Executive' },
-    { key: 'source', label: 'Source' },
-    { key: 'source_detail', label: 'Source Type' },
+
 
     // Added new fields from your JSON data
     { key: 'registration_office_name', label: 'Registration Office' },
-    { key: 'booking_date', label: 'Booking Date', type: 'mediumDate' },
-    { key: 'challan_date', label: 'Challan Date', type: 'mediumDate' },
-    { key: 'agreement_shadule_date', label: 'Agreement Schedule Date', type: 'mediumDate' },
     { key: 'days_since_booking', label: 'Days Since Booking' },
 
     { key: 'remark', label: 'Remark' },

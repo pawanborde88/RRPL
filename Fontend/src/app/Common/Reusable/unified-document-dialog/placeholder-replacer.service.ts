@@ -126,7 +126,9 @@ export class PlaceholderReplacerService {
                 '<td rowspan="9" style="text-align:center;vertical-align:middle">NOT AVAILABLE</td>';
         }
 
-        // Financial
+        replacements['#TotalGovtCharges#'] = this.formatCurrency(bookingData.srg_total || 0);
+        replacements['#TotalOtherCharges#'] = this.formatCurrency(bookingData.mc_total || 0);
+
         replacements['#BookingAmount#'] = this.formatCurrency(bookingData.booking_amount || 0);
         replacements['#AgreementCost#'] = this.formatCurrency(bookingData.agreement_cost || 0);
         replacements['#StampDuty#'] = this.formatCurrency(bookingData.stamp_duty || 0);
@@ -190,11 +192,12 @@ export class PlaceholderReplacerService {
         replacements['#InfoSource#'] = bookingData.source_description || '';
 
         // Area
-        replacements['#FloorNo#'] = String(bookingData.floor_name || '');
+        replacements['#FloorNo#'] = this.formatOrdinal(bookingData.floor_name);
         replacements['#CarpetSqm#'] = bookingData.carpet ? `${bookingData.carpet} Sq.Ft` : 'N/A';
         replacements['#TotalCarpetAreaSqm#'] = bookingData.carpet ? `${bookingData.carpet} Sq.Ft` : 'N/A';
         replacements['#TotalCarpetAreaSqft#'] = String(bookingData.carpet || '0');
         replacements['#BalconySqm#'] = bookingData.floor_units?.balcony_sqm || '';
+        replacements['#BalconySqft#'] = bookingData.floor_units?.balcony_sqft || '';
         replacements['#BalconyArea#'] = bookingData.floor_units?.enclosed_balcony_sqft || '';
         replacements['#TerraceArea#'] = bookingData.floor_units?.balcony_sqm || '';
         replacements['#TotalUsableArea#'] = bookingData.floor_units?.total_carpet_area_sqm || '';
@@ -256,7 +259,9 @@ export class PlaceholderReplacerService {
             replacements['#TotalProjects#'] = String(bookingData.total_project || 0);
             replacements['#TotalCarpetAreaSqmtr#'] = String(bookingData.floor_units?.total_carpet_area_sqm || 0);
             replacements['#TotalCarpetAreaSqft#'] = String(bookingData.floor_units?.total_carpet_area_sqft || 0);
-        }
+        } replacements['#EnclosedBalconySqm#'] = String(bookingData.floor_units?.enclosed_balcony_sqm || 0);
+
+
         // Bank account details for BOOKING_COST_SHEET
         if (dialogType === DocumentDialogType.BOOKING_COST_SHEET) {
 
@@ -400,6 +405,8 @@ export class PlaceholderReplacerService {
             : 'N/A';
 
         replacements['#DATE#'] = formattedDate;
+        replacements['#PossessionDate#'] = formattedDate;
+
         replacements['#Applicant1#'] = letterData.applicant1_name || '';
         replacements['#Applicant2#'] = letterData.coapplicant_name || '';
         replacements['#CustomerInfo#'] = letterData.all_applicant || '';
@@ -408,19 +415,43 @@ export class PlaceholderReplacerService {
         replacements['#AgreementDate#'] = formattedAgreementDate;
         replacements['#AgreementCostWords#'] = numberToWords(letterData.agreement_cost || 0);
         replacements['#AllApplicant#'] = letterData.all_applicant || 'N/A';
+        replacements['#Applicant1Address#'] = letterData.applicant1_address || 'N/A';
+
         replacements['#BookingDate#'] = letterData.booking_date || 'N/A';
         replacements['#Wing#'] = letterData.wing_name || '';
         replacements['#AllApplicants#'] = letterData.all_applicant || 'N/A';
         replacements['#ProjectName#'] = letterData.project_name || '';
         replacements['#ProjectAddress#'] = letterData.site_address || 'N/A';
-        replacements['#TotalCarpetAreaSqft#'] = letterData.total_carpet_area_sqft || 'N/A';
-        replacements['#TotalCarpetAreaSqmtr#'] = letterData.total_carpet_area_sqm || 'N/A';
-        replacements['#UnitNo#'] = letterData.floor_unit || 'N/A';
+        replacements['#TotalCarpetAreaSqft#'] = letterData.floor_units?.total_carpet_area_sqft || letterData.total_carpet_area_sqft || 'N/A';
+        replacements['#TotalCarpetAreaSqmtr#'] = letterData.floor_units?.total_carpet_area_sqm || letterData.total_carpet_area_sqm || 'N/A';
+        replacements['#MaintanceAmount#'] = letterData.floor_units?.maintenance_charges || letterData.maintenance_charges || 'N/A';
+        replacements['#MaintanceAmountWords#'] = numberToWords(letterData.floor_units?.maintenance_charges || letterData.maintenance_charges || 0);
+        replacements['#Dry_balcony_sqft#'] = letterData.floor_units?.dry_balcony_sqft || letterData.dry_balcony_sqft || 'N/A';
+        replacements['#Utility_balcony_sqft#'] = letterData.floor_units?.utility_balcony_sqft || letterData.utility_balcony_sqft || 'N/A';
+        replacements['#Utility_balconay_sqm#'] = letterData.floor_units?.utility_balcony_sqm || letterData.utility_balcony_sqm || 'N/A';
+        replacements['#UnitNo#'] = letterData.floor_units?.floor_unit || letterData.floor_unit || 'N/A';
+        replacements['#FlatNo#'] = letterData.floor_units?.floor_unit || letterData.floor_unit || 'N/A';
+
         replacements['#SubProject#'] = letterData.wing_name || '';
         replacements['#GstPercent#'] = letterData.gst_percent || 'N/A';
         replacements['#Gst#'] = this.formatIndianCurrency(letterData.gst || 0);
+
+        // Area Sqm Mapping
+        const fu = letterData.floor_units || {};
+        replacements['#FloorNo#'] = this.formatOrdinal(fu.floor_order);
+
+        replacements['#CarpetSqm#'] = fu.carpet_sqm || letterData.carpet_sqm || '0';
+        replacements['#BalconySqm#'] = fu.balcony_sqm || letterData.balcony_sqm || '0';
+        replacements['#Dry_balcony_sqm#'] = fu.dry_balcony_sqm || letterData.dry_balcony_sqm || '0';
+        replacements['#Dry_balconay_sqm#'] = fu.dry_balcony_sqm || letterData.dry_balcony_sqm || '0';
+        replacements['#EnclosedBalconySqm#'] = fu.enclosed_balcony_sqm || '0';
+        replacements['#TerraceSqm#'] = fu.terrace_sqm || '0';
+        replacements['#TerraceArea#'] = fu.terrace_sqm || '0';
+        replacements['#TotalCarpetAreaSqmtr#'] = fu.total_carpet_area_sqm || letterData.total_carpet_area_sqm || '0';
         replacements['#AgreementCost#'] = this.formatIndianCurrency(letterData.agreement_cost || 0);
         replacements['#AmountInWords#'] = numberToWords(letterData.agreement_cost || 0);
+        replacements['#MaintanceAmount#'] = this.formatIndianCurrency(fu.maintenance_charges || letterData.maintenance_charges || 0);
+        replacements['#MaintanceAmountInWord#'] = numberToWords(fu.maintenance_charges || letterData.maintenance_charges || 0);
         replacements['#TotalReceivedInstallment#'] = totalReceivedInstallment;
         replacements['#TotalRemainingInstallment#'] = totalRemainingInstallment;
         replacements['#TotalReceivedInstallmentWords#'] = numberToWords(letterData.received_amount || 0);
@@ -440,13 +471,53 @@ export class PlaceholderReplacerService {
         replacements['#ParkingLevel#'] = letterData.parking_level || parkingLevels.join(', ') || '';
         replacements['#ParkingType#'] = letterData.parking_type || parkingTypes.join(', ') || '';
         replacements['#BuilderName#'] = letterData.builder_name || '';
+        replacements['#RegistOffice#'] = letterData.registration_office_name || 'N/A';
 
+        // Bank account details for Letter Config
+        const bankDetails = letterData.project_banks || [];
+        if (bankDetails && bankDetails.length > 0) {
+            // Find RERA Collection Account
+            const fullAccount = bankDetails.find((bank: any) => {
+                const accountType = (bank.account_type || '').toString().toLowerCase();
+                return accountType.includes('rera') && (accountType.includes('coll') || accountType.includes('collection'));
+            });
+
+            // Find GST Collection Account
+            const gstAccount = bankDetails.find((bank: any) => {
+                const accountType = (bank.account_type || '').toString().toLowerCase();
+                return accountType.includes('gst') && (accountType.includes('coll') || accountType.includes('collection'));
+            });
+
+            // Fallbacks as requested (1st object etc)
+            const primaryAccount = fullAccount || bankDetails[0];
+            const taxAccount = gstAccount || (bankDetails.length > 1 ? bankDetails[1] : bankDetails[0]);
+
+            const getIfscCode = (account: any) => account?.Ifsc_code || account?.ifsc_code || '';
+
+            // RERA Account details
+            replacements['#NameofBeneficiary100#'] = primaryAccount?.beneficiary_name || '';
+            replacements['#BeneficiaryAccountNo100#'] = primaryAccount?.account_no || '';
+            replacements['#NameofBank100#'] = primaryAccount?.bank_name || '';
+            replacements['#IFSCCode100#'] = getIfscCode(primaryAccount);
+            replacements['#AddressOfBank100#'] = primaryAccount?.branch_name || primaryAccount?.address || '';
+
+            // GST/Tax Account details
+            replacements['#NameofBeneficiaryTax#'] = taxAccount?.beneficiary_name || '';
+            replacements['#BeneficiaryAccountNoTax#'] = taxAccount?.account_no || '';
+            replacements['#NameofBankTax#'] = taxAccount?.bank_name || '';
+            replacements['#IFSCCodeTax#'] = getIfscCode(taxAccount);
+            replacements['#AddressOfBankTax#'] = taxAccount?.branch_name || taxAccount?.address || '';
+        }
+        replacements['#RERABeneficiaryName#'] = letterData.rera_beneficiary_name || '';
+        replacements['#RERACollectionBankName#'] = letterData.rera_collection_bank_name || '';
+        replacements['#RERAAccountNumber#'] = letterData.rera_account_number || '';
+        replacements['#RERABranchName#'] = letterData.rera_branch_name || '';
         // Parking table: one row per parking (for <!--start_parking_row-->...<!--end_parking_row--> or a single <tr> with #ParkingNo#/#ParkingLevel#)
         replacements['__parkingTableRows__'] = this.buildParkingTableRows(letterData, htmlTemplate);
 
         // Set N/A for missing fields
         const naFields = [
-            '#RegistOffice#', '#ChequeInFavor#', '#ChequeDate#', '#PackageTotal#',
+            '#ChequeInFavor#', '#ChequeDate#', '#PackageTotal#',
             '#ReceiptDate#', '#GraceDays#', '#GracePeriod#', '#DelayDays#',
             '#InterestRate#', '#TotalStagePercentage#', '#TotalInstallmentAmount#',
             '#TotalInterestAmount#', '#Signature1#'
@@ -524,6 +595,8 @@ export class PlaceholderReplacerService {
 
             // 🟢 Project & Common Data
             replacements['#project_logo#'] = `${storageUrl}/${commonData?.project_logo || ''}`;
+            replacements['#project_stamp#'] = `${storageUrl}/${commonData?.project_stamp || ''}`;
+
             replacements['#company_logo#'] = `${storageUrl}/${commonData?.project_thumbnail_img || ''}`;
             replacements['#Wing#'] = commonData?.wing_name || 'N/A';
             replacements['#UnitNo#'] = commonData?.floor_unit || 'N/A';
@@ -540,7 +613,7 @@ export class PlaceholderReplacerService {
             if (commonData?.applicant_name2?.trim()) applicantNames.push(commonData.applicant_name2.trim());
             if (commonData?.applicant_name3?.trim()) applicantNames.push(commonData.applicant_name3.trim());
 
-            replacements['#Applicant#'] =
+            replacements['#AllApplicants#'] =
                 applicantNames.length > 0
                     ? applicantNames.join(', ')
                     : (commonData?.applicant_name || 'N/A');
@@ -611,9 +684,9 @@ export class PlaceholderReplacerService {
         // Fallback to default 3-column template if no template found
         return `
       <tr>
-        <td style="font-size: 9px;">#PaymentStage#</td>
-        <td class="center">#Percentage#%</td>
-        <td class="right">#Amount#</td>
+        <td style="font-size: 9px; width: 80%;">#PaymentStage#</td>
+        <td class="center" style="width: 10%;">#Percentage#%</td>
+        <td class="right" style="width: 10%;">#Amount#</td>
       </tr>
     `;
     }
@@ -860,6 +933,11 @@ export class PlaceholderReplacerService {
         const latestTransaction = transactions.length > 0
             ? transactions[transactions.length - 1]
             : {};
+        const latestTransactionNumber =
+            (latestTransaction as any).transaction_id ||
+            (latestTransaction as any).cheque_no ||
+            (latestTransaction as any).trn_no ||
+            '';
 
         // Calculate total paid amount
         const totalPaid = transactions.reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
@@ -918,8 +996,12 @@ export class PlaceholderReplacerService {
         replacements['#Amount#'] = formatCurrency(tokenData.token_amount || 0);
         replacements['#BankBranch#'] = latestTransaction.bank_branch || 'N/A';
         replacements['#BankName#'] = latestTransaction.bank_name || 'N/A';
-        replacements['#TRNO#'] = latestTransaction.transaction_id || 'N/A';
-        replacements['#TotalPayable#'] = formatCurrency(tokenData.token_amount || 0);
+        replacements['#TRNO#'] = latestTransactionNumber || 'N/A';
+        replacements['#ChequeNo#'] =
+            (latestTransaction as any).cheque_no || latestTransactionNumber || 'N/A';
+        replacements['#TransactionID#'] =
+            (latestTransaction as any).transaction_id || latestTransactionNumber || 'N/A';
+        replacements['#TotalPayable#'] = formatCurrency(tokenData.amount_paid || 0);
         replacements['#PaymentStatus#'] = tokenData.payment_status || 'N/A';
         replacements['#TokenDate#'] = formatDateHelper(tokenData.token_date);
         replacements['#Preference#'] = tokenData.preference_name || 'N/A';

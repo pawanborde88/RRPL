@@ -6,7 +6,7 @@ export type TableRowData = Record<string, unknown> & {
   readonly [key: string]: unknown;
 };
 
-export type TableColumnType = 'photo' | 'sensitive' | 'attachment' | 'file' | 'date' | 'short_date' | 'truncate' | 'index' | 'actions' | string;
+export type TableColumnType = 'photo' | 'sensitive' | 'attachment' | 'file' | 'date' | 'short_date' | 'truncate' | 'index' | 'actions' | 'status' | 'pill' | string;
 export type ColumnAlign = 'left' | 'center' | 'right';
 export type EditType = 'text' | 'number' | 'select' | 'date';
 export type ColorConditionResult = 'green' | 'red' | string;

@@ -116,6 +116,7 @@ export class EditBookingPageComponent {
   readonly allTokenNolist = this.stateService.tokens;
   readonly allBookingDropdown = this.stateService.bookingFroms;
   readonly allParkingTypeList = this.stateService.parkingTypes;
+  readonly allprojectsPeoples = this.stateService.allprojectPeoples;
   readonly projectsList = this.stateService.projects;
 
   // ⚡ Computed values
@@ -127,6 +128,7 @@ export class EditBookingPageComponent {
     project_id: new FormControl(''),
     token_type_id: new FormControl(''),
     sales_executive_id: new FormControl('', Validators.required),
+    closed_by: new FormControl(''),
     floor_unit_id: new FormControl('', Validators.required),
     booking_date: new FormControl('', Validators.required),
     project_enq_id: new FormControl(),
@@ -261,6 +263,7 @@ export class EditBookingPageComponent {
     this.stateService.fetchTokenTypes(projectId);
     this.stateService.fetchParkingTypes(projectId);
     this.stateService.fetchSalesExecutives(projectId);
+    this.stateService.fetchAssignedProjects(projectId);
     this.stateService.fetchProjects(this.userId);
 
     // Load token list if token_type_id exists
@@ -548,6 +551,7 @@ export class EditBookingPageComponent {
               project_id: bookingData.project_id ?? null,
               booking_date: bookingData.booking_date ?? null,
               sales_executive_id: bookingData.sales_executive_id ?? null,
+              closed_by: bookingData.closed_by ?? null,
               booking_from_id: bookingData.booking_from_id ?? null,
               token_type_id: bookingData.token_type_id ?? null,
               token_id: bookingData.token_id ?? null,
@@ -1252,6 +1256,7 @@ export class EditBookingPageComponent {
       source_id: formValue.source_id,
       booking_from_id: formValue.booking_from_id,
       sales_executive_id: formValue.sales_executive_id,
+      closed_by: formValue.closed_by,
       token_type_id: formValue.token_type_id,
       source_detail_id: formValue.source_detail_id,
       source_executive_id: formValue.source_executive_id,

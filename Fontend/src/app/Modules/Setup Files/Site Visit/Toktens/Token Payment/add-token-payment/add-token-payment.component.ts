@@ -90,26 +90,53 @@ export class AddTokenPaymentComponent implements OnInit {
     });
   }
 
-  updateValidators(paymentMode: string | null) {
+  updateValidators(paymentMode: any) {
     const transactionIdControl = this.addTokenForm.get('transaction_id');
     const bankNameControl = this.addTokenForm.get('bank_name');
+    const chequeNoControl = this.addTokenForm.get('cheque_no');
+    const upiIdControl = this.addTokenForm.get('upi_id');
+    const cardNoControl = this.addTokenForm.get('card_no');
+    const ifscCodeControl = this.addTokenForm.get('ifsc_code');
+    const bankBranchControl = this.addTokenForm.get('bank_branch');
 
-    // Reset validators
-    transactionIdControl?.clearValidators();
-    bankNameControl?.clearValidators();
+    const allControls = [
+      transactionIdControl,
+      bankNameControl,
+      chequeNoControl,
+      upiIdControl,
+      cardNoControl,
+      ifscCodeControl,
+      bankBranchControl,
+    ];
 
-    // Set validators based on payment mode
-    if (paymentMode === '2' || paymentMode === '3' || paymentMode === '4') {
-      transactionIdControl?.setValidators([Validators.required]);
-    }
+    // Reset all validators
+    allControls.forEach((control) => control?.clearValidators());
 
-    if (paymentMode === '2') {
+    // Set validators based on payment mode (using string comparison to be safe)
+    const mode = String(paymentMode);
+
+    if (mode === '1') {
+      // Cheque
+      chequeNoControl?.setValidators([Validators.required]);
       bankNameControl?.setValidators([Validators.required]);
+      ifscCodeControl?.setValidators([Validators.required]);
+      bankBranchControl?.setValidators([Validators.required]);
+    } else if (mode === '2') {
+      // UPI / Online
+      transactionIdControl?.setValidators([Validators.required]);
+      upiIdControl?.setValidators([Validators.required]);
+      bankNameControl?.setValidators([Validators.required]);
+    } else if (mode === '3') {
+      // IMPS/NEFT/RTGS
+      transactionIdControl?.setValidators([Validators.required]);
+    } else if (mode === '4') {
+      // Card
+      transactionIdControl?.setValidators([Validators.required]);
+      cardNoControl?.setValidators([Validators.required]);
     }
 
-    // Update validity
-    transactionIdControl?.updateValueAndValidity();
-    bankNameControl?.updateValueAndValidity();
+    // Update validity for all affected controls
+    allControls.forEach((control) => control?.updateValueAndValidity());
   }
 
   amountNotGreaterThanBalance(): ValidatorFn {

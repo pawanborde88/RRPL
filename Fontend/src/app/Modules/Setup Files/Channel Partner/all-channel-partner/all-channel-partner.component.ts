@@ -23,7 +23,7 @@ import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { TableColumn, ActionButton } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { TableColumn, TableRowData, ActionButton } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { AuthService } from '../../../../Service/auth.service';
 import { EMPTY, Subject, of } from 'rxjs';
 import {
@@ -40,6 +40,12 @@ import {
 import { ReceiptPreviewDialogComponent } from '../../Post Sales/Recovery/receipt-preview-dialog/receipt-preview-dialog.component';
 import { Receipt } from '../../Post Sales/Recovery/Recipts/receipts.service';
 import { ReraApproveDialog } from '../rera-approve-dialog/rera-approve-dialog';
+import { AddFollowUpDialog } from '../add-follow-up-dialog/add-follow-up-dialog';
+import { ColumnDynamicColorService } from '../../../../Service/Column-Colors/column-dynamic-color.service';
+import { AddChannelPartnerComponent } from '../add-channel-partner/add-channel-partner.component';
+import { AssignSourceExecutivesDialog } from '../assign-source-executives-dialog/assign-source-executives-dialog';
+import { ChannelPartnerStore } from '../assign-source-executives-dialog/channel-partner.store';
+import { ChannelPartnerMeetingService } from '../../../Channel Partner Meetings/all-channel-partner-meeting/channel-partner-meeting.service';
 
 interface EnquiryFilterForm {
   project_id: FormControl<any[] | null>;
@@ -48,6 +54,7 @@ interface EnquiryFilterForm {
   end_date: FormControl<Date | null>;
   cp_start_date: FormControl<Date | null>;
   cp_end_date: FormControl<Date | null>;
+  source_executive_id: FormControl<any | null>;
 }
 
 interface ChannelPartner {
@@ -55,7 +62,12 @@ interface ChannelPartner {
   firm_name: string;
   cp_owner: string;
   full_name?: string;
+  rera_approvel_id?: number;
+  source_executive_id?: number;
 }
+
+/** Column definition that may include applyChequeStatusColor (used by AG Grid column service) */
+type ChannelPartnerTableColumn = TableColumn<TableRowData> & { applyChequeStatusColor?: boolean };
 
 interface Project {
   project_id: number;
@@ -85,6 +97,7 @@ interface FilterPayload {
   templateUrl: './all-channel-partner.component.html',
   styleUrl: './all-channel-partner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ChannelPartnerStore],
 })
 export class AllChannelPartnerComponent implements OnInit {
   // Dependency injection using inject()
@@ -101,6 +114,8 @@ export class AllChannelPartnerComponent implements OnInit {
   private readonly MIN_SEARCH_LENGTH = 3;
   private readonly SEARCH_DEBOUNCE_MS = 300;
   private readonly SNACKBAR_DURATION = 3000;
+  protected readonly store = inject(ChannelPartnerStore);
+  private readonly service = inject(ChannelPartnerMeetingService);
 
   // Signals for state management
   readonly cpTargetLoggedData = signal<unknown>(null);
@@ -109,33 +124,68 @@ export class AllChannelPartnerComponent implements OnInit {
   readonly isLoadingProjects = signal<boolean>(false);
   readonly isLoadingPartners = signal<boolean>(false);
   readonly storageUrl = environment.STORAGE_URL;
+  readonly selectedCPId = signal<any>(null);
+  readonly selectedBooking = signal<any[]>([]);
+
+  readonly activePartners = computed(() => {
+    const fromDropdown = this.formValues().channel_partner_id;
+    const gridSelections = this.selectedBooking().map(b => ({
+      id: b.channel_partner_id,
+      name: b.firm_name
+    }));
+
+    const partnersMap = new Map<any, string>();
+
+    // Process grid selections first
+    gridSelections.forEach(p => partnersMap.set(p.id, p.name));
+
+    // Process dropdown selections
+    if (fromDropdown) {
+      const dropdownIds = Array.isArray(fromDropdown) ? fromDropdown : [fromDropdown];
+      dropdownIds.forEach(id => {
+        if (!partnersMap.has(id)) {
+          const partner = this.allChannelPartnerList().find(p => p.channel_partner_id === id);
+          partnersMap.set(id, partner ? partner.firm_name : `ID: ${id}`);
+        }
+      });
+    }
+
+    // Process single selectedCPId if any
+    const singleId = this.selectedCPId();
+    if (singleId && !partnersMap.has(singleId)) {
+      const partner = this.allChannelPartnerList().find(p => p.channel_partner_id === singleId);
+      partnersMap.set(singleId, partner ? partner.firm_name : `ID: ${singleId}`);
+    }
+
+    return Array.from(partnersMap.entries()).map(([id, name]) => ({ id, name }));
+  });
 
   // Search subject for debounced partner search
   private readonly partnerSearchSubject = new Subject<string>();
+  private readonly columnDynamicColorService = inject(ColumnDynamicColorService);
 
   @ViewChild(ConfigurableAgGridDataComponent) agGridComponent!: ConfigurableAgGridDataComponent;
 
-  readonly columnDefinitions: readonly TableColumn[] = [
+  readonly columnDefinitions: readonly ChannelPartnerTableColumn[] = [
     {
       key: 'actions',
-      label: '',
+      label: 'Action',
       type: 'actions',
       sticky: true,
       disabled: false,
     },
     { key: 'firm_name', label: 'Firm Name' },
     { key: 'rera', label: 'RERA' },
-    { key: 'rera_approvel', label: 'Is Approved' },
-    { key: 'booking_count', label: 'Booking Count' },
-    { key: 'token_count', label: 'Token Count' },
-    { key: 'site_visit_count', label: 'Site Visit Count' },
-    { key: 'firm_email', label: 'Firm Email' },
-    { key: 'firm_phone', label: 'Firm Phone' },
-    { key: 'bank_name', label: 'Bank Name' },
-    { key: 'ifsc_code', label: 'IFSC Code' },
-    { key: 'account_no', label: 'Account No' },
-    { key: 'bank_address', label: 'Bank Address' },
-    { key: 'branch_name', label: 'Branch Name' },
+    { key: 'rera_approvel', label: 'RERA Approved', applyChequeStatusColor: true, cellStyle: ({ data }: { data: TableRowData }) => data ? this.columnDynamicColorService.getChequeStatusStyle((data as unknown as ChannelPartner).rera_approvel_id) : undefined },
+
+    { key: 'sourcing_executive_name', label: 'Source Executive' },
+
+    { key: 'booking_count', label: 'Booking Count', isAmount: true },
+    { key: 'token_count', label: 'Token Count', isAmount: true },
+    { key: 'site_visit_count', label: 'Site Visit Count', isAmount: true },
+    { key: 'firm_email', label: 'Firm Email', type: 'sensitive' },
+    { key: 'firm_phone', label: 'Firm Phone', type: 'sensitive' },
+    { key: 'firm_city', label: 'Firm City' },
 
     { key: 'created_by', label: 'Created By' },
     { key: 'created_at', label: 'Created At', type: 'date' },
@@ -150,6 +200,7 @@ export class AllChannelPartnerComponent implements OnInit {
     end_date: new FormControl<any | null>(null),
     cp_start_date: new FormControl<any | null>(null),
     cp_end_date: new FormControl<any | null>(null),
+    source_executive_id: new FormControl<any | null>(null),
   });
 
   // Convert form valueChanges to signal using toSignal()
@@ -163,11 +214,36 @@ export class AllChannelPartnerComponent implements OnInit {
         end_date: value.end_date ?? null,
         cp_start_date: value.cp_start_date ?? null,
         cp_end_date: value.cp_end_date ?? null,
+        source_executive_id: value.source_executive_id ?? null,
       }))
     ),
-    { initialValue: { project_id: null, channel_partner_id: null, start_date: null, end_date: null, cp_start_date: null, cp_end_date: null } }
+    {
+      initialValue: {
+        project_id: null,
+        channel_partner_id: null,
+        start_date: null,
+        end_date: null,
+        cp_start_date: null,
+        cp_end_date: null,
+        source_executive_id: null
+      }
+    }
   );
-
+  fetchSalesExecutives(roleIds: number[]): void {
+    this.store.setLoading(true);
+    this.service.fetchSalesExecutives(roleIds).pipe(
+      tap((res) => {
+        const executives = (res || []).map((item) => ({
+          ...item,
+          full_name: `${item.first_name} ${item.last_name}`.trim(),
+        }));
+        this.store.patchState({ executives });
+      }),
+      finalize(() => this.store.setLoading(false))
+    ).subscribe({
+      error: (err) => this.store.setError('Failed to fetch executives')
+    });
+  }
   readonly channelPartnerActions: ActionButton<any>[] = [
     {
       action: 'deleteBooking',
@@ -196,19 +272,36 @@ export class AllChannelPartnerComponent implements OnInit {
       tooltip: ' RERA Approve',
       color: 'primary',
     },
+    {
+      action: 'addFollowUpCP',
+      icon: 'add_comment',
+      tooltip: 'Add Follow Up ',
+      color: 'primary',
+      disabled: false,
+    },
   ];
 
   readonly headerButtons = [
+    {
+      label: 'Assign Source Executive',
+      icon: 'person_add',
+      color: 'accent',
+      disabled: () => this.activePartners().length === 0,
+      action: () => this.openAssignSourceExecutiveDialog(),
+      show: () => true,
+    },
     {
       label: ' Add Channel Partner',
       icon: 'add_circle',
       color: 'primary',
       disabled: () => false,
-      action: () => this.router.navigate(['/setup/add-channel-partner']),
+      action: () => this.openAddEditCPDialog(),
       show: () => true,
     },
-  ] as const;
 
+  ];
+
+  // Computed signal for AG Grid payload
   // Computed signal for AG Grid payload
   readonly agGridPayload = computed<FilterPayload>(() => {
     const formValues = this.formValues();
@@ -220,9 +313,11 @@ export class AllChannelPartnerComponent implements OnInit {
     };
   });
 
+
   ngOnInit(): void {
     this.cpTargetLoggedData.set(history.state.data || null);
     this.fetchAllProjects();
+    this.fetchSalesExecutives([18]);
     this.setupPartnerSearch();
   }
 
@@ -254,6 +349,7 @@ export class AllChannelPartnerComponent implements OnInit {
     end_date: Date | null;
     cp_start_date: Date | null;
     cp_end_date: Date | null;
+    source_executive_id: any | null;
   }): Record<string, unknown> {
     const filters: Record<string, unknown> = {};
     const loggedData = this.cpTargetLoggedData() as Record<string, unknown> | null;
@@ -299,6 +395,10 @@ export class AllChannelPartnerComponent implements OnInit {
       }
     }
 
+    if (formValues.source_executive_id) {
+      filters['source_executive_id'] = formValues.source_executive_id;
+    }
+
     // Override with cpTargetLoggedData if available
     if (loggedData) {
       if (loggedData['till_channel_partner_id']) {
@@ -319,10 +419,8 @@ export class AllChannelPartnerComponent implements OnInit {
   }
 
   fetchAllEnquiry(): void {
-
-
-    // Refresh AG Grid data - payload is computed and will update automatically
     this.agGridComponent?.refreshData();
+
   }
 
   getChannelPartnerActions(action: string, row: Record<string, unknown>): void {
@@ -332,10 +430,7 @@ export class AllChannelPartnerComponent implements OnInit {
         break;
 
       case 'editBooking':
-        this.router.navigate(
-          ['/setup/edit-channel-partner', row['firm_name'], row['channel_partner_id']],
-          { state: { data: row } }
-        );
+        this.openAddEditCPDialog(row);
         break;
 
       case 'RERACertificate':
@@ -346,10 +441,35 @@ export class AllChannelPartnerComponent implements OnInit {
         this.openRERADialog(row);
         break;
 
+      case 'addFollowUpCP':
+        this.openAddFollowUpDialog(row);
+        break;
+
       default:
         console.warn('Unknown action:', action);
         break;
     }
+  }
+
+  openAddFollowUpDialog(row: Record<string, unknown>): void {
+    const channelPartnerId = Number(row['channel_partner_id']);
+    if (!channelPartnerId) {
+      this.showError('Invalid channel partner.');
+      return;
+    }
+    const dialogRef = this.dialog.open(AddFollowUpDialog, {
+      width: '40vw',
+      maxWidth: '50vw',
+      data: {
+        channel_partner_id: channelPartnerId,
+        firm_name: row['firm_name'] ?? undefined,
+      },
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.agGridComponent?.refreshData();
+      }
+    });
   }
 
   openRERADialog(receiptData: any): void {
@@ -369,7 +489,7 @@ export class AllChannelPartnerComponent implements OnInit {
   }
   openReceiptDialog(receiptData: any): void {
     if (!receiptData?.rera_certificate) {
-      this.snackBar.open('Receipt attachment not found', 'Close', {
+      this.snackBar.open('RERA Certificate not found', 'Close', {
         duration: 3000,
       });
       return;
@@ -386,6 +506,10 @@ export class AllChannelPartnerComponent implements OnInit {
       },
     });
   }
+
+
+
+
   fetchAllProjects(): void {
     this.isLoadingProjects.set(true);
 
@@ -476,6 +600,46 @@ export class AllChannelPartnerComponent implements OnInit {
   private showSuccess(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: this.SNACKBAR_DURATION,
+    });
+  }
+
+  openAddEditCPDialog(data?: any): void {
+    const dialogRef = this.dialog.open(AddChannelPartnerComponent, {
+      width: '80vw',
+      maxWidth: '1000px',
+      data: { data }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.agGridComponent?.refreshData();
+      }
+    });
+  }
+
+  onCpchange(eventOrId: any, row?: any): void {
+    if (row) {
+      // Called from checkbox: (checkboxChange)="onCpchange($event.checked, $event.row)"
+      this.selectedCPId.set(eventOrId ? row.channel_partner_id : null);
+    } else {
+      // Called from autocomplete: (selectedIdChange)="onCpchange($event)"
+      this.selectedCPId.set(eventOrId);
+    }
+  }
+
+  openAssignSourceExecutiveDialog(): void {
+    const partners = this.activePartners();
+    if (partners.length === 0) return;
+
+    const dialogRef = this.dialog.open(AssignSourceExecutivesDialog, {
+      width: '30vw',
+      data: { partners }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.agGridComponent?.refreshData();
+      }
     });
   }
 }

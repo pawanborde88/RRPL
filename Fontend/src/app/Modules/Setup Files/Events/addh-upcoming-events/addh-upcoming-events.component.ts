@@ -1,6 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, signal } from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -19,6 +19,10 @@ import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
 import { AddChannelPartnerComponent } from '../../Channel Partner/add-channel-partner/add-channel-partner.component';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+import { Project } from '../../Enquiry/all-daily-dsrreport/dsr-report.models';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 @Component({
   selector: 'app-addh-upcoming-events',
@@ -29,6 +33,7 @@ import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialo
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    AutocompleteReusableComponent
   ],
   templateUrl: './addh-upcoming-events.component.html',
   styleUrl: './addh-upcoming-events.component.scss',
@@ -40,7 +45,11 @@ export class AddhUpcomingEventsComponent {
   pipe = new DatePipe('en-US');
 
   roleId = Number(sessionStorage.getItem('role_id'));
-  userId = Number(sessionStorage.getItem('session_id'));
+  readonly projectsList = signal<Project[]>([]);
+  readonly eventTypeList = signal<any[]>([]);
+  readonly loading = signal<boolean>(false);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly userId = signal(Number(sessionStorage.getItem('session_id')));
 
   selectedFile: File | null = null; // To handle file uploads
   imagePreview: string | null = null;
@@ -58,6 +67,8 @@ export class AddhUpcomingEventsComponent {
     event_venue: new FormControl('', Validators.required),
     event_image: new FormControl<File | null>(null), // Fixed misplaced parenthesis
     is_highlight: new FormControl(false),
+    project_id: new FormControl(null),
+    event_type_id: new FormControl(null),
     event_id: new FormControl(this.data?.rowData?.event_id || null),
   });
 
@@ -72,9 +83,39 @@ export class AddhUpcomingEventsComponent {
 
   ngOnInit(): void {
     console.log(this.data);
-    if (this.data.rowData.event_id) {
+    this.fetchAllProjects();
+    this.fetchAllEventTypes();
+    if (this.data?.rowData?.event_id) {
       this.fetchSingleEvent(this.data.rowData.event_id);
     }
+  }
+
+
+  private fetchAllProjects(): void {
+    this.loading.set(true);
+    this.http.post<Project[]>(`${this.baseUrl}/user_project_dropdown`, { user_id: this.userId() })
+      .pipe(
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (projects) => this.projectsList.set(projects || []),
+        error: () => this.showSnackBar('Unable to fetch projects.'),
+      });
+  }
+
+  fetchAllEventTypes(): void {
+    this.http.get<any[]>(`${this.baseUrl}/fetch_event_type`).subscribe({
+      next: (res) => {
+        this.eventTypeList.set(res || []);
+      },
+      error: (err) => {
+        console.error('Error fetching event types:', err);
+      }
+    });
+  }
+  private showSnackBar(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000 });
   }
   fetchSingleEvent(eventId: any): void {
     this.http
@@ -95,6 +136,8 @@ export class AddhUpcomingEventsComponent {
               event_venue: res.event_venue || '',
               is_highlight:
                 res.is_highlight === 1 || res.is_highlight === '1' ? true : false,
+              project_id: res.project_id || null,
+              event_type_id: res.event_type_id || null,
               event_id: res.event_id || null,
             });
 
@@ -197,32 +240,5 @@ export class AddhUpcomingEventsComponent {
     }
   }
 
-  deleteEvent(eventID: any): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      minWidth: '25vw',
-      data: { message: 'Are you sure you want to delete Event?' },
-    });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        let requestPayload = {
-          event_id: eventID,
-        };
-        this.http
-          .post(`${this.baseUrl}/delete_event`, requestPayload)
-          .subscribe({
-            next: (data: any) => {
-              this.snackBar.open('Event deleted successfully', 'Close', {
-                duration: 3000,
-              });
-            },
-            error: (err: any) => {
-              this.snackBar.open('Unable to Delete Team.', 'Close', {
-                duration: 3000,
-              });
-            },
-          });
-      }
-    });
-  }
 }

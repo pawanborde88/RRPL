@@ -7,7 +7,7 @@
   <mat-select [formControl]="selectedCtrl" [placeholder]="placeholder" [multiple]="isMultiSelect"
     (selectionChange)="onSelectionChange($event)">
 
-    <mat-option>
+    <mat-option class="contains-mat-select-search" disabled="true">
       <ngx-mat-select-search [formControl]="searchCtrl" (input)="onInputChange($event)" placeholderLabel="Search">
       </ngx-mat-select-search>
     </mat-option>
@@ -25,6 +25,10 @@
       {{ getOptionDisplay(option) }}
     </mat-option>
   </mat-select>
+
+  <mat-error *ngIf="ngControl?.control?.touched && ngControl?.control?.errors?.['required']">
+    {{ placeholder }} is required
+  </mat-error>
 
   <!-- <mat-icon *ngIf="hasSelectedValue() && !disabled" matSuffix class="clear-icon" (click)="clearSelection($event)">
     close

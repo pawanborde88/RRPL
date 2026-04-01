@@ -22,11 +22,18 @@
                     </div>
 
 
-                    <div class="col-md-auto">
+                    <div class="col-md-2">
                         <button mat-raised-button type="button" color="primary" class="d-flex align-items-center w-100"
                             (click)="applyFilters()" [disabled]="eventFilterForm.invalid || loading()">
                             <mat-icon class="me-1">filter_list</mat-icon>
                             {{ loading() ? 'Applying...' : 'Apply Filter' }}
+                        </button>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button mat-raised-button type="button" color="primary" class="d-flex align-items-center w-100"
+                            (click)="navigateToAllEvents()">
+                            Create Event
                         </button>
                     </div>
 
@@ -36,12 +43,13 @@
     </mat-accordion>
 
 
-    <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange($event)">
+    <mat-tab-group [selectedIndex]="selectedTabIndex()" (selectedTabChange)="onTabChange($event)">
         <!-- Tab 1: All Events Users -->
         <mat-tab label="All Event Users">
             <div class="tab-content mt-4">
-                <app-configurable-ag-grid-data #usersGrid [columns]="columnDefinitions"
-                    [apiEndpoint]="'fetch_event_users'" [headerButtons]="headerButtons" [apiPayload]="agGridPayload()">
+                <app-configurable-ag-grid-data #usersGrid [columns]="columnDefinitions()"
+                    [apiEndpoint]="'fetch_event_users'" [actions]="bookingActions" [idProperty]="'token_id'"
+                    (actionClick)="onBookingAction($event.action, $event.row)" [apiPayload]="agGridPayload()">
                 </app-configurable-ag-grid-data>
             </div>
         </mat-tab>
@@ -49,8 +57,17 @@
         <!-- Tab 2: All User Attendance -->
         <mat-tab label="User Attendance">
             <div class="tab-content mt-4">
-                <app-configurable-ag-grid-data #attendanceGrid [columns]="attendanceColumnDefinitions"
-                    [apiEndpoint]="'fetch_event_user_attendance'" [apiPayload]="attendanceAgGridPayload()">
+                <app-configurable-ag-grid-data #attendanceGrid [columns]="attendanceColumnDefinitions()"
+                    [apiEndpoint]="'fetch_event_user_attendance'" [actions]="bookingActions" [idProperty]="'token_id'"
+                    (actionClick)="onBookingAction($event.action, $event.row)" [apiPayload]="attendanceAgGridPayload()">
+                </app-configurable-ag-grid-data>
+            </div>
+        </mat-tab>
+        <mat-tab label="Not Reg. Customers" *ngIf="selectedEventTypeId() === 1">
+            <div class="tab-content mt-4">
+                <app-configurable-ag-grid-data #notRegUserGrid [columns]="notRegColumnDefinitions"
+                    [apiEndpoint]="'fetch_not_reg_users'" [actions]="bookingActions" [idProperty]="'token_id'"
+                    (actionClick)="onBookingAction($event.action, $event.row)" [apiPayload]="notRegAgGridPayload()">
                 </app-configurable-ag-grid-data>
             </div>
         </mat-tab>

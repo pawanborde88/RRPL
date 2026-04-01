@@ -1,16 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
-import { Chart, registerables } from 'chart.js';
+import * as echarts from 'echarts';
+
+interface CourseData {
+  course_title: string;
+  enroll_count: number;
+}
+
+interface RoleData {
+  role_name: string;
+  enrolled_users: number;
+}
+
+interface LectureData {
+  lecture_title: string;
+  enroll_count: number;
+}
 
 @Component({
   selector: 'app-lmsdashboard',
@@ -27,6 +40,14 @@ import { Chart, registerables } from 'chart.js';
   styleUrl: './lmsdashboard.component.scss'
 })
 export class LMSDashboardComponent implements OnInit {
+  @ViewChild('topCoursesChart') topCoursesRef!: ElementRef;
+  @ViewChild('roleEnrollmentChart') roleEnrollmentRef!: ElementRef;
+  @ViewChild('topLecturesChart') topLecturesRef!: ElementRef;
+
+  private topCoursesChartInst?: echarts.ECharts;
+  private roleEnrollmentChartInst?: echarts.ECharts;
+  private topLecturesChartInst?: echarts.ECharts;
+
   baseUrl = environment.API_URL;
   loading: boolean = false;
 
@@ -34,22 +55,21 @@ export class LMSDashboardComponent implements OnInit {
   usersData: any;
   lectureData: any;
 
-  topCoursesChart: any;
-  roleEnrollmentChart: any;
-  topLecturesChart: any;
-
   constructor(
     private http: HttpClient,
-    private dialog: MatDialog,
     private snackBar: MatSnackBar,
-  ) {
-    Chart.register(...registerables);
-  }
+  ) {}
 
   ngOnInit(): void {
     this.fetchLMSCourseCount();
     this.fetchLMSDashboardCount();
     this.fetchLMSLectureCount();
+
+    window.addEventListener('resize', () => {
+      this.topCoursesChartInst?.resize();
+      this.roleEnrollmentChartInst?.resize();
+      this.topLecturesChartInst?.resize();
+    });
   }
 
   fetchLMSCourseCount(): void {
@@ -98,172 +118,124 @@ export class LMSDashboardComponent implements OnInit {
 
   renderUserCharts() {
     if (this.usersData) {
-      this.renderTopCoursesChart();
-      this.renderRoleEnrollmentChart();
+      setTimeout(() => {
+        this.renderTopCoursesChart();
+        this.renderRoleEnrollmentChart();
+      }, 300);
     }
   }
 
   renderLectureApps() {
     if (this.lectureData) {
-      this.renderTopLecturesChart();
+      setTimeout(() => {
+        this.renderTopLecturesChart();
+      }, 300);
     }
   }
 
-  renderTopCoursesChart() {
-    const ctx = document.getElementById('topCoursesChart') as HTMLCanvasElement;
-    if (!ctx) return;
-    if (this.topCoursesChart) this.topCoursesChart.destroy();
+  private renderTopCoursesChart() {
+    if (!this.topCoursesRef?.nativeElement) return;
+    if (!this.topCoursesChartInst) {
+      this.topCoursesChartInst = echarts.init(this.topCoursesRef.nativeElement);
+    }
 
-    const labels = this.usersData.top_4_enrolled_courses.map((c: any) => c.course_title);
-    const data = this.usersData.top_4_enrolled_courses.map((c: any) => c.enroll_count);
-
-    this.topCoursesChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labels,
-        datasets: [{
-          data: data,
-          backgroundColor: [
-            '#F59E0B', // Yellow
-            '#10B981', // Green
-            '#3B82F6', // Blue
-            '#8B5CF6'  // Purple
-          ],
-          borderWidth: 0,
-          hoverOffset: 4
-        }]
+    const courses: CourseData[] = this.usersData.top_4_enrolled_courses || [];
+    const option: echarts.EChartsOption = {
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      legend: { 
+        orient: 'vertical', 
+        right: '5%', 
+        top: 'center', 
+        textStyle: { fontSize: 10, color: '#64748b' }, 
+        icon: 'circle',
+        itemGap: 8
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'right',
-            labels: {
-              usePointStyle: true,
-              boxWidth: 8,
-              font: { family: "'Inter', sans-serif", size: 11 }
-            }
-          },
-          title: { display: false }
-        },
-        cutout: '75%',
-      }
-    });
+      series: [{
+        name: 'Enrollments',
+        type: 'pie',
+        radius: ['60%', '90%'],
+        center: ['30%', '50%'],
+        avoidLabelOverlap: false,
+        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false },
+        emphasis: { label: { show: false } },
+        labelLine: { show: false },
+        data: courses.map(c => ({ value: c.enroll_count, name: c.course_title }))
+      }],
+      color: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6']
+    };
+    this.topCoursesChartInst.setOption(option);
   }
 
-  renderRoleEnrollmentChart() {
-    const ctx = document.getElementById('roleEnrollmentChart') as HTMLCanvasElement;
-    if (!ctx) return;
-    if (this.roleEnrollmentChart) this.roleEnrollmentChart.destroy();
+  private renderRoleEnrollmentChart() {
+    if (!this.roleEnrollmentRef?.nativeElement) return;
+    if (!this.roleEnrollmentChartInst) {
+      this.roleEnrollmentChartInst = echarts.init(this.roleEnrollmentRef.nativeElement);
+    }
 
-    // Filter out roles with 0 users to make the chart cleaner
-    const activeRoles = this.usersData.role_wise_enrollment.filter((r: any) => r.enrolled_users > 0);
-    const labels = activeRoles.map((r: any) => r.role_name);
-    const data = activeRoles.map((r: any) => r.enrolled_users);
-
-    this.roleEnrollmentChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Enrolled Users',
-          data: data,
-          backgroundColor: '#4F46E5', // Indigo-600
-          borderRadius: 4,
-          maxBarThickness: 32, // Limit bar width
-        }]
+    const activeRoles: RoleData[] = (this.usersData.role_wise_enrollment || []).filter((r: any) => r.enrolled_users > 0);
+    const option: echarts.EChartsOption = {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '2%', right: '2%', bottom: '5%', top: '5%', containLabel: true },
+      xAxis: { 
+        type: 'category', 
+        data: activeRoles.map(r => r.role_name), 
+        axisLabel: { color: '#94a3b8', fontSize: 10, interval: 0, rotate: 30 }, 
+        axisLine: { show: false }, 
+        axisTick: { show: false } 
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          title: { display: false }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: '#F3F4F6', // Gray-100
-              tickLength: 0,
-              drawBorder: false
-            },
-            ticks: {
-              font: { family: "'Inter', sans-serif", size: 10 },
-              color: '#9CA3AF'
-            }
-          },
-          x: {
-            grid: {
-              display: false,
-              drawBorder: false
-            },
-            ticks: {
-              font: { family: "'Inter', sans-serif", size: 10 },
-              color: '#9CA3AF',
-              autoSkip: false,
-              maxRotation: 45,
-              minRotation: 0
-            }
-          }
+      yAxis: { 
+        type: 'value', 
+        axisLabel: { color: '#94a3b8', fontSize: 10 }, 
+        axisLine: { show: false }, 
+        splitLine: { lineStyle: { type: 'dashed', color: '#f1f5f9' } } 
+      },
+      series: [{
+        data: activeRoles.map(r => r.enrolled_users),
+        type: 'bar',
+        barWidth: '60%',
+        itemStyle: { 
+          borderRadius: [6, 6, 0, 0], 
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#6366f1' }, { offset: 1, color: '#4f46e5' }]) 
         }
-      }
-    });
+      }]
+    };
+    this.roleEnrollmentChartInst.setOption(option);
   }
 
-  renderTopLecturesChart() {
-    const ctx = document.getElementById('topLecturesChart') as HTMLCanvasElement;
-    if (!ctx) return;
-    if (this.topLecturesChart) this.topLecturesChart.destroy();
+  private renderTopLecturesChart() {
+    if (!this.topLecturesRef?.nativeElement) return;
+    if (!this.topLecturesChartInst) {
+      this.topLecturesChartInst = echarts.init(this.topLecturesRef.nativeElement);
+    }
 
-    const labels = this.lectureData.top_5_lectures.map((l: any) => l.lecture_title);
-    const data = this.lectureData.top_5_lectures.map((l: any) => l.enroll_count);
-
-    this.topLecturesChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Views',
-          data: data,
-          backgroundColor: '#EC4899', // Pink-500
-          borderRadius: 4,
-          maxBarThickness: 40,
-        }]
+    const lectures: LectureData[] = this.lectureData.top_5_lectures || [];
+    const option: echarts.EChartsOption = {
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      grid: { left: '2%', right: '2%', bottom: '8%', top: '10%', containLabel: true },
+      xAxis: { 
+        type: 'category', 
+        data: lectures.map(l => l.lecture_title), 
+        axisLabel: { interval: 0, fontSize: 10, color: '#94a3b8', width: 80, overflow: 'break' }, 
+        axisLine: { show: false }, 
+        axisTick: { show: false } 
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: '#F3F4F6',
-              tickLength: 0,
-              drawBorder: false
-            },
-            ticks: {
-              font: { family: "'Inter', sans-serif", size: 10 },
-              color: '#9CA3AF'
-            }
-          },
-          x: {
-            grid: {
-              display: false,
-              drawBorder: false
-            },
-            ticks: {
-              font: { family: "'Inter', sans-serif", size: 10 },
-              color: '#9CA3AF'
-            }
-          }
+      yAxis: { 
+        type: 'value', 
+        axisLabel: { fontSize: 10, color: '#94a3b8' }, 
+        axisLine: { show: false }, 
+        splitLine: { lineStyle: { type: 'dashed', color: '#f1f5f9' } } 
+      },
+      series: [{
+        data: lectures.map(l => l.enroll_count),
+        type: 'bar',
+        barWidth: '50%',
+        itemStyle: { 
+          borderRadius: [8, 8, 0, 0], 
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#ec4899' }, { offset: 1, color: '#be185d' }]) 
         }
-      }
-    });
+      }]
+    };
+    this.topLecturesChartInst.setOption(option);
   }
 }

@@ -1,12 +1,15 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, Inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { CommonModule, formatDate } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { environment } from '../../../../../environments/environment';
+import { AddCPOwnersStore } from './add-cpowners.store';
+import { AadharcardNoformatDirective } from '../../../../Common/directives/Aadhar/aadharcard-noformat.directive';
+import { PANNoDirective } from '../../../../Common/directives/panno.directive';
+import { BookingCalculationsStateService } from '../../Site Visit/Bookings/booking-calculations/services/booking-calculations.state.service';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 @Component({
   selector: 'app-add-cpowners',
@@ -15,97 +18,109 @@ import { environment } from '../../../../../environments/environment';
     CommonModule,
     RouterModule,
     AngularMaterialModule,
-    FormsModule,
     ReactiveFormsModule,
+    AadharcardNoformatDirective,
+    PANNoDirective,
+    AutocompleteReusableComponent
   ],
   templateUrl: './add-cpowners.component.html',
-  styleUrl: './add-cpowners.component.scss'
+  styleUrl: './add-cpowners.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [AddCPOwnersStore, BookingCalculationsStateService] // Encapsulated component-level state
 })
-export class AddCPOwnersComponent {
-  baseUrl = environment.API_URL; // Ensure API_URL exists in the environment file
-  roleId = Number(sessionStorage.getItem('role_id'));
-  userId = Number(sessionStorage.getItem('session_id'));
-  allChannelPartnerList: any[] = [];
-  pipe = new DatePipe('en-US');
-  constructor(
-    private http: HttpClient,
-    private snackBar: MatSnackBar,
-    @Inject(MAT_DIALOG_DATA) public data: any, // Injected dialog data
-    private dialogRef: MatDialogRef<AddCPOwnersComponent> // Reference to the dialog
-  ) { }
-  ngOnInit(): void {
-    console.log(this.data);
-    this.fetchAllChannelPartner();
-  }
+export class AddCPOwnersComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  readonly dialogData = inject(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(MatDialogRef<AddCPOwnersComponent>);
+  private readonly snackBar = inject(MatSnackBar);
+  readonly store = inject(AddCPOwnersStore);
+  private readonly stateService = inject(BookingCalculationsStateService);
 
-  addCPOwnerForm = new FormGroup({
-    role_id: new FormControl(5),
+  readonly roleId = Number(sessionStorage.getItem('role_id'));
+  readonly userId = Number(sessionStorage.getItem('session_id'));
+  readonly allChannelPartnerList = this.stateService.channelPartners;
 
-    first_name: new FormControl(this.data?.rowData?.first_name || '', Validators.required),
-    last_name: new FormControl(this.data?.rowData?.last_name || '', Validators.required),
-    user_email: new FormControl(this.data?.rowData?.user_email || '', [Validators.required, Validators.email]),
-    user_phone: new FormControl(this.data?.rowData?.user_phone || '', [
-      Validators.required,
-      Validators.pattern(/^[6-9]\d{9}$/), // Example: Indian mobile number validation
-    ]),
-    dob: new FormControl(this.data?.rowData?.dob || ''),
-    gender: new FormControl(this.data?.rowData?.gender),
-    pan_no: new FormControl(this.data?.rowData?.pan_no || ''),
-    address: new FormControl(this.data?.rowData?.address || 1),
-    city: new FormControl(this.data?.rowData?.city || ''),
-    country: new FormControl(this.data?.rowData?.country || 'India'),
-    state: new FormControl(this.data?.rowData?.state || ''),
-    pin_code: new FormControl(this.data?.rowData?.pin_code || ''),
-    password: new FormControl(this.data?.rowData?.password || ''),
-    rera: new FormControl(this.data?.rowData?.rera || ''),
-    aadhar_no: new FormControl(this.data?.rowData?.aadhar_no || ''),
-    channel_partner_id: new FormControl(this.data?.rowData?.channel_partner_id, Validators.required),
-    updated_by: new FormControl(this.data?.rowData?.created_by || this.userId),
-    user_id: new FormControl(
-      this.data?.rowData?.user_id || null
-    ),// Assuming you will set this value dynamically
-
+  readonly addCPOwnerForm = this.fb.group({
+    role_id: [5],
+    first_name: [this.dialogData?.rowData?.first_name || '', Validators.required],
+    last_name: [this.dialogData?.rowData?.last_name || '', Validators.required],
+    user_email: [this.dialogData?.rowData?.user_email || '', [Validators.required, Validators.email]],
+    user_phone: [this.dialogData?.rowData?.user_phone || '', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
+    dob: [this.dialogData?.rowData?.dob || '', Validators.required],
+    gender: [this.dialogData?.rowData?.gender ?? null],
+    pan_no: [this.dialogData?.rowData?.pan_no || ''],
+    address: [this.dialogData?.rowData?.address || ''],
+    city: [this.dialogData?.rowData?.city || ''],
+    country: [this.dialogData?.rowData?.country || 'India'],
+    state: [this.dialogData?.rowData?.state || 'Maharashtra'],
+    pin_code: [this.dialogData?.rowData?.pin_code || '', Validators.pattern(/^[0-9]{6}$/)],
+    password: [this.dialogData?.rowData?.password || ''],
+    aadhar_no: [this.dialogData?.rowData?.aadhar_no || ''],
+    channel_partner_id: [this.dialogData?.rowData?.channel_partner_id ?? null, Validators.required],
+    updated_by: [this.dialogData?.rowData?.created_by || this.userId],
+    user_id: [this.dialogData?.rowData?.user_id ?? null]
   });
 
-  fetchAllChannelPartner(): void {
-    this.http.get<any[]>(`${this.baseUrl}/fetch_all_channel_partner`).subscribe({
-      next: (res) => {
-        this.allChannelPartnerList = res;
-      },
-      error: () => {
-        this.snackBar.open('Unable to fetch cities.', 'Close', {
-          duration: 3000,
-        });
-      },
-    });
+  ngOnInit(): void {
+    console.log(this.dialogData?.rowData);
+    if (this.dialogData?.rowData) {
+      this.onPartnerSearch('', true, this.dialogData?.rowData.channel_partner_id);
+    }
+
   }
-  onSubmit(): void {
-    // Get the form data
-    const formData = { ...this.addCPOwnerForm.value }; // Create a copy to avoid directly mutating the form
 
-    // Format the dob field
-    formData.dob = formData.dob ? this.pipe.transform(formData.dob, 'yyyy-MM-dd') : null;
+  sanitizeMobileInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+      this.addCPOwnerForm.get('user_phone')?.setValue(sanitized, { emitEvent: true });
+    }
+  }
 
-    // Initialize the apiUrl from the passed data
-    const apiUrl = this.data.apiUrl;
+  sanitizePinCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9]/g, '').slice(0, 6);
+      this.addCPOwnerForm.get('pin_code')?.setValue(sanitized, { emitEvent: true });
+    }
+  }
+  onPartnerSearch(
+    searchText: string,
+    loadInitialData = false,
+    initialPartnerId?: any
+  ): void {
+    const trimmedSearch = searchText.trim();
 
-    // Send the request
-    this.http.post(`${this.baseUrl}/${apiUrl}`, formData).subscribe(
-      (response) => {
-        console.log(response);
-        this.snackBar.open(this.data.successMessage, 'Close', {
-          duration: 3000,
-        });
-        this.dialogRef.close(true); // Close the dialog and notify the parent component
-      },
-      (error) => {
-        // Handle error response
-        console.error('Error:', error);
-        this.snackBar.open('Something went wrong. Please try again.', 'Close', {
-          duration: 3000,
-        });
-      }
+    if (!loadInitialData && trimmedSearch.length <= 3) {
+      this.stateService.fetchChannelPartners();
+      return;
+    }
+
+    this.stateService.fetchChannelPartners(
+      loadInitialData ? undefined : trimmedSearch,
+      loadInitialData ? initialPartnerId || this.addCPOwnerForm.value.channel_partner_id : undefined
     );
   }
+  onSubmit(): void {
+    if (this.addCPOwnerForm.invalid) return;
 
+    const formData = this.addCPOwnerForm.getRawValue();
+    const formattedDob = formData.dob ? formatDate(formData.dob, 'yyyy-MM-dd', 'en-US') : null;
+
+    const payload = {
+      ...formData,
+      dob: formattedDob
+    };
+
+    const apiUrl = this.dialogData.apiUrl;
+
+    this.store.saveCPOwner(apiUrl, payload).subscribe({
+      next: () => {
+        this.snackBar.open(this.dialogData.successMessage || 'Saved successfully.', 'Close', {
+          duration: 3000,
+        });
+        this.dialogRef.close(true);
+      }
+    });
+  }
 }

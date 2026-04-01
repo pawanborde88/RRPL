@@ -241,16 +241,7 @@ export class BookingUpdatedLogFacade {
                         { key: 'changed_fields.remark.new', label: 'Current', headerClass: 'bg-other-summary', cellClass: 'bg-other-summary' }
                     ]
                 },
-                {
-                    key: 'agreement_status_id',
-                    label: 'Agreement Status',
-                    headerClass: 'bg-other-summary',
-                    cellClass: 'bg-other-summary',
-                    children: [
-                        { key: 'changed_fields.agreement_status_id.old', label: 'Previous', headerClass: 'bg-other-summary', cellClass: 'bg-other-summary' },
-                        { key: 'changed_fields.agreement_status_id.new', label: 'Current', headerClass: 'bg-other-summary', cellClass: 'bg-other-summary' }
-                    ]
-                },
+
                 {
                     key: 'updated_by_name',
                     label: 'Updated By',

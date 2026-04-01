@@ -23,7 +23,8 @@ export class AgGridPinnedRowService {
     columns: readonly TableColumn<T>[],
     allLoadedData: T[],
     totalRowCount: number,
-    columnsHash: string
+    columnsHash: string,
+    apiEndpoint?: string
   ): PinnedRowData {
     const filterModel = gridApi.getFilterModel();
     const hasActiveFilters = filterModel && Object.keys(filterModel).length > 0;
@@ -35,33 +36,12 @@ export class AgGridPinnedRowService {
       return { data: [], hash: '' };
     }
 
-    // Create cache key including filter state
-    const filterModelString = JSON.stringify(filterModel || {});
-    const cacheKey = `${allRows.length}:${totalRowCount}:${columnsHash}:${filterModelString}`;
-
-    // Check cache
-    const cached = this.cache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     // Calculate totals
     const totalsRow = this.calculateTotals(allRows, columns, totalRowCount);
     const pinnedData: PinnedRowData = {
       data: [totalsRow],
-      hash: cacheKey
+      hash: `${allRows.length}:${totalRowCount}:${columnsHash}`
     };
-
-    // Cache result
-    this.cache.set(cacheKey, pinnedData);
-
-    // Clean old cache entries (keep last 10)
-    if (this.cache.size > 10) {
-      const firstKey = this.cache.keys().next().value;
-      if (firstKey) {
-        this.cache.delete(firstKey);
-      }
-    }
 
     return pinnedData;
   }

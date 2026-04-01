@@ -26,10 +26,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal, toObservable } from '@angular/core/rxjs-interop';
 import {
   EMPTY,
-  Subject,
   catchError,
   debounceTime,
   distinctUntilChanged,
@@ -216,9 +215,26 @@ export class AllUsersComponent implements AfterViewInit {
   );
 
   private readonly modeSignal = signal<Mode>('users');
-  private readonly searchTextSignal = signal('');
+  readonly searchTextSignal = signal('');
+
+  private readonly debouncedSearchTextSignal = toSignal(
+    toObservable(this.searchTextSignal).pipe(
+      debounceTime(SEARCH_DEBOUNCE_MS),
+      distinctUntilChanged(),
+      tap(searchValue => {
+        this.pageIndexSignal.set(0);
+        if (this.modeSignal() === 'users' && this.dataSource) {
+          this.dataSource.filter = searchValue.trim().toLowerCase();
+        }
+        this.cdr.markForCheck();
+      })
+    ),
+    { initialValue: '' }
+  );
+
+  readonly pageIndexSignal = signal(0);
+  readonly pageSizeSignal = signal(50);
   private readonly selectedUserSignal = signal<User[]>([]);
-  private readonly searchSubject = new Subject<string>();
 
   // State from facade
   readonly users = this.facade.users;
@@ -240,7 +256,7 @@ export class AllUsersComponent implements AfterViewInit {
   readonly cardActions = computed(() => this.modeDefinitionSignal().cardActions);
 
   private readonly filteredUsersSignal = computed<User[]>(() => {
-    const search = this.searchTextSignal().trim().toLowerCase();
+    const search = this.debouncedSearchTextSignal().trim().toLowerCase();
     const currentMode = this.modeSignal();
     const usersList = this.users();
 
@@ -260,6 +276,12 @@ export class AllUsersComponent implements AfterViewInit {
 
   readonly filteredUsers = computed(() => this.filteredUsersSignal());
 
+  readonly paginatedUsers = computed(() => {
+    const users = this.filteredUsersSignal();
+    const startIndex = this.pageIndexSignal() * this.pageSizeSignal();
+    return users.slice(startIndex, startIndex + this.pageSizeSignal());
+  });
+
   private readonly selectedUserIds = computed(() =>
     new Set(this.selectedUserSignal().map((u) => u.user_id))
   );
@@ -270,7 +292,6 @@ export class AllUsersComponent implements AfterViewInit {
 
   constructor() {
     this.initializeRouteMode();
-    this.setupSearchDebounce();
     this.setupModeChangeEffect();
   }
 
@@ -297,27 +318,12 @@ export class AllUsersComponent implements AfterViewInit {
     this.loadData();
   }
 
-  private setupSearchDebounce(): void {
-    this.searchSubject
-      .pipe(
-        debounceTime(SEARCH_DEBOUNCE_MS),
-        distinctUntilChanged(),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((searchValue) => {
-        this.searchTextSignal.set(searchValue);
-        if (this.modeSignal() === 'users' && this.dataSource) {
-          this.dataSource.filter = searchValue.trim().toLowerCase();
-        }
-        this.cdr.markForCheck();
-      });
-  }
-
   private setupModeChangeEffect(): void {
     effect(
       () => {
         const mode = this.modeSignal();
         if (mode) {
+          this.pageIndexSignal.set(0);
           this.loadData();
         }
       },
@@ -329,12 +335,9 @@ export class AllUsersComponent implements AfterViewInit {
   // PUBLIC METHODS
   // ============================================================================
 
-  get searchText(): string {
-    return this.searchTextSignal();
-  }
-
-  set searchText(value: string) {
-    this.searchSubject.next(value ?? '');
+  onPageChange(event: any): void {
+    this.pageIndexSignal.set(event.pageIndex);
+    this.pageSizeSignal.set(event.pageSize);
   }
 
   get selectedUser(): User[] {
@@ -350,11 +353,11 @@ export class AllUsersComponent implements AfterViewInit {
       typeof event === 'string'
         ? event
         : (event?.target as HTMLInputElement)?.value ?? '';
-    this.searchText = searchValue;
+    this.searchTextSignal.set(searchValue);
   }
 
   clearSearch(): void {
-    this.searchText = '';
+    this.searchTextSignal.set('');
     if (this.modeSignal() === 'users' && this.dataSource) {
       this.dataSource.filter = '';
     }
@@ -383,10 +386,6 @@ export class AllUsersComponent implements AfterViewInit {
 
   onCheckboxSelected(checked: boolean, row: User): void {
     this.selectedUser = checked ? [row] : [];
-  }
-
-  trackByUserId(_: number, item: User): number | string {
-    return item?.user_id ?? item?.['id'] ?? _;
   }
 
   visibleCardActions(item: User): CardAction[] {
@@ -840,6 +839,14 @@ export class AllUsersComponent implements AfterViewInit {
             color: 'primary',
             disabled: () => false,
             action: () => this.openCPExecutivesDialog('add'),
+            show: () => isAdmin,
+          },
+          {
+            label: 'Reset Password',
+            icon: 'pin',
+            color: 'primary',
+            disabled: () => selectedUsers.length === 0,
+            action: () => this.resetPassword(),
             show: () => isAdmin,
           },
           {

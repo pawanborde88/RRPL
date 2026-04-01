@@ -1,8 +1,7 @@
 <app-template>
     <app-breadcrumb>
-        <li class="breadcrumb-item"><a routerLink="/all-setupDashboard">Setup Dashboard</a></li>
 
-        <li class="breadcrumb-item active">All Hashtag Placeholders </li>
+        <li class="breadcrumb-item active">All Tags Placeholders </li>
     </app-breadcrumb>
 
 
@@ -13,11 +12,14 @@
                 <mat-panel-title> Advanced Filters </mat-panel-title>
             </mat-expansion-panel-header>
 
-
-            <app-autocomplete-reusable-component class="w-50" [ngModel]="selectedCourseId()" [options]="allCourses"
-                idKey="module_id" displayKey="module_name" placeholder="Select Module"
-                (selectedIdChange)="onCourseChange($event)">
-            </app-autocomplete-reusable-component>
+            <div class="row">
+                <div class="col-md-4">
+                    <app-autocomplete-reusable-component class="w-50" [ngModel]="selectedModuleId()"
+                        [options]="modules()" idKey="module_id" displayKey="module_name" placeholder="Select Module"
+                        (selectedIdChange)="onModuleChange($event)">
+                    </app-autocomplete-reusable-component>
+                </div>
+            </div>
         </mat-expansion-panel>
     </mat-accordion>
 

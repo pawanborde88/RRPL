@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -7,41 +7,18 @@ import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
 
 import { environment } from '../../../../../environments/environment';
-import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
 import { SuccessDialogComponent } from '../../../../Common/success-dialog/success-dialog.component';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
+import { EventRegistrationStore } from './add-new-event-user.store';
+import { takeUntil, Subject } from 'rxjs';
 
 // ============ INTERFACE DEFINITIONS ============
-interface EventDetails {
-  event_id: number;
-  event_title: string;
-  event_description: string;
-  event_date: string;
-  event_venue: string;
-  event_image?: string;
-  [key: string]: any; // For additional properties
-}
-
-interface UserRegistration {
-  event_id: number;
-  name: string;
-  mobile: string;
-  email: string;
-  firm_name: string;
-  rera_no: string;
-}
-
-interface ApiResponse<T = any> {
-  status: boolean;
-  message: string;
-  data?: T;
-}
+// Note: Interfaces moved to store for clean separation
 
 // Form control interfaces
 interface UserFormControls {
@@ -51,6 +28,8 @@ interface UserFormControls {
   email: FormControl<string | null>;
   firm_name: FormControl<string | null>;
   rera_no: FormControl<string | null>;
+  no_of_guest: FormControl<number | null>;
+  cp_type: FormControl<string | null>;
 }
 
 @Component({
@@ -67,34 +46,48 @@ interface UserFormControls {
     TruncatePipe
   ],
   templateUrl: './add-new-event-user.component.html',
-  styleUrls: ['./add-new-event-user.component.scss']
+  styleUrls: ['./add-new-event-user.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddNewEventUserComponent implements OnInit, OnDestroy {
-  // ============ PUBLIC PROPERTIES ============
+  // ============ INJECTED SERVICES ============
+  private fb = inject(FormBuilder);
+  private store = inject(EventRegistrationStore);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private route = inject(ActivatedRoute);
+
+  // ============ PUBLIC PROPERTIES (SIGNALS) ============
   readonly storageUrl = environment.STORAGE_URL;
-  readonly baseUrl = environment.API_URL;
+  readonly eventDetails = this.store.eventDetails;
+  readonly userData = this.store.userData;
+  readonly isLoading = this.store.isLoading;
+  readonly isSubmitting = this.store.isSubmitting;
+  readonly error = this.store.error;
 
-  eventDetails: EventDetails | null = null;
   userForm!: FormGroup<UserFormControls>;
-  eventId!: number;
-
-  // Loading states
-  isLoading = false;
-  isSubmitting = false;
-
-  // ============ PRIVATE PROPERTIES ============
+  eventId = signal<number>(0);
+  eventSlug = signal<string>('');
   private destroy$ = new Subject<void>();
 
   // ============ CONSTRUCTOR ============
-  constructor(
-    private fb: FormBuilder,
-    private fetchService: FetchFunctionsService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef
-  ) { }
+  constructor() {
+    // React to pre-filled user data from store
+    effect(() => {
+      const userData = this.userData();
+      if (userData && this.userForm) {
+        this.userForm.patchValue(userData);
+      }
+    });
+
+    // React to event details for dynamic validation
+    effect(() => {
+      const details = this.eventDetails();
+      if (details && this.userForm) {
+        this.applyConditionalValidation(details.event_type_id);
+      }
+    });
+  }
 
   // ============ LIFECYCLE HOOKS ============
   ngOnInit(): void {
@@ -110,15 +103,22 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     this.parseRouteParams();
     this.initForm();
+
+    // Trigger store fetch
+    if (this.eventId() > 0) {
+      this.store.fetchEventDetails(this.eventId(), this.eventSlug());
+    }
   }
 
   private parseRouteParams(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    this.eventId = idParam ? Number(idParam) : 0;
+    const slugParam = this.route.snapshot.paramMap.get('slug');
 
-    if (!this.eventId || isNaN(this.eventId) || this.eventId <= 0) {
-      this.showErrorMessage('Invalid event ID provided');
-      return;
+    this.eventId.set(idParam ? Number(idParam) : 0);
+    this.eventSlug.set(slugParam || '');
+
+    if (!this.eventId() || isNaN(this.eventId()) || this.eventId() <= 0) {
+      console.warn('Event ID is missing or invalid:', idParam);
     }
   }
 
@@ -126,7 +126,7 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
   private initForm(): void {
     this.userForm = this.fb.group<UserFormControls>({
       event_id: this.fb.control({
-        value: this.eventId,
+        value: this.eventId(),
         disabled: true
       }, {
         validators: [Validators.required, Validators.min(1)]
@@ -147,133 +147,118 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
         Validators.maxLength(150)
       ]),
       firm_name: this.fb.control('', [
-        Validators.required,
         Validators.minLength(2),
         Validators.maxLength(200)
       ]),
       rera_no: this.fb.control('', [
+        Validators.minLength(3),
+        Validators.maxLength(50)
+      ]),
+      cp_type: this.fb.control('', [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(200)
+      ]),
+      no_of_guest: this.fb.control(null, [
+        Validators.required,
+        Validators.min(1)
+      ])
+    });
+  }
+
+  private applyConditionalValidation(eventTypeId?: number): void {
+
+    const isPublicEvent = eventTypeId === 1;
+
+    if (isPublicEvent) {
+      // Disable fields for public events (id 1)
+      this.userForm.get('name')?.disable();
+      this.userForm.get('email')?.disable();
+      this.userForm.get('mobile')?.disable();
+      this.noOfGuestControl.setValidators([Validators.required, Validators.min(1)]);
+      this.firmNameControl.setValidators([Validators.minLength(2), Validators.maxLength(200)]);
+      this.reraNoControl.setValidators([Validators.minLength(3), Validators.maxLength(50)]);
+
+    } else {
+      // Enable fields for non-public events (e.g., id 2)
+      this.nameControl.enable({ emitEvent: false });
+      this.mobileControl.enable({ emitEvent: false });
+      this.emailControl.enable({ emitEvent: false });
+
+      this.noOfGuestControl.clearValidators();
+      this.firmNameControl.setValidators([
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(200)
+      ]);
+      this.reraNoControl.setValidators([
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(50)
-      ])
-    });
-
-    // Fetch event details after form initialization
-    if (this.eventId) {
-      this.fetchEventDetails();
-    }
-  }
-
-  // ============ DATA FETCHING ============
-  private fetchEventDetails(): void {
-    this.isLoading = true;
-
-    const payload = { event_id: this.eventId };
-
-    this.http.post<ApiResponse<EventDetails>>(
-      `${this.baseUrl}/fetch_single_events`,
-      payload
-    )
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => this.handleEventDetailsResponse(response),
-        error: (error) => this.handleEventDetailsError(error)
-      });
-  }
-
-  private handleEventDetailsResponse(response: any): void {
-    console.log('API Response received:', response);
-    this.isLoading = false;
-
-    // Handle various response structures (object, array, wrapped in data)
-    let eventData = null;
-
-    if (response?.data) {
-      eventData = Array.isArray(response.data) ? response.data[0] : response.data;
-    } else if (Array.isArray(response)) {
-      eventData = response[0];
-    } else if (response && typeof response === 'object' && !response.status) {
-      // If the response is the object itself (no wrapper)
-      eventData = response;
+      ]);
     }
 
-    console.log('Parsed Event Data:', eventData);
+    // Update validation
+    this.noOfGuestControl.updateValueAndValidity({ emitEvent: false });
+    this.firmNameControl.updateValueAndValidity({ emitEvent: false });
+    this.reraNoControl.updateValueAndValidity({ emitEvent: false });
 
-    if (eventData && typeof eventData === 'object' && eventData.event_id) {
-      this.eventDetails = eventData;
-      console.log('eventDetails set successfully:', this.eventDetails);
-      this.cdr.detectChanges(); // Force update if parent is OnPush
-    } else {
-      const errorMsg = response?.message || 'Event details not found';
-      this.showErrorMessage(errorMsg);
-      console.warn('Invalid event details structure:', response);
-    }
   }
 
   private handleEventDetailsError(error: any): void {
     console.error('Event details fetch error:', error);
-    this.isLoading = false;
     this.showErrorMessage(
       'Unable to fetch event details. Please try again later.'
     );
   }
 
   // ============ FORM SUBMISSION ============
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.userForm.invalid) {
       this.markFormAsTouched();
       return;
     }
 
-    this.isSubmitting = true;
     const payload = this.prepareRegistrationPayload();
 
-    this.fetchService.AddEventUser(payload)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => this.handleRegistrationResponse(response),
-        error: (error) => this.handleRegistrationError(error)
-      });
+    try {
+      const response = await this.store.submitRegistration(payload);
+      if (response?.status) {
+        this.showSuccessDialog(response.message);
+      } else {
+        this.showErrorMessage(response?.message || 'Registration failed');
+      }
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      if (err.status === 409) {
+        this.showErrorMessage('You have already registered for this event.');
+      } else {
+        this.showErrorMessage(this.error() || 'An error occurred during registration.');
+      }
+    }
   }
 
-  private prepareRegistrationPayload(): UserRegistration {
+  private prepareRegistrationPayload(): any {
     const formValue = this.userForm.getRawValue();
+    const details = this.eventDetails();
 
-    return {
-      event_id: this.eventId,
+    const payload: any = {
+      event_id: this.eventId(),
+      event_type_id: details?.event_type_id,
       name: formValue.name?.trim() || '',
       mobile: formValue.mobile?.trim() || '',
       email: formValue.email?.trim().toLowerCase() || '',
       firm_name: formValue.firm_name?.trim() || '',
-      rera_no: formValue.rera_no?.trim().toUpperCase() || ''
+      rera_no: formValue.rera_no?.trim().toUpperCase() || '',
+      no_of_guest: formValue.no_of_guest,
+      cp_type: formValue.cp_type?.trim() || '',
     };
-  }
 
-  private handleRegistrationResponse(response: ApiResponse<any>): void {
-    this.isSubmitting = false;
-
-    if (response?.status) {
-      this.showSuccessDialog(response.message);
-    } else {
-      this.showErrorMessage(
-        response?.message || 'Registration failed. Please try again.'
-      );
+    if (details?.event_type_id === 1) {
+      payload.token_id = this.userData()?.token_id;
     }
-  }
 
-  private handleRegistrationError(error: any): void {
-    console.error('Registration error:', error);
-    this.isSubmitting = false;
-
-    if (error.status === 409) {
-      this.showErrorMessage('You have already registered for this event.');
-    } else if (error.status === 400) {
-      this.showErrorMessage('Invalid registration data. Please check your inputs.');
-    } else {
-      this.showErrorMessage(
-        'An error occurred during registration. Please try again later.'
-      );
-    }
+    return payload;
   }
 
   // ============ FORM VALIDATION HELPERS ============
@@ -318,7 +303,6 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed()
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.resetForm();
       });
   }
 
@@ -337,8 +321,8 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
 
     // Reset form with event ID
     this.userForm.patchValue({
-      event_id: this.eventId
-    });
+      event_id: this.eventId()
+    } as any);
 
     // Clear validation states
     this.userForm.markAsUntouched();
@@ -366,55 +350,21 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
     return this.userForm.get('rera_no') as FormControl<string | null>;
   }
 
+  get noOfGuestControl(): FormControl<number | null> {
+    return this.userForm.get('no_of_guest') as FormControl<number | null>;
+  }
+
   get isFormValid(): boolean {
-    return this.userForm.valid && !this.isSubmitting;
+    return this.userForm.valid && !this.isSubmitting();
   }
 
   get eventImageUrl(): string {
-    if (!this.eventDetails?.event_image) {
+    const details = this.eventDetails();
+    if (!details?.event_image) {
       return 'assets/images/event-placeholder.jpg';
     }
 
-    return `${this.storageUrl}/${this.eventDetails.event_image}`;
-  }
-
-  get eventDateFormatted(): string {
-    if (!this.eventDetails?.event_date) return 'Date not specified';
-
-    try {
-      const date = new Date(this.eventDetails.event_date);
-      if (isNaN(date.getTime())) return 'Invalid date';
-
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Date format error';
-    }
-  }
-
-  get eventTimeFormatted(): string {
-    if (!this.eventDetails?.event_date) return 'Time not specified';
-
-    try {
-      const date = new Date(this.eventDetails.event_date);
-      if (isNaN(date.getTime())) return 'Invalid time';
-
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch {
-      return 'Time format error';
-    }
-  }
-
-  get eventDateTimeFormatted(): string {
-    return `${this.eventDateFormatted} at ${this.eventTimeFormatted}`;
+    return `${this.storageUrl}/${details.event_image}`;
   }
 
   // ============ HELPER METHODS FOR TEMPLATE ============
@@ -438,46 +388,10 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
 
   // ============ LOADING STATE CHECK ============
   get showEventLoader(): boolean {
-    return this.isLoading && !this.eventDetails;
+    return this.isLoading() && !this.eventDetails();
   }
 
   get showFormLoader(): boolean {
-    return this.isLoading && !!this.eventDetails;
-  }
-
-  // ============ VALIDATION MESSAGES ============
-  get nameErrorMessage(): string {
-    if (this.nameControl.hasError('required')) return 'Name is required';
-    if (this.nameControl.hasError('minlength')) return 'Name must be at least 2 characters';
-    if (this.nameControl.hasError('maxlength')) return 'Name cannot exceed 100 characters';
-    if (this.nameControl.hasError('pattern')) return 'Name can only contain letters, spaces, and basic punctuation';
-    return '';
-  }
-
-  get mobileErrorMessage(): string {
-    if (this.mobileControl.hasError('required')) return 'Mobile number is required';
-    if (this.mobileControl.hasError('pattern')) return 'Please enter a valid 10-digit mobile number';
-    return '';
-  }
-
-  get emailErrorMessage(): string {
-    if (this.emailControl.hasError('required')) return 'Email is required';
-    if (this.emailControl.hasError('email')) return 'Please enter a valid email address';
-    if (this.emailControl.hasError('maxlength')) return 'Email cannot exceed 150 characters';
-    return '';
-  }
-
-  get firmNameErrorMessage(): string {
-    if (this.firmNameControl.hasError('required')) return 'Firm name is required';
-    if (this.firmNameControl.hasError('minlength')) return 'Firm name must be at least 2 characters';
-    if (this.firmNameControl.hasError('maxlength')) return 'Firm name cannot exceed 200 characters';
-    return '';
-  }
-
-  get reraNoErrorMessage(): string {
-    if (this.reraNoControl.hasError('required')) return 'RERA number is required';
-    if (this.reraNoControl.hasError('minlength')) return 'RERA number must be at least 3 characters';
-    if (this.reraNoControl.hasError('maxlength')) return 'RERA number cannot exceed 50 characters';
-    return '';
+    return this.isLoading() && !!this.eventDetails();
   }
 }

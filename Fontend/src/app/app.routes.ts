@@ -164,6 +164,13 @@ export const routes: Routes = [
         title: pageNames.ENQUIRY_DISMISS_REPORT,
     },
     {
+        path: 'salesManagement-Enquiry-RevisitReport',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Sales/Reports/all-revisit-enquiry-report/all-revisit-enquiry-report.component').then(m => m.AllRevisitEnquiryReportComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.ENQUIRY_REVISIT_REPORT,
+    },
+    {
         path: 'sales-reports/sales-enquiry-transfer-report',
         loadComponent: () =>
             import('./Modules/Setup Files/Sales/Reports/sales-enquiry-transfer-report/sales-enquiry-transfer-report.component').then(m => m.SalesEnquiryTransferReportComponent),
@@ -483,12 +490,19 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         title: pageNames.CP_MEETINGS,
     },
+    // {
+    //     path: 'module/channel-partners/cp-executive-follow-up-report',
+    //     loadComponent: () =>
+    //         import('./Modules/Channel Partner Meetings/cp-report/cp-executive-follow-up-report/cp-executive-follow-up-report.component').then(m => m.CpExecutiveFollowUpReport),
+    //     canActivate: [AuthGuard],
+    //     title: pageNames.CP_EXECUTIVE_FOLLOW_UP_REPORT,
+    // },
     {
-        path: 'channel-partner/reports/CPReport',
+        path: 'channel-partner/reports/cp-executive-follow-up-report',
         loadComponent: () =>
-            import('./Modules/Channel Partner Meetings/cp-report/cp-report.component').then(m => m.CpReportComponent),
+            import('./Modules/Channel Partner Meetings/cp-report/cp-executive-follow-up-report/cp-executive-follow-up-report').then(m => m.CpExecutiveFollowUpReport),
         canActivate: [AuthGuard],
-        title: pageNames.CP_REPORT,
+        title: pageNames.CP_EXECUTIVE_FOLLOW_UP_REPORT,
     },
     {
         path: 'channel-partner/reports/event-attendance-report',
@@ -890,7 +904,50 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         title: pageNames.CP_PAYOUT,
     },
+    {
+        path: 'module/channel-partners-meeting',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/all-channel-partner-meeting/all-channel-partner-meeting.component').then(m => m.AllChannelPartnerMeetingComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.CP_MEETINGS,
+    },
+    {
+        path: 'channel-partner/reports/CPReport',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/cp-report/cp-report.component').then(m => m.CpReportComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.CP_REPORT,
+    },
+    {
+        path: 'channel-partner/reports/event-attendance-report',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/cp-report/event-attendance-report/event-attendance-report.component').then(m => m.EventAttendanceReportComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.EVENT_ATTENDANCE_REPORT,
+    },
+    {
+        path: 'channel-partner/reports/CPTarget',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/cp-report/cp-targets/cp-targets.component').then(m => m.CpTargetsComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.CP_TARGET,
+    },
+    {
+        path: 'channel-partner/reports/cpSiteVisitReport',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/cp-report/cp-site-visit-report/cp-site-visit-report.component').then(m => m.CpSiteVisitReportComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.CP_SITE_VISIT_REPORT,
+    },
+    {
+        path: 'module/channel-partners-bookingList/:booking_id',
+        loadComponent: () =>
+            import('./Modules/Channel Partner Meetings/all-bills/all-bills.component').then(m => m.AllBillsComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.CP_BOOKING_LIST,
+    },
     //Pre sales --  Reports
+
 
     {
         path: 'Pre-sales/NewCRMPreSalesFollowupReports',
@@ -933,6 +990,13 @@ export const routes: Routes = [
             import('./Modules/Setup Files/Post Sales/Post Sales Report/ledget-report/ledget-report.component').then(m => m.LedgetReportComponent),
         canActivate: [AuthGuard],
         title: pageNames.LEDGET_REPORT,
+    },
+    {
+        path: 'after-sales/deleted-receipts-log',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Post Sales/Post Sales Report/deleted-receipts-log/deleted-receipts-log').then(m => m.DeletedReceiptsLog),
+        canActivate: [AuthGuard],
+        title: pageNames.DELETED_RECEIPTS_LOG,
     },
     {
         path: 'after-sales/consolidated-collection-report',
@@ -1177,6 +1241,12 @@ export const routes: Routes = [
         title: pageNames.ADD_NEW_EVENT_USER,
     },
     {
+        path: 'events/event-registration/:id/:slug',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Events/add-new-event-user/add-new-event-user.component').then(m => m.AddNewEventUserComponent),
+        title: pageNames.ADD_NEW_EVENT_USER,
+    },
+    {
         path: 'events/qrattendence-scanner',
         loadComponent: () =>
             import('./Modules/Setup Files/Events/qrattendence-scanner/qrattendence-scanner.component').then(m => m.QRAttendenceScannerComponent),
@@ -1188,6 +1258,7 @@ export const routes: Routes = [
             import('./Modules/Setup Files/Events/Events-log/all-events-user-log/all-events-user-log.component').then(m => m.AllEventsUserLogComponent),
         title: pageNames.ALL_EVENTS_USER_LOG,
     },
+
     // Dravyam Setup
     {
         path: 'setup/all-floor',
@@ -1447,4 +1518,11 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         title: pageNames.ALL_HASHTAG_PLACEHOLDERS,
     },
+    {
+        path: 'placeholder-tag-setup/EmailTeamplates',
+        loadComponent: () => import('./Modules/Setup Files/placeholderTagSetup/Email Template/allmail-templates/allmail-templates').then(m => m.AllmailTemplates),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_HASHTAG_PLACEHOLDERS,
+    },
+
 ];

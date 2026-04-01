@@ -8,17 +8,17 @@
       <!-- Search Section -->
       <div class="flex-1 min-w-[120px] max-w-sm">
         <div
-          class="relative flex items-center h-8 bg-white border border-slate-200 rounded-md shadow-sm transition-all duration-200 hover:shadow focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500">
-          <mat-icon class="absolute left-2 text-slate-400 pointer-events-none"
-            style="font-size: 16px; width: 16px; height: 16px;">search</mat-icon>
+          class="relative flex items-center h-9 bg-slate-50 border border-slate-200 rounded-lg transition-all duration-300 hover:bg-white hover:shadow-md focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 focus-within:bg-white">
+          <mat-icon class="absolute left-3 text-slate-400 pointer-events-none transition-colors duration-200"
+            style="font-size: 18px; width: 18px; height: 18px;">search</mat-icon>
           <input
-            class="w-full h-full pl-7 pr-7 text-xs text-slate-700 bg-transparent border-0 outline-none placeholder-slate-400"
-            placeholder="Search..." [(ngModel)]="globalSearchTerm" (ngModelChange)="applyGlobalFilter()"
+            class="w-full h-full pl-10 pr-9 text-xs font-medium text-slate-700 bg-transparent border-0 outline-none placeholder-slate-400"
+            placeholder="Search all records..." [(ngModel)]="globalSearchTerm" (ngModelChange)="applyGlobalFilter()"
             (input)="applyGlobalFilter()" aria-label="Global search" autocomplete="off" spellcheck="false">
           <button *ngIf="globalSearchTermSignal()" (click)="clearGlobalSearch()"
-            class="absolute right-2 p-0.5 text-slate-400 transition-colors duration-150 rounded hover:text-slate-600 hover:bg-slate-100"
+            class="absolute right-2 p-1 text-slate-400 transition-all duration-200 rounded-md hover:text-red-500 hover:bg-red-50"
             aria-label="Clear search">
-            <mat-icon style="font-size: 14px; width: 14px; height: 14px;">close</mat-icon>
+            <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
           </button>
         </div>
       </div>
@@ -228,7 +228,7 @@
                       <!-- Truncated Text -->
                       <ng-container *ngSwitchCase="'truncate'">
                         <span [matTooltip]="element[column.key]"
-                          class="block truncate max-w-[180px] text-slate-700 hover:text-blue-600 cursor-help text-xs">
+                          class="block truncate max-w-[250px] text-slate-700 hover:text-blue-600 cursor-help text-xs">
                           <span *ngIf="shouldHighlightColumn(column.key)"
                             [innerHTML]="highlightTruncateText(element[column.key], 35, getSearchTermForColumn(column.key))">
                           </span>
@@ -240,8 +240,23 @@
 
                       <!-- Index Column -->
                       <ng-container *ngSwitchCase="'index'">
-                        <span class="inline-flex items-center justify-center  font-medium text-slate-600 bg-slate-100">
+                        <span
+                          class="inline-flex items-center justify-center font-bold text-slate-500 bg-slate-100/50 rounded-md w-6 h-6 text-[10px]">
                           {{ getSerialNumber(i) }}
+                        </span>
+                      </ng-container>
+
+                      <!-- Status / Pill Type -->
+                      <ng-container *ngSwitchCase="'status'">
+                        <span [class]="'status-badge ' + getStatusClass(element[column.key])">
+                          {{ element[column.key] || '-' }}
+                        </span>
+                      </ng-container>
+
+                      <ng-container *ngSwitchCase="'pill'">
+                        <span
+                          class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-medium border border-slate-200 uppercase tracking-wider">
+                          {{ element[column.key] || '-' }}
                         </span>
                       </ng-container>
 
@@ -280,23 +295,30 @@
                           <!-- Display Mode -->
                           <div *ngIf="!(editingRow === element && editingField === column.key)"
                             (dblclick)="column.editable ? startEditing(element, column.key, $event) : null"
-                            [class.cursor-pointer]="column.editable" [class.hover:bg-slate-50]="column.editable"
+                            [class.cursor-pointer]="column.editable" [class.hover:bg-blue-50/50]="column.editable"
                             [class.font-semibold]="column.isAmount" [class.text-slate-900]="column.isAmount"
                             [class.text-right]="column.isAmount"
-                            class="px-1.5 py-0.5 rounded-sm transition-colors duration-150 text-xs"
-                            [title]="element[column.key]"
+                            class="px-1.5 py-0.5 rounded transition-colors duration-150 text-xs truncate max-w-full"
+                            [title]="element[column.key] || ''"
                             [attr.aria-label]="column.editable ? 'Double-click to edit' : null">
-                            <span *ngIf="shouldHighlightColumn(column.key) && !column.isAmount"
-                              [innerHTML]="highlightText(element[column.key] || column.default || '-', getSearchTermForColumn(column.key))">
-                            </span>
-                            <span *ngIf="shouldHighlightColumn(column.key) && column.isAmount"
-                              [innerHTML]="highlightAmountText(element[column.key], getSearchTermForColumn(column.key))">
-                            </span>
-                            <span *ngIf="!shouldHighlightColumn(column.key)">
-                              {{ column.isAmount ? (element[column.key] | indianCurrency:false) : (element[column.key]
-                              ||
-                              column.default || '-') }}
-                            </span>
+
+                            <ng-container *ngIf="column.isAmount; else textContent">
+                              <span *ngIf="shouldHighlightColumn(column.key)"
+                                [innerHTML]="highlightAmountText(element[column.key], getSearchTermForColumn(column.key))">
+                              </span>
+                              <span *ngIf="!shouldHighlightColumn(column.key)" class="font-mono">
+                                {{ element[column.key] | indianCurrency:false }}
+                              </span>
+                            </ng-container>
+
+                            <ng-template #textContent>
+                              <span *ngIf="shouldHighlightColumn(column.key)"
+                                [innerHTML]="highlightText(element[column.key] || column.default || '-', getSearchTermForColumn(column.key))">
+                              </span>
+                              <span *ngIf="!shouldHighlightColumn(column.key)">
+                                {{ element[column.key] || column.default || '-' }}
+                              </span>
+                            </ng-template>
                           </div>
 
                           <!-- Edit Mode -->
@@ -382,9 +404,7 @@
 
                 <!-- No Data Row -->
                 <tr class="!h-64" *matNoDataRow>
-                  <td
-                    [attr.colspan]="(activeColumns().length >= 15 ? virtualizedColumnKeys().length : activeColumns().length)"
-                    class="!p-0">
+                  <td [attr.colspan]="activeColumnKeys().length" class="!p-0">
                     <div
                       class="flex flex-col items-center justify-center min-h-[16rem] bg-gradient-to-br from-slate-50 via-white to-blue-50/30 rounded-lg mx-3 my-3 ">
                       <div class="relative mb-4">
@@ -397,10 +417,11 @@
                         </div>
                       </div>
 
-                      <div class="flex flex-col items-center gap-1.5 max-w-md px-4 text-center">
-                        <h3 class="text-lg font-bold text-slate-700">No Data Found</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                          No matching records. Try adjusting your filters or search.
+                      <div class="flex flex-col items-center gap-2 max-w-md px-4 text-center">
+                        <h3 class="text-xl font-bold text-slate-800 tracking-tight">No Results Found</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed font-medium">
+                          We couldn't find any records matching your current criteria.
+                          Try adjusting your filters or search terms.
                         </p>
                       </div>
                     </div>

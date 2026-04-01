@@ -322,19 +322,25 @@
               <div class="p-6 md:p-8">
                 <!-- Grid Container -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
-                  <!-- Row 1 -->
-                  <mat-form-field appearance="outline" class="w-full">
+                  <!-- Row 1: General Info -->
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Name</mat-label>
                     <input matInput formControlName="property_name" placeholder="Enter Project Name" />
-                    <mat-error *ngIf="editProjectForm.get('property_name')?.hasError('required')">Name is
-                      required</mat-error>
+                    <mat-error *ngIf="editProjectForm.get('property_name')?.hasError('required')">Name is required</mat-error>
                   </mat-form-field>
-                  <mat-form-field appearance="outline" class="w-full">
+
+                  <mat-form-field appearance="outline" class="w-full text-sm">
+                    <mat-label>Project Code</mat-label>
+                    <input matInput formControlName="project_code" placeholder="Project Code" />
+                    <mat-error *ngIf="editProjectForm.get('project_code')?.hasError('required')">Code is required</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Builder</mat-label>
                     <input matInput formControlName="builder" placeholder="Enter Builder Name" />
-
                   </mat-form-field>
-                  <mat-form-field appearance="outline" class="w-full">
+
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Status</mat-label>
                     <mat-select formControlName="project_status_id">
                       <mat-select-trigger>
@@ -365,23 +371,24 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <!-- Row 2: Financials -->
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Min Cost (₹)</mat-label>
                     <input matInput formControlName="min_cost" placeholder="0" appAmount />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Max Cost (₹)</mat-label>
                     <input matInput formControlName="max_cost" placeholder="0" appAmount />
                   </mat-form-field>
 
-                  <!-- Row 2 -->
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
                     <mat-label>Pricing Details</mat-label>
                     <input matInput formControlName="pricing_desc" placeholder="e.g. Including all taxes" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <!-- Row 3: Location & Status -->
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>City</mat-label>
                     <mat-select formControlName="city_id">
                       <mat-option *ngFor="let city of allCities()" [value]="city.city_id">
@@ -390,7 +397,7 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Sub Region</mat-label>
                     <mat-select formControlName="sub_region_id">
                       <mat-option *ngFor="let region of allSubregions()" [value]="region.sub_region_id">
@@ -399,13 +406,7 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <!-- Row 3 -->
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
-                    <mat-label>Map Location URL</mat-label>
-                    <input matInput formControlName="map_location" placeholder="Google Maps Link" />
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Active Status</mat-label>
                     <mat-select formControlName="active_status_id">
                       <mat-option [value]="1">Active</mat-option>
@@ -413,7 +414,7 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full" *ngIf="roleId === 2">
+                  <mat-form-field appearance="outline" class="w-full text-sm" *ngIf="roleId === 2">
                     <mat-label>Call Masking</mat-label>
                     <mat-select formControlName="call_masking_id">
                       <mat-option [value]="1">Enabled</mat-option>
@@ -421,24 +422,33 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <!-- Row 4 -->
-                  <mat-form-field appearance="outline" class="w-full">
+                  <!-- Row 4: Logistics & Events -->
+                  <mat-form-field appearance="outline" class="w-full text-sm">
+                    <mat-label>Enquiry OTP Status</mat-label>
+                    <mat-select formControlName="enq_otp_status">
+                      <mat-option [value]="1">Yes</mat-option>
+                      <mat-option [value]="0">No</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Receipt Start No</mat-label>
                     <input matInput type="number" formControlName="receipt_no_start" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Event Date</mat-label>
-                    <input matInput [matDatepicker]="dob_1" formControlName="event_date" (click)="dob_1.open()" />
-                    <mat-datepicker #dob_1></mat-datepicker>
+                    <input matInput [matDatepicker]="event_date_picker" formControlName="event_date" (click)="event_date_picker.open()" />
+                    <mat-datepicker #event_date_picker></mat-datepicker>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Event Time</mat-label>
                     <input matInput formControlName="event_time" type="time" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full">
+                  <!-- Row 5: Event Details & More -->
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Event Status</mat-label>
                     <mat-select formControlName="event_status_id">
                       <mat-option [value]="1">Active</mat-option>
@@ -446,33 +456,47 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <!-- Row 5: Text Areas -->
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-3">
+                    <mat-label>Event Description</mat-label>
+                    <input matInput formControlName="event_remark" placeholder="Describe the event" />
+                  </mat-form-field>
+
+                  <!-- Row 6: URLs & Footer -->
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                    <mat-label>Map Location URL</mat-label>
+                    <input matInput formControlName="map_location" placeholder="Google Maps Link" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                    <mat-label>Website</mat-label>
+                    <input matInput formControlName="website" placeholder="https://example.com" />
+                  </mat-form-field>
+
+                  <!-- Row 7: Address & Footer Text -->
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
                     <mat-label>Project Address</mat-label>
-                    <input matInput formControlName="address" rows="2" placeholder="Full site address">
+                    <input matInput formControlName="address" placeholder="Full site address" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
-                    <mat-label>Project Description</mat-label>
-                    <input matInput formControlName="description" rows="2" placeholder="Brief project overview">
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="w-full lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
                     <mat-label>Microsite Footer Text</mat-label>
                     <input matInput formControlName="footer_description" placeholder="Disclaimer or copyright text" />
                   </mat-form-field>
 
-                  <div>
+                  <!-- Row 8: Full Description -->
+                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-4">
+                    <mat-label>Project Description</mat-label>
+                    <input matInput formControlName="description" placeholder="Brief project overview" />
+                  </mat-form-field>
+
+                  <!-- Row 9: Features -->
+                  <div class="lg:col-span-4 flex gap-6 py-2">
                     <mat-checkbox formControlName="is_featured" color="primary">
-                      <div>
-                        <span class="text-sm font-bold text-gray-800">Featured Project</span>
-                      </div>
+                      <span class="text-sm font-bold text-gray-800">Featured Project</span>
                     </mat-checkbox>
 
                     <mat-checkbox formControlName="is_retro" color="primary">
-                      <div>
-                        <span class="text-sm font-bold text-gray-800">Retro Project</span>
-                      </div>
+                      <span class="text-sm font-bold text-gray-800">Retro Project</span>
                     </mat-checkbox>
                   </div>
                 </div>

@@ -27,9 +27,15 @@ export class DsrReportStore {
   readonly error = signal<string | null>(null);
 
   // --- Session Data ---
-  readonly roleId = Number(sessionStorage.getItem('role_id')) || null;
-  readonly userId = Number(sessionStorage.getItem('session_id')) || null;
-  private readonly roleData = sessionStorage.getItem('role_id');
+  // --- Session Data ---
+  private readonly _roleData = sessionStorage.getItem('role_id') || '';
+  private readonly _sessionData = sessionStorage.getItem('session_id') || '';
+
+  readonly roles = computed(() => this._roleData.split(',').filter(r => !!r).map(Number));
+  readonly userIds = computed(() => this._sessionData.split(',').filter(r => !!r).map(Number));
+
+  readonly roleId = computed(() => this.roles()[0] || null);
+  readonly userId = computed(() => this.userIds()[0] || null);
 
   // --- Computed ---
   readonly hasAnyData = computed(() => hasAnyReportData(this.dailyReport()));
@@ -59,8 +65,11 @@ export class DsrReportStore {
   // --- Actions ---
 
   fetchAllProjects(): void {
+    const userId = this.userId();
+    if (!userId) return;
+
     this.commonService
-      .fetchUserProjectDropdown(this.userId)
+      .fetchUserProjectDropdown(userId)
       .pipe(
         tap((projects) => this.projects.set(projects || [])),
         catchError((error) => {
@@ -81,7 +90,8 @@ export class DsrReportStore {
       return;
     }
 
-    if (this.roleId !== 7) {
+    const roles = this.roles();
+    if (!roles.includes(7)) {
       this.commonService.fetchTelecallerDropdown([projectId]).pipe(
         retry({ count: 2, delay: 500 }),
         catchError(() => of([]))
@@ -94,7 +104,7 @@ export class DsrReportStore {
       });
     }
 
-    if (this.roleId !== 13) {
+    if (!roles.includes(13)) {
       this.commonService.fetchSalesExecutives(projectId).pipe(
         retry({ count: 2, delay: 500 }),
         catchError(() => of([]))
@@ -124,12 +134,14 @@ export class DsrReportStore {
   }
 
   getCalculatedRoleId(): string | number | null {
-    if (!this.roleData) return null;
-    const roles = this.roleData.split(',').map(Number);
+    const roles = this.roles();
+    if (!roles.length) return null;
+    
     if (roles.includes(7) && roles.includes(13)) return 7;
     if (roles.includes(7)) return 7;
     if (roles.includes(13)) return 13;
-    return this.roleData;
+    
+    return roles[0];
   }
 
   private handleError(error: any, defaultMessage: string) {

@@ -111,6 +111,7 @@ export class ReceiptsComponent implements OnInit {
   private readonly datePipe = new DatePipe('en-US');
   private readonly authService = inject(AuthService);
   @ViewChild(ConfigurableAgGridDataComponent) agGrid!: ConfigurableAgGridDataComponent;
+  private readonly columnDynamicColorService = inject(ColumnDynamicColorService);
 
   // Environment and user data
   readonly storageUrl = environment.STORAGE_URL;
@@ -132,7 +133,6 @@ export class ReceiptsComponent implements OnInit {
   readonly currentReceiptId = signal<number | null>(null);
   readonly receiptsData = signal<Receipt[]>([]);
   private readonly formValues = signal<any>({});
-  private readonly columnDynamicColorService = inject(ColumnDynamicColorService);
 
   // Computed properties
   readonly hasSelectedReceipts = computed(
@@ -207,20 +207,20 @@ export class ReceiptsComponent implements OnInit {
     {
       key: 'cheque_status',
       label: 'Status',
-
+      cellStyle: ({ data }: { data: Receipt }) => data ? this.columnDynamicColorService.getChequeStatusStyle(data.cheque_status_id) : undefined,
     },
-    { key: 'receipt_type', label: 'Receipt Type', columnType: 'agTextColumnFilter' },
-    { key: 'received_amount', label: 'Received Amount', isAmount: true, columnType: 'agNumberColumnFilter' },
-    { key: 'trn_no', label: 'Transaction No', columnType: 'agTextColumnFilter' },
-    { key: 'trn_date', label: 'Transaction Date', type: 'mediumDate', columnType: 'agDateColumnFilter' },
-    { key: 'payment_mode', label: 'Payment Mode', columnType: 'agTextColumnFilter' },
-    { key: 'bank_details', label: 'Branch', columnType: 'agTextColumnFilter' },
-    { key: 'bank_name', label: 'Bank Name', columnType: 'agTextColumnFilter' },
-    { key: 'remark', label: 'Approved Remark', columnType: 'agTextColumnFilter' },
-    { key: 'created_at', label: 'Created At', type: 'date', columnType: 'agDateColumnFilter' },
-    { key: 'updated_by_name', label: 'Updated By', columnType: 'agTextColumnFilter' },
-    { key: 'created_by_name', label: 'Approved By', columnType: 'agTextColumnFilter' },
-    { key: 'updated_at', label: 'Updated At', type: 'date', columnType: 'agDateColumnFilter' },
+    { key: 'receipt_type', label: 'Receipt Type' },
+    { key: 'received_amount', label: 'Received Amount', isAmount: true },
+    { key: 'trn_no', label: 'Transaction No' },
+    { key: 'trn_date', label: 'Transaction Date', type: 'mediumDate' },
+    { key: 'payment_mode', label: 'Payment Mode' },
+    { key: 'bank_details', label: 'Branch' },
+    { key: 'bank_name', label: 'Bank Name' },
+    { key: 'remark', label: 'Approved Remark' },
+    { key: 'created_at', label: 'Created At', type: 'date' },
+    { key: 'updated_by_name', label: 'Updated By' },
+    { key: 'created_by_name', label: 'Approved By' },
+    { key: 'updated_at', label: 'Updated At', type: 'date' },
   ];
 
   readonly reciptActions: ReceiptAction[] = [
@@ -847,11 +847,13 @@ export class ReceiptsComponent implements OnInit {
     dialogRef
       .afterClosed()
       .pipe(
-        filter((result) => !!result),
-        switchMap(() =>
+        filter((result) => result && result.confirmed),
+        switchMap((result) =>
           this.receiptsService.deleteReceipt(
             receiptData.booking_receipt_id,
-            receiptData.floor_unit_id
+            receiptData.floor_unit_id,
+            this.userId,
+            result.reason
           )
         ),
         takeUntilDestroyed(this.destroyRef)
@@ -882,6 +884,14 @@ export class ReceiptsComponent implements OnInit {
     const file = input.files?.[0];
     if (file) {
       this.selectedFile.set(file);
+    }
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile.set(null);
+    const fileInput = document.getElementById('receipt-attachment') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   }
 
