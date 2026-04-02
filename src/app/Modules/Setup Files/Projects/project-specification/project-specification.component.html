@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>{{ data.title }}
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+    <mat-card-content>
+        <form [formGroup]="addProjectSpecification" class="row">
+            <mat-form-field appearance="outline" class="col-md-12">
+                <mat-label>Title</mat-label>
+                <input matInput formControlName="title" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-md-12">
+                <mat-label>Description</mat-label>
+                <textarea matInput formControlName="description" class="custom-textarea"></textarea>
+            </mat-form-field>
+
+
+            <div class="col-md-12">
+                <label for="fileInput">Upload specification icon</label>
+                <div class="upload-area p-3 rounded d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="input-group">
+
+                            <button mat-raised-button color="primary">
+                                <input #fileInput type="file" (change)="onChangeFile($event)"
+                                    formControlName="specification_icon" class="file-input" />
+                                <mat-icon>upload</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </form>
+    </mat-card-content>
+    <mat-dialog-actions align="end" class="col-12 mt-3">
+        <button mat-icon-button color="warn" *ngIf="this.data.rowData?.specification_id"
+            (click)="$event.stopPropagation(); deleteProjectspecification(this.data.rowData?.specification_id)">
+            <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-raised-button color="primary" (click)="onSubmit()">Submit</button>
+    
+    </mat-dialog-actions>
+</mat-dialog-content>
+

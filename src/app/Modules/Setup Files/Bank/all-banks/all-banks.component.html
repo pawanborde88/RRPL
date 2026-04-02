@@ -1,0 +1,20 @@
+<app-template>
+  <app-breadcrumb>
+
+
+    <li class="breadcrumb-item active">All Banks</li>
+  </app-breadcrumb>
+
+  <mat-card>
+
+    <mat-card-content>
+
+      <app-reusable-custom-table [loading]="loading" [headerButtons]="headerButtons" [dataSource]="dataSource"
+        [displayedColumns]="displayedColumns" [actions]="projectActions" [showFooter]="true"
+        (actionClick)="onProjectAction($event.action, $event.row)"
+        (checkboxChange)="toggleSelection($event.checked, $event.row)">
+
+      </app-reusable-custom-table>
+    </mat-card-content>
+  </mat-card>
+</app-template>

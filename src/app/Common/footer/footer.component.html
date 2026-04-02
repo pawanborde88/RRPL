@@ -1,0 +1,16 @@
+<footer class="container-fluid footer-style bg-gray-50" role="contentinfo" [attr.aria-label]="'Application footer'">
+    <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center py-3 py-md-2 text-white-50 company-name">
+        <div class="mt-2 mt-md-0 version-text">
+            {{ versionInfo() }}
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Support Button - Positioned outside footer for true floating behavior -->
+<button type="button" mat-mini-fab class="support-fab" [matTooltip]="'Contact Support'"
+    [attr.aria-label]="'Contact Support'" [attr.aria-expanded]="isChatOpen()" [attr.aria-pressed]="isChatOpen()"
+    (click)="toggleSupportChat()" (keydown.enter)="toggleSupportChat()"
+    (keydown.space)="toggleSupportChat(); $event.preventDefault()">
+    <mat-icon class="support-icon" aria-hidden="true">support_agent</mat-icon>
+</button>

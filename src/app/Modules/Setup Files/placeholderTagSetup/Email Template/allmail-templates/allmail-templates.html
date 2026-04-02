@@ -1,0 +1,30 @@
+<app-template>
+    <app-breadcrumb>
+
+        <li class="breadcrumb-item active">All Email Templates </li>
+    </app-breadcrumb>
+
+
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="row">
+                <div class="col-md-4">
+                    <app-autocomplete-reusable-component class="w-50" [ngModel]="selectedModuleId()"
+                        [options]="modules()" idKey="module_id" displayKey="module_name" placeholder="Select Module"
+                        (selectedIdChange)="onModuleChange($event)">
+                    </app-autocomplete-reusable-component>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
+        [apiEndpoint]="'fetch_email_template'" [apiMethod]="'POST'" [apiPayload]="getAgGridApiPayload()"
+        [headerButtons]="headerButtons" [actions]="bookingActions" [idProperty]="'tag_setup_id'"
+        (actionClick)="onBookingAction($event.action, $event.row)">
+    </app-configurable-ag-grid-data>
+</app-template>

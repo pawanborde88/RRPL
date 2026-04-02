@@ -1,0 +1,104 @@
+<!-- Optimized pagination template using OnPush change detection with computed signals -->
+<div 
+  class="flex items-center justify-end px-4 py-3 bg-gray-50 border-t border-gray-200 sticky bottom-0 z-10" 
+  role="navigation" 
+  aria-label="Pagination">
+  
+  <div class="flex items-center gap-6">
+    <!-- Items per page selector -->
+    <div class="flex items-center gap-3">
+      <span 
+        class="text-sm font-medium text-gray-700 whitespace-nowrap" 
+        id="page-size-label">
+        Items per page:
+      </span>
+      <div class="relative">
+        <select 
+          [ngModel]="pageSize()" 
+          (ngModelChange)="onPageSizeChange($event)"
+          aria-labelledby="page-size-label"
+          class="appearance-none bg-white text-gray-800 text-sm font-medium rounded-md pl-3 pr-9 py-1.5 border border-gray-300 hover:bg-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer">
+          <option 
+            *ngFor="let option of mergedPageSizeOptions(); trackBy: trackByOption" 
+            [value]="option"
+            [attr.aria-selected]="pageSize() === option"
+            class="bg-white text-gray-800">
+            {{ getOptionText(option) }}
+          </option>
+        </select>
+        <mat-icon 
+          class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 w-5 h-5 text-[20px]" 
+          aria-hidden="true">
+          arrow_drop_down
+        </mat-icon>
+      </div>
+    </div>
+    
+    <!-- Display text using computed signal -->
+    <span 
+      class="text-sm font-medium text-gray-700 min-w-[100px] text-center" 
+      aria-live="polite" 
+      aria-atomic="true">
+      {{ paginationState().displayText }}
+    </span>
+    
+    <!-- Navigation buttons with computed disabled states -->
+    <div class="flex items-center gap-1" role="group" aria-label="Page navigation">
+      <button 
+        mat-icon-button 
+        (click)="onPageChange('first')" 
+        [disabled]="paginationState().isFirstPage"
+        aria-label="First page"
+        type="button"
+        class="w-9 h-9 min-w-0 hover:bg-gray-200 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+        <mat-icon 
+          aria-hidden="true" 
+          class="w-5 h-5 text-[20px] text-gray-600">
+          first_page
+        </mat-icon>
+      </button>
+      
+      <button 
+        mat-icon-button 
+        (click)="onPageChange('prev')" 
+        [disabled]="paginationState().isFirstPage"
+        aria-label="Previous page"
+        type="button"
+        class="w-9 h-9 min-w-0 hover:bg-gray-200 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+        <mat-icon 
+          aria-hidden="true" 
+          class="w-5 h-5 text-[20px] text-gray-600">
+          chevron_left
+        </mat-icon>
+      </button>
+      
+      <button 
+        mat-icon-button 
+        (click)="onPageChange('next')" 
+        [disabled]="paginationState().isLastPage"
+        aria-label="Next page"
+        type="button"
+        class="w-9 h-9 min-w-0 hover:bg-gray-200 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+        <mat-icon 
+          aria-hidden="true" 
+          class="w-5 h-5 text-[20px] text-gray-600">
+          chevron_right
+        </mat-icon>
+      </button>
+      
+      <button 
+        mat-icon-button 
+        (click)="onPageChange('last')" 
+        [disabled]="paginationState().isLastPage"
+        aria-label="Last page"
+        type="button"
+        class="w-9 h-9 min-w-0 hover:bg-gray-200 transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent">
+        <mat-icon 
+          aria-hidden="true" 
+          class="w-5 h-5 text-[20px] text-gray-600">
+          last_page
+        </mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

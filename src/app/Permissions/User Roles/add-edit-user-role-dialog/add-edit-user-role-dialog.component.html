@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit User Role' : 'Add User Role' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="dialog-form">
+
+      <app-autocomplete-reusable-component [options]="UserList" formControlName="user_id" [displayKey]="'username'"
+        [idKey]="'user_id'" [placeholder]="'Select User'"></app-autocomplete-reusable-component>
+
+
+
+      <app-autocomplete-reusable-component [options]="RoleList" formControlName="role_id" [displayKey]="'role_name'"
+        [idKey]="'role_id'" [placeholder]="'Select Role'"></app-autocomplete-reusable-component>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valid From</mat-label>
+        <input matInput formControlName="valid_from" [matDatepicker]="valid_from_picker" placeholder="MM/DD/YYYY" />
+        <mat-datepicker-toggle matSuffix [for]="valid_from_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_from_picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Valid To</mat-label>
+        <input matInput formControlName="valid_till" [matDatepicker]="valid_till_picker" placeholder="MM/DD/YYYY" />
+        <mat-datepicker-toggle matSuffix [for]="valid_till_picker"></mat-datepicker-toggle>
+        <mat-datepicker #valid_till_picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="active_status_id">
+          <mat-option [value]="1">Active</mat-option>
+          <mat-option [value]="2">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid || loadingState" (click)="onSubmit()">
+    {{ isEditMode ? 'Update' : 'Add' }}
+  </button>
+</mat-dialog-actions>

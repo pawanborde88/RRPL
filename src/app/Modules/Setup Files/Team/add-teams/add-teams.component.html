@@ -1,0 +1,48 @@
+<h2 mat-dialog-title>Add New Team
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="addTeamForm" (ngSubmit)="onSubmit()" class="row g-3 align-items-center">
+    <!-- Team Name -->
+    <div class="col-md-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Team Name</mat-label>
+        <input formControlName="team_name" matInput placeholder="Enter team name" />
+        <mat-error *ngIf="addTeamForm.get('team_name')?.invalid && addTeamForm.get('team_name')?.touched">
+          Team name is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Manager -->
+    <div class="col-md-4">
+   
+
+
+
+      <app-autocomplete-reusable-component  [options]="allTeamList"
+      formControlName="manager_id" displayKey="full_name" idKey="user_id"
+      [isMultiSelect]="true" placeholder="Select Manager">
+  </app-autocomplete-reusable-component>
+    </div>
+
+    <!-- Team Members -->
+    <div class="col-md-4">
+     
+      <app-autocomplete-reusable-component  [options]="allTeamList"
+      formControlName="team_member_id" displayKey="full_name" idKey="user_id"
+      [isMultiSelect]="true" placeholder="Select Team Members">
+  </app-autocomplete-reusable-component>
+    </div>
+
+    <mat-dialog-actions align="end">
+      <button mat-raised-button color="primary" type="submit" [disabled]="addTeamForm.invalid">
+        Save
+      </button>
+
+    </mat-dialog-actions>
+
+  </form>
+</mat-dialog-content>

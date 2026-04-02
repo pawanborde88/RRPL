@@ -1,0 +1,408 @@
+<app-template>
+    <div class="w-full">
+        <!-- Breadcrumb & Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <app-breadcrumb class="w-full">
+
+                <li class="breadcrumb-item active text-indigo-600 font-medium">DA Report</li>
+            </app-breadcrumb>
+        </div>
+
+        <!-- Filters Section -->
+        <div>
+            <mat-expansion-panel hideToggle [expanded]="true" [expanded]="true" class="box-shadow-none">
+                <mat-expansion-panel-header
+                    class="!h-14 !bg-slate-50/50 hover:!bg-slate-50 transition-colors border-b border-slate-100">
+                    <mat-panel-title class="!text-slate-800 !font-semibold !text-base flex items-center gap-2">
+                        Advanced Filters
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div>
+                    <form [formGroup]="leadForm"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-start">
+                        <!-- Project Dropdown -->
+                        <div class="w-full">
+                            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                                displayKey="property_name" idKey="project_id" placeholder="Select Project"
+                                class="w-full">
+                            </app-autocomplete-reusable-component>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Select Role</mat-label>
+                            <mat-select formControlName="count_type_id" [disabled]="roleId === 7 || roleId === 13">
+                                <mat-option [value]="1">Telecaller</mat-option>
+                                <mat-option [value]="2">Sales Executive</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <!-- Dynamic Role Dropdown -->
+                        @if (hasProjectSelected() && isTelecallerMode()) {
+                        <div class="w-full">
+                            <app-autocomplete-reusable-component [options]="allTelecallerlist()"
+                                formControlName="telecaller_id" displayKey="full_name" idKey="user_id"
+                                [isMultiSelect]="true" placeholder="Select Telecaller" class="w-full">
+                            </app-autocomplete-reusable-component>
+                        </div>
+                        }
+
+                        @if (hasProjectSelected() && isSalesExecutiveMode()) {
+                        <div class="w-full">
+                            <app-autocomplete-reusable-component [options]="allSalesExecutive()"
+                                formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+                                [isMultiSelect]="true" placeholder="Select Sales Executive" class="w-full">
+                            </app-autocomplete-reusable-component>
+                        </div>
+                        }
+
+                        <!-- Date Range -->
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Date Range</mat-label>
+                            <mat-date-range-input [rangePicker]="leadDatePicker">
+                                <input matStartDate formControlName="start_date" placeholder="Start date">
+                                <input matEndDate formControlName="end_date" placeholder="End date">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+                        </mat-form-field>
+
+                        <!-- Apply Button -->
+                        <div class="flex items-center h-full pt-1">
+                            <button mat-flat-button color="primary" [disabled]="!isFormValid()"
+                                (click)="fetchTalecallerSalesexecutiveCount()">
+                                <span class="flex items-center justify-center gap-2">
+                                    @if (loading()) {
+                                    <span
+                                        class="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                    } @else {
+                                    <mat-icon>search</mat-icon>
+                                    }
+                                    <span>Apply Filter</span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </mat-expansion-panel>
+        </div>
+
+        <!-- Loading State -->
+        @if (loading()) {
+        <div class="flex flex-col justify-center items-center py-24 gap-4">
+            <app-costom-loading [loading]="loading()" [text]="'Retrieving latest data...'">
+            </app-costom-loading>
+        </div>
+        }
+
+        <!-- Dashboard Content -->
+        @if (showEnquiryData() || showLeadData()) {
+        <div class="space-y-4">
+
+            <!-- Key Metrics Cards (Redesigned for Density) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- Total Count -->
+                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm flex items-center gap-4 group">
+                    <div class="bg-indigo-50 p-2.5 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                        <mat-icon class="text-indigo-600 !w-6 !h-6 !text-2xl">assessment</mat-icon>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Statistics</p>
+                        <h3 class="text-2xl font-bold text-slate-800 leading-tight">
+                            {{ isTelecallerMode() ? leadLeadLevelTotal() : enquiryLeadLevelTotal() }}
+                            <span class="text-xs font-medium text-slate-500 ml-1">{{ isTelecallerMode() ? 'Leads' :
+                                'Enquiries' }}</span>
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm flex items-center gap-4 group">
+                    <div class="bg-emerald-50 p-2.5 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                        <mat-icon class="text-emerald-600 !w-6 !h-6 !text-2xl">pie_chart</mat-icon>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Breakdown</p>
+                        <div class="flex items-baseline gap-3">
+                            <span class="text-lg font-bold text-slate-800">
+                                {{ isTelecallerMode() ? leadSourceTotal().newCount : enquirySourceTotal().newCount }}
+                                <span class="text-[9px] font-medium text-emerald-600 ml-0.5">NEW</span>
+                            </span>
+                            <span class="text-lg font-bold text-slate-800">
+                                {{ isTelecallerMode() ? leadSourceTotal().followupCount :
+                                enquirySourceTotal().followupCount }}
+                                <span class="text-[9px] font-medium text-blue-600 ml-0.5">F/UP</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Actions -->
+                <div class="bg-white rounded-xl p-3 border border-slate-100 shadow-sm flex items-center gap-4 group">
+                    <div class="bg-amber-50 p-2.5 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                        <mat-icon class="text-amber-600 !w-6 !h-6 !text-2xl">pending_actions</mat-icon>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pending Actions</p>
+                        <h3 class="text-2xl font-bold text-amber-600 leading-tight">
+                            {{ isTelecallerMode() ? leadPendingCount() : enquiryPendingCount() }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Source Trends -->
+                <mat-card class="!rounded-xl border-none shadow-sm overflow-hidden bg-white">
+                    <div class="bg-slate-50/80 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-700 m-0 flex items-center gap-2">
+                            <mat-icon class="text-indigo-500 !w-4 !h-4 !text-base">show_chart</mat-icon>
+                            Source Trends
+                        </h3>
+                    </div>
+                    <mat-card-content class="!p-3">
+                        <div
+                            class="max-h-[200px] overflow-y-auto rounded-lg border border-slate-100 mb-3 custom-scrollbar">
+                            <table class="w-full text-[11px] text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-3 py-1.5 border-b border-slate-100">Source</th>
+                                        <th class="px-3 py-1.5 text-center border-b border-slate-100">New</th>
+                                        <th class="px-3 py-1.5 text-center border-b border-slate-100">F/UP</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    @if (isTelecallerMode()) {
+                                    @for (source of leadData()?.source; track source.source) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-3 py-1.5 text-slate-600">{{ source.source }}</td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ source.lead_count || 0 }}
+                                        </td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ source.followup_count || 0
+                                            }}</td>
+                                    </tr>
+                                    }
+                                    } @else {
+                                    @for (source of enquiryData()?.source; track source.source) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-3 py-1.5 text-slate-600">{{ source.source }}</td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ source.enquiry_count || 0
+                                            }}</td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ source.followup_count || 0
+                                            }}</td>
+                                    </tr>
+                                    }
+                                    }
+                                </tbody>
+                                <tfoot
+                                    class="bg-slate-50 sticky bottom-0 border-t border-slate-100 font-bold text-slate-700">
+                                    <tr>
+                                        <td class="px-3 py-1.5 border-b border-slate-100">Total</td>
+                                        <td class="px-3 py-1.5 text-center border-b border-slate-100">
+                                            {{ isTelecallerMode() ? leadSourceTotal().newCount :
+                                            enquirySourceTotal().newCount }}
+                                        </td>
+                                        <td class="px-3 py-1.5 text-center border-b border-slate-100">
+                                            {{ isTelecallerMode() ? leadSourceTotal().followupCount :
+                                            enquirySourceTotal().followupCount }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="w-full h-[180px] relative">
+                            <canvas #leadSourceChartCanvas id="leadSourceChartCanvas" [hidden]="!isTelecallerMode()"
+                                class="w-full h-full"></canvas>
+                            <canvas #enquirySourceChartCanvas id="enquirySourceChartCanvas"
+                                [hidden]="isTelecallerMode()" class="w-full h-full"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Type Distribution -->
+                <mat-card class="!rounded-xl border-none shadow-sm overflow-hidden bg-white">
+                    <div class="bg-slate-50/80 px-4 py-2 border-b border-slate-100 flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-700 m-0 flex items-center gap-2">
+                            <mat-icon class="text-indigo-500 !w-4 !h-4 !text-base">ssid_chart</mat-icon>
+                            Type Distribution
+                        </h3>
+                    </div>
+                    <mat-card-content class="!p-3">
+                        <div
+                            class="max-h-[200px] overflow-y-auto rounded-lg border border-slate-100 mb-3 custom-scrollbar">
+                            <table class="w-full text-[11px] text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-3 py-1.5 border-b border-slate-100">Category</th>
+                                        <th class="px-3 py-1.5 text-center border-b border-slate-100">Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    @if (isTelecallerMode()) {
+                                    @for (level of leadData()?.lead_level; track level.lead_level) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-3 py-1.5 text-slate-600">{{ level.lead_level }}</td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ level.lead_level_count ||
+                                            0 }}</td>
+                                    </tr>
+                                    }
+                                    } @else {
+                                    @for (level of enquiryData()?.lead_level; track level.lead_level) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-3 py-1.5 text-slate-600">{{ level.lead_level }}</td>
+                                        <td class="px-3 py-1.5 text-center text-slate-500">{{ level.lead_level_count ||
+                                            0 }}</td>
+                                    </tr>
+                                    }
+                                    }
+                                </tbody>
+                                <tfoot
+                                    class="bg-slate-50 sticky bottom-0 border-t border-slate-100 font-bold text-slate-700">
+                                    <tr>
+                                        <td class="px-3 py-1.5 border-b border-slate-100">Total</td>
+                                        <td class="px-3 py-1.5 text-center border-b border-slate-100">
+                                            {{ isTelecallerMode() ? leadLeadLevelTotal() : enquiryLeadLevelTotal() }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="w-full h-[180px] relative">
+                            <canvas #leadLevelChartCanvas id="leadLevelChartCanvas" [hidden]="!isTelecallerMode()"
+                                class="w-full h-full"></canvas>
+                            <canvas #enquiryLeadLevelChartCanvas id="enquiryLeadLevelChartCanvas"
+                                [hidden]="isTelecallerMode()" class="w-full h-full"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+
+                <!-- Daily Team Report -->
+                @if (isTelecallerMode() && teamReportData().length > 0) {
+                <mat-card class="!rounded-xl border-none shadow-sm overflow-hidden bg-white lg:col-span-1">
+                    <div class="bg-slate-50/80 px-4 py-2 border-b border-slate-100">
+                        <h3 class="text-xs font-bold text-slate-700 m-0 flex items-center gap-2">
+                            <mat-icon class="text-emerald-500 !w-4 !h-4 !text-base">groups</mat-icon>
+                            Daily Team Report
+                        </h3>
+                    </div>
+                    <mat-card-content class="!p-3">
+                        <div
+                            class="max-h-[200px] overflow-y-auto rounded-lg border border-slate-100 mb-3 custom-scrollbar">
+                            <table class="w-full text-[11px] text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10">
+                                    <tr>
+                                        @for (key of Object.keys(teamReportData()[0]); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <th class="px-3 py-1.5 border-b border-slate-100">{{ key.replace('_', ' ') |
+                                            titlecase }}</th>
+                                        }
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    @for (item of teamReportData(); track $index) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        @for (key of Object.keys(item); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <td class="px-3 py-1.5 text-slate-600">{{ item[key] }}</td>
+                                        }
+                                        }
+                                    </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="bg-slate-50 sticky bottom-0 border-t border-slate-100">
+                                    <tr class="font-bold text-slate-700">
+                                        @for (key of Object.keys(teamReportData()[0]); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <td class="px-3 py-1.5">
+                                            @if ($first) { Total }
+                                            @else if (teamReportTotals()[key] !== undefined) { {{
+                                            teamReportTotals()[key] }} }
+                                        </td>
+                                        }
+                                        }
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="w-full h-[180px] relative">
+                            <canvas #teamReportChartCanvas id="teamReportChartCanvas" class="w-full h-full"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                }
+
+                <!-- Daily Enquiry Team Count -->
+                @if (enquiryTeamCountData().length > 0) {
+                <mat-card class="!rounded-xl border-none shadow-sm overflow-hidden bg-white lg:col-span-1">
+                    <div class="bg-slate-50/80 px-4 py-2 border-b border-slate-100">
+                        <h3 class="text-xs font-bold text-slate-700 m-0 flex items-center gap-2">
+                            <mat-icon class="text-blue-500 !w-4 !h-4 !text-base">person_search</mat-icon>
+                            Daily Enquiry Team Count
+                        </h3>
+                    </div>
+                    <mat-card-content class="!p-3">
+                        <div
+                            class="max-h-[200px] overflow-y-auto rounded-lg border border-slate-100 mb-3 custom-scrollbar">
+                            <table class="w-full text-[11px] text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-bold uppercase sticky top-0 z-10">
+                                    <tr>
+                                        @for (key of Object.keys(enquiryTeamCountData()[0]); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <th class="px-3 py-1.5 border-b border-slate-100">{{ key.replace('_', ' ') |
+                                            titlecase }}</th>
+                                        }
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    @for (item of enquiryTeamCountData(); track $index) {
+                                    <tr class="hover:bg-slate-50/50">
+                                        @for (key of Object.keys(item); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <td class="px-3 py-1.5 text-slate-600">{{ item[key] }}</td>
+                                        }
+                                        }
+                                    </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="bg-slate-50 sticky bottom-0 border-t border-slate-100">
+                                    <tr class="font-bold text-slate-700">
+                                        @for (key of Object.keys(enquiryTeamCountData()[0]); track key) {
+                                        @if (key !== 'user_id' && key !== 'User_id') {
+                                        <td class="px-3 py-1.5">
+                                            @if ($first) { Total }
+                                            @else if (enquiryTeamCountTotals()[key] !== undefined) { {{
+                                            enquiryTeamCountTotals()[key] }} }
+                                        </td>
+                                        }
+                                        }
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="w-full h-[180px] relative">
+                            <canvas #enquiryTeamCountChartCanvas id="enquiryTeamCountChartCanvas"
+                                class="w-full h-full"></canvas>
+                        </div>
+                    </mat-card-content>
+                </mat-card>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- No Data State -->
+        @if (!loading() && !showEnquiryData() && !showLeadData()) {
+        <div class="flex flex-col items-center justify-center py-32 px-4">
+
+            <h3 class="text-3xl font-extrabold text-slate-900 mb-4 text-center">Ready to Analyze?</h3>
+            <p class="text-lg text-slate-500 text-center max-w-md leading-relaxed font-medium">
+                Select your filters above to generate a comprehensive breakdown of Lead and Enquiry statistics.
+            </p>
+        </div>
+        }
+    </div>
+</app-template>

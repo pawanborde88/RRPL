@@ -1,0 +1,60 @@
+/* Page header */
+.compact-header {
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compact-add-button {
+  min-width: auto;
+  padding: 0 12px;
+}
+
+.compact-table-container {
+  position: relative;
+  margin: 0 8px;
+}
+
+/* AG-Grid wrapper */
+.ag-grid-wrapper {
+  width: 100%;
+  min-height: 400px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+::ng-deep .ag-grid-wrapper {
+  .ag-root-wrapper {
+    border-radius: 8px;
+  }
+
+  .ag-header {
+    font-weight: 600;
+  }
+
+  .ag-cell,
+  .ag-header-cell {
+    line-height: 1.5;
+  }
+
+  .ag-floating-filter-input {
+    font-size: 13px;
+  }
+
+  .ag-floating-filter-body {
+    min-height: 32px;
+  }
+}

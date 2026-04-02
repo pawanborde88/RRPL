@@ -1,0 +1,20 @@
+<!-- custom-loading.component.html -->
+<div *ngIf="loading()" @fadeIn role="alert" aria-live="assertive" [attr.aria-label]="ariaLabel()"
+  [ngClass]="isFullScreen() ? 'fixed inset-0 z-[9999]' : 'absolute inset-0 z-[1000]'"
+  class="flex flex-col items-center justify-center bg-white/60 backdrop-blur-xl transition-all duration-300"
+  [style.width]="isFullScreen() ? '100vw' : 'var(--table-content-width, 100%)'"
+  [style.height]="isFullScreen() ? '100vh' : '100%'">
+
+  <div class="flex flex-col items-center gap-3">
+    <!-- Modern Compact Spinner -->
+    <div class="relative flex items-center justify-center">
+      <span class="loader"></span>
+    </div>
+
+    <!-- Loading Text with Premium Typography -->
+    <div class="flex items-center gap-1.5 mt-1">
+      <span class="text-slate-600 font-semibold text-sm tracking-wide  ">{{ text() || 'Loading...'
+        }}</span>
+    </div>
+  </div>
+</div>

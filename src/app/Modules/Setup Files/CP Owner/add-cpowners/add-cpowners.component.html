@@ -1,0 +1,163 @@
+<h2 mat-dialog-title>{{ dialogData.title }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="addCPOwnerForm" class="row g-3 align-items-center">
+
+    <!-- First Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="first_name" type="text" />
+      @if (addCPOwnerForm.get('first_name')?.hasError('required')) {
+      <mat-error>First Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Last Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="last_name" type="text" />
+      @if (addCPOwnerForm.get('last_name')?.hasError('required')) {
+      <mat-error>Last Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Email -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="user_email" type="email" />
+      @if (addCPOwnerForm.get('user_email')?.hasError('required')) {
+      <mat-error>Email is required</mat-error>
+      }
+      @if (addCPOwnerForm.get('user_email')?.hasError('email')) {
+      <mat-error>Please enter a valid email</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Phone Number -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Phone Number</mat-label>
+      <input matInput type="tel" formControlName="user_phone" maxlength="10" inputmode="numeric"
+        (input)="sanitizeMobileInput($event)" />
+      @if (addCPOwnerForm.get('user_phone')?.hasError('required')) {
+      <mat-error>Phone number is required</mat-error>
+      }
+      @if (addCPOwnerForm.get('user_phone')?.hasError('pattern')) {
+      <mat-error>Please enter a valid phone number</mat-error>
+      }
+    </mat-form-field>
+    <div class="col-md-3">
+      <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-2"
+        formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+        placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+      </app-autocomplete-reusable-component>
+    </div>
+    <!-- Date of Birth -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Date of Birth</mat-label>
+      <input matInput formControlName="dob" [matDatepicker]="picker" placeholder="Select Date" />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Gender -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Gender</mat-label>
+      <mat-select formControlName="gender">
+        <mat-option [value]="2">Male</mat-option>
+        <mat-option [value]="1">Female</mat-option>
+        <mat-option [value]="3">Other</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- PAN Number -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>PAN Number</mat-label>
+      <input matInput formControlName="pan_no" type="text" style="text-transform: uppercase" maxlength="10" appPANNo />
+      @if (addCPOwnerForm.get('pan_no')?.hasError('required')) {
+      <mat-error>PAN Number is required</mat-error>
+      }
+    </mat-form-field>
+    <div class="col-md-3">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Aadhar</mat-label>
+        <input matInput formControlName="aadhar_no" placeholder="Aadhar no" appAadharcardNoformat maxlength="14"
+          inputmode="numeric" />
+        <mat-error *ngIf="addCPOwnerForm.get('aadhar_no')?.hasError('required')">
+          Aadhar No is required
+        </mat-error>
+
+
+      </mat-form-field>
+    </div>
+    <!-- Address -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address" type="text" />
+      @if (addCPOwnerForm.get('address')?.hasError('required')) {
+      <mat-error>Address is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- City -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>City</mat-label>
+      <input matInput formControlName="city" type="text" />
+      @if (addCPOwnerForm.get('city')?.hasError('required')) {
+      <mat-error>City is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Country -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Country</mat-label>
+      <input matInput formControlName="country" type="text" />
+      @if (addCPOwnerForm.get('country')?.hasError('required')) {
+      <mat-error>Country is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- State -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>State</mat-label>
+      <input matInput formControlName="state" type="text" />
+      @if (addCPOwnerForm.get('state')?.hasError('required')) {
+      <mat-error>State is required</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Pin Code -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Pin Code</mat-label>
+      <input matInput formControlName="pin_code" type="text" minlength="6" maxlength="6" inputmode="numeric"
+        (input)="sanitizePinCodeInput($event)" />
+      @if (addCPOwnerForm.get('pin_code')?.hasError('required')) {
+      <mat-error>Pin code is required</mat-error>
+      }
+      @if (addCPOwnerForm.get('pin_code')?.hasError('pattern')) {
+      <mat-error>Please enter a valid 6-digit pin code</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Password -->
+
+    <!-- RERA -->
+
+
+    <!-- Channel Partner ID -->
+
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button [disabled]="addCPOwnerForm.invalid || store.isSaving()" (click)="onSubmit()" mat-raised-button color="primary"
+    type="submit">
+    @if (store.isSaving()) {
+    Saving...
+    } @else {
+    Save
+    }
+  </button>
+</mat-dialog-actions>

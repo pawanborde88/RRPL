@@ -1,0 +1,28 @@
+<h2 mat-dialog-title>{{ data.title }}
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+  
+  <mat-dialog-content class="mat-typography">
+    <form [formGroup]="addSourceForm" (ngSubmit)="onSubmit()" class="row mt-1">
+  
+
+      <div >
+        <mat-form-field appearance="outline" class="col-md-12 " >
+          <mat-label>Select Booking Status</mat-label>
+          <mat-select formControlName="booking_status_id">
+            <mat-option *ngFor="let bookingStatus of bookingStatusList" [value]="bookingStatus.booking_status_id">
+              {{ bookingStatus.booking_status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+  
+      <mat-dialog-actions align="end">
+        <button mat-raised-button color="primary"  [disabled]="addSourceForm.invalid" type="submit">
+          Save
+        </button>
+      </mat-dialog-actions>
+    </form>
+  </mat-dialog-content>

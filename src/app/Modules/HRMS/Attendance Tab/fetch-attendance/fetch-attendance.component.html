@@ -1,0 +1,114 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item"> <a routerLink="/hrms">HRMS</a></li>
+        <li class="breadcrumb-item active">Attendence</li>
+    </app-breadcrumb>
+
+    <div class="row mt-3 mb-3 mb-md-0 d-flex justify-content-between">
+        <div class="col-12 col-md-4">
+            <mat-form-field class="me-3 w-100">
+                <mat-label>Search Username</mat-label>
+                <input matInput type="text" [(ngModel)]="usernameFilter" (keyup)="applyFilter()">
+                <button *ngIf="usernameFilter" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="usernameFilter=''; applyFilter()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+        <div class="col-12 col-md-3">
+            <mat-form-field class="w-100">
+                <mat-label>Search Date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="dateFilter" (dateChange)="applyFilter()">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <button *ngIf="dateFilter" matSuffix mat-icon-button aria-label="Clear"
+                    (click)="dateFilter=null; applyFilter()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="mat-elevation-z2">
+
+                <div class="table-responsive">
+                    <mat-progress-bar *ngIf="loadingState" mode="indeterminate"></mat-progress-bar>
+                    <table class="w-100" mat-table [dataSource]="dataSource" matSort>
+                        <ng-container class="custom-checkbox" matColumnDef="select">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <mat-checkbox (change)="$event ? masterToggle() : null"
+                                    [checked]="selection.hasValue() && isAllSelected()"
+                                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                </mat-checkbox>
+                            </th>
+                            <td mat-cell (click)="$event.stopPropagation()" *matCellDef="let row">
+                                <mat-checkbox (click)="$event.stopPropagation()"
+                                    (change)="$event ? handleSelect(row) : null" [checked]="selection.isSelected(row)">
+                                </mat-checkbox>
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="serial_no">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder">Sr.No</th>
+                            <td mat-cell *matCellDef="let element; let i = index"> {{ i + 1 }} </td>
+                        </ng-container>
+                        <!-- User Name Column -->
+                        <ng-container matColumnDef="user_name">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder"> User Name </th>
+                            <td mat-cell *matCellDef="let attendance"> {{ attendance.user_name }} </td>
+                        </ng-container>
+
+                        <!-- Punch Status Column -->
+                        <ng-container matColumnDef="Punched_In">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder"> Punch In </th>
+                            <td mat-cell *matCellDef="let attendance"> {{ attendance.punch_in }} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="Punched_Out">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder">Punch Out</th>
+                            <td mat-cell *matCellDef="let attendance">
+                                {{ attendance.punch_out || attendance.punch_out }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="total_hours">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder">Total Hours</th>
+                            <td mat-cell *matCellDef="let attendance">
+                                {{ attendance.total_hours }}
+                            </td>
+                        </ng-container>
+                        <ng-container matColumnDef="created_at">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder"> Created At </th>
+                            <td mat-cell *matCellDef="let attendance">
+                                <span matTooltip="{{ attendance.created_at | date: 'fullDate' }}"
+                                    matTooltipPosition="above">
+                                    {{ attendance.created_at | date: 'dd MMM yyyy' }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="updated_at">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="fw-bolder"> Updated At </th>
+                            <td mat-cell *matCellDef="let attendance">
+                                <span matTooltip="{{ attendance.updated_at | date: 'fullDate' }}"
+                                    matTooltipPosition="above">
+                                    {{ attendance.updated_at | date: 'dd MMM yyyy' }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Add more columns as needed -->
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+                </div>
+                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+</app-template>

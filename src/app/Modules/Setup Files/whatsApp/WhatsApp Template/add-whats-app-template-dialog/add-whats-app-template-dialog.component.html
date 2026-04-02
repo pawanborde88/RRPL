@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>
+    {{ editMode ? 'Edit WhatsApp Template' : 'Add WhatsApp Template' }}
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addSourceForm" (ngSubmit)="onSubmit()" class="row g-3 align-items-center">
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Project</mat-label>
+            <mat-select formControlName="project_id">
+                <mat-option *ngFor="let project of projectsList" [value]="project.project_id">
+                    {{ project.property_name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Module</mat-label>
+            <mat-select formControlName="module_id">
+                <mat-option *ngFor="let module of allModuleList" [value]="module.module_id">
+                    {{ module.module_name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Template Name</mat-label>
+            <input matInput formControlName="template_name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Language</mat-label>
+            <input matInput formControlName="language_code" />
+        </mat-form-field>
+
+        <mat-dialog-actions align="end">
+            <button mat-raised-button color="primary" type="submit" [disabled]="addSourceForm.invalid">
+                {{ editMode ? 'Update' : 'Save' }}
+            </button>
+        </mat-dialog-actions>
+    </form>
+</mat-dialog-content>

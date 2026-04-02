@@ -1,0 +1,14 @@
+<h2>Update Cover Letter</h2>
+<form [formGroup]="coverLetterForm">
+  <mat-dialog-content style="min-width: 60vw;">
+    <quill-editor #editor class="quill-container" (onContentChanged)="onContentChanged()" [modules]="quillModules"
+      formControlName="content"></quill-editor>
+    <p *ngIf="downValue > 1500" class="paragraph-text float-end">Maximum character limit is {{maxCharLimit}}.</p>
+    <p *ngIf="downValue <= 1500" class="paragraph-text float-end">You are left with {{downValue}} characters.</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-button (click)="uploadCoverLetter()" [disabled]="uploading || coverLetterForm.invalid">Save</button>
+  </mat-dialog-actions>
+</form>

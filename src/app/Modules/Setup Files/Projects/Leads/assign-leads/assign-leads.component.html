@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>Assign Lead
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+
+
+    <form [formGroup]="leadAssignForm" class="row g-3 align-items-center">
+        <div class="row">
+
+
+            <app-autocomplete-reusable-component *ngIf="data.for !== 'leadAssign' && roleId !== 13"
+                [options]="allTelecallerlist" formControlName="telecaller_id" displayKey="full_name" idKey="user_id"
+                placeholder="Select  Telecaller">
+            </app-autocomplete-reusable-component>
+
+            <div class="col-md-12" *ngIf="data.for === 'leadAssign'">
+                <app-autocomplete-reusable-component [options]="allSalesExecutive" formControlName="sales_executive_id"
+                    displayKey="user_name" idKey="user_id" placeholder="Select Sales Executive">
+                </app-autocomplete-reusable-component>
+            </div>
+            <div>
+                <mat-form-field appearance="outline" class="col-md-12 w-100">
+                    <mat-label>Remark</mat-label>
+                    <input matInput formControlName="remark" placeholder="Enter Remark">
+                </mat-form-field>
+            </div>
+        </div>
+
+
+
+    </form>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" [disabled]="leadAssignForm.invalid" (click)="onSubmit()" type="submit">
+        Assign
+    </button> </mat-dialog-actions>

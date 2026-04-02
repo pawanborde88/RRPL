@@ -1,0 +1,128 @@
+<h2 mat-dialog-title>Add CP Bill Payment 
+    
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+      <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="addCPpaymentBillFom" class="payment-form mt-1">
+    <!-- Bill Details Section -->
+    <div class="row">
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>Bill No.</mat-label>
+          <input matInput formControlName="bill_no" readonly>
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+            <mat-label>Date Of Bill </mat-label>
+            <input matInput formControlName="bill_date" readonly [matDatepicker]="dateOFBill">
+            <mat-datepicker-toggle matSuffix [for]="dateOFBill"></mat-datepicker-toggle>
+            <mat-datepicker #dateOFBill></mat-datepicker>
+          </mat-form-field>
+       
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>Basic Bill Amt.</mat-label>
+          <input matInput appAmount readonly formControlName="basic_bill_amount" readonly>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>GST Amt.</mat-label>
+          <input matInput appAmount readonly formControlName="gst_amount" readonly>
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>Total Bill Amt.</mat-label>
+          <input matInput appAmount readonly formControlName="total_bill" readonly>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>Remark</mat-label>
+          <textarea matInput readonly  formControlName="remark" rows="2" readonly></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Payment Details Section -->
+    <h3 class="section-title">Payment Details</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>TDS Amt. *</mat-label>
+          <input matInput appAmount readonly formControlName="tds_amount">
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100 full-bg-readonly">
+          <mat-label>Paid Bill Amt. *</mat-label>
+          <input matInput appAmount readonly formControlName="paid_bill_amount">
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Date Of Payment *</mat-label>
+          <input matInput formControlName="payment_date" [min]="minDate"  [matDatepicker]="paymentDatePicker">
+          <mat-datepicker-toggle matSuffix [for]="paymentDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #paymentDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Cheque No. *</mat-label>
+          <input matInput formControlName="cheque_no">
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Cheque Date *</mat-label>
+          <input matInput formControlName="cheque_date" [min]="minDate" [matDatepicker]="chequeDatePicker">
+          <mat-datepicker-toggle matSuffix [for]="chequeDatePicker"></mat-datepicker-toggle>
+          <mat-datepicker #chequeDatePicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Bank Details</mat-label>
+          <input matInput formControlName="bank_details">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Remark</mat-label>
+          <textarea matInput formControlName="payment_remark" rows="2"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="!addCPpaymentBillFom.valid">Save</button>
+</mat-dialog-actions>

@@ -1,0 +1,1 @@
+var t={production:!0,domainUrl:"https://realtoerp.com",localhostUrl:"http://localhost:4200",API_URL:"https://realtoerp.com/api",enquiryFormUrl:"https://app.relationrealtech.com/api/php",STORAGE_URL:"https://erpbucket2.s3.ap-south-1.amazonaws.com"};export{t as a};

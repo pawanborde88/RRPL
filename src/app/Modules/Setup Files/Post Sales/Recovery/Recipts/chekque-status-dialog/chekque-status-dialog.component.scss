@@ -1,0 +1,56 @@
+.confirmation-dialog {
+  max-width: 450px;
+  padding: 16px 24px;
+  
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    
+
+    .dialog-title {
+      margin: 0;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+  
+  .dialog-content {
+    padding: 0 0 16px 0;
+    color: #555;
+    font-size: 15px;
+    line-height: 1.5;
+    
+    .details-section {
+      margin-top: 16px;
+      
+      .detail-row {
+        display: flex;
+        padding: 8px 0;
+        
+        .detail-label {
+          flex: 1;
+          font-weight: 500;
+          color: #666;
+        }
+        
+        .detail-value {
+          flex: 2;
+          color: #333;
+        }
+        
+        .status-active {
+          color: #4caf50;
+          font-weight: 500;
+        }
+        
+        .status-inactive {
+          color: #f44336;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  
+
+}

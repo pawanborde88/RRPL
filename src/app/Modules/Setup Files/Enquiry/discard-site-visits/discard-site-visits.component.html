@@ -1,0 +1,95 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">Site Visit Management</li>
+    <li class="breadcrumb-item active">Enquiry</li>
+    <li class="breadcrumb-item active">All Dismiss Enquiries</li>
+  </app-breadcrumb>
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+        <!-- Row for Dropdowns and Date Filter -->
+        <div class="row">
+          <div class="col-md-3">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>Select Preference</mat-label>
+            <mat-select formControlName="project_configuration_id" multiple placeholder="Select configurations">
+              <mat-option *ngFor="let item of preferenceDropdown" [value]="item.project_configuration_id">
+                <span *ngIf="item.configuration">{{ item.configuration }} </span>
+                <span *ngIf="item.bhk"> {{ item.bhk }}</span>
+                <span *ngIf="item.carpet_area"> ({{ item.carpet_area }}{{ item.feet
+                  }})</span>
+              </mat-option>
+            </mat-select>
+
+          </mat-form-field>
+
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="sourcesList" formControlName="source_id" displayKey="source"
+              idKey="source_id" placeholder="Select Source">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <div class="col-md-2" *ngIf="!(this.enquiryFilterForm.controls['source_id'].value == '3')">
+            <app-autocomplete-reusable-component [options]="sourceDetailedList" formControlName="source_detail_id"
+              displayKey="source_detail" idKey="source_detail_id" placeholder="Select Source Detail">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <app-autocomplete-reusable-component [options]="allChannelPartnerList" class="col-md-2"
+            *ngIf="this.enquiryFilterForm.controls['source_id'].value == '3'" formControlName="channel_partner_id"
+            displayKey="full_name" idKey="channel_partner_id" placeholder="Select Partner Firm"
+            (inputChanged)="onPartnerSearch($event)">
+            <!-- event handler -->
+          </app-autocomplete-reusable-component>
+
+
+          <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive"
+            formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+            placeholder="Select Sales Executive">
+          </app-autocomplete-reusable-component>
+
+
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Date</mat-label>
+              <mat-date-range-input [rangePicker]="followUpDatePicker"
+                [disabled]="enquiryFilterForm.get('ignore_date_filters')?.value">
+                <input formControlName="start_date" matStartDate placeholder="Start date">
+                <input formControlName="end_date" matEndDate placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <!-- <div class="col-md-2 d-flex align-items-center">
+              <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+            </div> -->
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" (click)="fetchAllEnquiry()"
+              class="d-flex align-items-center w-100" [disabled]="!enquiryFilterForm.get('project_id')?.value">
+              Apply Filter
+            </button>
+          </div>
+        </div>
+      </form>
+
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_discard_enquiries'"
+    [apiMethod]="'POST'" [apiPayload]="getAgGridPayload()" [actions]="bookingActions" [idProperty]="'project_enq_id'"
+    [cacheBlockSize]="100" [autoLoad]="false" [selectedItems]="selectedBookings" (actionClick)="onActionClick($event)"
+    (rowSelected)="onRowSelected($event)">
+  </app-configurable-ag-grid-data>
+
+</app-template>

@@ -1,0 +1,98 @@
+<h2 mat-dialog-title>{{title}}</h2>
+<form [formGroup]="addressForm" (ngSubmit)="saveAddress()">
+    <mat-dialog-content>
+
+        <p class=" second-heading-ptag"> Current Address Information</p>
+        <div class="row">
+
+            <mat-form-field appearance="outline" class="col-md-6">
+                <textarea matInput rows="3" placeholder="Address Line 1..."
+                    formControlName="current_address_1"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-md-6">
+                <textarea matInput rows="3" placeholder="Address Line 2..."
+                    formControlName="current_address_2"></textarea>
+            </mat-form-field>
+
+        </div>
+
+        <div class="row">
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter Country" formControlName="current_country">
+                <mat-error *ngIf="addressForm.controls['current_country']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+            </mat-form-field>
+
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter State" formControlName="current_state">
+                <mat-error *ngIf="addressForm.controls['current_state']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+            </mat-form-field>
+
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter City" formControlName="current_city">
+                <mat-error *ngIf="addressForm.controls['current_city']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+            </mat-form-field>
+
+
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter Pincode" formControlName="current_pin">
+            </mat-form-field>
+        </div>
+
+        <mat-divider class="mb-3"> </mat-divider>
+
+        <div class="mb-3">
+            <mat-checkbox (change)="copyCurrentAddressToPermanent($event)"> Copy Current Address to
+                Permanent</mat-checkbox>
+        </div>
+
+        <p class="second-heading-ptag"> Permanent Address Information</p>
+
+        <div class="row">
+
+            <mat-form-field appearance="outline" class="col-md-6" >
+                <textarea matInput rows="3" placeholder="Address Line 1..."
+                    formControlName="permanent_address_1"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-md-6" >
+                <textarea matInput rows="3" placeholder="Address Line 2..."
+                    formControlName="permanent_address_2"></textarea>
+            </mat-form-field>
+        </div>
+
+        <div class="row">
+
+            <mat-form-field class="col" appearance="outline" >
+                <input matInput placeholder="Enter Country"
+                    formControlName="permanent_country">
+            </mat-form-field>
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter State"  formControlName="permanent_state">
+            </mat-form-field>
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter City"  formControlName="permanent_city">
+            </mat-form-field>
+
+            <mat-form-field class="col" appearance="outline">
+                <input matInput placeholder="Enter Pincode"  formControlName="permanent_pin">
+            </mat-form-field>
+        </div>
+
+
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button mat-dialog-close>Cancel</button>
+
+
+        <button mat-button type="submit" color="primary" [disabled]="uploading || addressForm.invalid" >
+          <span *ngIf="!uploading">Save</span>
+      </button>
+
+    </mat-dialog-actions>
+</form>

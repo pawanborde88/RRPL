@@ -1,0 +1,57 @@
+.budget-slider-container {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    
+    mat-slider {
+        min-width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .mat-mdc-slider {
+        --mdc-slider-handle-color: #3f51b5;
+        --mdc-slider-focus-handle-color: #3f51b5;
+        --mdc-slider-hover-handle-color: #3f51b5;
+        --mdc-slider-active-track-color: #3f51b5;
+        --mdc-slider-inactive-track-color: #c5cae9;
+    }
+
+    span {
+        color: #666;
+        font-size: 14px;
+    }
+}
+
+// Responsive styles
+@media screen and (max-width: 768px) {
+    .budget-slider-container {
+        padding: 8px;
+        
+        span {
+            font-size: 12px;
+        }
+    }
+}
+mat-slider {
+  width: 100%;
+
+}
+/* Make disabled fields look like normal text */
+.mat-form-field-disabled .mat-form-field-underline {
+    background-image: none !important;
+}
+.mat-select-disabled .mat-select-value-text {
+    color: rgba(0, 0, 0, 0.87) !important;
+}
+.enquiry-photo {
+  max-width: 100%;
+  height: auto;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 50%; /* Alternative to rounded-circle */
+}
+::ng-deep .full-bg-readonly .mat-mdc-text-field-wrapper {
+    z-index: 0;
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+}

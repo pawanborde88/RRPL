@@ -1,0 +1,54 @@
+<mat-dialog-content>
+
+    <mat-card>
+      <mat-card-content>
+        <form [formGroup]="addSOPForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-12">
+                <ng-container>
+                  <quill-editor
+                  formControlName="sop_step" [sanitize]="false"
+                  placeholder="Enter your content here..."
+                  [styles]="{ height: '100px' }"
+                ></quill-editor>
+                </ng-container>
+
+
+              <!-- <angular-editor formControlName="sop_step" [config]="editorConfig"></angular-editor> -->
+            </div>
+          </div>
+          <div class="row mt-2">
+            <!-- Active Status Field -->
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Active Status</mat-label>
+                <mat-select formControlName="active_status_id">
+                  <mat-option [value]="1">Active</mat-option>
+                  <mat-option [value]="2">Inactive</mat-option>
+                </mat-select>
+                <mat-error *ngIf="addSOPForm.controls['active_status_id'].hasError('required')">
+                  Active status is required.
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Sequence</mat-label>
+                <input matInput formControlName="sequence" placeholder="Enter sequence" />
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div mat-dialog-actions align="end">
+              <button mat-button color="warn" mat-dialog-close>
+                Close
+              </button>
+              <button mat-raised-button color="primary" type="submit" [disabled]="!addSOPForm.valid">
+                Save
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </mat-dialog-content>

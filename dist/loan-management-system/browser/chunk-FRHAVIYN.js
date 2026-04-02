@@ -1,0 +1,1 @@
+import{Ab as i}from"./chunk-E2V5MAYL.js";var p=(()=>{class r{transform(t,e){return t?t.length>e?t.substring(0,e)+"...":t:""}static{this.\u0275fac=function(e){return new(e||r)}}static{this.\u0275pipe=i({name:"truncate",type:r,pure:!0})}}return r})();export{p as a};

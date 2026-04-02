@@ -1,0 +1,82 @@
+<div class="container py-md-5 py-3">
+
+
+  <div class="row mb-3">
+<!-- ATTACHMENTS SECTION  -->
+      <div [ngClass]="!applicantWorkSamples['no_data'] ? 'no-border' : 'warning-border'"
+        class="card rounded-2 card-shadow-sm  p-4 mb-4 " id="attachments">
+
+        <div class="hstack align-items-center mb-3">
+          <p class="second-heading-ptag m-0">Attachments</p>
+          <button mat-button class="ms-auto" (click)="openAddUpdateWorkSampleDialog()" color="primary">Update
+            Attachments</button>
+        </div>
+
+        <div class="mb-3">
+          <div *ngFor="let section of sectionData">
+
+            <table class="table mb-3 table-sm  w-75 caption-top">
+              <caption class="border-bottom bg-light ps-2">{{section['title']}}</caption>
+              <tbody>
+                <tr *ngFor="let item of applicantWorkSamples[section['sectionString']]; let i =index;">
+                  <th class="col-1 align-middle text-center" scope="row">{{i+1}}</th>
+                  <td class="col-md-7 align-middle">{{item['attachment_name']}}</td>
+                  <td class="col-md-2 align-middle"> <a [href]="item['work_sample_attachment_link']" target="_blank"
+                      rel="noopener noreferrer">Link</a>
+                  </td>
+                  <td class="col-md-2 align-middle text-center">
+                    <button class="btn btn-sm" [disabled]="deleteLoading"
+                      (click)="deleteAttachment(item['work_sample_attachment_id'])" type="button">Delete</button>
+                  </td>
+
+
+                </tr>
+
+                <tr>
+                  <td *ngIf="!applicantWorkSamples[section['sectionString']].length" colspan="2" class="ps-3">No
+                    attachments available.</td>
+                </tr>
+
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CAREER PREFERENCE SECTION  -->
+      <div [ngClass]="applicantCareerPreferences.length? 'no-border' : 'warning-border'"
+        class="card rounded-2 card-shadow-sm  p-4 mb-4 " id="career_preference">
+
+        <div class="hstack align-items-center mb-3">
+          <p class="second-heading-ptag m-0">Career Preferences</p>
+          <button mat-button class="ms-auto" (click)="openAddCareerPreferenceDialog()" color="primary">Add
+            Preference</button>
+        </div>
+
+        <div *ngFor="let item of applicantCareerPreferences" class="mb-3">
+          <div class="hstack gap-2 align-items-center">
+            <span class="fw-medium  paragraph-text">{{ item.industry_string }}
+            </span>
+            <span>-</span>
+            <span class="fw-light paragraph-text">{{ item.functional_area_string }}
+            </span>
+            <mat-icon class="icon-button" (click)="openUpdateCareerPreferenceDialog(item)">edit</mat-icon>
+          </div>
+          <div class="vstack ">
+            <span class=" paragraph-text">{{ item.job_type_string }}
+            </span>
+            <span class="paragraph-text">{{ item.preferred_work_location }}
+            </span>
+          </div>
+
+
+        </div>
+
+        <app-no-data-error-message [dataArray]="applicantCareerPreferences"
+          [noDataErrorMessage]="noCareerPreferenceErrorMessage"></app-no-data-error-message>
+
+      </div>
+  </div>
+</div>

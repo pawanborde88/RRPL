@@ -1,0 +1,19 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item"><a routerLink="/all-setupDashboard">Setup Dashboard</a></li>
+
+        <li class="breadcrumb-item active">All WhatsApp Message Log</li>
+    </app-breadcrumb>
+
+
+
+
+
+
+    <app-configurable-ag-grid-data [loading]="loading()" [columns]="whatsappMessageColumns"
+        [apiEndpoint]="'fetch_chat_log'" [apiMethod]="'POST'" [apiPayload]="agGridPayload()">
+    </app-configurable-ag-grid-data>
+
+
+
+</app-template>

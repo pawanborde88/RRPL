@@ -1,0 +1,44 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item">IVR</li>
+        <li class="breadcrumb-item active">All IVR Users</li>
+    </app-breadcrumb>
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title>Filters</mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="filterForm" class="w-100 g-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                            displayKey="property_name" idKey="project_id" [isMultiSelect]="true"
+                            placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Status</mat-label>
+                            <mat-select formControlName="active_status_id" appearance="outline">
+                                <mat-option value="1">Active</mat-option>
+                                <mat-option value="0">Inactive</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-2">
+                        <button mat-raised-button color="primary" class="d-flex align-items-center w-100"
+                            [disabled]="filterForm.get('project_id')?.invalid" (click)="applyFilter()">
+                            Apply Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </mat-expansion-panel>
+    </mat-accordion> <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_ivr'"
+        [apiMethod]="'POST'" [apiPayload]="getAgGridPayload()" [actions]="userActions" [headerButtons]="headerButtons"
+        [showCheckbox]="false" [idProperty]="'ivr_id'" [selectedItems]="selectedUsers()" [cacheBlockSize]="100"
+        [autoLoad]="false" (actionClick)="onUserAction($event.action, $event.row)"
+        (checkboxChange)="onUserSelectionChange($event.checked, $event.row)">
+    </app-configurable-ag-grid-data>
+</app-template>

@@ -1,0 +1,215 @@
+<h2 mat-dialog-title>
+  {{ tokenID() ? 'Edit EOI' : 'Add EOI' }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="addTokenForm" class="row">
+    <!-- Project -->
+    <app-autocomplete-reusable-component [options]="projectsList()" class="col-md-3" formControlName="project_id"
+      displayKey="property_name" idKey="project_id" placeholder="Select Project" [disabled]="!!elementData()">
+    </app-autocomplete-reusable-component>
+
+    <app-autocomplete-reusable-component class="col-md-3" [options]="allSalesExecutive()"
+      formControlName="sales_executive_id" displayKey="user_name" idKey="user_id" placeholder="Select Sales Executive"
+      [disabled]="roleId === 7">
+    </app-autocomplete-reusable-component>
+    <mat-form-field class="col-md-3" appearance="outline">
+      <mat-label>EOI Date</mat-label>
+      <input matInput [matDatepicker]="trDate" formControlName="token_date" />
+      <mat-datepicker-toggle matSuffix [for]="trDate"></mat-datepicker-toggle>
+      <mat-datepicker #trDate></mat-datepicker>
+    </mat-form-field>
+    <!-- Token Type - disabled until project is selected -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Select EOI Type</mat-label>
+      <mat-select formControlName="token_type_id" [disabled]="!addTokenForm.get('project_id')?.value">
+        <mat-option *ngFor="let tokenType of allTokenType()" [value]="tokenType.token_type_id">
+          {{ tokenType.token_type }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Wing - disabled until project is selected -->
+    <ng-container *ngIf="isHighestTokenSelected()">
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Select Wing</mat-label>
+        <mat-select formControlName="wing_id" [disabled]="!addTokenForm.get('project_id')?.value">
+          <mat-option *ngFor="let wing of allWingslist()" [value]="wing.wing_id">
+            {{ wing.wing_name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addTokenForm.get('wing_id')?.hasError('required')">
+          Wing is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Select Floor</mat-label>
+        <mat-select formControlName="floor_id">
+          <mat-option *ngFor="let floor of FloorUnitDropdown()" [value]="floor.floor_id">
+            {{ floor.floor_name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addTokenForm.get('floor_id')?.hasError('required')">
+          Floor is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Unit Type</mat-label>
+        <mat-select formControlName="unit_type" [disabled]="!confiList().length">
+          <mat-option *ngFor="let item of confiList()" [value]="item.unit_type">
+            {{ item.unit_type }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addTokenForm.get('unit_type')?.hasError('required')">
+          Unit type is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-3">
+        <mat-label>Unit No</mat-label>
+        <mat-select formControlName="floor_unit_id">
+          <mat-option *ngFor="let unit of UnitNo()" [value]="unit.floor_unit_id">
+            {{ unit.floor_unit }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="addTokenForm.get('floor_unit_id')?.hasError('required')">
+          Unit number is required
+        </mat-error>
+      </mat-form-field>
+    </ng-container>
+
+    <!-- Salutation -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Salutation</mat-label>
+      <mat-select formControlName="salution_id">
+        <mat-option *ngFor="let salutation of salutationDropdown()" [value]="salutation.salution_id">
+          {{ salutation.salution }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- First Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="first_name" />
+      <mat-error *ngIf="addTokenForm.get('first_name')?.hasError('required')">
+        First name is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Middle Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Middle Name</mat-label>
+      <input matInput formControlName="middle_name" />
+    </mat-form-field>
+
+    <!-- Last Name -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="last_name" />
+      <mat-error *ngIf="addTokenForm.get('last_name')?.hasError('required')">
+        Last name is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Email -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email_id" placeholder="Email" />
+      <mat-error *ngIf="addTokenForm.get('email_id')?.hasError('required')">
+        Email is required
+      </mat-error>
+      <mat-error *ngIf="addTokenForm.get('email_id')?.hasError('email')">
+        Please enter a valid email
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Mobile Number -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Mobile Number</mat-label>
+      <input matInput formControlName="mob_no" />
+      <mat-error *ngIf="addTokenForm.get('mob_no')?.hasError('required')">
+        Mobile number is required
+      </mat-error>
+      <mat-error *ngIf="addTokenForm.get('mob_no')?.hasError('pattern')">
+        Invalid Mobile Number
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-3" *ngIf="!isHighestTokenSelected()">
+      <mat-label>Select Preference</mat-label>
+      <mat-select formControlName="project_configuration_id" multiple
+        [disabled]="!addTokenForm.get('project_id')?.value">
+        <mat-option *ngFor="let item of preferenceDropdown()" [value]="item.project_configuration_id">
+          <span *ngIf="item.configuration">{{ item.configuration }} </span>
+          <span *ngIf="item.bhk"> {{ item.bhk }}</span>
+          <span *ngIf="item.carpet_area"> ({{ item.carpet_area }}{{ item.feet
+            }})</span>
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="addTokenForm.get('project_configuration_id')?.hasError('required')">
+        Configuration is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Token Amount -->
+    <mat-form-field floatLabel="always" appearance="outline" class="col-md-3 full-bg-readonly">
+      <mat-label>Token Amount</mat-label>
+      <input matInput readonly formControlName="token_amount" appAmount class="example-right-align" placeholder="0">
+      <mat-error *ngIf="addTokenForm.get('token_amount')?.hasError('required')">
+        Token amount is required
+      </mat-error>
+      <mat-error *ngIf="addTokenForm.get('token_amount')?.hasError('min')">
+        Token amount must be greater than 0
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Source Description -->
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Source Info</mat-label>
+      <input matInput formControlName="source_description" placeholder="Enter Source Info">
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-3">
+      <mat-label>Source</mat-label>
+      <mat-select formControlName="source_id" [disabled]="isSourceFieldsDisabled()">
+        <mat-option *ngFor="let source of sourcesList()" [value]="source.source_id">
+          {{ source.source }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-3"
+      *ngIf="!(this.addTokenForm.controls['source_id'].value == '3')">
+      <mat-label>Select Source Detail</mat-label>
+      <mat-select formControlName="source_detail_id" [disabled]="isSourceFieldsDisabled()">
+        <mat-option *ngFor="let sourceDetails of sourceDetailedList()" [value]="sourceDetails.source_detail_id">
+          {{ sourceDetails.source_detail }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-3"
+      *ngIf="(addTokenForm.get('source_id')?.value == '3')" formControlName="channel_partner_id" displayKey="full_name"
+      idKey="channel_partner_id" placeholder="Select Partner Firm" [disabled]="isSourceFieldsDisabled()"
+      (inputChanged)="onPartnerSearch($event)">
+    </app-autocomplete-reusable-component>
+    <!-- Comment -->
+    <mat-form-field appearance="outline" class="col-md-6">
+      <mat-label>Remark</mat-label>
+      <input matInput matTextareaAutosize placeholder="Enter Remark" formControlName="comment">
+      <mat-error *ngIf="addTokenForm.get('comment')?.hasError('required')">
+        Remark is required
+      </mat-error>
+    </mat-form-field>
+
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button *ngIf="!tokenPaymentId()" mat-raised-button color="primary" type="submit" (click)="onSubmit()"
+    [disabled]="addTokenForm.invalid">
+    {{ tokenID() ? 'Update EOI' : 'Submit EOI' }}
+  </button>
+</mat-dialog-actions>

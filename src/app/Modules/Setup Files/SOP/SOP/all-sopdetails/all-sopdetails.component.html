@@ -1,0 +1,80 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item">SOP Details</li>
+  </app-breadcrumb>
+
+  <div class="container">
+    <div class="row">
+      <!-- SOP Details Section -->
+      <div class="col-md-4">
+        <!-- Featured Image -->
+        <img alt="SOP featured" style="max-height: 500px; max-width: 100%"
+          [src]="sopSteplist.sop_detail?.featured_image ? (storageUrl + '/' + sopSteplist.sop_detail.featured_image) : 'assets/Images/avatar.png'" />
+        <!-- SOP Detail Content -->
+        <div [innerHTML]="sopSteplist.sop_detail?.sop_detail"></div>
+      </div>
+
+      <!-- SOP Steps Section -->
+      <div class="col-md-8">
+        <div class="row">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{ sopSteplist.sop_detail?.title }}</mat-card-title>
+
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="p-2 pb-0 mb-0  bg-light">
+                <h4><span style="font-size: 1.2rem; font-weight: 500;">Purpose : </span> {{ sopSteplist?.purpose }}</h4>
+              </div>
+              <!-- Display each SOP step -->
+              <div *ngFor="let step of sopSteplist.sop_steps">
+                <mat-card class="step-card" style="margin-bottom: 20px; border-left: 4px solid #3f51b5;">
+                  <mat-card-header>
+                    <mat-card-title>
+                      Step {{ step.sequence }}:
+                      <!-- Radio Buttons for Step Status -->
+                      <mat-radio-group [(ngModel)]="step.status_id" aria-label="Select step status">
+                        <mat-radio-button [value]="1">Done</mat-radio-button>
+                        <mat-radio-button [value]="2">Not Done</mat-radio-button>
+                        <mat-radio-button [value]="3">NA</mat-radio-button>
+                      </mat-radio-group>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="row">
+                      <!-- SOP Step Content -->
+                      <div [innerHTML]="step.sop_step"></div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-10">
+                        <!-- Comment Input -->
+                        <mat-form-field class="col-md-12" appearance="outline">
+                          <mat-label>Comment</mat-label>
+                          <textarea matAutosize matAutosizeMinRows="3" matAutosizeMaxRows="5" matInput
+                            [(ngModel)]="step.comment"></textarea>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-md-2">
+                        <!-- Save Button -->
+                        <button mat-raised-button color="primary" [disabled]="!step.comment?.trim()"
+                          (click)="addSOPStepLog(step)">
+                          Save
+                        </button>
+                      </div>
+                      <p class="text-muted" *ngIf="step.comment">
+                        <strong>Updated By:</strong> {{ step.created_by_name }}
+                        <strong>On </strong> {{ step.created_at | date: 'dd MMMM yyyy, h:mm a' }}
+                      </p>
+                    </div>
+
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-template>

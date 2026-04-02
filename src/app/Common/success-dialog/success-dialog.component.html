@@ -1,0 +1,27 @@
+<div class="flex flex-col items-center justify-center p-8 text-center bg-white rounded-xl">
+  <!-- Status Icon Container -->
+  <div [class]="data.status ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'"
+    class="flex items-center justify-center w-20 h-20 mb-6 transition-transform duration-500 scale-110 rounded-full">
+    <mat-icon class="!text-5xl !w-12 !h-12">{{ icon }}</mat-icon>
+  </div>
+
+  <!-- Content Section -->
+  <div class="space-y-2">
+    <h2 class="text-2xl font-bold tracking-tight text-slate-800" *ngIf="title">
+      {{ title }}
+    </h2>
+    <p class="text-lg leading-relaxed text-slate-500 max-w-[280px]">
+      {{ data.message }}
+    </p>
+  </div>
+
+  <!-- Actions -->
+  <div class="mt-8 transition-all duration-300" >
+    <button mat-flat-button
+      class="!px-10 !py-6 !text-lg !font-medium !rounded-xl !transition-all hover:!scale-105 active:!scale-95"
+      [class]="data.status ? '!bg-sky-800 !text-white hover:!bg-sky-800' : '!bg-rose-500 !text-white hover:!bg-rose-600'"
+      [mat-dialog-close]="true" cdkFocusInitial>
+      {{ data.buttonText || 'OK' }}
+    </button>
+  </div>
+</div>

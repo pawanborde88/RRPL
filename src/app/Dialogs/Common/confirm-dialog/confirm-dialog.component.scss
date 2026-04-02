@@ -1,0 +1,52 @@
+
+.dialog-content {
+  padding: 20px 24px;
+  
+  .warning-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    .warning-icon {
+      margin-right: 12px;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+    
+    .warning-message {
+      margin: 0;
+      font-size: 16px;
+      color: #d32f2f;
+    }
+  }
+  
+  .instruction-text {
+    margin: 16px 0 8px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .reason-field {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+.dialog-actions {
+  padding: 8px 24px;
+  margin-bottom: 0;
+  
+  button {
+    margin-left: 8px;
+    min-width: 100px;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+  
+  .delete-button:disabled {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+  }
+}

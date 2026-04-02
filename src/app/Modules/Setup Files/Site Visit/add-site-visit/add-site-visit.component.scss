@@ -1,0 +1,28 @@
+.no-data-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.no-data-card {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.no-data-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  color: #757575;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.loading-container mat-spinner {
+  margin-bottom: 16px;
+}

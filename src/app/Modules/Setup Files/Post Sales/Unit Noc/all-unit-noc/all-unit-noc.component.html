@@ -1,0 +1,44 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item"><a routerLink="/">Post Sales</a></li>
+    <li class="breadcrumb-item active">Project Bank Master</li>
+  </app-breadcrumb>
+
+  <mat-card class="shadow-sm mb-4">
+    <mat-card-title class="text-primary">Project Bank Master</mat-card-title>
+
+    <mat-card-content>
+      <mat-progress-bar *ngIf="loading" mode="query"></mat-progress-bar>
+
+      <div class="p-3 border rounded bg-light">
+        <mat-tab-group mat-stretch-tabs class="custom-tab-group">
+          <!-- Add Unit NOC Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="me-1">edit_note</mat-icon>
+              <span class="fw-bold">Add Unit NOC</span>
+            </ng-template>
+
+            <div class="p-3">
+              <app-add-unit-noc></app-add-unit-noc>
+            </div>
+          </mat-tab>
+
+          <!-- List Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="me-1">list</mat-icon>
+              <span class="fw-bold">List</span>
+            </ng-template>
+
+            <div class="p-3">
+              <app-reusable-custom-table [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+                [roleId]="roleId" (onActionClick)="handleTableAction($event)">
+              </app-reusable-custom-table>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</app-template>

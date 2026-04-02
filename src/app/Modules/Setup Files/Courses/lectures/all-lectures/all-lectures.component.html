@@ -1,0 +1,63 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">All lectures</li>
+    </app-breadcrumb>
+
+    <mat-card class="my-4 shadow-sm">
+        <mat-card-content>
+            <div *ngIf="loading" class="text-center">
+                <mat-spinner></mat-spinner>
+                <p>Loading sections...</p>
+            </div>
+            <mat-card-header class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2 mb-3">
+                    <button mat-raised-button color="primary" (click)="openLecturesDialog('add', sectionID)">
+                        <mat-icon class="me-1">add_circle</mat-icon> Add lectures
+                    </button>
+                </div>
+            </mat-card-header>
+            <div *ngIf="!loading && dataSource.data.length">
+                <div class="row">
+                    <div *ngFor="let lecture of dataSource.data" class="col-md-4 mb-4">
+                        <mat-card>
+                            <mat-card-header>
+                                <mat-card-title>{{ lecture.title }}</mat-card-title>
+                                <mat-card-subtitle>{{ lecture.quiz_name }}</mat-card-subtitle>
+                            </mat-card-header>
+
+                            <mat-card-content>
+                                <p *ngIf="lecture.content">{{ lecture.content }}</p>
+                                <p *ngIf="!lecture.content">No content available for this lecture.</p>
+
+                                <div *ngIf="lecture.lecture_video">
+                                    <p><strong>Lecture Video:</strong></p>
+                                    <video width="100%" controls>
+                                        <source [src]="storageUrl + '/' + lecture.lecture_video" type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+
+                                <div *ngIf="lecture.enroll_exists">
+                                    <button mat-button>Enroll Now</button>
+                                </div>
+                            </mat-card-content>
+                            <mat-card-actions align="end">
+                                <button mat-button>
+                                    <button mat-icon-button color="primary"
+                                        (click)="openLecturesDialog('edit',lecture )"
+                                        (click)="$event.stopPropagation()">
+                                        <mat-icon>edit_note</mat-icon>
+                                    </button>
+                                </button>
+                                <button mat-icon-button color="warn" (click)="$event.stopPropagation()"
+                                    (click)="deleteLecture(lecture.lecture_id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </mat-card-actions>
+                        </mat-card>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</app-template>

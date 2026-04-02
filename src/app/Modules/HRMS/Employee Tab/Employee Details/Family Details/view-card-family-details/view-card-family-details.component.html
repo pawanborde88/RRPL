@@ -1,0 +1,48 @@
+<mat-card class="mt-3 card-shadow-sm">
+  <div [ngClass]="applicantKnownLanguages.length? 'no-border' : 'warning-border'"
+  class="card rounded-2 card-shadow-sm  p-4" id="languages">
+
+  <div class="hstack align-items-center mb-3">
+    <p class="second-heading-ptag m-0">Family Details</p>
+    <button mat-button class="ms-auto" (click)="openFamilyDetailsDialog('add')" color="primary">Add
+      Family</button>
+  </div>
+
+  <table *ngIf="applicantKnownLanguages?.length" class="table mb-3 table-sm w-75">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Relation</th>
+        <th scope="col">Name</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Email</th>
+        <th scope="col" class="text-center">Action</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of applicantKnownLanguages; let i =index;">
+        <th class="col-1 align-middle text-center" scope="row">{{i+1}}</th>
+        <td class="col align-middle">{{item['full_name']}}</td>
+        <td class="col-md-2 align-middle">{{item['relation']}}</td>
+        <td class="col align-middle">{{item['full_name']}}</td>
+        <td class="col align-middle">{{item['phone']}}</td>
+        <td class="col align-middle">{{item['email']}}</td>
+
+        <td class="col align-middle text-center">
+          <button class="btn btn-sm" [disabled]="deleteLoading" (click)="openFamilyDetailsDialog('update',item)"
+            type="button">Edit</button>
+            <button class="btn btn-sm" [disabled]="deleteLoading" (click)="deleteFamily(item.employee_family_id)"
+            type="button">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <app-no-data-error-message [dataArray]="applicantKnownLanguages"
+    [noDataErrorMessage]="'Share your language proficiency and known languages to help recruiters understand you better.'"></app-no-data-error-message>
+
+</div>
+</mat-card>
+

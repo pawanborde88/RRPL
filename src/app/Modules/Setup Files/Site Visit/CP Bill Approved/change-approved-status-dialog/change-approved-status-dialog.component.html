@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Change Booking Status</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="outline" class="col-md-12">
+    <mat-label>Select Status</mat-label>
+    <mat-select [(ngModel)]="selectedStatus">
+        <mat-option [value]="1">Approved</mat-option>
+        <mat-option [value]="2">Rejected</mat-option>
+        <mat-option [value]="3">Pending</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="col-md-12" >
+    <mat-label> Reason</mat-label>
+    <textarea matInput [(ngModel)]="rejectionReason"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+
+  <button mat-raised-button color="primary" (click)="onConfirm()">Confirm</button>
+</mat-dialog-actions>

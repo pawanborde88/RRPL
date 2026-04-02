@@ -1,0 +1,90 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">Marketing</li>
+
+    <li class="breadcrumb-item active">All Expenses</li>
+  </app-breadcrumb>
+  <mat-card>
+    <mat-card-content>
+
+      <form [formGroup]="addExpense" class="row">
+        <!-- Project Select -->
+        <div class="col-md-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Project</mat-label>
+            <mat-select formControlName="project_id" multiple>
+              <mat-option *ngFor="let project of projectsList" [value]="project.project_id">
+                {{ project.property_name }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="addExpense.get('project_id')?.invalid && addExpense.get('project_id')?.touched">
+              Project is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="col-md-2">
+          <mat-label>Source</mat-label>
+          <mat-select formControlName="source_id" multiple>
+            <mat-option *ngFor="let source of sourcesList" [value]="source.source_id">
+              {{ source.source }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-3" *ngIf="addExpense.controls['source_id'].value !== '3'">
+          <mat-label>Select Source Detail</mat-label>
+          <mat-select formControlName="source_detail_id" multiple>
+            <mat-option *ngFor="let sourceDetails of sourcerDetailedList" [value]="sourceDetails.source_detail_id">
+              {{ sourceDetails.source_detail }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <app-autocomplete-reusable-component class="col-md-3" *ngIf="addExpense.controls['source_id'].value === '3'"
+          [options]="allChannelPartnerList" formControlName="channel_partner_id" displayKey="full_name"
+          idKey="channel_partner_id" placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+        </app-autocomplete-reusable-component>
+
+        <!-- Vendor Select -->
+        <div class="col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Select Vendor</mat-label>
+            <mat-select formControlName="vendor_id" multiple>
+              <mat-option *ngFor="let vendor of vendorsList" [value]="vendor.vendor_id">
+                {{ vendor.vendor_name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Date Range -->
+        <div class="col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Expense Date </mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+              <input formControlName="start_date" matStartDate placeholder="Start date">
+              <input formControlName="end_date" matEndDate placeholder="End date">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+        </div>
+
+        <!-- Filter Button -->
+        <div class="col-md-1">
+          <button mat-raised-button color="primary" (click)="filterData()" class="btn-sm">
+            Filter
+          </button>
+        </div>
+      </form>
+
+
+      <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+        [actions]="leadActions" [showFooter]="true" [headerButtons]="headerButtons"
+        (actionClick)="getLeadActions($event.action, $event.row)">
+      </app-reusable-custom-table>
+
+    </mat-card-content>
+  </mat-card>
+</app-template>

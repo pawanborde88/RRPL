@@ -1,0 +1,50 @@
+// Settings Dashboard Component Styles
+// Minimal SCSS as most styling is now handled via Tailwind CSS
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// Custom animations or unique utilities not easily done in Tailwind
+.settings-dashboard {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  // Material Icon adjustments to ensure alignment in our custom flex containers
+  mat-icon {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    
+    // Allow for !text- size overrides from Tailwind
+    &.mat-icon {
+      width: auto;
+      height: auto;
+    }
+  }
+
+  // Ensure backdrop blur works even in older browsers with fallback
+  .backdrop-blur-md {
+    @supports not (backdrop-filter: blur(12px)) {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+  }
+}
+
+// Custom line-clamp for browsers needing it
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+

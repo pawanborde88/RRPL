@@ -1,0 +1,105 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form [formGroup]="workExperienceForm" (ngSubmit)="saveWorkExperience()">
+  <mat-dialog-content>
+
+    <div class="row">
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Company Name</mat-label>
+        <input matInput formControlName="organization" aria-label="Company Name">
+        <mat-error *ngIf="workExperienceForm.controls['organization'].hasError('required')">
+          Field is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Your Role/Designation</mat-label>
+        <input matInput formControlName="designation" aria-label="Designation">
+        <mat-error *ngIf="workExperienceForm.controls['designation'].hasError('required')">
+          Field is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>CTC (In Rupees)</mat-label>
+        <input matInput formControlName="current_ctc" aria-label="CTC">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>From Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="fromPicker"
+          placeholder="From Date"
+          formControlName="from_date"
+          (dateChange)="calculateWorkExperience()"
+          aria-label="From Date">
+        <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromPicker></mat-datepicker>
+        <mat-error *ngIf="workExperienceForm.controls['from_date'].hasError('customError')">
+          Please enter a 'From Date' which is prior to 'To Date'.
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>To Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="toPicker"
+          placeholder="To Date"
+          formControlName="to_date"
+          [readonly]="currentlyWorking"
+          (dateChange)="calculateWorkExperience()"
+          aria-label="To Date">
+        <mat-datepicker-toggle
+          [disabled]="currentlyWorking"
+          matSuffix
+          [for]="toPicker"></mat-datepicker-toggle>
+        <mat-datepicker #toPicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col readonly-field col-md-4">
+        <mat-label>Total Experience</mat-label>
+        <input matInput placeholder="Total Work Experience" formControlName="work_experience" aria-label="Work Experience" readonly>
+      </mat-form-field>
+
+
+
+      <mat-form-field appearance="outline" class="col-md-12">
+        <mat-label>Work Summary</mat-label>
+        <textarea matInput rows="3" formControlName="summary" aria-label="Work Summary"></textarea>
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <mat-checkbox
+          color="primary"
+          style="position: relative; top: -10px;"
+          (change)="onCurrentlyWorkingChange($event)"
+          aria-label="Currently Working">
+          Currently Working?
+        </mat-checkbox>
+      </div>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button
+      *ngIf="this.title === 'Update Work experience'"
+      mat-button
+      type="button"
+      (click)="deleteWorkExperience()"
+      color="warn"
+      class="me-auto"
+      [disabled]="deleteLoading">
+      <span *ngIf="!deleteLoading">Delete Work Experience</span>
+      <mat-spinner color="warn" diameter="20" *ngIf="deleteLoading"></mat-spinner>
+    </button>
+
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="uploading || workExperienceForm.invalid || invalidDateRange">
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>

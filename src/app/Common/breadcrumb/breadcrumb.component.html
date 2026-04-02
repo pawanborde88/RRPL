@@ -1,0 +1,18 @@
+<nav aria-label="Breadcrumb navigation" class="breadcrumb-container">
+  <div class="breadcrumb-wrapper">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item home-item">
+        <a routerLink="/home-page" routerLinkActive="active" [routerLinkActiveOptions]="{exact: false}"
+          title="Dashboard">
+          <div class="home-icon-circle">
+            <mat-icon>home</mat-icon>
+          </div>
+        </a>
+      </li>
+      <ng-content></ng-content>
+    </ol>
+    <div class="ms-auto">
+      <ng-content select="[actions]"></ng-content>
+    </div>
+  </div>
+</nav>

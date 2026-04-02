@@ -1,0 +1,79 @@
+<h6 mat-dialog-title class="dialog-title relative pr-10">
+  Add Follow Up
+  @if (data?.firm_name) {
+    <span class="font-normal opacity-85"> – {{ data.firm_name }}</span>
+  }
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+  <div class="container">
+    @if (isLoadingList) {
+      <div class="flex justify-center items-center py-8 gap-3">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span class="text-sm text-gray-500">Loading...</span>
+      </div>
+    } @else if (followUpList.length === 0) {
+      <div class="no-comments text-center py-10 text-gray-500">
+        <mat-icon class="block w-12 h-12 mb-4 mx-auto text-gray-300">chat_bubble_outline</mat-icon>
+        <p class="text-base m-0">No follow-ups yet.</p>
+      </div>
+    } @else {
+      <div class="comment-cards-container flex flex-col gap-3 py-2 max-h-[280px] overflow-y-auto">
+        @for (item of followUpList; track item.cp_follow_up_id ?? $index) {
+          <mat-card class="comment-card w-full rounded-[10px] shadow-sm">
+            <mat-card-header class="comment-header px-3 py-2 bg-[#f6f8fa] border-b border-gray-200">
+              <div class="user-info flex items-center gap-2.5">
+                <mat-icon class="user-icon text-gray-500 text-2xl w-6 h-6 shrink-0">account_circle</mat-icon>
+                <span class="user-name text-[0.9rem]">{{ item.created_by_name || '—' }}</span>
+                <span class="comment-date text-xs text-gray-600">
+                  {{ item.followup_date }}
+                </span>
+              </div>
+            </mat-card-header>
+
+            <mat-card-content class="comment-content p-3 text-[0.9rem] leading-relaxed">
+              <p class="m-0">{{ item.message }}</p>
+            </mat-card-content>
+
+  
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="dialog-actions px-6 py-4 border-t border-gray-200 bg-[#fafafa]">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="comment-form w-full">
+    <div class="form-row grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-4">
+      <mat-form-field appearance="outline" class="form-field w-full">
+        <mat-label>Follow-up Date</mat-label>
+        <input matInput [matDatepicker]="followUpPicker" formControlName="followup_date" placeholder="Pick date" />
+        <mat-datepicker-toggle matSuffix [for]="followUpPicker"></mat-datepicker-toggle>
+        <mat-datepicker #followUpPicker></mat-datepicker>
+        <mat-error *ngIf="form.get('followup_date')?.hasError('required')">Date is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="comment-input-row flex w-full">
+      <mat-form-field appearance="outline" class="comment-input flex-1 min-w-0">
+        <mat-label>Add your follow-up</mat-label>
+        <textarea matInput formControlName="message" rows="2" placeholder="e.g. Client interested in 2BHK flat"></textarea>
+        <mat-error *ngIf="form.get('message')?.hasError('required')">Message is required</mat-error>
+        <button mat-icon-button matSuffix color="primary" type="submit" [disabled]="form.invalid || isSubmitting"
+          matTooltip="Add follow-up">
+          @if (isSubmitting) {
+            <mat-spinner diameter="24"></mat-spinner>
+          } @else {
+            <mat-icon>send</mat-icon>
+          }
+        </button>
+      </mat-form-field>
+    </div>
+
+ 
+  </form>
+</mat-dialog-actions>

@@ -1,0 +1,77 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item"><a routerLink="/all-sop">All SOP</a></li>
+        <li class="breadcrumb-item">SOP Execution History</li>
+    </app-breadcrumb>
+    <mat-card appearance="outlined" class="table-responsive mat-elevation-z8 rounded">
+        <mat-card-content>
+            <div *ngIf="dataSource.data.length === 0; else tableContent" class="text-center">
+                <p>No SOP records available.</p>
+            </div>
+            <ng-template #tableContent>
+                <div class="table-responsive">
+                    <section class="mat-elevation-z8 w-100" tabindex="0">
+                        <mat-table [dataSource]="dataSource" class="mat-table table-hove" matSort>
+
+                            <!-- SOP Title Column -->
+                            <ng-container matColumnDef="sop_title">
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> SOP Title </mat-header-cell>
+                                <mat-cell *matCellDef="let element"> {{ element.sop_title }} </mat-cell>
+                            </ng-container>
+
+                            <!-- Purpose Column -->
+                            <ng-container matColumnDef="purpose">
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> Purpose </mat-header-cell>
+                                <mat-cell *matCellDef="let element"> {{ element.purpose }} </mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="created_by_name">
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> Executed By </mat-header-cell>
+                                <mat-cell *matCellDef="let element"> {{ element.created_by_name }} </mat-cell>
+                            </ng-container>
+                            <ng-container matColumnDef="status">
+
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> SOP Status </mat-header-cell>
+                                <mat-cell *matCellDef="let element">
+                                    <mat-icon [color]="element.ended_at ? 'primary' : 'warn'">
+                                        {{ element.ended_at ? 'check_circle' : 'hourglass_empty' }}
+                                    </mat-icon>
+                                </mat-cell>
+
+                            </ng-container>
+
+                            <!-- Created At Column -->
+                            <ng-container matColumnDef="created_at">
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> Created At </mat-header-cell>
+                                <mat-cell *matCellDef="let element">
+                                    {{ element.created_at | date: 'dd MMM yyyy' }}
+                                </mat-cell>
+                            </ng-container>
+
+                            <!-- Updated At Column -->
+                            <ng-container matColumnDef="updated_at">
+                                <mat-header-cell *matHeaderCellDef mat-sort-header> Updated At </mat-header-cell>
+                                <mat-cell *matCellDef="let element">
+                                    {{ element.updated_at | date: 'dd MMM yyyy' }}
+                                </mat-cell>
+                            </ng-container>
+
+                            <!-- Actions Column -->
+                            <ng-container matColumnDef="actions">
+                                <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
+                                <mat-cell *matCellDef="let element">
+                                    <button mat-icon-button color="primary" (click)="$event.stopPropagation()"
+                                        [routerLink]="['/all-SOPdetails', element.sop_execution_id]">
+                                        <mat-icon>pageview</mat-icon>
+                                    </button>
+                                </mat-cell>
+                            </ng-container>
+                            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                        </mat-table>
+                    </section>
+                </div>
+            </ng-template>
+
+        </mat-card-content>
+    </mat-card>
+</app-template>

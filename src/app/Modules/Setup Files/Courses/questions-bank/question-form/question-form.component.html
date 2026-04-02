@@ -1,0 +1,141 @@
+<h2 mat-dialog-title>{{ dialogTitle }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="form">
+  <!-- Row 1: Points + Competency Level -->
+  <div class="row ">
+    <div class="col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Points</mat-label>
+        <input matInput type="number" formControlName="points" />
+        <mat-error *ngIf="form.get('points')?.touched && form.get('points')?.hasError('required')">
+          Points is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Competency Level</mat-label>
+        <mat-select formControlName="competency_level_id">
+          <mat-option [value]="null">Select one</mat-option>
+          <mat-option *ngFor="let comp of allCompetencies" [value]="comp.competency_level_id">
+            {{ comp.competency_level }}
+          </mat-option>
+        </mat-select>
+        <mat-error
+          *ngIf="form.get('competency_level_id')?.touched && form.get('competency_level_id')?.hasError('required')">
+          Competency Level is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Row 2: Category -->
+  <div class="row g-3">
+    <div class="col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category_id">
+          <mat-option [value]="null">Select one</mat-option>
+          <mat-option *ngFor="let category of allCategories" [value]="category.category_id">
+            {{ category.category_name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('category_id')?.touched && form.get('category_id')?.hasError('required')">
+          Category is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Row 3: Question Text -->
+  <div class="row">
+    <div class="col-12">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Question Text</mat-label>
+        <textarea matInput formControlName="question_text" rows="3" placeholder="Enter the question text"></textarea>
+        <mat-error *ngIf="form.get('question_text')?.touched && form.get('question_text')?.hasError('required')">
+          Question Text is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Row 4: Options -->
+  <div>
+    <label class="mb-2 d-block">Options:</label>
+    <div formArrayName="options">
+      <!-- Edit Mode: Checkboxes -->
+      <div *ngIf="isEditMode">
+        <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i" class="mb-2">
+          <div class="d-flex align-items-center">
+            <!-- Option Text -->
+            <mat-form-field appearance="outline" class="flex-grow-1 me-2 mb-0">
+              <mat-label>Option {{ i + 1 }}</mat-label>
+              <input matInput formControlName="option_text" />
+              <mat-error *ngIf="option.get('option_text')?.touched && option.get('option_text')?.hasError('required')">
+                Option text is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Checkbox -->
+            <mat-checkbox formControlName="is_correct_option" color="primary" class="me-2"
+              (change)="onCorrectOptionChange(i)"></mat-checkbox>
+
+            <!-- Delete Button -->
+            <button mat-icon-button color="warn" type="button" (click)="removeOption(i)" [disabled]="options.length === 1">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Mode: Radio Buttons -->
+      <div *ngIf="!isEditMode">
+        <mat-radio-group [formControl]="getCorrectOptionControl()" color="primary">
+          <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i"
+            class="d-flex align-items-center mb-2">
+            <!-- Option Text -->
+            <mat-form-field appearance="outline" class="flex-grow-1 me-2 mb-0">
+              <mat-label>Option {{ i + 1 }}</mat-label>
+              <input matInput formControlName="option_text" />
+              <mat-error *ngIf="option.get('option_text')?.touched && option.get('option_text')?.hasError('required')">
+                Option text is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Radio Button -->
+            <mat-radio-button [value]="i" color="primary" class="me-2"></mat-radio-button>
+
+            <!-- Delete Button -->
+            <button mat-icon-button color="warn" type="button" (click)="removeOption(i)"
+              [disabled]="options.length === 1" aria-label="Delete Option">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-radio-group>
+      </div>
+    </div>
+
+    <button mat-button color="primary" type="button" (click)="addOption()">
+      <mat-icon>add</mat-icon> Add Option
+    </button>
+    
+    <mat-hint class="text-muted mt-2 d-block" *ngIf="!isEditMode">
+      Select the radio button for the correct answer
+    </mat-hint>
+    <mat-hint class="text-muted mt-2 d-block" *ngIf="isEditMode">
+      Check the box(es) for the correct answer(s)
+    </mat-hint>
+  </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" (click)="save()">
+    {{ isEditMode ? 'Update Question' : 'Add Question' }}
+  </button>
+</mat-dialog-actions>
+

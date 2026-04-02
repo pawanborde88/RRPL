@@ -1,0 +1,78 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content class="mat-typography">
+
+
+  <form [formGroup]="addBrokerageOfferImages" class="row g-3 align-items-center">
+
+
+    <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>CP Type</mat-label>
+        <mat-select formControlName="cp_type_id">
+            <mat-option *ngFor="let CPtypes of allcpList" [value]="CPtypes.cp_type_id">
+                {{ CPtypes.cp_type }}
+            </mat-option>
+        </mat-select>
+        
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>CP Phase</mat-label>
+        <mat-select formControlName="phase_id">
+            <mat-option *ngFor="let phase of allProjectPhases" [value]="phase.phase_id">
+                {{ phase.phase_name }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Offer Date</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+            <input formControlName="valid_from" matStartDate placeholder="Start date">
+            <input formControlName="valid_till" matEndDate placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Active Status</mat-label>
+        <mat-select formControlName="active_status_id">
+            <mat-option [value]="1">Active</mat-option>
+            <mat-option [value]="0">Inactive</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <div class="col-md-12">
+      <label for="fileInput" class="form-label fw-bold">Upload Brokerage Offer Image</label>
+      <div class="upload-area p-3 rounded d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <div class="input-group">
+            <input #fileInput type="file" (change)="selectFile($event)" formControlName="brokerage_slab_image"
+              class="file-input" multiple hidden />
+            <button mat-raised-button color="primary" (click)="fileInput.click()">
+              <mat-icon>upload</mat-icon> Choose Files
+            </button>
+          </div>
+        </div>
+      </div>
+    
+      <div class="mt-4">
+        <div class="image-gallery d-flex flex-wrap">
+          <div class="attachment-container position-relative m-2" *ngFor="let file of selectedFiles; let i = index">
+            <img [src]="file.preview" alt="Preview" class="attachment-img rounded" style="width: 100px; height: 100px; object-fit: cover;"/>
+            <button mat-icon-button color="warn" (click)="removeFile(i)" class="delete-btn position-absolute top-0 end-0">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+  
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="onSubmit()" type="submit">
+    Save
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,37 @@
+<h2 mat-dialog-title>
+    Agreement Letter Details
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+
+<div class="dialog-container">
+    <mat-dialog-content>
+        @if (loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Fetching letter details...</p>
+        </div>
+        } @else if (letterData()?.file_url) {
+        <div class="viewer-container">
+            <ngx-doc-viewer [url]="letterData().file_url" viewer="office"
+                style="width: 100%; height: 100%; border: none;">
+            </ngx-doc-viewer>
+        </div>
+        } @else {
+        <div class="error-container">
+            <mat-icon color="warn" class="large-icon">error_outline</mat-icon>
+            <p>Failed to load letter details or file URL missing.</p>
+            <button mat-raised-button color="primary" (click)="fetchLetterData()">Retry</button>
+        </div>
+        }
+    </mat-dialog-content>
+</div>
+
+<mat-dialog-actions align="end">
+    @if (letterData()?.file_url) {
+    <a [href]="letterData().file_url" target="_blank" mat-raised-button color="primary">
+        <mat-icon>file_download</mat-icon> Download Document
+    </a>
+    }
+</mat-dialog-actions>
