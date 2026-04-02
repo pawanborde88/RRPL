@@ -1,0 +1,106 @@
+<h6 mat-dialog-title class="dialog-title">
+  IVR Call Recording
+  <!-- Card View only: removed toggle buttons for table/card switch -->
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h6>
+<mat-dialog-content class="flex-1 overflow-y-auto p-6">
+
+
+  <!-- Error State -->
+  <div *ngIf="isError && !isLoading" class="text-center py-12">
+    <div class="text-red-600 mb-4">
+      <mat-icon class="text-4xl mb-2">error_outline</mat-icon>
+      <p class="text-lg font-medium">Failed to load recordings</p>
+    </div>
+    <p class=" mb-4">{{ errorMessage }}</p>
+    <button mat-raised-button color="primary" (click)="fetchRecordings()">
+      Retry
+    </button>
+  </div>
+
+  <!-- Recordings List -->
+  <div *ngIf="!isLoading && !isError" class="space-y-6">
+    <!-- No Recordings State -->
+    <div *ngIf="recordings.length === 0" class="text-center py-12">
+      <i class="fa-solid fa-microphone-lines-slash"></i>
+      <p class=" text-lg">No call recordings found</p>
+    </div>
+
+    <!-- Recordings Grid -->
+    <div *ngFor="let recording of recordings; let i = index"
+      class="rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+
+      <!-- Recording Details Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+        <!-- Customer Information -->
+        <div class="space-y-1">
+          <div class="flex items-center mb-1">
+            <mat-icon class="text-lg mr-2">person</mat-icon>
+            <span class="text-sm font-medium">Customer</span>
+          </div>
+          <p class="font-medium text-base pl-7">
+            {{ recording.customer_name || 'Not Available' }}
+          </p>
+        </div>
+
+        <!-- Agent Information -->
+        <div class="space-y-1">
+          <div class="flex items-center ">
+            <mat-icon class="text-lg mr-2">support_agent</mat-icon>
+            <span class="text-sm font-medium">Answered By</span>
+          </div>
+          <p class="font-medium text-base pl-7">
+            {{ recording.answered_agent_name || 'Not Available' }}
+          </p>
+        </div>
+
+        <!-- Date & Time -->
+        <div class="space-y-1">
+          <div class="flex items-center mb-1">
+            <mat-icon class="text-lg mr-2">schedule</mat-icon>
+            <span class="text-sm font-medium">Date & Time</span>
+          </div>
+          <p class="font-medium text-base pl-7">
+            {{ recording.created_at | date:'medium' }}
+          </p>
+        </div>
+
+        <!-- Recording Duration -->
+        <div class="space-y-1" *ngIf="recording.duration">
+          <div class="flex items-center mb-1">
+            <mat-icon class="text-lg mr-2">timer</mat-icon>
+            <span class="text-sm font-medium">Duration</span>
+          </div>
+          <p class="font-medium text-base pl-7">
+            {{ recording.duration }}
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Audio Player Section -->
+      <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <mat-icon class="text-blue-600 mr-2">play_circle_filled</mat-icon>
+            <span class="text-sm font-medium text-gray-700">IVR Recording</span>
+          </div>
+
+
+        </div>
+
+        <!-- Audio Player -->
+        <div class="w-full">
+          <audio controls class="w-full">
+            <source [src]="recording.recording_url" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

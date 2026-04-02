@@ -1,0 +1,218 @@
+<h2 mat-dialog-title>{{ dialogTitle() }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="addUserForm">
+    <div class="row mt-1">
+      <!-- Profile Section -->
+      <div class="col-md-2  border-end ">
+        <div class="d-flex flex-column h-100">
+          <div class="position-relative mx-auto ">
+            <img [src]="profileImage() || 'assets/Images/null_image.png'" alt="Profile"
+              class="enhanced-img rounded-circle shadow mt-2">
+            <button *ngIf="isEditMode()" mat-icon-button color="warn" class="delete-btn" (click)="removeFile()"
+              matTooltip="Remove Photo">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <button mat-button color="accent" (click)="fileInput.click()" class="mt-auto">
+            <mat-icon class="me-1">cloud_upload</mat-icon>
+            {{ isEditMode() ? 'Update' : 'Upload' }}
+          </button>
+          <input #fileInput type="file" (change)="onFileSelected($event)" hidden accept="image/*">
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="col-md-10 ">
+        <div class="row g-3">
+          <!-- Personal Info Row -->
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="first_name" placeholder="Enter First Name">
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="last_name" placeholder=" Enter Last Name">
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Gender</mat-label>
+              <mat-select formControlName="gender">
+                <mat-option [value]="1">Male</mat-option>
+                <mat-option [value]="2">Female</mat-option>
+                <mat-option [value]="3">Other</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-4">
+            <app-autocomplete-reusable-component formControlName="role_id" [options]="roles()" displayKey="role"
+              idKey="role_id" [isMultiSelect]="true" placeholder="Select Role">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Mobile</mat-label>
+              <input maxlength="12" pattern="^(?:[0-9]{10}|[0-9]{12})$" inputmode="numeric" autocomplete="tel"
+                placeholder="Enter Mobile No " matInput formControlName="user_phone"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+              <mat-icon matSuffix>call</mat-icon>
+
+              <mat-error
+                *ngIf="addUserForm.get('user_phone')?.hasError('required') && addUserForm.get('user_phone')?.touched">
+                Required
+              </mat-error>
+              <mat-error
+                *ngIf="addUserForm.get('user_phone')?.hasError('pattern') && addUserForm.get('user_phone')?.touched">
+                Invalid number
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Account Info Row -->
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="user_email" placeholder="Enter Email">
+              <mat-icon matSuffix>mail</mat-icon>
+
+              <mat-error
+                *ngIf="addUserForm.get('user_email')?.hasError('required') && addUserForm.get('user_email')?.touched">
+                Required
+              </mat-error>
+              <mat-error
+                *ngIf="addUserForm.get('user_email')?.hasError('email') && addUserForm.get('user_email')?.touched">
+                Invalid email
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4" *ngIf="isEditMode()">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Caller ID</mat-label>
+              <input matInput formControlName="caller_id" placeholder="Enter Caller ID">
+            </mat-form-field>
+          </div>
+          <div class="col-md-4" *ngIf="!isEditMode()">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Password</mat-label>
+              <input placeholder="Enter Password" matInput [type]="hidePassword() ? 'password' : 'text'"
+                formControlName="password">
+              <button mat-icon-button matSuffix (click)="hidePassword.set(!hidePassword())" type="button">
+                <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="addUserForm.get('password')?.hasError('required')">
+                Required
+              </mat-error>
+              <mat-error *ngIf="addUserForm.get('password')?.hasError('passwordStrength')">
+                Password must include:
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasMinLength">
+                  minimum 8 characters
+                </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasMinLength && 
+                             (!addUserForm.get('password')?.errors?.['passwordStrength']?.hasUpperCase || 
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasLowerCase || 
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasNumeric ||
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasSpecialChar)">, </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasUpperCase">
+                  one uppercase letter
+                </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasUpperCase && 
+                             (!addUserForm.get('password')?.errors?.['passwordStrength']?.hasLowerCase || 
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasNumeric ||
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasSpecialChar)">, </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasLowerCase">
+                  one lowercase letter
+                </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasLowerCase && 
+                             (!addUserForm.get('password')?.errors?.['passwordStrength']?.hasNumeric ||
+                              !addUserForm.get('password')?.errors?.['passwordStrength']?.hasSpecialChar)">, </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasNumeric">
+                  one number
+                </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasNumeric && 
+                             !addUserForm.get('password')?.errors?.['passwordStrength']?.hasSpecialChar">, </span>
+                <span *ngIf="!addUserForm.get('password')?.errors?.['passwordStrength']?.hasSpecialChar">
+                  one special character (!&#64;#$%^&*)
+                </span>
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+
+
+          <!-- Address Row -->
+          <div class="col-md-8">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Address</mat-label>
+              <input matInput formControlName="address" placeholder="Enter Address">
+              <mat-icon matSuffix> add_location_alt
+              </mat-icon>
+
+            </mat-form-field>
+          </div>
+
+          <!-- Assigned Roles User Tree -->
+          <div class="col-md-6 manager-tree-wrapper" *ngIf="hasAssignedUsers()">
+            <mat-form-field appearance="outline" class="w-100 mb-3">
+              <mat-label class="font-medium">Assigned User</mat-label>
+              <input matInput [value]="selectedManagerName() || 'Select Manager'" readonly placeholder="Select Manager"
+                class="cursor-pointer" (click)="$event.stopPropagation()">
+              <mat-icon matSuffix class="text-gray-400">person</mat-icon>
+            </mat-form-field>
+            <div class="manager-tree-container shadow-sm border border-gray-200 rounded-lg bg-white">
+              <div class="tree-header px-4 py-2 border-b border-gray-100 bg-gray-50">
+                <span class="text-sm font-semibold text-gray-700">Select Manager</span>
+              </div>
+              <div class="tree-content">
+                <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="manager-tree">
+                  <!-- This is the tree node template for leaf nodes -->
+                  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding class="tree-node-leaf"
+                    [class.selected]="selectedUser()?.id === node.id">
+                    <!-- use a disabled button to provide padding for tree leaf -->
+                    <button mat-icon-button disabled class="invisible"></button>
+                    <span class="tree-node-label" (click)="selectNode(node)">
+                      <mat-icon class="text-gray-400 mr-2 text-base">person_outline</mat-icon>
+                      {{node.name}}
+                    </span>
+                  </mat-tree-node>
+                  <!-- This is the tree node template for expandable nodes -->
+                  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding class="tree-node-parent"
+                    [class.selected]="selectedUser()?.id === node.id">
+                    <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name"
+                      class="tree-toggle-btn">
+                      <mat-icon class="mat-icon-rtl-mirror transition-transform duration-200">
+                        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                      </mat-icon>
+                    </button>
+                    <span class="tree-node-label" (click)="selectNode(node)">
+                      <mat-icon class="text-gray-500 mr-2 text-base">people</mat-icon>
+                      {{node.name}}
+                    </span>
+                  </mat-tree-node>
+                </mat-tree>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button [disabled]="addUserForm.invalid || submitting()" mat-raised-button color="primary" (click)="onSubmit()">
+    <mat-icon class="me-1">{{ submitButtonIcon() }}</mat-icon>
+    {{ submitButtonText() }}
+  </button>
+</mat-dialog-actions>

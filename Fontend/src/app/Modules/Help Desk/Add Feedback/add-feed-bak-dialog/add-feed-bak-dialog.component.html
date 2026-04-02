@@ -1,0 +1,80 @@
+<h6 mat-dialog-title>
+  Add Feedback
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="feedBackForm" class="container row mt-1">
+    <!-- Project -->
+    <app-autocomplete-reusable-component [options]="projectsList" formControlName="project_id" class="col-md-6"
+      displayKey="property_name" idKey="project_id" placeholder="Select Project">
+    </app-autocomplete-reusable-component>
+
+    <!-- Feedback Category -->
+    <app-autocomplete-reusable-component [options]="feedbackCategoryList" formControlName="feedback_category_id"
+      class="col-md-6" displayKey="feedback_category" idKey="feedback_category_id"
+      placeholder="Select Feedback Category">
+    </app-autocomplete-reusable-component>
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="col-md-12">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3" placeholder="Enter description"></textarea>
+    </mat-form-field>
+    <!-- Feedback Photo -->
+    <div class="col-md-12 mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        Feedback Photo <span class="text-red-500">*</span>
+      </label>
+
+      <div (click)="triggerFileInput(fileInput)"
+        class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 transition-all duration-200 cursor-pointer hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center justify-center min-h-[150px]"
+        [ngClass]="{'border-red-500 bg-red-50': feedBackForm.get('feedback_photo')?.invalid && feedBackForm.get('feedback_photo')?.touched}">
+        <input #fileInput type="file" class="hidden" (change)="onFileSelected($event)" accept="image/*" />
+
+        <ng-container *ngIf="!previewUrl; else previewTemplate">
+          <mat-icon class="text-gray-400 !text-5xl !w-auto !h-auto mb-2">cloud_upload</mat-icon>
+          <p class="text-sm text-gray-500 font-medium">Click to upload photo</p>
+          <p class="text-xs text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+        </ng-container>
+
+        <ng-template #previewTemplate>
+          <div class="relative w-full aspect-video max-h-[200px] overflow-hidden rounded-md group">
+            <img [src]="previewUrl" class="w-full h-full object-contain" alt="Preview" />
+            <div
+              class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="text-white text-sm font-semibold bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                Change Photo
+              </span>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+
+      <div *ngIf="feedBackForm.get('feedback_photo')?.invalid && feedBackForm.get('feedback_photo')?.touched"
+        class="text-red-500 text-xs mt-1">
+        Photo is required to submit feedback.
+      </div>
+    </div>
+    <!-- Rating (Star Selection) -->
+    <div class="col-md-6 mb-3 d-flex align-items-center">
+      <label class="me-2">Rating:</label>
+      <ng-container *ngFor="let star of stars">
+        <mat-icon (click)="setRating(star)" [ngClass]="{ 'selected': star <= currentRating }" class="star-icon">
+          {{ star <= currentRating ? 'star' : 'star_border' }} </mat-icon>
+      </ng-container>
+    </div>
+
+
+
+
+
+    <!-- Submit Button -->
+
+  </form>
+</mat-dialog-content>
+<div mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="onSubmit()" type="submit" [disabled]="feedBackForm.invalid">Add
+    Feedback</button>
+</div>

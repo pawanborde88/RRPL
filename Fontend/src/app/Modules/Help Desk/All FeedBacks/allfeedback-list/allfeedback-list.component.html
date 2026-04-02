@@ -1,0 +1,69 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">All FeedBacks </li>
+  </app-breadcrumb>
+
+  <!-- Search bar & Add Feedback button -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
+    <mat-form-field appearance="outline" class="min-w-[250px] flex-1">
+      <mat-label>Search feedback</mat-label>
+      <input matInput placeholder="Search by description, category, project or user" [(ngModel)]="searchText" />
+      <button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" (click)="searchText=''">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" class="flex items-center gap-2" (click)="openaddFacebookDialog()">
+      <mat-icon>add</mat-icon>
+      Add Feedback
+    </button>
+  </div>
+
+  <!-- Feedback cards layout -->
+  <div *ngIf="filteredFeedbackList?.length; else noData"
+    class="grid mt-4 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <mat-card *ngFor="let fb of filteredFeedbackList"
+      class="group relative flex h-full flex-col overflow-hidden !rounded-2xl border border-transparent bg-white shadow-md transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl">
+
+      <!-- Feedback image (if any) -->
+      <img (click)="previewImages(fb.feedback_photo || 'assets/Images/dummy_imge.jpg')" mat-card-image
+        [src]="fb.feedback_photo ? storageUrl + '/' + fb.feedback_photo : 'assets/Images/dummy_imge.jpg'"
+        alt="feedback photo"
+        class="h-48 w-full cursor-pointer object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
+
+      <!-- Main card content -->
+      <mat-card-content class="flex flex-1 flex-col gap-4 !px-5 !pt-6 !pb-5 text-sm text-slate-600">
+        <!-- User & Project badges -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span
+            class="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">{{
+            fb.user_name }}</span>
+          <span
+            class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">{{
+            fb.project_name || '-' }}</span>
+        </div>
+
+        <p class="text-sm leading-relaxed text-slate-700">{{ fb.description }}</p>
+
+        <div class="flex items-center gap-1 text-lg text-amber-400">
+          <mat-icon *ngFor="let star of [1,2,3,4,5]" class="transition-colors duration-200"
+            [ngClass]="{'text-amber-400': star <= fb.rating, 'text-slate-300': star > fb.rating}">star</mat-icon>
+        </div>
+
+        <!-- Footer meta -->
+        <div class="mt-auto flex flex-wrap items-center gap-2 text-xs font-medium">
+          <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-amber-700">{{
+            fb.feedback_category }}</span>
+          <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-slate-600">{{ fb.created_at |
+            date:'dd-MMM-yyyy' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- No-data template -->
+  <ng-template #noData>
+    <div class="py-4 text-center text-sm text-slate-500">No feedback found.</div>
+  </ng-template>
+
+</app-template>

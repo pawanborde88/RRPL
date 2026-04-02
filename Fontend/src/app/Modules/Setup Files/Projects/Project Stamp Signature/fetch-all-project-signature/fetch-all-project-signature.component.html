@@ -1,0 +1,107 @@
+<div class="flex flex-col items-center justify-center w-full p-4 md:p-6 lg:p-8">
+  <div class="w-full max-w-7xl">
+    @if (hasProjectData()) {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <!-- Project Stamp -->
+        <div class="flex flex-col">
+          <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+              Project Stamp
+            </h3>
+
+            @if (hasStamp()) {
+              <div class="relative group">
+                <div class="overflow-hidden rounded-lg border-2 border-gray-300 hover:border-blue-500 transition-colors duration-200">
+                  <img
+                    (click)="addProjectLink('edit', 'project_stamp', projectData()?.project_stamp)"
+                    [src]="stampImageUrl()"
+                    alt="Project Stamp"
+                    class="w-full h-auto max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <span class="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                    Click to edit
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <div class="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <mat-icon class="text-gray-400 text-6xl mb-4">image_not_supported</mat-icon>
+                <p class="text-gray-600 mb-4 font-medium">No stamp uploaded</p>
+                <button
+                  mat-button
+                  color="primary"
+                  (click)="addProjectLink('add', 'project_stamp')"
+                  class="mt-2"
+                >
+                  Add Stamp
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Project Signature -->
+        <div class="flex flex-col">
+          <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+              Project Signature
+            </h3>
+
+            @if (hasSignature()) {
+              <div class="relative group">
+                <div class="overflow-hidden rounded-lg border-2 border-gray-300 hover:border-blue-500 transition-colors duration-200">
+                  <img
+                    (click)="addProjectLink('edit', 'project_signature', projectData()?.project_signature)"
+                    [src]="signatureImageUrl()"
+                    alt="Project Signature"
+                    class="w-full h-auto max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <span class="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                    Click to edit
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <div class="flex flex-col items-center justify-center py-12 px-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <mat-icon class="text-gray-400 text-6xl mb-4">draw</mat-icon>
+                <p class="text-gray-600 mb-4 font-medium">No signature uploaded</p>
+                <button
+                  mat-button
+                  color="primary"
+                  (click)="addProjectLink('add', 'project_signature')"
+                  class="mt-2"
+                >
+                  Add Signature
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    } @else if (loading()) {
+      <div class="flex flex-col items-center justify-center py-20">
+        <mat-spinner diameter="40" class="mb-4"></mat-spinner>
+        <span class="text-gray-600 font-medium">Loading stamp/signature data...</span>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border border-gray-200">
+        <mat-icon class="text-gray-400 text-6xl mb-4">image_not_supported</mat-icon>
+        <p class="text-gray-600 mb-6 font-medium text-lg">No stamp/signature data available</p>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addProjectLink('add')"
+          class="px-6 py-2"
+        >
+          Add Stamp/Signature
+        </button>
+      </div>
+    }
+  </div>
+</div>

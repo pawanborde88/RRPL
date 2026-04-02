@@ -1,0 +1,28 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item">Site Visit Management</li>
+    <li class="breadcrumb-item">Booking</li>
+    <li class="breadcrumb-item active">Cancelled Booking Log</li>
+  </app-breadcrumb>
+
+
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="row">
+        <div class="col-md-4">
+          <app-autocomplete-reusable-component class="w-25 mt-2" [options]="projectsList()" idKey="project_id"
+            displayKey="property_name" placeholder="Select Project" (selectedIdChange)="onProjectChange($event)">
+          </app-autocomplete-reusable-component>
+        </div>
+      </div>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_bookings'"
+    [apiPayload]="agGridPayload()">
+  </app-configurable-ag-grid-data>
+</app-template>

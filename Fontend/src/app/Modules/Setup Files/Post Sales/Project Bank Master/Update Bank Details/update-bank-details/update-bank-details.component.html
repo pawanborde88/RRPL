@@ -1,0 +1,124 @@
+<h2 mat-dialog-title>
+  {{ isEditMode() ? 'Edit Bank Details' : 'Add Bank Details' }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <!-- Form -->
+  <form [formGroup]="addUnitBankMaster" class="row mt-2">
+    <!-- Project Dropdown -->
+    <app-autocomplete-reusable-component
+      class="col-md-4"
+      [options]="projectsList()"
+      formControlName="project_id"
+      displayKey="property_name"
+      idKey="project_id"
+      placeholder="Select Project">
+    </app-autocomplete-reusable-component>
+
+    <!-- Wing Dropdown -->
+    <app-autocomplete-reusable-component
+      [options]="allWingslist()"
+      [isMultiSelect]="true"
+      class="col-md-4"
+      formControlName="wing_id"
+      displayKey="wing_name"
+      idKey="wing_id"
+      placeholder="Select Wing">
+    </app-autocomplete-reusable-component>
+  </form>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading bank details...</span>
+    </div>
+  }
+
+  <!-- Bank Details Cards -->
+  @if (showBankCards() && !isLoading()) {
+    <div class="bank-cards-container">
+      @for (bankForm of bankFormArray.controls; track trackByAccountType($index, bankForm)) {
+        <mat-card class="bank-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ getAccountTypeDisplay(bankForm.value.account_type) }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content [formGroup]="getBankFormGroup(bankForm)">
+            <div class="row">
+              <!-- Bank Selection -->
+              <app-autocomplete-reusable-component
+                class="col-md-6"
+                [options]="allBankList()"
+                formControlName="bank_id"
+                displayKey="preferred_bank"
+                idKey="preferred_bank_id"
+                placeholder="Select Bank">
+              </app-autocomplete-reusable-component>
+
+              <!-- Branch Name -->
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Branch Name</mat-label>
+                <input matInput formControlName="branch_name" placeholder="Enter branch name">
+                @if (hasFormControlError(bankForm, 'branch_name', 'required')) {
+                  <mat-error>Branch name is required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="row">
+              <!-- IFSC Code -->
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>IFSC Code</mat-label>
+                <input matInput formControlName="ifsc_code" placeholder="Enter IFSC code">
+                @if (hasFormControlError(bankForm, 'ifsc_code', 'required')) {
+                  <mat-error>IFSC code is required</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Account Number -->
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Account Number</mat-label>
+                <input matInput formControlName="account_no" placeholder="Enter account number">
+                @if (hasFormControlError(bankForm, 'account_no', 'required')) {
+                  <mat-error>Account number is required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="row">
+              <!-- Beneficiary Name -->
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Beneficiary Name</mat-label>
+                <input matInput formControlName="beneficiary_name" placeholder="Enter beneficiary name">
+                @if (hasFormControlError(bankForm, 'beneficiary_name', 'required')) {
+                  <mat-error>Beneficiary name is required</mat-error>
+                }
+              </mat-form-field>
+
+              <!-- Address -->
+              <mat-form-field appearance="outline" class="col-md-6">
+                <mat-label>Address</mat-label>
+                <input matInput formControlName="address" placeholder="Enter address">
+                @if (hasFormControlError(bankForm, 'address', 'required')) {
+                  <mat-error>Address is required</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="submitBankDetails()">
+    {{ isEditMode() ? 'Update Bank Details' : 'Add Bank Details' }}
+  </button>
+</mat-dialog-actions>

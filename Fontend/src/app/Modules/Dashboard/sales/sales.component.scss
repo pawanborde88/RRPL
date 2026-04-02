@@ -1,0 +1,93 @@
+.project-selector {
+    /* Remove any custom border, padding, max-height, overflow you might have had */
+    display: flex; /* Use flexbox to align "All Projects" and dropdown */
+    align-items: center; /* Vertically align items */
+  }
+  
+  .all-projects-option {
+    margin-right: 10px; /* Add space between "All Projects" and dropdown */
+  }
+  
+  .dropdown-menu {
+    max-height: 200px; /* Set a maximum height for the dropdown */
+    overflow-y: auto; /* Add a scrollbar if needed */
+  }
+  
+  .dropdown-item {
+    display: flex; /* Use flexbox for alignment within dropdown items */
+    align-items: center;
+  }
+  
+  .dropdown-item label {
+    margin-bottom: 0; /* Remove default margin from labels */
+    cursor: pointer;
+  }
+  
+  /* Other styles (optional) */
+//   .filters button { /* Your button styles */
+//     /* ... */
+//   }
+.chart-labels {
+    display: none;  // This will hide the labels
+  }
+  .charts-container {
+    display: flex;
+    justify-content: center; /* Ensures even spacing */
+    align-items: center; /* Aligns vertically */
+    gap: 80px; /* Space between charts */
+    flex-wrap: wrap; /* Wraps to the next line on smaller screens */
+  }
+  /* Set background blue for the entire container */
+.charts-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: #e3f2fd; /* Light Blue Background */
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  /* Card style only for <app-combination-charts> */
+  app-combination-charts {
+    background-color: #f0f8ff;    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    padding: 20px;
+    width: 100%;
+    max-width: 600px; /* Adjust width as needed */
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  app-combination-charts:hover {
+    transform: translateY(-5px); /* Hover effect */
+  }
+  /* Outer big card with blue background */
+.outer-container {
+    background: #e3f2fd; /* Light blue background */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+  }
+  
+  .charts-container {
+    display: flex;
+    justify-content: space-between; /* Ensures they stay in a row */
+    align-items: center; /* Aligns charts vertically */
+    gap: 20px; /* Space between charts */
+    flex-wrap: nowrap; /* Prevents wrapping to the next line */
+    background: #e3f2fd; /* Light Blue Background */
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Ensure each chart takes up equal space */
+app-combination-charts,
+app-donut-chart {
+    flex: 1; /* Allows both charts to take up equal space */
+    max-width: 600px; /* Adjust based on your layout */
+    text-align: center;
+}
+
+  

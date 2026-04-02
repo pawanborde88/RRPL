@@ -1,0 +1,116 @@
+<h2 mat-dialog-title>{{title}} </h2>
+<form [formGroup]="educationForm" (ngSubmit)="saveEducation()">
+    <mat-dialog-content>
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Institute Name</mat-label>
+                <input matInput placeholder="Institute Name" formControlName="institution">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>University Name</mat-label>
+                <input matInput placeholder="University Name" formControlName="university">
+            </mat-form-field>
+        </div>
+        <div class="row">
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Level</mat-label>
+                <mat-select formControlName="level" (selectionChange)="onLevelChange($event)">
+
+                    <mat-option *ngFor="let option of EducationLevels" [value]="option.education_level_id">{{
+                        option.education_level }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Select Course</mat-label>
+                <mat-select formControlName="course" (selectionChange)="onCourseChange($event)">
+                    <mat-option *ngFor="let option of Courses" [value]="option.course_id">{{
+                        option.course_name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Select Specialization</mat-label>
+                <mat-select formControlName="specialization">
+                    <mat-option *ngFor="let option of Specializations" [value]="option.specialization_id">{{
+                        option.specialization_name }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="col mb-3">
+                <mat-label>Enter CGPA/Percentage</mat-label>
+                <input matInput type="number" placeholder="Enter CGPA/Percentage" formControlName="grade" min="1"
+                    max="100" step="0.01" pattern="[0-9]{1,2}(\.[0-9]{1,2})?">
+                <mat-hint align="start">CGPA (Ex. 9.5) or percentage (Ex. 85) should be entered just as numbers,
+                    without any symbols</mat-hint>
+                <mat-error>
+                    Please enter a valid CGPA or Percentage.
+                </mat-error>
+            </mat-form-field>
+
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Year of completion</mat-label>
+                <input matInput type="number" placeholder="Ex. 2019" formControlName="year_of_completion" min="1900"
+                    max="2100" pattern="[0-9]{4}">
+                <mat-error>
+                    Please enter a valid 4-digit year.
+                </mat-error>
+            </mat-form-field>
+
+
+        </div>
+
+        <div class="row">
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Enter City</mat-label>
+                <input matInput placeholder="Enter City" formControlName="city">
+                <mat-error *ngIf="educationForm.controls['city']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="col">
+              <mat-label>Enter State</mat-label>
+              <input matInput placeholder="Enter City" formControlName="state">
+              <mat-error *ngIf="educationForm.controls['state']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+          </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col">
+                <mat-label>Enter Country</mat-label>
+                <input matInput placeholder="Enter Country" formControlName="country">
+                <mat-error *ngIf="educationForm.controls['country']?.hasError('pattern')">Numeric and special characters other than space .' not allowed</mat-error>
+
+            </mat-form-field>
+        </div>
+
+
+        <div class="row">
+            <mat-form-field appearance="outline" class="w-100 col">
+                <mat-label>Enter Comment</mat-label>
+
+                <textarea matInput rows="3" placeholder="Comment ..." formControlName="comment"></textarea>
+            </mat-form-field>
+        </div>
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+
+        <button *ngIf="this.title === 'Update Education Details'" mat-button type="button" (click)="deleteEducation()" color="error"
+            class="me-auto" [disabled]="deleteLoading">
+            <span *ngIf="!deleteLoading">Delete Education</span>
+            <mat-spinner color="warn" diameter="20" *ngIf="deleteLoading"></mat-spinner>
+        </button>
+
+
+        <button mat-button mat-dialog-close>Cancel</button>
+
+
+<button mat-raised-button [disabled]="uploading || educationForm.invalid">Save</button>
+
+    </mat-dialog-actions>
+</form>

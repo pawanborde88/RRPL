@@ -1,0 +1,111 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item">Sales Management</li>
+    <li class="breadcrumb-item">Reports</li>
+    <li class="breadcrumb-item active">All Enquiry Summary Report</li>
+  </app-breadcrumb>
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Advanced Filters</mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="leadForm" class="w-100 g-3">
+        <!-- Project Dropdown -->
+        <div class="row">
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <!-- Sales Executive -->
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="allSalesExecutive()" formControlName="sales_executive_id"
+              displayKey="user_name" idKey="user_id" [isMultiSelect]="true" placeholder="Select Sales Executive *">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <!-- Lead Level Dropdown with Async Pipe (like comment-log component) -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Lead Level</mat-label>
+              <mat-select formControlName="lead_level_id">
+                <mat-option value="0" disabled>Select Lead Level</mat-option>
+                <mat-option *ngFor="let level of leadLevels$ | async; trackBy: trackByLeadLevelId"
+                  [value]="level.lead_level_id">
+                  {{ level.lead_level }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Call Status Dropdown with Async Pipe (like comment-log component) -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Call Status</mat-label>
+              <mat-select formControlName="call_status_id">
+                <mat-option *ngFor="let callStatus of callStatus$ | async; trackBy: trackByCallStatusId"
+                  [value]="callStatus.call_status_id">
+                  {{ callStatus.call_status }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Date Range -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Follow Up Range</mat-label>
+              <mat-date-range-input [rangePicker]="followUpDatePicker"
+                [disabled]="leadForm.get('ignore_date_filters')?.value">
+                <input matStartDate formControlName="from_date" placeholder="Start date">
+                <input matEndDate formControlName="to_date" placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+
+          <!-- Apply Filter Button -->
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" [disabled]="!leadForm.valid" (click)="fetchAllProjectLeads()">
+              Filter
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+
+  <!-- AG Grid Container -->
+  <div *ngIf="!loading() && rowData().length > 0"
+    class="flex-1 min-h-[600px] w-full rounded-lg border border-slate-200 overflow-hidden relative ">
+    <ag-grid-angular class="w-full h-full" style="height: 600px;" [theme]="agGridTheme" [columnDefs]="columnDefs()"
+      [defaultColDef]="defaultColDef" [rowData]="rowData()" [getRowId]="getRowId" [getRowClass]="getRowClass"
+      [animateRows]="true" [suppressCellFocus]="true" (gridReady)="onGridReady($event)">
+    </ag-grid-angular>
+  </div>
+  <!-- Summary Statistics -->
+  <div *ngIf="!loading() && totalLeads()" class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-blue-600">assessment</mat-icon>
+        <span class="font-semibold text-gray-700">Total Records:</span>
+        <span class="text-lg font-bold text-blue-600">{{ totalLeads() | number }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && rowData().length === 0" class="flex flex-col items-center justify-center py-8">
+    <mat-icon class="text-gray-400 mb-4" style="font-size: 40px; width: 40px; height: 40px;">inbox</mat-icon>
+    <p class="text-gray-500 text-lg font-medium">No data available</p>
+    <p class="text-gray-400 text-sm mt-2">Please apply filters to view enquiry summary report</p>
+  </div>
+
+  <!-- Loading Indicator -->
+  <app-costom-loading [loading]="loading()" text="Loading enquiry summary"></app-costom-loading>
+
+</app-template>

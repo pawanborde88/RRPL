@@ -1,0 +1,21 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">Dashboard</li>
+  </app-breadcrumb>
+  <div class="row mb-3 g-3">
+    @for (dashboard of enquiryData(); track dashboard.label) {
+    <div class="col-md-3">
+      <mat-card matRipple [class.disabled]="dashboard.disable" (click)="onCardClick($event, dashboard.disable)"
+        [routerLink]="dashboard.disable ? null : dashboard.route">
+        <mat-card-content>
+          <mat-card-title class="mb-3">
+            <img [src]="dashboard.iconUrl" alt="{{ dashboard.label }} icon" class="dashboard-icon">
+          </mat-card-title>
+          <mat-card-subtitle style="font-size: large;">{{ dashboard.label }}</mat-card-subtitle>
+          <mat-card-footer></mat-card-footer>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
+  </div>
+</app-template>

@@ -1,0 +1,80 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">CP Management</li>
+
+    <li class="breadcrumb-item active">All Channel Partner</li>
+  </app-breadcrumb>
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+        <!-- Row for Dropdowns and Date Filter -->
+        <div class="row">
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+          <app-autocomplete-reusable-component class="col-md-2" [isMultiSelect]="true" [options]="store.executives()"
+            formControlName="source_executive_id" displayKey="full_name" idKey="user_id"
+            placeholder=" Select Sourcing Executive">
+          </app-autocomplete-reusable-component>
+          <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-2"
+            formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+            placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)"
+            (selectedIdChange)="onCpchange($event)">
+          </app-autocomplete-reusable-component>
+
+
+
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>CP Visit Date</mat-label>
+              <mat-date-range-input [rangePicker]="followUpDatePicker"
+                [disabled]="enquiryFilterForm.get('ignore_date_filters')?.value">
+                <input formControlName="start_date" matStartDate placeholder="Start date">
+                <input formControlName="end_date" matEndDate placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>CP Reg. Date</mat-label>
+              <mat-date-range-input [rangePicker]="selectCP">
+                <input formControlName="cp_start_date" matStartDate placeholder="Start date">
+                <input formControlName="cp_end_date" matEndDate placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="selectCP"></mat-datepicker-toggle>
+              <mat-date-range-picker #selectCP></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+          <!-- <div class="col-md-2 d-flex align-items-center">
+            <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+          </div> -->
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" (click)="fetchAllEnquiry()"
+              class="d-flex align-items-center w-100">
+              Apply
+            </button>
+          </div>
+        </div>
+      </form>
+
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_cp'" [apiMethod]="'POST'"
+    [apiPayload]="agGridPayload()" [actions]="channelPartnerActions" [headerButtons]="headerButtons"
+    [cacheBlockSize]="100" [autoLoad]="false" [idProperty]="'channel_partner_id'" [selectedItems]="selectedBooking()"
+    (actionClick)="getChannelPartnerActions($event.action, $event.row)" [showCheckbox]="true"
+    (rowSelected)="selectedBooking.set($event)" (checkboxChange)="onCpchange($event.checked, $event.row)">
+  </app-configurable-ag-grid-data>
+
+</app-template>

@@ -1,0 +1,46 @@
+
+      <h2 mat-dialog-title>{{ data.title || 'Please Confirm' }}
+            <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+                <mat-icon>close</mat-icon>
+            </button>
+        </h2>
+
+    <!-- Content -->
+    <mat-dialog-content class="dialog-content">
+        <p>{{ data.message }}</p>
+
+        <!-- Additional details section (conditional) -->
+        <div *ngIf="receiptData" class="details-section">
+            <mat-divider></mat-divider>
+            <div class="detail-row">
+                <span class="detail-label">Receipt ID:</span>
+                <span class="detail-value">{{ receiptData.booking_receipt_id }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Current Status:</span>
+                <span class="detail-value" [ngClass]="{
+          'status-active': receiptData.cheque_status_id === 1,
+          'status-inactive': receiptData.cheque_status_id !== 1
+        }">
+                    {{ receiptData.cheque_status_id === 1 ? 'Active' : 'Inactive' }}
+                </span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">New Status:</span>
+                <span class="detail-value" [ngClass]="{
+          'status-active': receiptData.cheque_status_id !== 1,
+          'status-inactive': receiptData.cheque_status_id === 1
+        }">
+                    {{ receiptData.cheque_status_id === 1 ? 'Inactive' : 'Active' }}
+                </span>
+            </div>
+        </div>
+    </mat-dialog-content>
+
+    <!-- Actions -->
+    <mat-dialog-actions align="end">
+
+        <button mat-flat-button color="primary" [mat-dialog-close]="true" cdkFocusInitial>
+            {{ data.confirmText || 'Confirm' }}
+        </button>
+    </mat-dialog-actions>

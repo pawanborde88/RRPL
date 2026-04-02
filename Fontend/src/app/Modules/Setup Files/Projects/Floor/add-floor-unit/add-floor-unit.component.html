@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>{{ data.title }} 
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 10px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+
+
+<mat-dialog-content class="mat-typography">
+    <mat-card class="w-100">
+        <mat-card-content>
+            <form [formGroup]="addFloorForm" class="row">
+                <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>Enter Floor Name </mat-label>
+                    <input matInput formControlName="floor_name" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>Select Wing</mat-label>
+                    <mat-select formControlName="wing_id">
+                        <mat-option *ngFor="let allwings of allWingslist" [value]="allwings.wing_id">
+                            {{ allwings.wing_name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                  
+                <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>Active Status</mat-label>
+                    <mat-select formControlName="active_status_id">
+                        <mat-option [value]="1">Active</mat-option>
+                        <mat-option [value]="0">Inactive</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </form>
+        </mat-card-content>
+    </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button *ngIf="this.data?.rowData?.floor_id" mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteFloor(this.data?.rowData?.floor_id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    <button mat-raised-button color="primary" (click)="onSubmit()">Submit</button>
+    <button mat-raised-button color="warn" mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

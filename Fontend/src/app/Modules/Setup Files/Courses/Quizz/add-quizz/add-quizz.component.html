@@ -1,0 +1,136 @@
+<h2 mat-dialog-title >{{ data.title }}</h2>
+
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="addQuizForm"  class="row g-3 align-items-center">
+
+    <!-- Quiz Title -->
+    <mat-form-field appearance="outline" class="col-md-12">
+      <mat-label>Quiz Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter quiz title" />
+      <mat-error *ngIf="addQuizForm.get('title')?.touched && addQuizForm.get('title')?.hasError('required')">
+        Quiz title is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Quiz Description (Rich Text) -->
+    <!-- <ng-container>
+      <quill-editor formControlName="description" [sanitize]="false" placeholder="Enter quiz description here..."
+        [styles]="{ height: '200px' }"></quill-editor>
+        <mat-error *ngIf="addQuizForm.get('description')?.touched && addQuizForm.get('description')?.hasError('required')">
+        Description is required
+      </mat-error>
+    </ng-container> -->
+
+    <div class="quill-wrapper"
+      [ngClass]="{ 'quill-error': addQuizForm.get('description')?.invalid && addQuizForm.get('description')?.touched }">
+      <quill-editor formControlName="description" [sanitize]="false" placeholder="Enter quiz description here..."
+        [styles]="{ height: '200px' }">
+      </quill-editor>
+    </div>
+
+    <mat-error *ngIf="addQuizForm.get('description')?.touched && addQuizForm.get('description')?.hasError('required')">
+      Description is required
+    </mat-error>
+
+
+    <!-- Max Attempts -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Max Attempts</mat-label>
+      <input matInput type="text" formControlName="max_attempt" autocomplete="off" />
+      <mat-error *ngIf="addQuizForm.get('max_attempt')?.touched">
+        <ng-container *ngIf="addQuizForm.get('max_attempt')?.hasError('required')">
+          Max attempts is required
+        </ng-container>
+        <ng-container *ngIf="addQuizForm.get('max_attempt')?.hasError('pattern')">
+          Numbers only allowed
+        </ng-container>
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Bonus Points -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Bonus Points</mat-label>
+      <input matInput type="text" formControlName="bonus_points" autocomplete="off" />
+      <mat-error *ngIf="addQuizForm.get('bonus_points')?.touched">
+        <ng-container *ngIf="addQuizForm.get('bonus_points')?.hasError('required')">
+          Bonus Points is required
+        </ng-container>
+        <ng-container *ngIf="addQuizForm.get('max_attempt')?.hasError('pattern')">
+          Numbers only allowed
+        </ng-container>
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Select Competency</mat-label>
+      <mat-select formControlName="competency_level_id">
+        <mat-option *ngFor="let competency of allCompentenceLevel" [value]="competency.competency_level_id">
+          {{ competency.competency_level }}
+        </mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="addQuizForm.get('competency_level_id')?.touched && addQuizForm.get('competency_level_id')?.hasError('required')">
+        Competency is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Time (in minutes) -->
+    <!-- <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Time (in minutes)</mat-label>
+      <input matInput type="number" formControlName="time" />
+    </mat-form-field> -->
+
+    <!-- No of Days -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>No. of Days</mat-label>
+      <input matInput type="text" formControlName="no_of_days" autocomplete="off" />
+      <mat-error *ngIf="addQuizForm.get('no_of_days')?.touched">
+        <ng-container *ngIf="addQuizForm.get('no_of_days')?.hasError('required')">
+          No Of Days is required
+        </ng-container>
+        <ng-container *ngIf="addQuizForm.get('no_of_days')?.hasError('pattern')">
+          Numbers only allowed
+        </ng-container>
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Validity Date Range -->
+    <div class="col-md-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Validity Period</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate placeholder="Start date" formControlName="valid_from" />
+          <input matEndDate placeholder="End date" formControlName="valid_till" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+        <mat-error
+          *ngIf="addQuizForm.hasError('dateRangeRequired') && (addQuizForm.get('valid_from')?.touched || addQuizForm.get('valid_till')?.touched)">
+          Both start and end dates are required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Active Status -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Active Status</mat-label>
+      <mat-select formControlName="active_status_id">
+        <mat-option [value]="1">Active</mat-option>
+        <mat-option [value]="0">Inactive</mat-option>
+      </mat-select>
+      <mat-error
+        *ngIf="addQuizForm.get('active_status_id')?.touched && addQuizForm.get('active_status_id')?.hasError('required')">
+        Active Status is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Dialog Buttons -->
+   
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" type="submit"  (click)="onSubmit()">
+    Save
+  </button>
+  <button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

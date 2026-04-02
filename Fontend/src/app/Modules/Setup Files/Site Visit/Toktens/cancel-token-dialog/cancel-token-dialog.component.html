@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>
+  {{ data?.title || 'Cancel EOI' }}
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <p>{{ data?.message || 'Are you sure you want to cancel this token?' }}</p>
+  
+  <!-- Add this section for cancel_remark when bookingForm is present -->
+  <mat-form-field *ngIf="data?.for" appearance="outline" style="width: 100%; margin-top: 16px;">
+    <mat-label>Cancel Remark</mat-label>
+    <textarea matInput [(ngModel)]="cancelRemark" required placeholder="Please enter reason for cancellation"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>No</button>
+  <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="data?.for && !cancelRemark">Yes</button>
+</mat-dialog-actions>

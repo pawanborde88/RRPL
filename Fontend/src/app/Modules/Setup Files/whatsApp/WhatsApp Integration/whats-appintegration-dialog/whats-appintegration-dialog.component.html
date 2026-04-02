@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>{{ data.rowData[0].property_name  }} WhatsApp Keys
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+  
+  <mat-dialog-content>
+    <!-- Form for adding/editing parking types -->
+    <form *ngIf="isAddParking" [formGroup]="parkingTypeForm" (ngSubmit)="onSubmit()" class="row mt-1  parking-form">
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>WhatsApp Key</mat-label>
+        <input matInput formControlName="key" required placeholder="Enter WhatsApp Key">
+        <mat-error *ngIf="parkingTypeForm.get('key')?.hasError('required')">
+          WhatsApp Key is required
+        </mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>WhatsApp Number</mat-label>
+        <input matInput formControlName="number" required placeholder="Enter WhatsApp Number">
+        <mat-error *ngIf="parkingTypeForm.get('number')?.hasError('required')">
+          WhatsApp number is required
+        </mat-error>
+      </mat-form-field>
+  
+      <div class="col-md-4">
+        <!-- Show Cancel/Update when editing -->
+        <div *ngIf="isEditing" class="edit-actions">
+          <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading">
+            <span *ngIf="!loading">Update</span>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          </button>
+        </div>
+  
+        <!-- Show Add New button when not editing -->
+        <div *ngIf="!isEditing " class="col-md-4">
+          <button mat-raised-button color="primary" type="submit" >
+            <span *ngIf="!loading">Add</span>
+            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+          </button>
+        </div>
+      </div>
+    </form>
+  
+    <!-- Table showing existing parking types -->
+    <div class="table-container">
+    
+  
+      <app-reusable-custom-table 
+        [loading]="loading" 
+        [headerButtons]="headerButtons"
+        [dataSource]="dataSource" 
+        [displayedColumns]="displayedColumns"
+        [actions]="projectActions" 
+        [showFooter]="true" 
+        (actionClick)="onProjectAction($event.action, $event.row)">
+      </app-reusable-custom-table>
+    </div>
+  </mat-dialog-content>
+  

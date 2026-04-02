@@ -1,0 +1,51 @@
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+  perspective: 1000px;
+}
+
+.loader::before,
+.loader::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #0d4678;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+.loader::after {
+  inset: 8px;
+  border-top-color: #ef6b21;
+  border-left-color: rgba(239, 107, 33, 0.3);
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
+}
+
+// Subtle pulse for the middle gap
+.loader::before {
+  border-bottom-color: rgba(13, 70, 120, 0.1);
+  box-shadow: 0 0 15px rgba(13, 70, 120, 0.1);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(0.92);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+:host {
+  display: block;
+}

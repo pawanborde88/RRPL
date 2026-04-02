@@ -1,0 +1,37 @@
+// =============================================================================
+// Design tokens – single source of truth for layout and legacy compatibility
+// Prefer CSS custom properties from theme (--primary-color, etc.) in new code.
+// =============================================================================
+
+// Brand
+$primaryColor: #0d4678;
+$primaryColorDark: #15171f;
+$primaryColorLight: #2d313d;
+$primaryButtonColor: #0d4678;
+
+// Neutrals
+$secondaryColor: #343946;
+$secondaryColorDark: #252832;
+$secondaryColorLight: #4e5566;
+$white: #fff;
+$black: #000;
+$grey: #ccc;
+$border-color: rgba(0, 0, 0, 0.12);
+$input-border-color: rgba(0, 0, 0, 0.23);
+
+// Semantic
+$accentColor: $primaryColor;
+$footerColor: $primaryColor;
+$backgroundColorPalet: #18191a;
+
+// Component Tokens
+$standard-height: 40px;
+$compact-height: 32px;
+$border-radius: 6px;
+$font-size-base: 13px;
+$font-size-sm: 11px;
+
+// Layout (use for JS/export; prefer CSS vars in styles)
+$navBarHeight: 2.5em;
+$closedSidebarWidth: 4.5em;
+$openedSidebarWidth: 17em;

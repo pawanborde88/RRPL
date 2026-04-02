@@ -1,0 +1,119 @@
+<h2 mat-dialog-title>Add Budget </h2>
+
+<mat-dialog-content class="mat-typography">
+  <div class="row">
+    <form [formGroup]="addBudget" class="row mt-1">
+      <!-- Project Select -->
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Project</mat-label>
+          <mat-select formControlName="project_id">
+            <mat-option *ngFor="let project of projectsList" [value]="project.project_id">
+              {{ project.property_name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="addBudget.get('project_id')?.invalid && addBudget.get('project_id')?.touched">
+            Project is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+      <!-- Amount -->
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Amount</mat-label>
+          <input matInput formControlName="amount" type="number" />
+          <mat-error *ngIf="addBudget.get('amount')?.invalid && addBudget.get('amount')?.touched">
+            Amount is required 
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Year</mat-label>
+          <input matInput formControlName="year" type="number" />
+          <mat-error *ngIf="addBudget.get('year')?.invalid && addBudget.get('year')?.touched">
+            Year is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Month</mat-label>
+          <mat-select formControlName="month">
+            <mat-option *ngFor="let month of months" [value]="month.value">
+              {{ month.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="addBudget.get('month')?.invalid && addBudget.get('month')?.touched">
+            Month is required
+          </mat-error>
+        </mat-form-field>
+      </div> -->
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Month and Year</mat-label>
+        <input matInput [matDatepicker]="dp" [formControl]="date">
+        <mat-hint>MM/YYYY</mat-hint>
+        <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+        <mat-datepicker #dp
+                        startView="multi-year"
+                        (monthSelected)="setMonthAndYear($event, dp)"
+                        panelClass="example-month-picker">
+        </mat-datepicker>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Source</mat-label>
+        <mat-select formControlName="source_id">
+          <mat-option *ngFor="let source of sourcesList" [value]="source.source_id">
+            {{ source.source }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="col-md-4"   *ngIf="!(this.addBudget.controls['source_id'].value == '3')">
+        <mat-label>Select Source Detail</mat-label>
+        <mat-select formControlName="source_detail_id">
+          <mat-option *ngFor="let sourceDetails of sourcerDetailedList" [value]="sourceDetails.source_detail_id">
+            {{ sourceDetails.source_detail }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+   
+      <app-autocomplete-reusable-component [options]="allChannelPartnerList" class="col-md-4"
+      *ngIf="(this.addBudget.controls['source_id'].value == '3')"
+      formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+      placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+  </app-autocomplete-reusable-component>
+
+
+      <mat-form-field appearance="outline" class="col-md-4">
+        <mat-label>Active Status</mat-label>
+        <mat-select formControlName="active_status_id">
+        <mat-option value="1">Active</mat-option>
+        <mat-option value="0">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <!-- Remark -->
+      <div class="col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Remark</mat-label>
+          <input matInput formControlName="remark" />
+        </mat-form-field>
+      </div>
+    </form>
+  </div>
+  
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <div class="col-md-4">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="addBudget.invalid">Submit</button>
+  </div>
+
+</mat-dialog-actions>

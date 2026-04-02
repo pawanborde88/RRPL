@@ -1,0 +1,145 @@
+<h2 mat-dialog-title >{{ data.title }}</h2>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="addCourseForm"  class="row g-3 align-items-center">
+
+        <mat-form-field appearance="outline" class="col-md-12">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+            <mat-error *ngIf="addCourseForm.get('title')?.hasError('required') && addCourseForm.get('title')?.touched">
+                Title is required.
+            </mat-error>
+        </mat-form-field>
+
+        <!-- <ng-container>
+            <quill-editor formControlName="description" [sanitize]="false"
+                placeholder="Enter your course description here..." [styles]="{ height: '200px' }"></quill-editor>
+            <div class="text-danger"
+                *ngIf="addCourseForm.get('description')?.hasError('required') && addCourseForm.get('description')?.touched">
+                Description is required.
+            </div>
+        </ng-container> -->
+
+        <div class="quill-wrapper"
+            [ngClass]="{ 'quill-error': addCourseForm.get('description')?.invalid && addCourseForm.get('description')?.touched }">
+            <quill-editor formControlName="description" [sanitize]="false" placeholder="Enter quiz description here..."
+                [styles]="{ height: '200px' }">
+            </quill-editor>
+        </div>
+
+        <mat-error
+            *ngIf="addCourseForm.get('description')?.touched && addCourseForm.get('description')?.hasError('required')">
+            Description is required
+        </mat-error>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Select Quiz</mat-label>
+            <mat-select formControlName="quiz_id">
+                <mat-option *ngFor="let quiz of allQuiz" [value]="quiz.id">
+                    {{ quiz.title }}
+                </mat-option>
+            </mat-select>
+            <mat-error
+                *ngIf="addCourseForm.get('quiz_id')?.hasError('required') && addCourseForm.get('quiz_id')?.touched">
+                Quiz selection is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Select Competency</mat-label>
+            <mat-select formControlName="competency_level_id">
+                <mat-option *ngFor="let competency of allCompentenceLevel" [value]="competency.competency_level_id">
+                    {{ competency.competency_level }}
+                </mat-option>
+            </mat-select>
+            <mat-error
+                *ngIf="addCourseForm.get('competency_level_id')?.hasError('required') && addCourseForm.get('competency_level_id')?.touched">
+                Competency level is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Select Mandatory Course</mat-label>
+            <mat-select formControlName="mandatory_course">
+                <mat-option *ngFor="let courses of allCourses" [value]="courses.course_id">
+                    {{ courses.title }}
+                </mat-option>
+            </mat-select>
+            <mat-error
+                *ngIf="addCourseForm.get('mandatory_course')?.hasError('required') && addCourseForm.get('mandatory_course')?.touched">
+                Mandatory course is required.
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4">
+            <mat-label>Active Status</mat-label>
+            <mat-select formControlName="active_status_id">
+                <mat-option [value]="1">Active</mat-option>
+                <mat-option [value]="0">Inactive</mat-option>
+            </mat-select>
+            <mat-error
+                *ngIf="addCourseForm.get('active_status_id')?.hasError('required') && addCourseForm.get('active_status_id')?.touched">
+                Active status is required.
+            </mat-error>
+        </mat-form-field>
+
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Date Range</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                    <input formControlName="valid_from" matStartDate placeholder="Start date">
+                    <input formControlName="valid_till" matEndDate placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+                <mat-error
+                    *ngIf="addCourseForm.hasError('dateRangeRequired') && (addCourseForm.get('valid_from')?.touched || addCourseForm.get('valid_till')?.touched)">
+                    Both start and end dates are required.
+                </mat-error>
+
+
+            </mat-form-field>
+        </div>
+
+        <div class="col-md-6">
+            <label for="fileInput" class="form-label">Upload Course Thumbnail Image</label>
+            <div class="border p-3 rounded-3 shadow-sm">
+                <div class="d-flex align-items-center justify-content-between">
+                    <p *ngIf="imageSize" class="me-auto text-muted">
+                        {{ selectedFile?.name }} - {{ imageSize }}
+                    </p>
+                    <div class="d-flex align-items-center">
+                        <!-- File Upload Button with Bootstrap styling -->
+                        <div class="input-group">
+                            <button mat-button>
+                                <input #fileInput type="file" (change)="onChangeFile($event)"
+                                    formControlName="thumbnail_img" class="file-input" />
+                                Choose file
+                            </button>
+                        </div>
+                        <div class="vr mx-3"></div>
+                        <!-- Delete Button with border and color styling -->
+                        <button mat-icon-button type="button" (click)="deleteFile()">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </div>
+                </div>
+                <!-- Display selected image preview if it's an image file -->
+                <div *ngIf="imagePreview">
+                    <div class="mt-3">
+                        <img [src]="imagePreview" alt="Image Preview" class="img-fluid"
+                            style="max-width: 100%; max-height: 200px; object-fit: contain;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onSubmit()" type="submit">
+        Save
+    </button>
+    <button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

@@ -1,0 +1,169 @@
+<app-template>
+  <app-breadcrumb class="mb-6 block">
+
+    <li class="breadcrumb-item active text-primary-600 font-medium">LMS</li>
+
+    <li class="breadcrumb-item active text-primary-600 font-medium">All Courses</li>
+  </app-breadcrumb>
+  <div class="w-full p-2 sm:p-6 bg-gray-50 min-h-screen">
+
+
+
+    <div *ngIf="hasPermission('585')"
+      class="p-2 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex-1"></div> <!-- Spacer -->
+      <div class="flex flex-wrap items-center gap-3 justify-end">
+        <button *ngIf="hasPermission('586')" mat-stroked-button color="primary"
+          routerLink="/setup/courses/all-questions"
+          class="!rounded-full !border-primary-200 !text-primary-700 bg-primary-50">
+          <mat-icon class="mr-2">quiz</mat-icon>
+          Questions Bank
+        </button>
+        <button *ngIf="hasPermission('585')" mat-stroked-button color="primary" routerLink="/setup/courses/all-quizz"
+          class="!rounded-full !border-primary-200 !text-primary-700 bg-primary-50">
+          <mat-icon class="mr-2">assignment</mat-icon>
+          All Quizz
+        </button>
+        <button *ngIf="hasPermission('584')" mat-flat-button color="primary" (click)="openCourseDialog('add')"
+          class="!rounded-full !px-6">
+          <mat-icon class="mr-2">add_circle</mat-icon>
+          Add Course
+        </button>
+      </div>
+    </div>
+
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate" class="!mb-6 !rounded-full"></mat-progress-bar>
+
+    <!-- Course Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <mat-card *ngFor="let course of dataSource.data"
+        class="group cursor-pointer !rounded-2xl !shadow-sm hover:!shadow-xl transition-all duration-300 border border-gray-100 bg-white overflow-hidden h-full flex flex-col transform hover:-translate-y-1"
+        [class.opacity-75]="course.course_status === 'locked'" matRipple>
+
+        <!-- Card Image Section -->
+        <div class="relative h-48 overflow-hidden bg-gray-100">
+          <img [src]="course.thumbnail_img ? (storageUrl + '/' + course.thumbnail_img) : 'assets/Images/dummy_imge.jpg'"
+            [alt]="course.title"
+            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+
+          <!-- Gradient Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60">
+          </div>
+
+          <!-- Course Status Badge -->
+          <div
+            class="absolute top-4 left-4 backdrop-blur-md bg-white/90 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-white/50 z-10">
+            <mat-icon class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px] overflow-visible" [ngClass]="{
+                    'text-amber-500': course.course_status === 'in_progress',
+                    'text-gray-500': course.course_status === 'locked',
+                    'text-green-600': course.course_status === 'completed'
+                  }">
+              {{ course.course_status === 'in_progress' ? 'play_circle' :
+              course.course_status === 'locked' ? 'lock' : 'check_circle' }}
+            </mat-icon>
+            <span class="text-xs font-bold uppercase tracking-wide" [ngClass]="{
+                    'text-amber-600': course.course_status === 'in_progress',
+                    'text-gray-600': course.course_status === 'locked',
+                    'text-green-700': course.course_status === 'completed'
+                  }">
+              {{ course.course_status === 'in_progress' ? 'In Progress' :
+              course.course_status === 'locked' ? 'Locked' :
+              course.course_status === 'completed' ? 'Completed' : '' }}
+            </span>
+          </div>
+
+          <!-- Enrollment Badge -->
+          <div
+            class="absolute top-4 right-4 backdrop-blur-md bg-indigo-50/90 px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm border border-indigo-100 z-10"
+            *ngIf="course.enroll_count > 0">
+            <mat-icon
+              class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px] text-indigo-600 overflow-visible">people</mat-icon>
+            <span class="text-xs font-bold text-indigo-700">{{ course.enroll_count }}</span>
+          </div>
+
+          <!-- Hover Overlay with Action -->
+          <div
+            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20"
+            *ngIf="course.course_status !== 'locked'">
+            <button mat-fab extended color="accent"
+              class="!bg-white !text-indigo-600 transform scale-90 group-hover:scale-100 transition-all duration-300 !shadow-lg"
+              (click)="enrollCourse(course)">
+              <mat-icon>{{ course.course_status === 'completed' ? 'visibility' :
+                course.course_status === 'in_progress' ? 'school' : 'add_circle' }}</mat-icon>
+              <span class="font-bold">{{ course.course_status === 'completed' ? 'View' :
+                course.course_status === 'in_progress' ? 'Continue' : 'Enroll' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card Content -->
+        <mat-card-content class="!p-5 flex-grow !m-0 flex flex-col justify-between">
+          <div>
+            <h3
+              class="text-lg font-bold text-gray-800 mb-3 line-clamp-2 leading-tight group-hover:text-primary-600 transition-colors"
+              [matTooltip]="course.title">
+              {{ course.title }}
+            </h3>
+
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center gap-2 text-gray-500 text-sm" *ngIf="course.valid_till">
+                <mat-icon
+                  class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px] text-indigo-400 overflow-visible">schedule</mat-icon>
+                <span>Valid till {{ course.valid_till | date: 'MMM dd, yyyy' }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 text-gray-500 text-sm">
+                <mat-icon
+                  class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px] text-indigo-400 overflow-visible">event</mat-icon>
+                <span>Created {{ course.created_at | date: 'MMM dd, yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+
+        <!-- Card Actions -->
+        <mat-card-actions class="!p-4 border-t border-gray-50 bg-gray-50/50 flex items-center justify-between !m-0">
+          <button mat-button color="primary" class="!font-semibold !px-2 -ml-2" (click)="enrollCourse(course)">
+            <mat-icon class="mr-1">{{ course.course_status === 'completed' ? 'visibility' :
+              course.course_status === 'in_progress' ? 'school' :
+              course.course_status === 'locked' ? 'add_circle' : 'add_circle' }}</mat-icon>
+            {{ course.course_status === 'completed' ? 'View' :
+            course.course_status === 'in_progress' ? 'Continue' :
+            course.course_status === 'locked' ? 'Enroll' : 'Enroll Now' }}
+          </button>
+
+          <div class="flex items-center gap-0" *ngIf="hasPermission('584')">
+            <button mat-icon-button color="primary" class="hover:bg-primary-50"
+              (click)="$event.stopPropagation(); openCourseDialog('edit', course)" matTooltip="Edit Course">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" class="hover:bg-red-50"
+              (click)="$event.stopPropagation(); deleteCourse(course.course_id)" matTooltip="Delete Course">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </mat-card-actions>
+
+      </mat-card>
+    </div>
+
+    <!-- No Courses Message -->
+    <div *ngIf="!loading && dataSource.data.length === 0"
+      class="flex flex-col items-center justify-center py-20 text-center">
+      <div class="bg-indigo-50 p-6 rounded-full mb-6">
+        <mat-icon class="!w-12 !h-12 !text-[48px] leading-[48px] text-indigo-200">school</mat-icon>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">No Courses Available</h3>
+      <p class="text-gray-500 max-w-md mx-auto mb-8">Start by creating your first course to get started with the
+        learning management system.</p>
+      <button mat-raised-button color="primary" *ngIf="hasPermission('584')" (click)="openCourseDialog('add')"
+        class="!rounded-full !px-8 !py-6 !text-lg">
+        <mat-icon class="mr-2">add</mat-icon>
+        Create First Course
+      </button>
+    </div>
+
+
+  </div>
+</app-template>

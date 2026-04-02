@@ -1,0 +1,91 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">Notice Board</li>
+    </app-breadcrumb>
+
+    <mat-card class="main-card">
+        <mat-card-header class="header-section">
+            <div class="header-content">
+                <h2 class="text-center text-white mb-0">
+                    <mat-icon class="notice-icon">campaign</mat-icon>
+                    Notice Board
+                </h2>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content class="notice-content">
+            <!-- Course Filter Dropdown -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-12 col-md-10 col-lg-8">
+                    <mat-form-field appearance="outline" class="w-100 filter-field">
+                        <mat-label>
+                            <mat-icon class="filter-icon">filter_list</mat-icon>
+                            Filter by Course
+                        </mat-label>
+                        <mat-select [(ngModel)]="selectedCourseId" (selectionChange)="onCourseChange()">
+                            <mat-option [value]="null">All Courses</mat-option>
+                            <mat-option *ngFor="let course of allCourses" [value]="course.course_id">
+                                {{ course.title }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="loading-state">
+                <mat-spinner class="mx-auto" diameter="60"></mat-spinner>
+                <p class="mt-4 loading-text">Loading notices...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && notices.length === 0" class="empty-state">
+                <mat-icon class="empty-icon">notifications_none</mat-icon>
+                <p class="empty-text">No notices available at the moment.</p>
+            </div>
+
+            <!-- Notice Board Content -->
+            <div *ngIf="!loading && notices.length > 0" class="notices-container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-10">
+                        <div class="notices-timeline">
+                            <div *ngFor="let notice of notices; let i = index" class="notice-card" [@fadeInUp]>
+                                <div class="notice-card-content">
+                                    <!-- User Avatar -->
+                                    <div class="notice-avatar">
+                                        <img [src]="notice.profileImage" [alt]="notice.name" class="avatar-image">
+                                        <div class="achievement-badge">
+                                            <mat-icon>emoji_events</mat-icon>
+                                        </div>
+                                    </div>
+
+                                    <!-- Notice Details -->
+                                    <div class="notice-details">
+                                        <div class="notice-header">
+                                            <h4 class="user-name">{{ notice.name }}</h4>
+                                            <span class="notice-time">
+                                                <mat-icon>schedule</mat-icon>
+                                                {{ getRelativeTime(notice.createdAt) }}
+                                            </span>
+                                        </div>
+
+                                        <div class="notice-message">
+                                            <mat-icon class="celebration-icon">celebration</mat-icon>
+                                            <p>{{ notice.notice }}</p>
+                                        </div>
+
+                                        <div class="notice-footer">
+                                            <span class="notice-date">
+                                                {{ notice.createdAt | date:'medium' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</app-template>

@@ -1,0 +1,95 @@
+// ================================================
+// Modern Navbar Styles
+// ================================================
+
+.navbarStyle {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+
+  &.scrolled {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+  }
+}
+
+::ng-deep {
+  .modern-profile-menu {
+    margin-top: 8px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+
+    .mat-mdc-menu-content {
+      padding: 0 !important;
+    }
+
+    .modern-menu-item {
+      padding: 6px 12px !important; // Increased for better tap area
+      height: auto !important;
+      min-height: 44px !important; // standard accessible height
+      margin-bottom: 0 !important;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+      &:hover {
+        background-color: rgba(59, 130, 246, 0.06) !important; // slightly more visible
+      }
+
+      .mdc-list-item__primary-text {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.notification-btn {
+  .badge-pulse {
+    animation: badgePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.profile-trigger {
+  &:focus-within {
+    background-color: rgba(241, 245, 249, 0.8);
+    border-color: rgba(226, 232, 240, 0.8);
+  }
+}
+
+/* Material Icon Enhancements */
+mat-icon {
+  user-select: none;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  &.icon-xs {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbarStyle {
+    padding: 0 0.5rem; // tighter for mobile
+  }
+}

@@ -1,0 +1,115 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">Site Visit Management</li>
+    <li class="breadcrumb-item active">Client Log</li>
+    <li class="breadcrumb-item active">All Client List</li>
+  </app-breadcrumb>
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="enquiryFilterForm">
+        <!-- Row for Dropdowns and Date Filter -->
+        <div class="row">
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="store.projects()"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+
+          <app-autocomplete-reusable-component class="col-md-2" formControlName="project_configuration_id"
+            [options]="store.preferenceDropdown()" displayKey="variant_name" idKey="project_configuration_id"
+            [isMultiSelect]="true" placeholder="Select Configuration">
+          </app-autocomplete-reusable-component>
+
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Enquiry Level</mat-label>
+              <mat-select formControlName="lead_level_id">
+                <mat-option [value]="0" disabled>Select Enquiry Level</mat-option>
+                @for (level of store.leadLevels(); track level.lead_level_id) {
+                <mat-option [value]="level.lead_level_id">
+                  {{ level.lead_level }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Call Status</mat-label>
+              <mat-select formControlName="call_status_id">
+                @for (callStatus of store.callStatuses(); track callStatus.call_status_id) {
+                <mat-option [value]="callStatus.call_status_id">
+                  {{ callStatus.call_status }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="store.sources()" formControlName="source_id"
+              displayKey="source" idKey="source_id" placeholder="Select Source">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          @if (store.isNotChannelPartnerSource()) {
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="store.sourceDetails()" formControlName="source_detail_id"
+              displayKey="source_detail" idKey="source_detail_id" placeholder="Select Source Type">
+            </app-autocomplete-reusable-component>
+          </div>
+          }
+
+          @if (store.isChannelPartnerSource()) {
+          <app-autocomplete-reusable-component [options]="store.channelPartners()" class="col-md-2"
+            formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+            placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+          </app-autocomplete-reusable-component>
+          }
+
+          @if (!store.isRole7()) {
+          <app-autocomplete-reusable-component class="col-md-2" [options]="store.salesExecutives()"
+            formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+            placeholder="Select Sales Executive">
+          </app-autocomplete-reusable-component>
+          }
+
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Date</mat-label>
+              <mat-date-range-input [rangePicker]="followUpDatePicker"
+                [disabled]="enquiryFilterForm.get('ignore_date_filters')?.value">
+                <input formControlName="start_date" matStartDate placeholder="Start date">
+                <input formControlName="end_date" matEndDate placeholder="End date">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="followUpDatePicker"></mat-datepicker-toggle>
+              <mat-date-range-picker #followUpDatePicker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" (click)="refreshGrid()" class="d-flex align-items-center w-100"
+              [disabled]="enquiryFilterForm.get('project_id')?.invalid">
+              Apply Filter
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-configurable-ag-grid-data [columns]="displayedColumns()" [apiEndpoint]="'fetch_project_enquiries'"
+    [apiMethod]="'POST'" [apiPayload]="store.agGridPayload()" [actions]="enquiryActions()"
+    [headerButtons]="headerButtons()" [showCheckbox]="store.showClaimedEnquiries()" [idProperty]="'project_enq_id'"
+    [getRowClass]="getRowClass" [selectedItems]="store.selectedBookings()" [cacheBlockSize]="200"
+    [customTheme]="customTheme()" (actionClick)="getLeadActions($event.action, $event.row)"
+    (checkboxChange)="onLeadSelectionChange($event.checked, $event.row)" (rowSelected)="onRowSelected($event)">
+  </app-configurable-ag-grid-data>
+</app-template>

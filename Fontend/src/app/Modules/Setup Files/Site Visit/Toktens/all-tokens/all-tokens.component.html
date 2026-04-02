@@ -1,0 +1,63 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item ">Site Visit Management</li>
+    <li class="breadcrumb-item ">EOI</li>
+
+    <li class="breadcrumb-item active">All EOIs</li>
+  </app-breadcrumb>
+
+
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title> Advanced Filters </mat-panel-title>
+      </mat-expansion-panel-header>
+      <form [formGroup]="addTokenForm" class="w-100 g-3">
+        <!-- Row for Dropdowns and Date Filter -->
+        <div class="row">
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+              displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+            </app-autocomplete-reusable-component>
+          </div>
+
+          <div class="col-md-2">
+            <app-autocomplete-reusable-component [options]="allTokenType()" formControlName="token_type_id"
+              displayKey="token_type" idKey="token_type_id" placeholder="EOI Type">
+            </app-autocomplete-reusable-component>
+          </div>
+          <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
+            formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
+            placeholder="Select Sales Executive">
+          </app-autocomplete-reusable-component>
+          <mat-form-field appearance="outline" class="col-md-2">
+            <mat-label>EOI Date</mat-label>
+            <mat-date-range-input [rangePicker]="leadDatePicker">
+              <input matStartDate formControlName="start_date" placeholder="Start date" (click)="leadDatePicker.open()">
+              <input matEndDate formControlName="end_date" placeholder="End date" (click)="leadDatePicker.open()">
+            </mat-date-range-input>
+            <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+            <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+          </mat-form-field>
+
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" (click)="fetchAllTokens()" class="d-flex align-items-center w-100"
+              [disabled]="!addTokenForm.get('project_id')?.value || addTokenForm.get('project_id')?.value?.length === 0 || addTokenForm.get('project_id')?.invalid">
+              Apply Filter
+            </button>
+          </div>
+        </div>
+      </form>
+
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_all_token'" [apiMethod]="'POST'"
+    [apiPayload]="getAgGridPayload()" [actions]="tokenActions" [headerButtons]="headerButtons" [showCheckbox]="true"
+    [idProperty]="'token_id'" [selectedItems]="selectedTokens()" [cacheBlockSize]="100" [autoLoad]="false"
+    (actionClick)="onTokenAction($event.action, $event.row)" (rowSelected)="selectedTokens.set($event)"
+    (checkboxChange)="onTokenSelectionChange($event.checked, $event.row)">
+  </app-configurable-ag-grid-data>
+
+</app-template>

@@ -1,0 +1,265 @@
+// Custom AG Grid Tooltip styling
+::ng-deep .ag-tooltip {
+  background-color: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #374151;
+  pointer-events: none;
+  z-index: 1000;
+  white-space: normal;
+  max-width: 300px;
+}
+
+// Skeleton Loader Animation
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.skeleton-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+
+  .skeleton-row {
+    height: 30px;
+    width: 100%;
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite linear;
+    border-radius: 4px;
+
+    &:first-child {
+      height: 40px;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+// Row dragging highlight
+::ng-deep .ag-row-dragging {
+  opacity: 0.7;
+  background-color: #eff6ff !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+}
+
+// Full view overlay: table fills viewport
+:host ::ng-deep .ag-grid-root.full-view {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  background: #fff;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+}
+
+.ag-grid-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 250px); // Use viewport height minus header/footer space
+  min-height: 500px; // Ensure minimum height for ag-grid to render
+  max-height: 800px; // Prevent excessive height
+
+  .header-buttons-container {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+
+  ag-grid-angular {
+    flex: 1;
+    width: 100%;
+    min-height: 400px; // Ensure minimum height for ag-grid
+    overflow: hidden; // Prevent overflow issues
+  }
+
+  &.loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+::ng-deep .ag-grid-action-button {
+
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+
+}
+
+// Ensure checkbox column is properly aligned
+// Grid Theme Enhancements
+::ng-deep .ag-theme-quartz {
+  --ag-header-background-color: #f9fafb;
+  --ag-header-foreground-color: #374151;
+  --ag-row-hover-color: #f0f7ff;
+  --ag-selected-row-background-color: #e0f2fe;
+  --ag-font-size: 13px;
+
+  .ag-header-cell {
+    font-weight: 600;
+  }
+
+  .ag-cell {
+    display: flex;
+    align-items: center;
+  }
+
+  .ag-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  // Action column cell alignment
+  .ag-cell[col-id*="action"],
+  .ag-cell[col-id*="Action"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px !important;
+  }
+
+  // Pinned bottom row styling - handled below via standalone ::ng-deep
+
+
+  // Cell flashing - override default to look more premium
+  .ag-cell-data-changed {
+    background-color: #fef08a !important; // More distinct yellow-200
+    transition: background-color 2s ease-out;
+    background-image: linear-gradient(rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.1)) !important;
+  }
+
+  .ag-cell-data-changed-animation {
+    background-color: #fbbf24 !important; // Amber-400 for intense flash
+    transition: background-color 0s;
+  }
+
+  // Row selection and hover enhancements
+  .ag-row {
+    transition: background-color 0.2s ease;
+
+    &.ag-row-hover {
+      background-color: #f8fafc !important;
+      cursor: pointer;
+    }
+
+    &.ag-row-selected {
+      background-color: #f0f9ff !important;
+      border-left: 2px solid #0ea5e9 !important;
+    }
+  }
+
+  // Ensure row group headers are styled
+  .ag-row-group {
+    background-color: #f9fafb !important;
+    font-weight: 600;
+  }
+}
+
+.column-selection-menu {
+  &.mat-mdc-menu-panel {
+    min-width: 192px !important; // 48 * 4 (w-48)
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    margin-top: 4px !important;
+  }
+
+  ::ng-deep {
+    .mat-mdc-menu-item {
+      padding: 0 !important;
+      min-height: 24px !important;
+      height: 24px !important;
+
+      .mdc-list-item__content {
+        padding: 0 !important;
+      }
+    }
+  }
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+
+    &:hover {
+      background: #cbd5e1;
+      background-clip: content-box;
+    }
+  }
+}
+
+.example-header {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+// ─── Pinned Bottom Row Highlight ──────────────────────────
+// Uses multiple selectors to cover AG Grid theming variants (CSS class & JS themeQuartz)
+::ng-deep {
+  // Target the pinned bottom container rows
+  .ag-pinned-bottom-rows-container .ag-row {
+    background-color: #dbeafe !important;
+    border-top: 2px solid #3b82f6 !important;
+    font-weight: 700 !important;
+
+    .ag-cell {
+      background-color: #dbeafe !important;
+      color: #1e3a8a !important;
+    }
+  }
+
+  // Extra specificity fallback
+  .ag-row-pinned.ag-row-pinned-bottom,
+  [row-pinned="bottom"] {
+    background-color: #dbeafe !important;
+    border-top: 2px solid #3b82f6 !important;
+    font-weight: 700 !important;
+
+    .ag-cell {
+      background-color: #dbeafe !important;
+      color: #1e3a8a !important;
+    }
+  }
+}

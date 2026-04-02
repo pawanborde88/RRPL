@@ -1,0 +1,30 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">Setup</li>
+    <li class="breadcrumb-item active">All Modules</li>
+    <li class="breadcrumb-item active">Permission Access Management</li>
+  </app-breadcrumb>
+
+  <div class="page-header compact-header">
+    <app-main-permission (chipClicked)="handleChipClick($event)"></app-main-permission>
+
+    <div class="header-content">
+      <div class="header-actions">
+        <button mat-flat-button color="primary" (click)="openAddEditModuleDialog('add')" class="compact-add-button">
+          <mat-icon>add</mat-icon> Add
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="compact-table-container">
+    <div class="ag-grid-wrapper mat-elevation-z2">
+      <ag-grid-angular [rowData]="rowData" [columnDefs]="columnDefs" [defaultColDef]="defaultColDef"
+        [theme]="agGridTheme" [floatingFiltersHeight]="floatingFiltersHeight" [getRowId]="getRowId"
+        [context]="gridContext" [loading]="loadingState" [pagination]="true" [paginationPageSize]="25"
+        [paginationPageSizeSelector]="[10, 25, 50, 100]" [suppressRowClickSelection]="true" [domLayout]="'normal'"
+        [animateRows]="true" style="width: 100%; height: 600px;" (gridReady)="onGridReady($event)">
+      </ag-grid-angular>
+    </div>
+  </div>
+</app-template>

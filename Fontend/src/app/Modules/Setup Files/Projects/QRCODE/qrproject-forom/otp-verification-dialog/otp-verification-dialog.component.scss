@@ -1,0 +1,58 @@
+.otp-dialog-container {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+input {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:focus {
+    transform: translateY(-2px);
+  }
+
+  /* Remove arrows/spinners from number/tel inputs */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+:host ::ng-deep {
+  .mat-mdc-button-base {
+    letter-spacing: 0.025em;
+  }
+}
+
+/* Mobile Responsiveness for OTP Dialog Internal Content */
+@media (max-width: 639px) {
+  .otp-dialog-container {
+    padding: 1.25rem !important; // Slightly more compact padding
+  }
+
+  .text-center.mb-10 {
+    margin-bottom: 2rem !important; // Reduce header bottom margin
+  }
+
+  .otp-input {
+    height: 3.5rem !important; // Ensure it stays square-ish and easy to tap
+    font-size: 1.25rem !important;
+  }
+
+  .space-y-8 {
+    gap: 1.5rem !important;
+  }
+
+  .flex.justify-between.items-center.gap-3 {
+    gap: 0.5rem !important; // Tighter gap for small screens
+  }
+}
+
+@media (max-width: 380px) {
+  .flex.justify-between.items-center.gap-3 {
+    gap: 0.35rem !important; // Even tighter for very small screens
+  }
+  
+  .otp-input {
+    font-size: 1.1rem !important;
+  }
+}

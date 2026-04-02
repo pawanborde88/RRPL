@@ -1,0 +1,12 @@
+.booked-row {
+    background-color: #cfd1f3 !important; /* Light blue for booked */
+  }
+  
+  .not-booked-row {
+    background-color: #f8e8eb !important; /* Light red for not booked */
+  }
+  .sticky-column-left {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }

@@ -1,0 +1,52 @@
+<app-template>
+  <app-breadcrumb>
+    <li class="breadcrumb-item active">Site Visit Management</li>
+    <li class="breadcrumb-item ">EOI</li>
+
+    <li class="breadcrumb-item active">All Cancel EOIs</li>
+  </app-breadcrumb>
+
+  <mat-card>
+    <mat-card-header class="d-flex flex-column mb-2">
+      <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title> Advanced Filters </mat-panel-title>
+          </mat-expansion-panel-header>
+          <form [formGroup]="addTokenForm" class="w-100 g-3">
+            <!-- Row for Dropdowns and Date Filter -->
+            <div class="row">
+              <div class="col-md-2">
+                <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList"
+                  displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
+                </app-autocomplete-reusable-component>
+              </div>
+
+              <div class="col-md-2">
+                <app-autocomplete-reusable-component [options]="allTokenType" formControlName="token_type_id"
+                  displayKey="token_type" idKey="token_type_id" placeholder="EOI Type">
+                </app-autocomplete-reusable-component>
+              </div>
+
+
+              <div class="col-md-2">
+                <button mat-raised-button color="primary" (click)="fetchAllTokens()"
+                  class="d-flex align-items-center w-100" [disabled]="!addTokenForm.get('project_id')?.value">
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </form>
+
+
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card-header>
+
+    <mat-card-content>
+      <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+        [showFooter]="true">
+      </app-reusable-custom-table>
+    </mat-card-content>
+  </mat-card>
+</app-template>

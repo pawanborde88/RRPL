@@ -1,0 +1,50 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item ">CP Management</li>
+        <li class="breadcrumb-item ">Report</li>
+
+        <li class="breadcrumb-item active">All Channel Partner Event Attendance Report</li>
+    </app-breadcrumb>
+
+    <mat-card>
+        <mat-card-header class="d-flex flex-column mb-2">
+            <mat-accordion>
+                <mat-expansion-panel hideToggle [expanded]="true"> <mat-panel-title> Advanced Filters
+                    </mat-panel-title>
+
+                    <mat-expansion-panel-header>
+                        <mat-panel-title> Advanced Filters </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <form [formGroup]="eventFilterForm" class=" w-100 g-3 align-items-end">
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Select Event</mat-label>
+                                    <mat-select formControlName="event_id" (selectionChange)="fetchCPTargetReport()">
+                                        <mat-option *ngFor="let event of allEvents" [value]="event?.event_id">
+                                            {{ event?.event_title || 'Untitled Event' }}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-auto">
+                                <button mat-raised-button type="button" color="primary"
+                                    class="d-flex align-items-center w-100" (click)="fetchCPTargetReport()">
+                                    <mat-icon class="me-1">filter_list</mat-icon> Apply Filter
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </mat-card-header>
+        <mat-card-content>
+            <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource"
+                [displayedColumns]="channelPartnerMeetingColumns" [showFooter]="true">
+            </app-reusable-custom-table>
+        </mat-card-content>
+    </mat-card>
+</app-template>

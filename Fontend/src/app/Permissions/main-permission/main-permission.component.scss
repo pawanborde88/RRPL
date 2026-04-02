@@ -1,0 +1,16 @@
+.navigation-buttons {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  flex-wrap: wrap;
+}
+
+.navigation-button {
+  transition: all 0.2s ease;
+
+  &.active-button {
+    background-color: #0d4678;
+    color: white;
+    border-color: #0d4678;
+  }
+}

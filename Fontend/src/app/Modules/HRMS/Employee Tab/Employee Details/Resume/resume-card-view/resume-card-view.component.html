@@ -1,0 +1,57 @@
+
+
+<mat-card class="mt-3 card-shadow-sm">
+  <div [ngClass]="resumeUrl? 'no-border' : 'warning-border'" class="card rounded-2 card-shadow-sm p-4 "
+  id="resume">
+
+  <p class="second-heading-ptag">Resume</p>
+
+  <div *ngIf="resumeUrl" class="d-flex flex-column align-items-md-center align flex-md-row mb-3">
+    <p class="paragraph-text m-md-0 me-md-3 mb-2">Your current resume</p>
+    <button mat-stroked-button color="primary">
+      <mat-icon>description</mat-icon>
+      <a [href]="resumeUrl" class="ms-3 text-decoration-none" target="_blank" rel="noopener">{{
+        resumeLabel }}</a>
+    </button>
+  </div>
+
+  <mat-divider *ngIf="resumeUrl" class="mb-3"></mat-divider>
+
+  <p *ngIf="!hideFileInput" class="paragraph-text ">Recruiters are most interested in your resume. In
+    general, recruiters do not
+    review profiles without
+    resumes.</p>
+
+  <div *ngIf="!hideFileInput"
+    class="dotted-border py-4 d-flex justify-content-center align-items-center flex-column">
+    <label for="resume-upload" class="upload-label">Upload Resume</label>
+    <input type="file" id="resume-upload" (change)="handleFileInput($event)">
+
+    <p class="mt-2 paragraph-text mb-0">Supported Formats: doc, docx, pdf, upto 2 MB</p>
+  </div>
+
+  <div *ngIf="resumeFile" class="file-info">
+    <div class="d-flex align-items-center">
+      <span class="fw-medium small">{{ resumeFile.name }}</span>
+      <span class="small">| &nbsp;{{ formatFileSize(resumeFile.size) }}</span>
+
+
+<div class="d-flex me-auto ms-3">
+  <button type="button" matTooltip="Remove selected resume" mat-icon-button color="primary" (click)="deleteFile()">
+    <mat-icon>delete_outline</mat-icon>
+  </button>
+  <div class="vr mx-3"></div>
+  <button type="button" mat-button color="primary" class="btn btn-sm" (click)="uploadResume()" [disabled]="loadingState">
+    <span *ngIf="!loadingState">Upload</span>
+    <mat-spinner diameter="20" *ngIf="loadingState"></mat-spinner>
+  </button>
+</div>
+
+
+
+    </div>
+  </div>
+
+  </div>
+</mat-card>
+

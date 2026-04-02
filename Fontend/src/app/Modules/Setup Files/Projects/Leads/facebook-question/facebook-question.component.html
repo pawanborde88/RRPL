@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Facebook Question
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h2>
+<mat-dialog-content class="mat-typography">
+
+    <app-reusable-custom-table 
+    [loading]="loading" 
+    [dataSource]="dataSource" 
+    [displayedColumns]="displayedColumns"
+   
+    [showFooter]="true" 
+   >
+  </app-reusable-custom-table>
+  
+
+</mat-dialog-content>
+

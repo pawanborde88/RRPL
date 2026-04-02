@@ -1,0 +1,65 @@
+<div class="w-full max-w-[500px] max-h-[600px] flex flex-col bg-white rounded-lg overflow-hidden text-[13px] text-slate-700">
+
+    <h2 mat-dialog-title>
+      Select Columns
+      <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+      </button>
+    </h2>
+
+    <!-- Search Container -->
+    <div class="p-2 px-3 border-b border-slate-200" *ngIf="enableSearch">
+        <input 
+          class="w-full px-2 py-1.5 border border-slate-300 rounded text-[13px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" 
+          placeholder="Search columns..." 
+          [value]="searchQuery" 
+          (input)="onSearchInput($event)">
+    </div>
+    
+    <!-- Selection List -->
+    <div class="overflow-y-auto py-2 flex-1 min-h-[200px]">
+      <!-- Select All option -->
+      <div 
+        class="flex items-center min-h-[40px] px-4 py-2 cursor-pointer gap-3 transition-colors duration-200 border-b border-slate-200 font-medium bg-slate-50 mb-1 hover:bg-slate-100" 
+        (click)="toggleSelectAll()">
+        <span class="w-6 text-slate-500 text-xs text-right flex-shrink-0 invisible"></span>
+        <mat-checkbox 
+          [checked]="allSelectedValue"
+          (click)="$event.stopPropagation()"
+          (change)="toggleSelectAll()"
+          [indeterminate]="!allSelectedValue && hasPartialSelectionValue"
+          class="flex-shrink-0">
+        </mat-checkbox>
+        <span class="whitespace-nowrap overflow-hidden text-ellipsis flex-grow text-sm font-medium">{{ selectAllLabel() }}</span>
+      </div>
+  
+      <!-- Selectable Column options -->
+      <div 
+        *ngFor="let column of selectableColumnsArray; trackBy: trackByColumnKey; let i = index" 
+        class="flex items-center min-h-[40px] px-4 py-2 cursor-pointer gap-3 transition-colors duration-200 hover:bg-slate-50"
+        (click)="toggleColumn(column)">
+        <span class="w-6 text-slate-500 text-xs text-right flex-shrink-0">{{i + 1}}</span>
+        <mat-checkbox 
+          [checked]="column.selected" 
+          (click)="$event.stopPropagation()"
+          (change)="toggleColumn(column)"
+          class="flex-shrink-0">
+        </mat-checkbox>
+        <span class="whitespace-nowrap overflow-hidden text-ellipsis flex-grow text-sm">{{column.label}}</span>
+      </div>
+
+   
+    </div>
+
+    <!-- Dialog Actions -->
+    <div class="flex justify-end gap-3 p-4 px-6 border-t border-slate-200 bg-slate-50">
+     
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="applySelection()" 
+        class="!min-w-[80px]">
+        Apply
+      </button>
+    </div>
+  </div>
