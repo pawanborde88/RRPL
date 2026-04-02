@@ -29,7 +29,11 @@
   }
 
   // Firefox support
-  scrollbar-width: if($width < 10px, thin, auto);
+  @if $width < 10px {
+    scrollbar-width: thin;
+  } @else {
+    scrollbar-width: auto;
+  }
   scrollbar-color: $thumb-color $track-color;
 }
 

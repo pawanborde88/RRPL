@@ -16,7 +16,8 @@
                 <!-- Project Dropdown -->
                 <div class="col-md-3">
                     <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
-                        displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                        displayKey="property_name" [isMultiSelect]="true" idKey="project_id"
+                        placeholder="Select Project">
                     </app-autocomplete-reusable-component>
                 </div>
 

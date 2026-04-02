@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProjectwiseQRComponent } from './projectwise-qr.component';
+import { ProjectOwner } from './project-owner';
 
-describe('ProjectwiseQRComponent', () => {
-  let component: ProjectwiseQRComponent;
-  let fixture: ComponentFixture<ProjectwiseQRComponent>;
+describe('ProjectOwner', () => {
+  let component: ProjectOwner;
+  let fixture: ComponentFixture<ProjectOwner>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProjectwiseQRComponent]
+      imports: [ProjectOwner]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(ProjectwiseQRComponent);
+
+    fixture = TestBed.createComponent(ProjectOwner);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

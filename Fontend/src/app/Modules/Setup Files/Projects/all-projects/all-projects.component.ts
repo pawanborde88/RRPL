@@ -20,7 +20,6 @@ import { CommonService } from '../../../../Service/common/common.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../../environments/environment';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { ProjectwiseQRComponent } from '../QRCODE/projectwise-qr/projectwise-qr.component';
 import { AllAssignedProjectsComponent } from '../All assigned Projects/all-assigned-projects/all-assigned-projects.component';
 import { AddProjectsComponent } from '../add-projects/add-projects.component';
 import { ProjectWiseTemplateComponent } from '../project-wise-template/project-wise-template.component';
@@ -29,6 +28,7 @@ import { WhatsAppintegrationDialogComponent } from '../../whatsApp/WhatsApp Inte
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { CostomLoadingComponent } from '../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
 import { AuthService } from '../../../../Service/auth.service';
+import { ProjectOwner } from '../project-owner/project-owner';
 
 interface ProjectSelection {
   project_id: number;
@@ -172,11 +172,11 @@ export class AllProjectsComponent implements OnInit {
       show: () => true,
     },
     {
-      label: 'Generate QR',
+      label: 'Owner Details',
       icon: 'qr_code_scanner',
       color: 'primary',
       disabled: () => !this.selectedProjects.length,
-      action: () => this.openQRDialog(this.selectedProjects),
+      action: () => this.openOwnerDialog(this.selectedProjects),
       show: () => true,
     },
     // {
@@ -456,10 +456,10 @@ export class AllProjectsComponent implements OnInit {
     }
   }
 
-  openQRDialog(project: ProjectRecord | ProjectSelection[]): void {
+  openOwnerDialog(project: ProjectRecord | ProjectSelection[]): void {
     const data = Array.isArray(project) ? project : [project];
-    const dialogRef = this.dialog.open(ProjectwiseQRComponent, {
-      minWidth: '20vw',
+    const dialogRef = this.dialog.open(ProjectOwner, {
+      minWidth: '50vw',
       maxWidth: '50vh',
       maxHeight: '100vh',
       data: { rowData: data },
