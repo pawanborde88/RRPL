@@ -48,8 +48,6 @@
               {{ totalProjects }}
             </span>
           </div>
-
-          <!-- Action Buttons -->
           <div class="flex flex-wrap items-center gap-2.5" *ngIf="roleId === 2">
             <ng-container *ngFor="let button of headerButtons">
               <button *ngIf="button.show()" mat-raised-button [disabled]="button.disabled()" (click)="button.action()"
@@ -217,8 +215,7 @@
       <div class="max-w-md space-y-4">
         <h3 class="text-2xl font-black text-slate-800 tracking-tight">No Projects Found</h3>
         <p class="text-sm font-medium leading-relaxed text-slate-500">
-          {{ searchText ? 'We couldn\'t find any projects matching your search. Try adjusting your filters or search
-          terms.' : 'It looks like you haven\'t added any projects yet. Start by creating your first project below.' }}
+          {{ searchText ? 'We couldn\'t find any projects matching your search. Try adjusting your filters or search terms.' : 'It looks like you haven\'t added any projects yet. Start by creating your first project below.' }}
         </p>
       </div>
 
