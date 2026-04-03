@@ -1,7 +1,62 @@
-
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Card title: up to 2 lines without cutting off too aggressively */
+.project-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+::ng-deep .project-card-checkbox .mdc-checkbox {
+  padding: 0;
+}
+
+/* Compact header actions: icon + short label, dense padding */
+::ng-deep button.projects-header-compact-btn.mat-mdc-outlined-button {
+  --mdc-outlined-button-container-height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+::ng-deep button.projects-header-compact-btn.mat-mdc-outlined-button .mat-mdc-button-touch-target {
+  height: 32px;
+}
+
+::ng-deep button.projects-header-compact-btn.mat-mdc-outlined-button .mdc-button__label {
+  z-index: 0;
+}
+
+.projects-header-compact-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.projects-header-compact-label {
+  max-width: 5.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+::ng-deep button.projects-header-cta-btn.mat-mdc-unelevated-button {
+  --mdc-filled-button-container-height: 32px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+}
+
+::ng-deep button.projects-header-cta-btn.mat-mdc-unelevated-button .mat-mdc-button-touch-target {
+  height: 32px;
 }

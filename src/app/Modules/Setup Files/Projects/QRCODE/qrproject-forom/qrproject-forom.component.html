@@ -22,8 +22,9 @@
             class="relative overflow-hidden rounded-[2.5rem] shadow-2xl shadow-slate-200/50 bg-white border border-slate-100/80 transition-all duration-500">
             <!-- Loading Overlay -->
             <div *ngIf="loading()"
-                class="absolute inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-md transition-opacity duration-300">
-                <mat-spinner diameter="48" class="custom-spinner"></mat-spinner>
+                class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] flex items-center gap-3 bg-white/95 backdrop-blur-md shadow-2xl border border-slate-100 px-6 py-3.5 rounded-full transition-all duration-300">
+                <mat-spinner diameter="24" class="custom-spinner"></mat-spinner>
+                <span class="text-sm font-bold text-slate-800 tracking-wide">Please wait...</span>
             </div>
 
             <!-- Header Section -->
@@ -178,7 +179,67 @@
                                 </div>
 
                                 <!-- OTP Section -->
+                                <div class="col-span-1 md:col-span-2 lg:col-span-12"
+                                    *ngIf="projectData()?.enq_otp_status === 1">
+                                    <div
+                                        class="bg-gradient-to-r from-indigo-50/80 to-blue-50/80 rounded-xl p-4 border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="p-2.5 bg-white rounded-lg shadow-sm border border-indigo-100/50">
+                                                <mat-icon class="scale-110 transition-colors duration-300"
+                                                    [class.text-indigo-600]="!isOtpVerified()"
+                                                    [class.text-emerald-500]="isOtpVerified()">
+                                                    {{ isOtpVerified() ? 'verified' : 'lock_person' }}
+                                                </mat-icon>
+                                            </div>
+                                            <div>
+                                                <h5 class="text-sm sm:text-base font-bold text-slate-800">Verification
+                                                    Required</h5>
+                                                <p
+                                                    class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 leading-relaxed">
+                                                    <ng-container *ngIf="isOtpVerified(); else notVerifiedMsg">
+                                                        Your email address <strong
+                                                            *ngIf="addEnquiryform.get('email_id')?.value"
+                                                            class="text-slate-700 font-bold px-1">{{addEnquiryform.get('email_id')?.value}}</strong>is
+                                                        verified securely.
+                                                    </ng-container>
+                                                    <ng-template #notVerifiedMsg>
+                                                        Verify your details. OTP will be sent to your email, mobile, and
+                                                        WhatsApp.
+                                                    </ng-template>
+                                                </p>
+                                            </div>
+                                        </div>
 
+                                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                                            <!-- Verified Badge -->
+                                            <div *ngIf="isOtpVerified()"
+                                                class="w-full sm:w-auto px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-lg flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
+                                                <mat-icon class="scale-75">check_circle</mat-icon>
+                                                Verified
+                                            </div>
+
+                                            <!-- Send/Re-verify Button -->
+                                            <button mat-raised-button color="primary" type="button" (click)="sendOtp()"
+                                                *ngIf="!isOtpVerified()"
+                                                [disabled]="isOtpLoading() || addEnquiryform.get('first_name')?.invalid || addEnquiryform.get('last_name')?.invalid || addEnquiryform.get('mobile_no')?.invalid || addEnquiryform.get('email_id')?.invalid"
+                                                class="w-full sm:w-auto !rounded-lg !py-4 !px-5 shadow-sm shadow-indigo-200 font-semibold tracking-wide text-sm">
+                                                <mat-icon *ngIf="!isOtpLoading()" class="mr-2">send</mat-icon>
+                                                <mat-spinner *ngIf="isOtpLoading()" diameter="20"
+                                                    class="inline-block mr-2"></mat-spinner>
+                                                {{ isOtpLoading() ? 'Sending...' : (isOtpSent() ? 'Resend OTP' : 'Send
+                                                OTP') }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dynamic API Response Error Message -->
+                                    <div *ngIf="otpErrorMessage()"
+                                        class="mt-3 text-sm font-bold text-red-600 bg-red-50 py-3 px-4 rounded-lg border border-red-100 flex items-center gap-3">
+                                        <mat-icon class="scale-90 text-red-500">error_outline</mat-icon>
+                                        <span>{{ otpErrorMessage() }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -441,66 +502,7 @@
 
                     <!-- Footer Actions -->
                     <div class="px-4 py-4 sm:py-5 sm:px-6 bg-white border-t border-slate-100 rounded-b-[2.5rem]">
-                        <div class="col-span-1 md:col-span-2 lg:col-span-12"
-                            *ngIf="projectData()?.enq_otp_status === 1">
-                            <div
-                                class="bg-gradient-to-r from-indigo-50/80 to-blue-50/80 rounded-xl p-4 border border-indigo-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2.5 bg-white rounded-lg shadow-sm border border-indigo-100/50">
-                                        <mat-icon class="scale-110 transition-colors duration-300"
-                                            [class.text-indigo-600]="!isOtpVerified()"
-                                            [class.text-emerald-500]="isOtpVerified()">
-                                            {{ isOtpVerified() ? 'verified' : 'security' }}
-                                        </mat-icon>
-                                    </div>
-                                    <div>
-                                        <h5 class="text-sm sm:text-base font-bold text-slate-800">Email Verification
-                                            Required</h5>
-                                        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 leading-relaxed">
-                                            <ng-container *ngIf="isOtpVerified(); else notVerifiedMsg">
-                                                Your email address <strong *ngIf="addEnquiryform.get('email_id')?.value"
-                                                    class="text-slate-700 font-bold px-1">{{addEnquiryform.get('email_id')?.value}}</strong>is
-                                                verified securely.
-                                            </ng-container>
-                                            <ng-template #notVerifiedMsg>
-                                                Please verify your email <strong
-                                                    *ngIf="addEnquiryform.get('email_id')?.value"
-                                                    class="text-slate-700 font-bold px-1">{{addEnquiryform.get('email_id')?.value}}</strong>to
-                                                validate your request.
-                                            </ng-template>
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <div class="flex items-center gap-3 w-full sm:w-auto">
-                                    <!-- Verified Badge -->
-                                    <div *ngIf="isOtpVerified()"
-                                        class="w-full sm:w-auto px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-lg flex items-center justify-center gap-2 border border-emerald-200 shadow-sm">
-                                        <mat-icon class="scale-75">check_circle</mat-icon>
-                                        Verified
-                                    </div>
-
-                                    <!-- Send/Re-verify Button -->
-                                    <button mat-raised-button color="primary" type="button" (click)="sendOtp()"
-                                        *ngIf="!isOtpVerified()"
-                                        [disabled]="isOtpLoading() || addEnquiryform.get('first_name')?.invalid || addEnquiryform.get('last_name')?.invalid || addEnquiryform.get('mobile_no')?.invalid || addEnquiryform.get('email_id')?.invalid"
-                                        class="w-full sm:w-auto !rounded-lg !py-4 !px-5 shadow-sm shadow-indigo-200 font-semibold tracking-wide text-sm">
-                                        <mat-icon *ngIf="!isOtpLoading()" class="mr-2">send</mat-icon>
-                                        <mat-spinner *ngIf="isOtpLoading()" diameter="20"
-                                            class="inline-block mr-2"></mat-spinner>
-                                        {{ isOtpLoading() ? 'Sending...' : (isOtpSent() ? 'Resend OTP' : 'Send
-                                        OTP') }}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Dynamic API Response Error Message -->
-                            <div *ngIf="otpErrorMessage()"
-                                class="mt-3 text-sm font-bold text-red-600 bg-red-50 py-3 px-4 rounded-lg border border-red-100 flex items-center gap-3">
-                                <mat-icon class="scale-90 text-red-500">error_outline</mat-icon>
-                                <span>{{ otpErrorMessage() }}</span>
-                            </div>
-                        </div>
                         <div class="mt-4 flex items-center justify-center">
                             <button mat-raised-button color="primary" (click)="onSubmit()"
                                 class="w-full sm:w-auto min-w-[200px] !py-5 !text-base !font-bold !tracking-wide !rounded-xl shadow-lg shadow-indigo-200/60 active:scale-[0.98] transition-all duration-300"

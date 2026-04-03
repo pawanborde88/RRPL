@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, of, throwError, timer } from 'rxjs';
-import { catchError, concatMap, retry, retryWhen, shareReplay } from 'rxjs/operators';
+import { catchError, concatMap, retry, retryWhen, shareReplay, map } from 'rxjs/operators';
 import { environment } from '../../../../../../../environments/environment';
 import {
   Project,
@@ -35,7 +35,10 @@ export class ProjectBankMasterService {
   private projectsCache$?: Observable<Project[]>;
 
   // Cache for wings per project
-  private readonly wingsCache = new Map<number, Observable<Wing[]>>;
+  private readonly wingsCache = new Map<number, Observable<Wing[]>>();
+
+  // Cache for land owners per project
+  private readonly landOwnersCache = new Map<number, Observable<any[]>>();
 
   // Cache for preferred banks (shared across instances)
   private banksCache$?: Observable<PreferredBank[]>;
@@ -133,6 +136,34 @@ export class ProjectBankMasterService {
 
     return this.wingsCache.get(projectId)!;
   }
+  fetchLandOwners(projectId: number): Observable<any[]> {
+    if (!this.landOwnersCache.has(projectId)) {
+      const landOwners$ = this.http
+        .post<any>(`${this.baseUrl}/fetch_land_owners`, { project_id: projectId })
+        .pipe(
+          map(res => res && res.data ? res.data : []),
+          retryWhen((errors) =>
+            errors.pipe(
+              concatMap((error, index) => {
+                if (index < 2) {
+                  return timer(1000 * (index + 1)); // Exponential backoff: 1s, 2s
+                }
+                return throwError(() => error);
+              })
+            )
+          ),
+          catchError((error) => {
+            console.error(`Error fetching land owners for project ${projectId}:`, error);
+            return throwError(() => new Error('No land owners available for selection'));
+          }),
+          shareReplay({ bufferSize: 1, refCount: true })
+        );
+
+      this.landOwnersCache.set(projectId, landOwners$);
+    }
+
+    return this.landOwnersCache.get(projectId)!;
+  }
 
   // ============================================================================
   // Preferred Bank Methods
@@ -166,13 +197,19 @@ export class ProjectBankMasterService {
    */
   fetchProjectBanks(
     projectId: number | null,
-    wingId: number | null
+    wingId: number | null,
+    landOwnerSetupId?: number | null
   ): Observable<ProjectBankResponse> {
+    const payload: any = {
+      project_id: projectId,
+      wing_id: wingId,
+    };
+    if (landOwnerSetupId !== undefined && landOwnerSetupId !== null) {
+      payload.land_owner_setup_id = landOwnerSetupId;
+    }
+
     return this.http
-      .post<ProjectBankResponse>(`${this.baseUrl}/fetch_project_banks`, {
-        project_id: projectId,
-        wing_id: wingId,
-      })
+      .post<ProjectBankResponse>(`${this.baseUrl}/fetch_project_banks`, payload)
       .pipe(
         retryWhen((errors) =>
           errors.pipe(
@@ -249,6 +286,7 @@ export class ProjectBankMasterService {
   clearAllCaches(): void {
     this.projectsCache.clear();
     this.wingsCache.clear();
+    this.landOwnersCache.clear();
     this.projectsCache$ = undefined;
     this.banksCache$ = undefined;
   }

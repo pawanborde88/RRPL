@@ -29,6 +29,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { CostomLoadingComponent } from '../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
 import { AuthService } from '../../../../Service/auth.service';
 import { ProjectOwner } from '../project-owner/project-owner';
+import * as XLSX from 'xlsx';
 
 interface ProjectSelection {
   project_id: number;
@@ -39,6 +40,9 @@ interface ProjectSelection {
   project_status?: string;
   description?: string;
   address?: string;
+  city_name?: string;
+  state_name?: string;
+  pincode?: string;
   created_by_name?: string;
   created_at?: string | Date;
   updated_by_name?: string;
@@ -146,35 +150,52 @@ export class AllProjectsComponent implements OnInit {
     this.loadingSignal.set(value);
   }
 
-  headerButtons = [
+  headerButtons: Array<{
+    label: string;
+    shortLabel?: string;
+    icon: string;
+    color: 'primary' | 'accent' | 'warn';
+    variant: 'compact' | 'cta';
+    disabled: () => boolean;
+    action: () => void;
+    show: () => boolean;
+  }> = [
     {
       label: 'WhatsApp Key',
+      shortLabel: 'WhatsApp',
       icon: 'dataset_linked',
       color: 'primary',
+      variant: 'compact',
       disabled: () => !this.selectedProjects.length,
       action: () => this.whatsAppKeyDialog(this.selectedProjects),
       show: () => true,
     },
     {
       label: 'Parking Type',
+      shortLabel: 'Parking',
       icon: 'local_parking',
       color: 'primary',
+      variant: 'compact',
       disabled: () => !this.selectedProjects.length,
       action: () => this.parkingTypeDialog(this.selectedProjects),
       show: () => true,
     },
     {
       label: 'File Format',
+      shortLabel: 'Format',
       icon: 'api',
       color: 'primary',
+      variant: 'compact',
       disabled: () => !this.selectedProjects.length,
       action: () => this.openHTMLTemplateDialog(this.selectedProjects),
       show: () => true,
     },
     {
       label: 'Owner Details',
+      shortLabel: 'Owner',
       icon: 'qr_code_scanner',
       color: 'primary',
+      variant: 'compact',
       disabled: () => !this.selectedProjects.length,
       action: () => this.openOwnerDialog(this.selectedProjects),
       show: () => true,
@@ -197,6 +218,7 @@ export class AllProjectsComponent implements OnInit {
       label: 'Add New Project',
       icon: 'add_circle',
       color: 'primary',
+      variant: 'cta',
       disabled: () => false,
       action: () => this.openAddProjectDialog(),
       show: () => true,
@@ -350,13 +372,100 @@ export class AllProjectsComponent implements OnInit {
     this.searchSignal.set('');
   }
 
+  /** Exports the current filtered project list to an .xlsx file (same rows as on screen). */
+  exportProjectsToExcel(): void {
+    const rows = this.filteredProjects;
+    if (!rows.length) {
+      this.snackBar.open('No projects to export.', 'Close', { duration: 3000 });
+      return;
+    }
+
+    try {
+      const exportData = rows.map((p) => ({
+        'Project ID': p.project_id,
+        'Project Code': this.exportCellText(p.project_code),
+        'Property Name': this.exportCellText(p.property_name),
+        'Status': this.exportCellText(p.project_status),
+        'Address': this.exportCellText(p.address),
+        'City': this.exportCellText(p.city_name),
+        'State': this.exportCellText(p.state_name),
+        'Pincode': this.exportCellText(p.pincode),
+        'Pricing': this.exportCellText(p.pricing_desc),
+        'Description': this.exportCellText(p.description),
+        'Created By': this.exportCellText(p.created_by_name),
+        'Created At': this.exportCellDate(p.created_at),
+        'Updated By': this.exportCellText(p.updated_by_name),
+        'Updated At': this.exportCellDate(p.updated_at),
+      }));
+
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+      const maxWidth = 55;
+      const minWidth = 12;
+      const keys = Object.keys(exportData[0] ?? {});
+      ws['!cols'] = keys.map((key) => {
+        const maxLength = Math.max(
+          key.length,
+          ...exportData.map((row) => String((row as Record<string, unknown>)[key] ?? '').length)
+        );
+        return { wch: Math.min(Math.max(maxLength + 2, minWidth), maxWidth) };
+      });
+
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Projects');
+
+      const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '_');
+      const timeStr = new Date().toTimeString().slice(0, 5).replace(/:/g, '');
+      const suffix = this.searchText?.trim() ? '_filtered' : '';
+      XLSX.writeFile(wb, `Projects_Export${suffix}_${dateStr}_${timeStr}.xlsx`);
+
+      this.snackBar.open(`Downloaded ${rows.length} project(s) as Excel.`, 'Close', {
+        duration: 3500,
+      });
+    } catch (err) {
+      console.error(err);
+      this.snackBar.open('Could not create Excel file. Please try again.', 'Close', {
+        duration: 4000,
+      });
+    }
+  }
+
+  private exportCellText(value: unknown): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    const s = String(value).trim();
+    return s;
+  }
+
+  private exportCellDate(value: string | Date | undefined | null): string {
+    if (value === null || value === undefined || value === '') {
+      return '';
+    }
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return '';
+    }
+    return d.toLocaleString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
+
   private isProjectMatch(project: ProjectRecord, term: string): boolean {
     return [
       project.property_name,
       project.project_code,
       project.project_status,
       project.address,
+      project.city_name,
+      project.state_name,
+      project.pincode,
       project.pricing_desc,
+      project.description,
       project.created_by_name,
       project.updated_by_name,
     ]
@@ -401,7 +510,7 @@ export class AllProjectsComponent implements OnInit {
 
   getStatusBadgeClasses(status?: string | null): string {
     const baseClasses =
-      'inline-flex items-center transition-all duration-300';
+      'inline-flex max-w-full min-w-0 items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide leading-tight transition-all duration-300';
     if (!status) {
       return `${baseClasses} bg-slate-100/80 text-slate-600 border-slate-200`;
     }
@@ -410,21 +519,23 @@ export class AllProjectsComponent implements OnInit {
     switch (normalized) {
       case 'active':
       case 'running':
-        return `${baseClasses} bg-emerald-50 text-emerald-700 border-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.1)]`;
+      case 'continue':
+        return `${baseClasses} bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm`;
       case 'upcoming':
       case 'scheduled':
-        return `${baseClasses} bg-indigo-50 text-indigo-700 border-indigo-100 shadow-[0_0_15px_rgba(79,70,229,0.1)]`;
+        return `${baseClasses} bg-indigo-50 text-indigo-700 border-indigo-200 shadow-sm`;
       case 'on hold':
       case 'paused':
-        return `${baseClasses} bg-amber-50 text-amber-700 border-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.1)]`;
+        return `${baseClasses} bg-amber-50 text-amber-800 border-amber-200 shadow-sm`;
       case 'completed':
       case 'closed':
-        return `${baseClasses} bg-slate-100 text-slate-700 border-slate-200`;
+      case 'sold':
+        return `${baseClasses} bg-slate-100 text-slate-800 border-slate-200 shadow-sm`;
       case 'cancelled':
       case 'canceled':
-        return `${baseClasses} bg-rose-50 text-rose-700 border-rose-100 shadow-[0_0_15px_rgba(244,63,94,0.1)]`;
+        return `${baseClasses} bg-rose-50 text-rose-700 border-rose-200 shadow-sm`;
       default:
-        return `${baseClasses} bg-sky-50 text-sky-700 border-sky-100`;
+        return `${baseClasses} bg-slate-50 text-slate-700 border-slate-200 shadow-sm`;
     }
   }
 

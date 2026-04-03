@@ -42,6 +42,7 @@ import {
 } from './models/project-bank-master.models';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { CommonService } from '../../../../../Service/common/common.service';
+import { CostomLoadingComponent } from '../../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
 
 /**
  * Highly optimized Angular 17+ component using advanced patterns:
@@ -70,6 +71,8 @@ import { CommonService } from '../../../../../Service/common/common.service';
     AngularMaterialModule,
     UpdateBankDetailsComponent,
     AutocompleteReusableComponent,
+    CostomLoadingComponent,
+
   ],
   templateUrl: './all-project-bank-master.component.html',
   styleUrl: './all-project-bank-master.component.scss',

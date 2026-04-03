@@ -1,10 +1,15 @@
 .loader {
-  width: 48px;
-  height: 48px;
+  --loader-size: 48px;
+  --loader-stroke: 3px;
+  --loader-outer: #0d4678;
+  --loader-inner: #ef6b21;
+
+  width: var(--loader-size);
+  height: var(--loader-size);
   border-radius: 50%;
   position: relative;
   display: inline-block;
-  perspective: 1000px;
+  flex-shrink: 0;
 }
 
 .loader::before,
@@ -12,37 +17,55 @@
   content: "";
   box-sizing: border-box;
   position: absolute;
-  inset: 0;
   border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: #0d4678;
-  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  border: var(--loader-stroke) solid transparent;
 }
 
-.loader::after {
-  inset: 8px;
-  border-top-color: #ef6b21;
-  border-left-color: rgba(239, 107, 33, 0.3);
-  animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite reverse;
-}
-
-// Subtle pulse for the middle gap
+/* Outer ring — full track + emphasized arc */
 .loader::before {
-  border-bottom-color: rgba(13, 70, 120, 0.1);
-  box-shadow: 0 0 15px rgba(13, 70, 120, 0.1);
+  inset: 0;
+  border-top-color: var(--loader-outer);
+  border-right-color: color-mix(in srgb, var(--loader-outer) 35%, transparent);
+  animation: loader-spin-outer 0.9s linear infinite;
+  will-change: transform;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg) scale(1);
+/* Inner ring — counter-rotation, tighter arc */
+.loader::after {
+  inset: 22%;
+  border-bottom-color: var(--loader-inner);
+  border-left-color: color-mix(in srgb, var(--loader-inner) 40%, transparent);
+  animation: loader-spin-inner 0.65s linear infinite reverse;
+  will-change: transform;
+}
+
+@keyframes loader-spin-outer {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-spin-inner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader::before,
+  .loader::after {
+    animation-duration: 2.4s;
+  }
+}
+
+/* Fallback when color-mix is not supported — keep main arcs only */
+@supports not (color: color-mix(in srgb, black 50%, white)) {
+  .loader::before {
+    border-right-color: transparent;
   }
 
-  50% {
-    transform: rotate(180deg) scale(0.92);
-  }
-
-  100% {
-    transform: rotate(360deg) scale(1);
+  .loader::after {
+    border-left-color: transparent;
   }
 }
 

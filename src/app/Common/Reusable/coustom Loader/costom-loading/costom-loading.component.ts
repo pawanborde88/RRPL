@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ThemePalette } from '@angular/material/core';
 
+type SpinnerPaletteKey = Exclude<ThemePalette, undefined>;
+
 @Component({
   selector: 'app-costom-loading',
   standalone: true,
@@ -49,4 +51,25 @@ export class CostomLoadingComponent {
 
   /** Accessible label derived from the provided text. */
   readonly ariaLabel = computed<string>(() => this.text() || 'Loading data');
+
+  /** CSS custom properties for spinner size and theme colors. */
+  readonly loaderStyle = computed<Record<string, string>>(() => {
+    const d = Math.max(24, Math.min(this.diameter(), 120));
+    const sw = Math.max(2, Math.min(this.strokeWidth(), Math.floor(d / 5)));
+    const raw = this.spinnerColor();
+    const palette: SpinnerPaletteKey =
+      raw === 'primary' || raw === 'accent' || raw === 'warn' ? raw : 'accent';
+    const map: Record<SpinnerPaletteKey, { outer: string; inner: string }> = {
+      primary: { outer: '#0d4678', inner: '#ef6b21' },
+      accent: { outer: '#ef6b21', inner: '#0d4678' },
+      warn: { outer: '#c62828', inner: '#ff7043' },
+    };
+    const c = map[palette];
+    return {
+      '--loader-size': `${d}px`,
+      '--loader-stroke': `${sw}px`,
+      '--loader-outer': c.outer,
+      '--loader-inner': c.inner,
+    };
+  });
 }

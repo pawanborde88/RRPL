@@ -1,22 +1,24 @@
 <app-costom-loading [loading]="loading()"></app-costom-loading>
 <app-template>
-    <div class="min-h-screen">
-        <div class="w-full max-w-[1600px] mx-auto ">
+    <div class="min-h-screen bg-gradient-to-br from-slate-100 via-stone-50 to-slate-100 pt-0 mt-0">
+        <div class="w-full max-w-[1600px] pt-0 mt-0">
 
-            <div class=" border border-slate-100 bg-white/80 backdrop-blur-sm shadow-enterprise mb-2 sticky top-0 z-20">
+            <div
+                class="rounded-b-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md shadow-enterprise-md ring-1 ring-slate-900/5 mb-4 sm:mb-6 sticky top-0 z-20">
                 <header
-                    class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 px-4 sm:px-5 py-3 animate-fade-in">
-                    <div class="flex flex-col gap-0.5">
-                        <h1 class="text-xl md:text-3xl font-black tracking-tight text-slate-900 leading-tight">
+                    class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4 px-4 sm:px-6 py-4 sm:py-5 animate-fade-in">
+                    <div class="flex flex-col gap-1 min-w-0">
+                      
+                        <h3 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 leading-tight">
                             {{ greetingText() }}, {{ greetingName() }}
-                        </h1>
+                        </h3>
                         <div class="flex items-center gap-2 text-slate-500">
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-70">
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/90">
                                 {{ currentDate() | date:'EEEE, MMMM d, y' }}
                             </span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3" [formGroup]="filterForm">
+                    <div class="flex flex-wrap items-end gap-3 w-full lg:w-auto lg:max-w-[920px]" [formGroup]="filterForm">
                         <app-autocomplete-reusable-component class="w-[220px] !mb-0" [options]="projects()"
                             idKey="project_id" displayKey="property_name" [isMultiSelect]="true"
                             formControlName="project_id" placeholder="Select Project"
@@ -44,14 +46,14 @@
                 </header>
             </div>
 
-            <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false" class="premium-tabs"
-                (selectedTabChange)="onTabChange()">
+            <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false"
+                class="premium-tabs mat-mdc-tab-group w-full" (selectedTabChange)="onTabChange()">
 
                 <!-- DASHBOARD TAB -->
                 <mat-tab label="Dashboard">
                     <div class="animate-fade-in">
-
-                        <div class=" bg-white/60 shadow-enterprise mb-2">
+                        <div
+                            class="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
 
                             <!-- KPI tiles (Ref Image Style) -->
                             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -177,12 +179,10 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Lead Sources -->
-                    <div class="grid grid-cols-1 gap-3 mb-2"
-                        [ngClass]="hasTokenData() ? 'lg:grid-cols-3' : 'lg:grid-cols-2'">
+                            <!-- Lead Sources -->
+                            <div class="grid grid-cols-1 gap-3 mb-2"
+                                [ngClass]="hasTokenData() ? 'lg:grid-cols-3' : 'lg:grid-cols-2'">
                         <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
                             <div class="chart-card flex-1 flex flex-col min-h-0">
                                 <div class="chart-card-header">
@@ -498,12 +498,15 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+                    </div>
 
                 </mat-tab>
 
                 <!-- ─────────────── SITE VISIT MANAGEMENT TAB ─────────────── -->
                 <mat-tab label="Site Visit Management">
-                    <div class="pt-5 animate-fade-in">
+                    <div
+                        class="animate-fade-in rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
 
                         <!-- SITE VISIT METRICS (Ref Style) -->
                         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
@@ -860,7 +863,8 @@
 
                 <!-- ─────────────────── LEAD MANAGEMENT TAB ─────────────────── -->
                 <mat-tab label="Lead Management">
-                    <div class="pt-5 animate-fade-in">
+                    <div
+                        class="animate-fade-in rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
 
                         <!-- KPI METRICS (Ref Style) -->
                         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
@@ -1268,14 +1272,18 @@
 
                 <!-- ─────────────────── CRM TAB ─────────────────── -->
                 <mat-tab label="CRM">
-                    <div class="pt-6 animate-fade-in min-h-[350px] flex items-center justify-center">
-                        <div class="text-center">
+                    <div
+                        class="animate-fade-in flex min-h-[400px] items-center justify-center rounded-2xl border border-dashed border-slate-200/90 bg-gradient-to-b from-slate-50/90 via-white to-stone-50/40 p-8 sm:p-12 shadow-enterprise ring-1 ring-slate-900/[0.03]">
+                        <div class="text-center max-w-md">
                             <div
-                                class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
-                                <mat-icon class="!text-3xl text-indigo-400">rocket_launch</mat-icon>
+                                class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 text-amber-100 flex items-center justify-center mx-auto mb-5 shadow-enterprise-md ring-1 ring-slate-900/10">
+                                <mat-icon class="!text-3xl sm:!text-4xl text-amber-200/95">real_estate_agent</mat-icon>
                             </div>
-                            <p class="text-slate-600 text-lg font-bold">Coming Soon</p>
-                            <p class="text-slate-400 text-sm mt-1">CRM Analytics is under development</p>
+                            <p class="text-slate-800 text-lg sm:text-xl font-black tracking-tight">CRM workspace</p>
+                            <p class="text-slate-500 text-sm mt-2 leading-relaxed">Pipeline and relationship analytics
+                                for your developments will appear here.</p>
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400 mt-4">Coming soon
+                            </p>
                         </div>
                     </div>
                 </mat-tab>

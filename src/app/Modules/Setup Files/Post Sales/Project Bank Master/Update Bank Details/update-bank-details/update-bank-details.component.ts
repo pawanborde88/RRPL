@@ -46,6 +46,7 @@ import {
   PreferredBank,
   ProjectBankMasterService,
 } from '../../all-project-bank-master/services/project-bank-master.service';
+import { CostomLoadingComponent } from '../../../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
 
 // Interface for dialog data
 export interface DialogData {
@@ -83,6 +84,8 @@ interface AccountType {
     FormsModule,
     ReactiveFormsModule,
     AutocompleteReusableComponent,
+    CostomLoadingComponent,
+
   ],
   templateUrl: './update-bank-details.component.html',
   styleUrl: './update-bank-details.component.scss',
@@ -124,6 +127,7 @@ export class UpdateBankDetailsComponent {
   // ============================================================================
   private readonly projectsListSignal = signal<Project[]>([]);
   private readonly allWingsListSignal = signal<Wing[]>([]);
+  private readonly allLandOwnersListSignal = signal<any[]>([]);
   private readonly allBankListSignal = signal<PreferredBank[]>([]);
   private readonly isLoadingSignal = signal<boolean>(false);
   private readonly showBankCardsSignal = signal<boolean>(false);
@@ -131,6 +135,7 @@ export class UpdateBankDetailsComponent {
   // Public readonly signals for template
   readonly projectsList = this.projectsListSignal.asReadonly();
   readonly allWingslist = this.allWingsListSignal.asReadonly();
+  readonly allLandOwnersList = this.allLandOwnersListSignal.asReadonly();
   readonly allBankList = this.allBankListSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
   readonly showBankCards = this.showBankCardsSignal.asReadonly();
@@ -158,7 +163,8 @@ export class UpdateBankDetailsComponent {
     this.addUnitBankMaster = this.fb.group({
       project_bank_id: [null],
       project_id: [null, Validators.required],
-      wing_id: [null, Validators.required],
+      wing_id: [[], Validators.required],
+      land_owner_setup_id: [null],
       bankDetails: this.fb.array([]),
     });
 
@@ -166,12 +172,13 @@ export class UpdateBankDetailsComponent {
     if (this.isEditMode() && this.data.bankData) {
       this.addUnitBankMaster.patchValue({
         project_id: this.data.bankData.project_id,
-        wing_id: this.data.bankData.wing_id,
+        wing_id: this.data.bankData.wing_id ? [this.data.bankData.wing_id] : [],
+        land_owner_setup_id: (this.data.bankData as any).land_owner_setup_id || null,
       });
     } else if (this.data.projectId || this.data.wingId) {
       const patchData: Record<string, any> = {};
       if (this.data.projectId) patchData['project_id'] = this.data.projectId;
-      if (this.data.wingId) patchData['wing_id'] = this.data.wingId;
+      if (this.data.wingId) patchData['wing_id'] = [this.data.wingId];
       this.addUnitBankMaster.patchValue(patchData);
     }
 
@@ -226,6 +233,12 @@ export class UpdateBankDetailsComponent {
       debounceTime(150)
     );
 
+    const landOwnerSetupId$ = this.addUnitBankMaster.get('land_owner_setup_id')!.valueChanges.pipe(
+      startWith(this.addUnitBankMaster.get('land_owner_setup_id')!.value),
+      distinctUntilChanged(),
+      debounceTime(150)
+    );
+
     // Handle initial projectId from dialog data
     if (this.data.projectId) {
       this.bankService
@@ -235,27 +248,43 @@ export class UpdateBankDetailsComponent {
           next: (wings) => {
             this.allWingsListSignal.set(wings);
             if (!this.data.wingId) {
-              this.addUnitBankMaster.get('wing_id')?.reset();
+              this.addUnitBankMaster.get('wing_id')?.setValue([]);
             }
             this.resetBankCards();
             if (this.data.projectId && this.data.wingId) {
-              this.fetchProjectBanks(this.data.projectId, this.data.wingId);
+              const landOwnerSetupId = this.addUnitBankMaster.get('land_owner_setup_id')?.value;
+              this.fetchProjectBanks(this.data.projectId, this.data.wingId, landOwnerSetupId);
             }
           },
           error: () => this.handleError('Unable to fetch project wings.'),
         });
-    }
 
+      this.bankService
+        .fetchLandOwners(this.data.projectId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (landOwners) => this.allLandOwnersListSignal.set(landOwners),
+          error: () => console.error('Unable to fetch project land owners.'),
+        });
+    }
     // React to project_id changes
     projectId$
       .pipe(
         switchMap((projectId) => {
           if (projectId) {
+            this.bankService
+              .fetchLandOwners(projectId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: (landOwners) => this.allLandOwnersListSignal.set(landOwners),
+                error: () => this.allLandOwnersListSignal.set([]),
+              });
+
             return this.bankService.fetchWings(projectId).pipe(
               tap((wings) => {
                 this.allWingsListSignal.set(wings);
                 if (!this.data.wingId) {
-                  this.addUnitBankMaster.get('wing_id')?.reset();
+                  this.addUnitBankMaster.get('wing_id')?.setValue([]);
                 }
                 this.resetBankCards();
               }),
@@ -266,7 +295,8 @@ export class UpdateBankDetailsComponent {
             );
           } else {
             this.allWingsListSignal.set([]);
-            this.addUnitBankMaster.get('wing_id')?.reset();
+            this.allLandOwnersListSignal.set([]);
+            this.addUnitBankMaster.get('wing_id')?.setValue([]);
             this.resetBankCards();
             return of([]);
           }
@@ -275,19 +305,19 @@ export class UpdateBankDetailsComponent {
       )
       .subscribe();
 
-    // React to wing_id changes - combine with project_id
-    combineLatest([projectId$, wingId$])
+    // React to wing_id and land_owner_setup_id changes - combine with project_id
+    combineLatest([projectId$, wingId$, landOwnerSetupId$])
       .pipe(
         debounceTime(200),
         filter(
-          ([projectId, wingId]) =>
-            !!projectId && !!wingId && this.isValidWingId(wingId)
+          ([projectId, wingId, landOwnerSetupId]) =>
+            !!projectId && !!wingId && this.isValidWingId(wingId) && !!landOwnerSetupId
         ),
-        switchMap(([projectId, wingId]) => {
+        switchMap(([projectId, wingId, landOwnerSetupId]) => {
           const selectedWingId = this.extractWingId(wingId);
-          if (selectedWingId && projectId) {
+          if (selectedWingId && projectId && landOwnerSetupId) {
             return this.bankService
-              .fetchProjectBanks(projectId, selectedWingId)
+              .fetchProjectBanks(projectId, selectedWingId, landOwnerSetupId)
               .pipe(
                 tap((response) => {
                   this.handleProjectBanksResponse(response, projectId, selectedWingId);
@@ -320,7 +350,8 @@ export class UpdateBankDetailsComponent {
       .pipe(
         switchMap((wings) => {
           this.allWingsListSignal.set(wings);
-          return this.bankService.fetchProjectBanks(projectId, wingId);
+          const landOwnerSetupId = this.addUnitBankMaster.get('land_owner_setup_id')?.value;
+          return this.bankService.fetchProjectBanks(projectId, wingId, landOwnerSetupId);
         }),
         tap((response) => {
           this.handleProjectBanksResponse(response, projectId, wingId);
@@ -332,12 +363,20 @@ export class UpdateBankDetailsComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
+
+    this.bankService
+      .fetchLandOwners(projectId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (landOwners) => this.allLandOwnersListSignal.set(landOwners),
+        error: () => console.error('Unable to fetch land owners data.'),
+      });
   }
 
   // ============================================================================
   // Data Fetching Methods
   // ============================================================================
-  private fetchProjectBanks(projectID: number, wingID: number): void {
+  private fetchProjectBanks(projectID: number, wingID: number, landOwnerSetupId?: number): void {
     if (!projectID || !wingID) {
       this.resetBankCards();
       return;
@@ -347,7 +386,7 @@ export class UpdateBankDetailsComponent {
     this.showBankCardsSignal.set(false);
 
     this.bankService
-      .fetchProjectBanks(projectID, wingID)
+      .fetchProjectBanks(projectID, wingID, landOwnerSetupId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -488,11 +527,15 @@ export class UpdateBankDetailsComponent {
   // ============================================================================
   submitBankDetails(): void {
     const payload = this.addUnitBankMaster.value.bankDetails;
+    const landOwnerSetupId = this.addUnitBankMaster.get('land_owner_setup_id')?.value;
 
     // Filter out empty forms (where bank_id is not selected)
-    const validPayload = payload.filter(
-      (item: any) => item.bank_id && item.bank_id !== ''
-    );
+    const validPayload = payload
+      .filter((item: any) => item.bank_id && item.bank_id !== '')
+      .map((item: any) => ({
+        ...item,
+        land_owner_setup_id: landOwnerSetupId
+      }));
 
     if (validPayload.length === 0) {
       this.snackBar.open('Please select at least one bank account.', 'Close', {

@@ -23,6 +23,7 @@ export interface BankDetail {
   project_name: string;
   account_no: string;
   ifsc_code: string;
+  land_owner_name?: string;
   beneficiary_name: string;
   address: string;
   created_by: number;

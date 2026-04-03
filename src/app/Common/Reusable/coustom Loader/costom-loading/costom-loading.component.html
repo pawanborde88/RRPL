@@ -6,8 +6,7 @@
   [style.height]="isFullScreen() ? '100vh' : '100%'">
 
   <div class="flex flex-col items-center gap-3">
-    <!-- Modern Compact Spinner -->
-    <div class="relative flex items-center justify-center">
+    <div class="relative flex items-center justify-center" [ngStyle]="loaderStyle()" aria-hidden="true">
       <span class="loader"></span>
     </div>
 

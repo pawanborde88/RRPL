@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, DestroyRef, inject, Input, OnInit, signal, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
@@ -14,7 +14,24 @@ import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb
 import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatDialog } from '@angular/material/dialog';
+import { filter } from 'rxjs';
+import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
+import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
+import { AuthService } from '../../../../../Service/auth.service';
+import { CommonService } from '../../../../../Service/common/common.service';
+import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
+interface BookingColumn {
+  key: string;
+  label: string;
+  type?: string;
+  sticky?: boolean;
+  disabled?: boolean;
+  isAmount?: boolean;
+  showAverage?: boolean;
+  applyChequeStatusColor?: boolean;
+}
 @Component({
   selector: 'app-agreement-report',
   standalone: true,
@@ -26,234 +43,250 @@ import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-AutocompleteReusableComponent,
-    ReusableTableComponent, // Add the pipe here
+
+    AutocompleteReusableComponent,
+    ConfigurableAgGridDataComponent,
+
+    ActionColumnComponent,
   ],
+  providers: [DatePipe],
   templateUrl: './agreement-report.component.html',
-  styleUrl: './agreement-report.component.scss'
+  styleUrl: './agreement-report.component.scss',
+
+
 })
 export class AgreementReportComponent implements OnInit {
-  baseUrl = environment.API_URL;
-  loading: boolean = false; // Initialize loading state
-  projectsList: any[] = [];
-  // Initialize dataSource as a MatTableDataSource
-  dataSource = new MatTableDataSource<any>();
-  roleId = Number(sessionStorage.getItem('role_id'));
-  userId = Number(sessionStorage.getItem('session_id'));
-  selectedProjectId: number | null = null;
+  private readonly http = inject(HttpClient);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly fetch = inject(FetchFunctionsService);
+  private readonly authService = inject(AuthService);
+  private readonly commonService = inject(CommonService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  @ViewChild(MatSort)
-  sort!: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
-  allSalesExecutive: any[] = [];
-  constructor(
-    private http: HttpClient,
-   
-    private snackBar: MatSnackBar,
-  ) {}
+  readonly baseUrl = environment.API_URL;
+  readonly storageUrl = environment.STORAGE_URL;
+  readonly userId = this.authService.userId();
+  @ViewChild(ConfigurableAgGridDataComponent) agGridTable!: ConfigurableAgGridDataComponent<any>;
+  private readonly datePipe = inject(DatePipe);
 
-  displayedColumns = [
+  // Signals for state management
+  readonly loading = signal<boolean>(false);
+  readonly allWingslist = signal<any[]>([]);
+  readonly projectsList = signal<any[]>([]);
+  readonly FloorUnitDropdown = signal<any[]>([]);
+
+  // Form signal for reactive payload
+  private readonly formValues = signal<any>({});
+
+  @Input() agreementStatus: number = 1;
+  @Input() active: boolean = false;
+
+  readonly bookingForm = new FormGroup({
+    project_id: new FormControl(null, Validators.required),
+    wing_id: new FormControl(null, Validators.required),
+
+  });
+
+  readonly agreementDetailsColumnsNames: BookingColumn[] = [
     {
-        key: 'sr_no',
-        label: 'Sr.no',
-        type: 'index',
+      key: 'project_name',
+      label: 'Project Name'
     },
-   
-    { 
-        key: 'project_name', 
-        label: 'Project Name' 
+    {
+      key: 'wing_name',
+      label: 'Wing'
     },
-    { 
-        key: 'wing_name', 
-        label: 'Wing' 
+    {
+      key: 'floor_unit',
+      label: 'Unit No'
     },
-    { 
-        key: 'floor_unit', 
-        label: 'Unit No' 
+    {
+      key: 'applicant_name',
+      label: 'Client Name'
     },
-    { 
-        key: 'applicant_name', 
-        label: 'Client Name' 
-    },
-    { 
-      key: 'mobile_no', 
-      label: 'Mobile No' ,
+    {
+      key: 'mobile_no',
+      label: 'Mobile No',
       type: 'sensitive'
 
     },
-    { 
-      key: 'email', 
-      label: 'Email' ,
+    {
+      key: 'email',
+      label: 'Email',
       type: 'sensitive'
     },
-    { 
-      key: 'agreement_status', 
+    {
+      key: 'agreement_status',
       label: 'Agree Status',
-  },
-    { 
-      key: 'booking_date', 
+    },
+    {
+      key: 'booking_date',
       label: 'Booking Date',
-      type: 'short_date'
-  },
-    { 
-        key: 'agreement_no', 
-        label: 'Agreement No' 
+      type: 'mediumDate'
     },
-   
-    { 
-        key: 'agreement_date', 
-        label: 'Agreement Date',
-        type: 'short_date'
+    {
+      key: 'agreement_no',
+      label: 'Agreement No'
     },
-    { 
-      key: 'lodge_receipt_no', 
-      label: 'Lodge Receipt No' 
-  },
-     
-  { 
-    key: 'date_of_execution', 
-    label: 'Execuation Date',
-    type: 'short_date'
-},
-{ 
-  key: 'agreement_tat', 
-  label: 'Agreement TAT' 
-},
 
-{ 
-  key: 'agreement_cost', 
-  label: 'Agreement Cost'
-  , isAmount: true
-},
-{ 
-    key: 'market_value', 
-    label: 'Market Value' 
-  },
+    {
+      key: 'agreement_date',
+      label: 'Agreement Date',
+      type: 'mediumDate'
+    },
+    {
+      key: 'lodge_receipt_no',
+      label: 'Lodge Receipt No'
+    },
 
-{ 
-  key: 'challan_status', 
-label: 'Challan Status' 
-},
-{ 
-  key: 'challan_date', 
-  label: 'Agreement Challan Date',
-  type: 'short_date'
-},
-{ 
-  key: 'scheduled_tat', 
-  label: 'Scheduled TAT' 
-},
-{ 
-  key: 'agreement_shadule_date', 
-  label: 'Agreement Schedule Date',
-  type: 'short_date'
-},  
-{ 
-  key: 'day_pending_from_agreement', 
-  label: 'Agg. Pending Days' 
-},
-{ 
-  key: 'agreement_input_form', 
-  label: 'Agreement Input Form' 
-},
-{ 
-  key: 'agreement_copy_received', 
-  label: 'Agreement Copy Received' 
-},
-{ 
-  key: 'registration_office', 
-  label: 'Registration Office' 
-},
+    {
+      key: 'date_of_execution',
+      label: 'Execuation Date',
+      type: 'mediumDate'
+    },
+    {
+      key: 'agreement_tat',
+      label: 'Agreement TAT'
+    },
+    {
+      key: 'agreement_cost',
+      label: 'Agreement Cost'
+      , isAmount: true
+    },
+    {
+      key: 'market_value',
+      label: 'Market Value'
+    },
 
-{ 
-  key: 'updated_by_name', 
-  label: 'Updated By' 
-},
-{ 
-  key: 'updated_at', 
-  label: 'Updated At',
-  type: 'date'
-},
-];
-  columnKeys: string[] = this.displayedColumns.map((col) => col.key); // ✅ Define it as a property
-cpTargetLoggedData: any;
+    {
+      key: 'challan_status',
+      label: 'Challan Status'
+    },
+    {
+      key: 'challan_date',
+      label: 'Agreement Challan Date',
+      type: 'mediumDate'
+    },
+    {
+      key: 'scheduled_tat',
+      label: 'Scheduled TAT'
+    },
+    {
+      key: 'agreement_shadule_date',
+      label: 'Agreement Schedule Date',
+      type: 'mediumDate'
+    },
+    {
+      key: 'day_pending_from_agreement',
+      label: 'Agg. Pending Days'
+    },
+    {
+      key: 'agreement_input_form',
+      label: 'Agreement Input Form'
+    },
+    {
+      key: 'agreement_copy_received',
+      label: 'Agreement Copy Received'
+    },
+    {
+      key: 'registration_office',
+      label: 'Registration Office'
+    },
+
+    {
+      key: 'updated_by_name',
+      label: 'Updated By'
+    },
+    {
+      key: 'updated_at',
+      label: 'Updated At',
+      type: 'date'
+    },
+  ] as const;
+
+  // Computed signal for AG Grid payload
+  readonly agGridPayload = computed(() => {
+    const values = this.formValues();
+    const filters: any = {};
+
+    if (values.project_id) filters.project_id = values.project_id;
+    if (values.wing_id) filters.wing_id = values.wing_id;
+
+    return { filters };
+  });
+
+
+
 
   ngOnInit(): void {
-    this.fetchAllProjects();
+    this.loadInitialData();
+    this.setupFormSubscriptions();
 
-    
-  }
-  onProjectChange(projectId: number): void {
-    if (projectId !== null && projectId !== undefined) {
-      this.selectedProjectId = projectId;
-      // Clear previous data
-      this.dataSource.data = [];
-      // Fetch visitors for the selected project
-      this.fetchAgreementReport();
-    }
+    this.bookingForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateFormValues());
   }
 
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+  fetchAllBookings(): void {
+    this.updateFormValues();
+    this.agGridTable?.refreshData();
   }
 
-
- 
-  fetchAllProjects(): void {
-    this.loading = true;
-    const payload = {
-      user_id:  this.userId,
-    };
-
-    this.http.post(`${this.baseUrl}/user_project_dropdown`, payload).subscribe({
-      next: (res: any) => {
-        if (res) {
-          this.projectsList = res;
-        }
-        this.loading = false;
-      },
-      error: (err: any) => {
-        console.error(err);
-        this.loading = false;
-        this.snackBar.open('Unable to fetch Enquiry.', 'Close', {
-          duration: 3000,
-        });
-      },
-    });
+  private updateFormValues(): void {
+    this.formValues.set(this.bookingForm.value);
   }
 
-
-  fetchAgreementReport(): void {
-    if (!this.selectedProjectId) {
-      return; // Don't proceed if no project is selected
-    }
-    
-    this.loading = true;
-    const formData = {
-      project_id: this.selectedProjectId, 
-    };
-    
-    this.http
-      .post(`${this.baseUrl}/fetch_booking_agreement_report`, formData)
+  private loadInitialData(): void {
+    this.commonService.fetchUserProjectDropdown(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.dataSource = new MatTableDataSource(res.data);
-          this.dataSource.data = res.data;
-          this.loading = false;
+          if (res) this.projectsList.set(res);
         },
-        error: (err: any) => {
-          console.error(err);
-          this.loading = false;
-          this.snackBar.open('Unable to fetch visitors.', 'Close', {
-            duration: 3000,
-          });
-        },
+        error: () => this.showError('Unable to fetch projects.')
       });
   }
 
+  private setupFormSubscriptions(): void {
+    this.bookingForm.get('project_id')?.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(id => !!id)
+      )
+      .subscribe(projectID => {
+        this.fetchAllWings(projectID);
+      });
 
+    this.bookingForm.get('wing_id')?.valueChanges
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(id => !!id)
+      )
+      .subscribe(wingID => {
+        const projectId = this.bookingForm.get('project_id')?.value;
+
+      });
+  }
+
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Close', { duration: 3000 });
+  }
+
+
+
+  fetchAllWings(projectID: any): void {
+    this.commonService.fetchWingDropdown(projectID)
+      .subscribe({
+        next: (res: any) => {
+          this.allWingslist.set(res);
+        },
+        error: () => {
+          this.showError('Unable to fetch wings.');
+        },
+      });
+  }
+  selectedBooking: any = null; // Change from selectedBookingId to selectedBooking
 
 
 }
