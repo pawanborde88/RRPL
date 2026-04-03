@@ -118,7 +118,7 @@ export class AgreementReportComponent implements OnInit {
     },
     {
       key: 'agreement_status',
-      label: 'Agree Status',
+      label: 'Agreement Status',
     },
     {
       key: 'booking_date',
