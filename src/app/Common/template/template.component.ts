@@ -60,6 +60,13 @@ export class TemplateComponent {
   );
 
   /**
+   * Toggle sidebar state
+   */
+  toggleSidebar(): void {
+    this.sidebarStateService.toggleSidebarState();
+  }
+
+  /**
    * Toggle support chat dialog with optimized state management
    */
   toggleSupportChat(): void {

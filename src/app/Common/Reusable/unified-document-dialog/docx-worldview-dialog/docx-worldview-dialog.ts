@@ -1,30 +1,96 @@
-import { Component, inject, Inject, OnInit, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+  DestroyRef
+} from '@angular/core';
+import { DOCUMENT, CommonModule } from '@angular/common';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UnifiedDocumentDialogService } from '../unified-document-dialog.service';
-import { CommonModule } from '@angular/common';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { NgxDocViewerModule } from 'ngx-doc-viewer';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../../environments/environment';
+import { normalizePublicDocumentUrl } from './normalize-public-document-url';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-docx-worldview-dialog',
   standalone: true,
-  imports: [CommonModule, AngularMaterialModule, NgxDocViewerModule],
+  imports: [CommonModule, AngularMaterialModule],
   templateUrl: './docx-worldview-dialog.html',
   styleUrl: './docx-worldview-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocxWorldviewDialog implements OnInit {
+  private static readonly preconnectedDocumentOrigins = new Set<string>();
+
   private readonly documentService = inject(UnifiedDocumentDialogService);
-  private readonly dialogRef = inject(MatDialogRef<DocxWorldviewDialog>);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly documentRef = inject(DOCUMENT);
+  private readonly sanitizer = inject(DomSanitizer);
   public readonly data = inject<any>(MAT_DIALOG_DATA);
 
   readonly letterData = signal<any>(null);
   readonly loading = signal<boolean>(false);
   readonly hasError = signal<boolean>(false);
 
+  /**
+   * Canonical public HTTPS URL for Office Online (trim, fix accidental full-string encoding, S3 → https).
+   * Object must allow anonymous GET; S3: public ACL/bucket policy + Content-Type for .docx helps Office.
+   */
+  readonly previewUrl = computed(() => {
+    const raw = this.letterData()?.file_url;
+    if (typeof raw !== 'string') {
+      return '';
+    }
+    return normalizePublicDocumentUrl(raw);
+  });
+
+  /** Embedded Google Docs viewer (more reliable for AWS S3 URLs without strict CORS or Office 365 limitations). */
+  readonly officePublicViewUrl = computed(() => {
+    const u = this.previewUrl();
+    return u ? `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(u)}` : '';
+  });
+
+  /** Sanitized URL for use in the iframe src. */
+  readonly safeOfficeUrl = computed<SafeResourceUrl | null>(() => {
+    const url = this.officePublicViewUrl();
+    return url ? this.sanitizer.bypassSecurityTrustResourceUrl(url) : null;
+  });
+
+
+
+  constructor() {
+    effect(() => {
+      const href = this.previewUrl();
+      if (!href) {
+        return;
+      }
+      let origin: string;
+      try {
+        origin = new URL(href).origin;
+      } catch {
+        return;
+      }
+      if (DocxWorldviewDialog.preconnectedDocumentOrigins.has(origin)) {
+        return;
+      }
+      DocxWorldviewDialog.preconnectedDocumentOrigins.add(origin);
+      const head = this.documentRef.head;
+      const link = this.documentRef.createElement('link');
+      link.rel = 'preconnect';
+      link.href = origin;
+      link.crossOrigin = 'anonymous';
+      head.appendChild(link);
+    });
+  }
+
   ngOnInit(): void {
+    console.log(this.data);
     this.fetchLetterData();
   }
 
@@ -40,7 +106,7 @@ export class DocxWorldviewDialog implements OnInit {
     if (project_id && letter_type_id && letter_generation_id) {
       this.loading.set(true);
       this.hasError.set(false);
-      
+
       this.documentService.fetchAgreementLetter(project_id, letter_type_id, letter_generation_id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
@@ -63,4 +129,6 @@ export class DocxWorldviewDialog implements OnInit {
       this.hasError.set(true);
     }
   }
+
 }
+

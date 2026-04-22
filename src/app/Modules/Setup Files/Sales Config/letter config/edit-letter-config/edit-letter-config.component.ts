@@ -8,6 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, EMPTY, filter, Observable, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../../../environments/environment';
+import { ProjectBankMasterService } from '../../../Post Sales/Project Bank Master/all-project-bank-master/services/project-bank-master.service';
 
 // Components
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
@@ -30,6 +31,7 @@ interface LetterConfigForm {
   wing_id: FormControl<number[] | null>;
   effective_date: FormControl<string | null>;
   project_id: FormControl<number | null>;
+  land_owner_setup_id: FormControl<number | null>;
   bank_id: FormControl<number | null>;
   letter_config_id: FormControl<number | null>;
   html_file: FormControl<File | null>;
@@ -62,9 +64,11 @@ export class EditLetterConfigComponent {
   private readonly datePipe = inject(DatePipe);
   private readonly destroyRef = inject(DestroyRef);
   readonly data = inject<{ rowData: any }>(MAT_DIALOG_DATA);
+  private readonly bankService = inject(ProjectBankMasterService);
 
   // Signals
   readonly isLoading = signal(false);
+  readonly allLandOwnersList = signal<any[]>([]);
   readonly selectedHtmlFileName = signal<string | null>(null);
   readonly selectedWordFileName = signal<string | null>(null);
   readonly letterTypes = signal<LetterType[]>([]);
@@ -86,6 +90,7 @@ export class EditLetterConfigComponent {
       [Validators.required]
     ),
     project_id: new FormControl<number | null>(null, [Validators.required]),
+    land_owner_setup_id: new FormControl<number | null>(null),
     bank_id: new FormControl<number | null>(null),
     letter_config_id: new FormControl<number | null>(null),
     html_file: new FormControl<File | null>(null),
@@ -151,6 +156,14 @@ export class EditLetterConfigComponent {
         // Fetch wings only if project_id is valid
         if (projectId && typeof projectId === 'number') {
           this.fetchWings(projectId);
+
+          this.bankService
+            .fetchLandOwners(projectId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+              next: (landOwners) => this.allLandOwnersList.set(landOwners),
+              error: () => console.error('Unable to fetch land owners data.'),
+            });
         }
       });
   }
@@ -329,6 +342,14 @@ export class EditLetterConfigComponent {
                 project_id: letterConfig.project_id
               }, { emitEvent: false });
 
+              this.bankService
+                .fetchLandOwners(letterConfig.project_id)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                  next: (landOwners) => this.allLandOwnersList.set(landOwners),
+                  error: () => console.error('Unable to fetch land owners data.'),
+                });
+
               // Fetch wings for the selected project (don't auto-subscribe, we'll handle it)
               this.fetchWings(letterConfig.project_id, false)
                 .pipe(takeUntilDestroyed(this.destroyRef))
@@ -344,6 +365,7 @@ export class EditLetterConfigComponent {
                       letter_type_id: letterConfig.letter_type_id,
                       wing_id: wingIds,
                       bank_id: letterConfig.bank_id,
+                      land_owner_setup_id: letterConfig.land_owner_setup_id,
                       effective_date: effectiveDate
                     }, { emitEvent: false });
 
@@ -362,6 +384,7 @@ export class EditLetterConfigComponent {
                       letter_type_id: letterConfig.letter_type_id,
                       wing_id: wingIds,
                       bank_id: letterConfig.bank_id,
+                      land_owner_setup_id: letterConfig.land_owner_setup_id,
                       effective_date: effectiveDate
                     }, { emitEvent: false });
 
@@ -379,6 +402,7 @@ export class EditLetterConfigComponent {
                 letter_type_id: letterConfig.letter_type_id,
                 wing_id: wingIds,
                 bank_id: letterConfig.bank_id,
+                land_owner_setup_id: letterConfig.land_owner_setup_id,
                 effective_date: effectiveDate
               }, { emitEvent: false });
 

@@ -8,7 +8,6 @@
 
 // Custom animations or unique utilities not easily done in Tailwind
 .settings-dashboard {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   // Material Icon adjustments to ensure alignment in our custom flex containers
   mat-icon {
@@ -24,7 +23,7 @@
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-    
+
     // Allow for !text- size overrides from Tailwind
     &.mat-icon {
       width: auto;
@@ -47,4 +46,3 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-

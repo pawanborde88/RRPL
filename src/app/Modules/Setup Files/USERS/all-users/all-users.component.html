@@ -9,6 +9,13 @@
     <!-- Main Header Row: Search, User Count, and Action Buttons -->
 
     <div class="flex items-center gap-3">
+      <!-- Select All Checkbox -->
+      <div class="flex items-center px-1 border-r border-gray-200 mr-1">
+        <mat-checkbox [checked]="isAllSelected()" [indeterminate]="isIndeterminate()" (change)="masterToggle()"
+          color="primary" matTooltip="Select All Visible" class="!scale-100">
+        </mat-checkbox>
+      </div>
+
       <!-- Custom Search Field -->
       <div class="flex-1 max-w-xl relative">
         <div class="relative">

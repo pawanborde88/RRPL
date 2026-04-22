@@ -7,7 +7,7 @@ export const TILE_COLORS: Record<string, string> = {
   sales: '#c5cae9',              // Indigo 100
   postSales: '#ffccbc',          // Deep Orange 100
   channelPartners: '#d7ccc8',    // Brown 100
-  taergetAndAchievement: '#cfd8dc', // Blue Grey 100
+  targetAndAchievement: '#cfd8dc', // Blue Grey 100
   LMS: '#dcedc8',                // Light Green 100
   SalesConfig: '#e1bee7',        // Purple 100
   hrms: '#c8e6c9',               // Green 100

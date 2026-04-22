@@ -53,7 +53,7 @@ export const TALECALLER_SALESEXECUTIVE_COUNT = 'Talecaller & Salesexecutive Coun
 // SOP Category
 export const ALL_SOP_CATEGORY = 'All SOP Category - Relation Realtech PVT.LTD.';
 export const LEDGET_REPORT = 'Ledget Report - Relation Realtech PVT.LTD.';
-
+export const RECOVERY_REPORT_ACCOUNT = 'Recovery Report Account - Relation Realtech PVT.LTD.';
 // Expense Module
 export const EXPENSE_SUMMARY = 'Expense Summary - Relation Realtech PVT.LTD.';
 export const ALL_SUMMARY = 'All Summary - Relation Realtech PVT.LTD.';
@@ -318,5 +318,7 @@ export const UNVERIFIED_PARTNERS = 'Unverified Partners - Relation Realtech PVT.
 export const EDIT_UNVERIFIED_PARTNERS = 'Edit Unverified Partners - Relation Realtech PVT.LTD.';
 export const IVR_USERS = 'IVR Users - Relation Realtech PVT.LTD.';
 export const ALL_HASHTAG_PLACEHOLDERS = 'All Hashtag Placeholders - Relation Realtech PVT.LTD.';
-
-
+export const GOALS_FORM = 'Goals Form - Relation Realtech PVT.LTD.';
+export const ALL_ANNGUAL_GOALS = 'All Anngual Goals - Relation Realtech PVT.LTD.';
+export const ANNUAL_GOAL_DASHBOARD = 'Annual Goal Dashboard - Relation Realtech PVT.LTD.';
+export const ALL_STRATEGYS = 'All Strategies - Relation Realtech PVT.LTD.';

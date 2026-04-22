@@ -105,52 +105,47 @@
                             <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Full Name</mat-label>
                                 <input matInput formControlName="name">
-                                <mat-icon matPrefix>person_outline</mat-icon>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Email Address</mat-label>
                                 <input matInput formControlName="email">
-                                <mat-icon matPrefix>mail_outline</mat-icon>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="premium-field">
                                 <mat-label>Mobile Number</mat-label>
                                 <input matInput formControlName="mobile" maxlength="10">
-                                <mat-icon matPrefix>smartphone</mat-icon>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="premium-field"
                                 *ngIf="eventDetails()?.event_type_id == 1">
                                 <mat-label>No. of Guests</mat-label>
                                 <input matInput type="number" formControlName="no_of_guest">
-                                <mat-icon matPrefix>group_add</mat-icon>
                                 <mat-error *ngIf="userForm.get('no_of_guest')?.hasError('required')"> No. of Guests
                                     Required</mat-error>
                                 <mat-error *ngIf="userForm.get('no_of_guest')?.hasError('min')">At least 1</mat-error>
                             </mat-form-field>
 
-                            <mat-form-field appearance="outline" class="premium-field">
-                                <mat-label> Type</mat-label>
-                                <mat-select formControlName="cp_type">
-                                    <mat-option [value]="'CP Executive'">CP Executive</mat-option>
-                                    <mat-option [value]="'CP Owner'">CP Owner</mat-option>
-                                    <mat-option [value]="'CP TL'">CP TL</mat-option>
 
-                                </mat-select>
-                            </mat-form-field>
 
-                            <ng-container *ngIf="eventDetails()?.event_type_id !== 1">
+                            <ng-container *ngIf="eventDetails()?.event_type_id == 1 ">
+                                <mat-form-field appearance="outline" class="premium-field">
+                                    <mat-label> Type</mat-label>
+                                    <mat-select formControlName="cp_type">
+                                        <mat-option [value]="'CP Executive'">CP Executive</mat-option>
+                                        <mat-option [value]="'CP Owner'">CP Owner</mat-option>
+                                        <mat-option [value]="'CP TL'">CP TL</mat-option>
+
+                                    </mat-select>
+                                </mat-form-field>
                                 <mat-form-field appearance="outline" class="premium-field">
                                     <mat-label>Firm Name</mat-label>
                                     <input matInput formControlName="firm_name">
-                                    <mat-icon matPrefix>corporate_fare</mat-icon>
                                 </mat-form-field>
 
                                 <mat-form-field appearance="outline" class="premium-field">
                                     <mat-label>RERA No</mat-label>
                                     <input matInput formControlName="rera_no">
-                                    <mat-icon matPrefix>security</mat-icon>
                                 </mat-form-field>
                             </ng-container>
                         </div>

@@ -1,0 +1,289 @@
+/* Label styles with improved readability and uppercase tracking */
+.gf-section-label,
+.gf-role-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: #64748b; /* Slate 500 */
+}
+
+/* Modern input style - move away from dotted underline for better visibility */
+.gf-underline-input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #e2e8f0; /* Slate 200 */
+  background: transparent;
+  border-radius: 0;
+  padding: 0.6rem 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #1e293b; /* Slate 800 */
+  outline: none;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: #94a3b8; /* Slate 400 */
+    opacity: 0.8;
+  }
+
+  &:hover {
+    border-bottom-color: #cbd5e1; /* Slate 300 */
+  }
+
+  &:focus {
+    border-bottom-color: #0d9488; /* Teal 600 - Match theme */
+    background: linear-gradient(to top, rgba(13, 148, 136, 0.03), transparent);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    border-bottom-style: dashed;
+  }
+}
+
+.gf-role-card {
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+.gf-role-badge {
+  background: #f0fdfa; /* Teal 50 */
+  color: #0f766e; /* Teal 700 */
+  border: 1px solid #ccfbf1;
+}
+
+.gf-add-action {
+  font-weight: 600;
+  color: #0d9488 !important;
+
+  &:hover {
+    background: rgba(13, 148, 136, 0.06) !important;
+  }
+}
+
+.gf-action-remove {
+  color: #94a3b8 !important;
+
+  &:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+  }
+
+  .mat-mdc-button-touch-target {
+    height: 40px; /* Larger touch target for mobile */
+    width: 40px;
+  }
+}
+
+/* —— Monthly & quarterly targets (compact, dotted inputs) —— */
+.gf-targets-card {
+  .mat-mdc-card-content {
+    padding: 1rem !important;
+    
+    @media (max-width: 640px) {
+      padding: 0.75rem !important;
+    }
+  }
+}
+
+/* Compact monthly-units strip: title, goal #, progress, met badge, rule */
+.gf-months-header-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.gf-months-header-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.gf-months-header-goal {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0f766e;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.gf-months-header-progress {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.gf-months-header-met {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 999px;
+  padding: 2px 8px 2px 6px;
+}
+
+.gf-months-header-met-icon {
+  width: 14px !important;
+  height: 14px !important;
+  font-size: 14px !important;
+}
+
+.gf-months-header-rule {
+  flex: 1;
+  border-top: 1px solid #e2e8f0;
+  min-width: 1rem;
+}
+
+/* 12 FY months grid improvements */
+.gf-month-cell {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  text-align: left;
+  transition: all 0.15s ease;
+  
+  &:focus-within {
+    border-color: #0d9488;
+    box-shadow: 0 0 0 1px #0d9488;
+  }
+}
+
+.gf-month-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gf-month-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 0.25rem 0;
+  color: #0f172a;
+  outline: none;
+
+  &::placeholder {
+    color: #cbd5e1;
+  }
+
+  &:focus {
+    border-bottom-color: #0d9488;
+  }
+}
+
+.gf-targets-divider-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.25rem 0 0.75rem;
+  
+  span {
+    font-size: 10px !important;
+    color: #64748b !important;
+  }
+}
+
+.gf-target-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+
+  thead th {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0.75rem 0.5rem;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  tbody td {
+    background: #fff;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 13px;
+    padding: 0.6rem 0.5rem;
+    
+    &:first-child {
+      font-weight: 500;
+      color: #1e293b;
+    }
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.gf-target-q-cell {
+  background: #f0f9ff !important; /* Blue 50 */
+  color: #0369a1 !important; /* Blue 700 */
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+
+.gf-target-cell-input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0.25rem 0;
+  text-align: center;
+  outline: none;
+
+  &:focus {
+    border-bottom-color: #0d9488;
+  }
+}
+
+/* Scroll cues for overflowing tables */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+}
+

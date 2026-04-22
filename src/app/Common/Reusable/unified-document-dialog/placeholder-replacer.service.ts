@@ -326,6 +326,7 @@ export class PlaceholderReplacerService {
         const replacements: ReplacementMap = {};
         const applicant = demandData?.applicant || {};
         const bankDetails = demandData?.bank_detail || [];
+        replacements['#company_logo#'] = `${storageUrl}/${demandData?.company_logo || ''}`;
 
         const fullAccount = bankDetails.find(bank => bank.account_type === 'RERA Collection Account');
         const gstAccount = bankDetails.find(bank => bank.account_type === 'GST Collection Account');
@@ -389,7 +390,7 @@ export class PlaceholderReplacerService {
         const sanctionAmt = this.formatIndianCurrency(letterData.sanction_amount || 0);
         const fundingAmt = this.formatIndianCurrency(letterData.funding_amount || 0);
         const ocrAmt = this.formatIndianCurrency(0);
-        const createdDate = new Date(letterData.created_at);
+        const createdDate = new Date(letterData.letter_date);
         const formattedDate = createdDate.toLocaleDateString('en-IN', {
             day: '2-digit',
             month: 'short',
@@ -434,6 +435,7 @@ export class PlaceholderReplacerService {
 
         replacements['#SubProject#'] = letterData.wing_name || '';
         replacements['#GstPercent#'] = letterData.gst_percent || 'N/A';
+        replacements['#AgreementValueGST#'] = this.formatIndianCurrency(letterData.agreement_cost_with_gst || 0);
         replacements['#Gst#'] = this.formatIndianCurrency(letterData.gst || 0);
 
         // Area Sqm Mapping
@@ -501,17 +503,27 @@ export class PlaceholderReplacerService {
             replacements['#IFSCCode100#'] = getIfscCode(primaryAccount);
             replacements['#AddressOfBank100#'] = primaryAccount?.branch_name || primaryAccount?.address || '';
 
+            // Map RERA specific placeholders
+            replacements['#RERABeneficiaryName#'] = fullAccount?.beneficiary_name || (letterData as any).rera_beneficiary_name || '';
+            replacements['#RERACollectionBankName#'] = fullAccount?.bank_name || (letterData as any).rera_collection_bank_name || '';
+            replacements['#RERAAccountNumber#'] = fullAccount?.account_no || (letterData as any).rera_account_number || '';
+            replacements['#RERABranchName#'] = fullAccount?.branch_name || (letterData as any).rera_branch_name || '';
+            replacements['#RERAIFSC#'] = getIfscCode(fullAccount);
+
             // GST/Tax Account details
             replacements['#NameofBeneficiaryTax#'] = taxAccount?.beneficiary_name || '';
             replacements['#BeneficiaryAccountNoTax#'] = taxAccount?.account_no || '';
             replacements['#NameofBankTax#'] = taxAccount?.bank_name || '';
             replacements['#IFSCCodeTax#'] = getIfscCode(taxAccount);
             replacements['#AddressOfBankTax#'] = taxAccount?.branch_name || taxAccount?.address || '';
+
+            // Map GST specific placeholders
+            replacements['#GSTBeneficiaryName#'] = gstAccount?.beneficiary_name || '';
+            replacements['#GSTCollectionBankName#'] = gstAccount?.bank_name || '';
+            replacements['#GSTAccountNumber#'] = gstAccount?.account_no || '';
+            replacements['#GSTBranchName#'] = gstAccount?.branch_name || '';
+            replacements['#GSTIFSC#'] = getIfscCode(gstAccount);
         }
-        replacements['#RERABeneficiaryName#'] = letterData.rera_beneficiary_name || '';
-        replacements['#RERACollectionBankName#'] = letterData.rera_collection_bank_name || '';
-        replacements['#RERAAccountNumber#'] = letterData.rera_account_number || '';
-        replacements['#RERABranchName#'] = letterData.rera_branch_name || '';
         // Parking table: one row per parking (for <!--start_parking_row-->...<!--end_parking_row--> or a single <tr> with #ParkingNo#/#ParkingLevel#)
         replacements['__parkingTableRows__'] = this.buildParkingTableRows(letterData, htmlTemplate);
 
@@ -1168,6 +1180,7 @@ export class PlaceholderReplacerService {
         replacements['#EnquiryDate#'] = this.formatDate(quotationData?.enquiry_date) || '';
         replacements['#QuotationDate#'] = this.formatDate(quotationData?.created_at, currentDate);
         replacements['#Wing#'] = quotationData?.wing_name || '';
+
         replacements['#WING#'] = quotationData?.wing_name || '';
         replacements['#UnitType#'] = quotationData?.unit_type || String(quotationData?.unit_type_id ?? '') || 'N/A';
         replacements['#UnitNo#'] = quotationData?.floor_unit || '';

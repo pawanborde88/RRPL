@@ -77,6 +77,7 @@
                     (click)="item.items ? toggleNestedSubmenu(menuKey, item.label, $event) : handleSubItemClick(item)"
                     [routerLink]="!item.items ? item.routerLink : null"
                     [routerLinkActive]="!item.items ? 'sub-item-active' : ''">
+                    <mat-icon *ngIf="item.icon" class="text-slate-400 text-[18px]">{{ item.icon }}</mat-icon>
                     <span class="flex-1 truncate text-[12.5px] font-medium leading-relaxed">{{ item.label }}</span>
                     <mat-icon *ngIf="item.items" class="text-slate-300 text-[14px] transition-transform duration-200"
                       [class.rotate-90]="isNestedSubmenuExpanded(menuKey, item.label)">chevron_right</mat-icon>
@@ -153,22 +154,44 @@
 
 <!-- Hover Menu for Collapsed State Popover -->
 <div *ngIf="!isSidebarExpanded() && hoveredMenuKey() && menuItems()[hoveredMenuKey()!]?.items"
-  class="fixed left-[80px] z-[9999] bg-white rounded-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] border border-slate-100 p-1.5 min-w-[220px] animate-slide-in"
+  class="fixed left-[72px] z-[9999] tippy-popover border border-slate-100 p-1 min-w-[220px] animate-slide-in shadow-2xl"
   [style.top.px]="tippyPosition().top" (mouseenter)="onTippyHover()" (mouseleave)="onTippyLeave()">
-  <div class="px-4 py-2.5 border-b border-slate-50 mb-1">
-    <span class="text-[11px] font-bold text-blue-600 uppercase tracking-widest">{{ menuItems()[hoveredMenuKey()!].title
-      }}</span>
+  <div class="px-3 py-2 border-b border-slate-50 mb-1 flex items-center gap-2">
+    <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{{ menuItems()[hoveredMenuKey()!].title }}</span>
   </div>
 
-  <div class="space-y-0.5 max-h-[400px] overflow-y-auto custom-scrollbar p-1">
+  <div class="space-y-0.5 max-h-[450px] overflow-y-auto custom-scrollbar p-0.5">
     <ng-container *ngFor="let item of menuItems()[hoveredMenuKey()!].items">
-      <div class="relative">
-        <a [routerLink]="item.routerLink"
-          class="flex items-center justify-between px-3 py-2.5 text-[13px] text-slate-600 font-semibold rounded-lg hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
-          (click)="closeTippy()">
-          {{ item.label }}
-          <mat-icon *ngIf="item.items" class="text-[16px] text-slate-300">chevron_right</mat-icon>
+      <div class="relative group/item">
+        <a [routerLink]="!item.items ? item.routerLink : null"
+          class="flex items-center gap-2.5 px-2.5 py-1.5 text-[12.5px] text-slate-600 font-semibold rounded-lg transition-all duration-200 cursor-pointer"
+          [ngClass]="{
+            'popover-item-active': isSubmenuItemActive(item.routerLink),
+            'popover-item-expanded': isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)
+          }"
+          (click)="item.items ? toggleNestedSubmenu(hoveredMenuKey()!, item.label, $event) : onSubmenuItemClick()">
+          <div class="w-7 h-7 rounded-md bg-slate-50 flex items-center justify-center transition-colors group-hover/item:bg-white/20 shrink-0">
+            <mat-icon class="text-[16px]">{{ item.icon || 'circle' }}</mat-icon>
+          </div>
+          <span class="flex-1 truncate">{{ item.label }}</span>
+          <mat-icon *ngIf="item.items" 
+            class="text-[14px] text-slate-300 transition-transform duration-200"
+            [class.rotate-90]="isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)">chevron_right</mat-icon>
         </a>
+
+        <!-- Level 3 Nested Items in Popover -->
+        <div *ngIf="item.items && isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)"
+          class="popover-nested-wrapper space-y-0.5 mt-0.5 mb-1 animate-slide-in">
+          <a *ngFor="let nested of item.items"
+            [routerLink]="nested.routerLink"
+            routerLinkActive="popover-nested-active"
+            class="flex items-center gap-2 px-8 py-1.5 text-[11.5px] text-slate-500 font-medium rounded-md hover:bg-slate-50 transition-all cursor-pointer"
+            (click)="onSubmenuItemClick()">
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            {{ nested.label }}
+          </a>
+        </div>
       </div>
     </ng-container>
   </div>

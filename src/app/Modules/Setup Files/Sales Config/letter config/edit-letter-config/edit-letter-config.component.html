@@ -36,7 +36,10 @@
         <mat-error>Letter type is required</mat-error>
         }
       </mat-form-field>
-
+      <app-autocomplete-reusable-component [options]="allLandOwnersList()" class="col-md-4"
+        formControlName="land_owner_setup_id" displayKey="land_owner_name" idKey="land_owner_setup_id"
+        placeholder="Select Land Owner">
+      </app-autocomplete-reusable-component>
       <!-- Bank Selection -->
       @if (shouldShowBankDropdown()) {
       <app-autocomplete-reusable-component class="col-md-4" [options]="preferredBanks()" formControlName="bank_id"
@@ -54,6 +57,7 @@
         <mat-error>Date is required</mat-error>
         }
       </mat-form-field>
+
     </div>
 
     <!-- HTML File Upload -->

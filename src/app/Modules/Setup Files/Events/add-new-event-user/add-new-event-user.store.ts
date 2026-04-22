@@ -18,6 +18,7 @@ export interface EventDetails {
 }
 
 export interface UserData {
+    user_id?: number | null;
     name: string;
     email: string;
     mobile: string;
@@ -84,6 +85,7 @@ export class EventRegistrationStore {
             // 2. Fetch user data if slug exists
             if (slug) {
                 await this.fetchUserDataBySlug(eventId, slug);
+                await this.fetchUSerSBySlug(eventId, slug);
             }
         } catch (err: any) {
             this.updateState({ error: err.message || 'Failed to load event' });
@@ -104,6 +106,7 @@ export class EventRegistrationStore {
             if (data) {
                 this.updateState({
                     userData: {
+                        user_id: data.user_id || null,
                         name: data.name || '',
                         email: data.email_id || data.email || '',
                         mobile: data.mob_no?.toString() || data.mobile?.toString() || '',
@@ -121,7 +124,36 @@ export class EventRegistrationStore {
             console.error('Error fetching user data by slug:', err);
         }
     }
+    private async fetchUSerSBySlug(eventId: number, slug: string): Promise<void> {
+        try {
+            const response = await firstValueFrom(
+                this.http.post<any>(`${this.baseUrl}/fetch_users_by_slug`, { event_id: eventId, slug })
+            );
 
+            let data = response?.data || response;
+            if (Array.isArray(data)) data = data[0];
+
+            if (data) {
+                this.updateState({
+                    userData: {
+                        user_id: data.user_id || null,
+                        name: data.full_name || '',
+                        email: data.user_email || data.email || '',
+                        mobile: data.user_phone?.toString() || data.mobile?.toString() || '',
+                        firm_name: data.firm_name || '',
+                        rera_no: data.rera_no || '',
+                        token_id: data.token_id || null,
+                        token_type: data.token_type || '',
+                        is_highest: data.is_highest || 0,
+                        wing_name: data.wing_name || null,
+                        floor_unit: data.floor_unit || null,
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching user data by slug:', err);
+        }
+    }
     async submitRegistration(payload: any): Promise<any> {
         this.updateState({ isSubmitting: true, error: null });
 

@@ -25,7 +25,7 @@ import {
 } from '@angular/forms';
 import { MatFormFieldControl } from '@angular/material/form-field';
 import { MatSelectChange } from '@angular/material/select';
-import { MatOptionSelectionChange } from '@angular/material/core';
+import { MatOptionSelectionChange, ErrorStateMatcher } from '@angular/material/core';
 import { RouterModule } from '@angular/router';
 import {
   debounceTime,
@@ -44,6 +44,19 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 export interface SelectOption<T = any> {
   [key: string]: any;
   disabled?: boolean;
+}
+
+/**
+ * Custom ErrorStateMatcher to sync the internal mat-select's error state
+ * with the parent component's ngControl state.
+ */
+export class ParentErrorStateMatcher implements ErrorStateMatcher {
+  constructor(private ngControl: NgControl) { }
+
+  isErrorState(): boolean {
+    const control = this.ngControl?.control;
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
 }
 
 /**
@@ -97,6 +110,7 @@ export class AutocompleteReusableComponent
   private readonly _disabledSignal = signal<boolean>(false);
   private readonly _selectedValueSignal = signal<any>(null);
   @Input() required: boolean = false;
+  @Input() autoSelectSessionId: boolean = false;
 
   /**
    * Special constant value that represents the "Select All" option.
@@ -107,6 +121,9 @@ export class AutocompleteReusableComponent
   // Form controls
   readonly selectedCtrl = new FormControl();
   readonly searchCtrl = new FormControl();
+
+  // Error state matcher for mat-select
+  readonly errorMatcher: ParentErrorStateMatcher;
 
   // ControlValueAccessor callbacks
   private onChange: (value: any) => void = () => { };
@@ -119,6 +136,7 @@ export class AutocompleteReusableComponent
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+    this.errorMatcher = new ParentErrorStateMatcher(this.ngControl);
   }
 
   // Internal state using signals for reactive updates
@@ -294,6 +312,7 @@ export class AutocompleteReusableComponent
    * Auto-select userId from sessionStorage if it exists in options
    */
   private autoSelectUserId(): void {
+    if (!this.autoSelectSessionId) return;
     const idKey = this._idKeySignal();
     if (!idKey) return;
 
@@ -415,6 +434,16 @@ export class AutocompleteReusableComponent
     const target = event.target as HTMLInputElement;
     const value = target.value.trim();
     this.inputChanged.emit(value);
+  }
+
+  /**
+   * Handle select dropdown opened/closed state
+   */
+  onOpenedChange(isOpen: boolean): void {
+    if (!isOpen) {
+      this.onTouched();
+      this.cdr.markForCheck();
+    }
   }
 
   /**

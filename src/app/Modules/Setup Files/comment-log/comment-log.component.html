@@ -74,10 +74,10 @@
       *ngIf="data.for === constants.COMPONENT_TYPE.LEAD_FOLLOW_UP || data.for === constants.COMPONENT_TYPE.ENQUIRIES">
       <!-- Lead Level Dropdown with Async Pipe -->
       <mat-form-field appearance="outline" class="form-field col-md-2">
-        <mat-label>Lead Level</mat-label>
+        <mat-label>Enquiry Level</mat-label>
         <mat-select formControlName="lead_level_id">
           <!-- ⚡ TrackBy for efficient rendering -->
-          <mat-option value="0" disabled>Select Lead Level</mat-option>
+          <mat-option value="0" disabled>Select Enquiry Level</mat-option>
           <mat-option *ngFor="let level of leadLevels$ | async; trackBy: trackByLeadLevelId"
             [value]="level.lead_level_id">
             {{ level.lead_level }}

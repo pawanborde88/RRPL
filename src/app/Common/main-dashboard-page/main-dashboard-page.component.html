@@ -18,7 +18,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap items-end gap-3 w-full lg:w-auto lg:max-w-[920px]" [formGroup]="filterForm">
+                    <div class="dashboard-filters flex flex-wrap items-center gap-3 w-full lg:w-auto lg:max-w-[920px]" [formGroup]="filterForm">
                         <app-autocomplete-reusable-component class="w-[220px] !mb-0" [options]="projects()"
                             idKey="project_id" displayKey="property_name" [isMultiSelect]="true"
                             formControlName="project_id" placeholder="Select Project"

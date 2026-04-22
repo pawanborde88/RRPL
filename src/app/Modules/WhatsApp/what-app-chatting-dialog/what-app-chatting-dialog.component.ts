@@ -31,6 +31,7 @@ import {
   EMPTY,
   finalize,
   map,
+  Observable,
   of,
   switchMap,
   tap
@@ -43,6 +44,7 @@ import {
   TemplatesResponse,
   SendMessageResponse
 } from '../../../Service/common/whatsApp/whats-app-service.service';
+import { environment } from '../../../../environments/environment';
 
 // Interfaces
 interface TemplateOption {
@@ -122,10 +124,13 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
   readonly templateOptions = signal<TemplateOption[]>([]);
   readonly groupedTemplates = signal<Record<string, TemplateOption[]>>({});
   readonly availableLanguages = signal<string[]>([]);
+  readonly selectedFile = signal<File | null>(null);
+  readonly storageUrl = signal<string>(environment.STORAGE_URL);
 
   // Form
   readonly sendMessageForm: FormGroup;
   readonly activeMessageType = signal<MessageType>('template');
+  readonly isAttachmentMenuOpen = signal<boolean>(false);
 
   // Computed Signals
   readonly hasMessages = computed(() => this.messages().length > 0);
@@ -133,6 +138,13 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
   readonly customerFirstName = computed(() => {
     const fullName = this.data.chattingData.customer_name || '';
     return fullName.split(' ')[0] || 'Customer';
+  });
+  readonly selectedFileType = computed(() => {
+    const file = this.selectedFile();
+    if (!file) return null;
+    if (file.type.startsWith('image/')) return 'image';
+    if (file.type.startsWith('video/')) return 'video';
+    return 'document';
   });
 
   // Table DataSource
@@ -162,6 +174,25 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
 
     // Setup form listeners
     this.setupFormListeners();
+
+    // Effect to handle custom message validations based on selected file
+    effect(() => {
+      const file = this.selectedFile();
+      const type = this.activeMessageType();
+      const customMessageControl = this.sendMessageForm.get('customMessage');
+
+      if (type === 'custom') {
+        if (file) {
+          customMessageControl?.setValidators([Validators.maxLength(500)]);
+        } else {
+          customMessageControl?.setValidators([
+            Validators.required,
+            Validators.maxLength(500)
+          ]);
+        }
+        customMessageControl?.updateValueAndValidity();
+      }
+    });
 
     // Effect to sync messages with dataSource
     effect(() => {
@@ -236,11 +267,14 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
       languageControl?.clearValidators();
       languageControl?.setValue('');
 
-      customMessageControl?.setValidators([
-        Validators.required,
-        Validators.minLength(5),
-        Validators.maxLength(500)
-      ]);
+      if (this.selectedFile()) {
+        customMessageControl?.setValidators([Validators.maxLength(500)]);
+      } else {
+        customMessageControl?.setValidators([
+          Validators.required,
+          Validators.maxLength(500)
+        ]);
+      }
     }
 
     templateNameControl?.updateValueAndValidity();
@@ -409,8 +443,6 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
 
   // ========== MESSAGE SENDING ==========
   sendWhatsAppMessage(): void {
-
-
     if (!this.data.chattingData.mobile_no) {
       this.showSnackBar('Mobile number is required', 'error');
       return;
@@ -420,10 +452,17 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
 
     const formValue = this.sendMessageForm.value;
     const isTemplate = formValue.messageType === 'template';
+    const file = this.selectedFile();
 
-    const apiCall = isTemplate
-      ? this.whatsAppService.sendTemplate(this.buildTemplateRequestData(formValue))
-      : this.whatsAppService.sendMessage(this.buildCustomMessageRequestData(formValue));
+    let apiCall: Observable<SendMessageResponse>;
+
+    if (isTemplate) {
+      apiCall = this.whatsAppService.sendTemplate(this.buildTemplateRequestData(formValue));
+    } else {
+      // Unified custom/media message logic
+      const formData = this.buildCustomMessageRequestData(formValue);
+      apiCall = this.whatsAppService.sendMessage(formData);
+    }
 
     apiCall
       .pipe(
@@ -439,6 +478,10 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
               this.sendMessageForm.patchValue({
                 customMessage: ''
               }, { emitEvent: false });
+              this.selectedFile.set(null);
+              // reset file input
+              const fileInput = document.getElementById('chat-file-upload') as HTMLInputElement;
+              if (fileInput) fileInput.value = '';
             }
             return EMPTY;
           } else {
@@ -486,18 +529,57 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
 
   private buildCustomMessageRequestData(
     formValue: { customMessage?: string }
-  ): {
-    to: string;
-    message: string;
-    project_lead_id: number;
-    created_by: number;
-  } {
-    return {
-      to: this.data.chattingData.mobile_no,
-      message: formValue.customMessage || '',
-      project_lead_id: Number(this.data.chattingData['project_lead_id']),
-      created_by: this.userId
-    };
+  ): FormData {
+    const formData = new FormData();
+    formData.append('to', this.data.chattingData.mobile_no || '');
+    formData.append('message', formValue.customMessage || '');
+    
+    const projectLeadId = this.data.chattingData['project_lead_id'];
+    if (projectLeadId) {
+      formData.append('project_lead_id', String(projectLeadId));
+    }
+    
+    const projectEnqId = this.data.chattingData['project_enq_id'];
+    if (projectEnqId) {
+      formData.append('project_enq_id', String(projectEnqId));
+    }
+    
+    formData.append('created_by', String(this.userId));
+
+    const file = this.selectedFile();
+    if (file) {
+      formData.append('file', file);
+      formData.append('type', this.selectedFileType() || 'document');
+    }
+
+    return formData;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile.set(input.files[0]);
+    } else {
+      this.selectedFile.set(null);
+    }
+  }
+
+  openFilePicker(type: 'image' | 'video' | 'document', fileInput: HTMLInputElement): void {
+    this.isAttachmentMenuOpen.set(false);
+    if (type === 'image') {
+      fileInput.accept = 'image/*';
+    } else if (type === 'video') {
+      fileInput.accept = 'video/*';
+    } else {
+      fileInput.accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv';
+    }
+    fileInput.click();
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile.set(null);
+    const fileInput = document.getElementById('chat-file-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   }
 
   private getProjectName(): string {
@@ -514,9 +596,52 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
       : 'Telecaller';
   }
 
+  // ========== MEDIA HELPERS ==========
+  getMediaUrl(chat: ChatMessage): string | null {
+    const path = chat.image_url || chat.media_url || null;
+    if (!path || path === 'null' || path === 'undefined') return null;
+    if (path.startsWith('http')) return path;
+    return `${this.storageUrl()}/${path}`;
+  }
+
+  isImage(chat: ChatMessage): boolean {
+    const hasValidImage = chat.image_url && chat.image_url !== 'null' && chat.image_url !== 'undefined';
+    return chat.message_type === 'image' || !!hasValidImage;
+  }
+
+  isVideo(chat: ChatMessage): boolean {
+    return chat.message_type === 'video';
+  }
+
+  isDocument(chat: ChatMessage): boolean {
+    const hasValidMedia = chat.media_url && chat.media_url !== 'null' && chat.media_url !== 'undefined';
+    return chat.message_type === 'document' || chat.message_type === 'file' || (!this.isImage(chat) && !this.isVideo(chat) && !!hasValidMedia && !!chat.file_name);
+  }
+
+  isInteractive(chat: ChatMessage): boolean {
+    return chat.message_type === 'interactive' || !!chat.buttons || !!chat.interactive_data || !!chat.parent_question;
+  }
+
+  downloadFile(event: Event, url: string, fileName?: string): void {
+    event.stopPropagation();
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    if (fileName) {
+      link.download = fileName;
+    }
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  openMediaPreview(url: string): void {
+    window.open(url, '_blank');
+  }
+
   // ========== UTILITY METHODS ==========
   isFromUser(chat: ChatMessage): boolean {
-    return !chat.message_from || chat.message_from === null;
+    return !chat.message_from || chat.message_from === null || chat.message_from === 'outbound';
   }
 
   formatDate(timestamp: number | string | undefined): string {
@@ -532,7 +657,8 @@ export class WhatAppChattingDialogComponent implements OnInit, AfterViewInit {
           ? new Date(timestamp)
           : new Date(timestamp * 1000);
       } else {
-        date = new Date(timestamp);
+        const timeStr = String(timestamp).replace(' ', 'T');
+        date = new Date(timeStr);
       }
 
       if (isNaN(date.getTime())) {

@@ -1,3 +1,27 @@
+// Animations
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slideDown {
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.rotate-45 {
+    display: inline-block;
+    transform: rotate(45deg);
+}
+
 // Styles for compact form fields (used in Language/Template selectors)
 ::ng-deep .density-compact {
     .mat-mdc-form-field-subscript-wrapper {

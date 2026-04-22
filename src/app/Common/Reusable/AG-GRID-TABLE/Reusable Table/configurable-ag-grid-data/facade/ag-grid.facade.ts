@@ -152,10 +152,12 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
   }
 
   refreshData(): void {
+    this.store.setSearchText('');
     this.store.resetDataState();
     const api = this.store.gridApi();
     if (api) {
       api.setGridOption('pinnedBottomRowData', []);
+      api.setFilterModel(null);
     }
   }
 
@@ -177,7 +179,6 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
 
     const state = {
       columnState: api.getColumnState(),
-      filterModel: api.getFilterModel(),
     };
 
     localStorage.setItem(`ag-grid-state-${storageKey}`, JSON.stringify(state));
@@ -199,9 +200,6 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
             state: parsedState.columnState,
             applyOrder: true,
           });
-        }
-        if (parsedState.filterModel) {
-          api.setFilterModel(parsedState.filterModel);
         }
       } catch (e) {
         console.warn('Failed to parse saved grid state', e);

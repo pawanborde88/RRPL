@@ -54,6 +54,7 @@ import { AddCPExecutivesComponent } from '../../CP Executive/add-cpexecutives/ad
 import { AddCPOwnersComponent } from '../../CP Owner/add-cpowners/add-cpowners.component';
 import { UserService, User } from '../services/user.service';
 import { UserFacade } from '../services/user.facade';
+import { BulkSendMessageDialogComponent } from '../bulk-send-message-dialog/bulk-send-message-dialog.component';
 import * as XLSX from 'xlsx';
 
 // ============================================================================
@@ -286,6 +287,20 @@ export class AllUsersComponent implements AfterViewInit {
     new Set(this.selectedUserSignal().map((u) => u.user_id))
   );
 
+  readonly isAllSelected = computed(() => {
+    const filtered = this.filteredUsers();
+    if (filtered.length === 0) return false;
+    const selectedIds = this.selectedUserIds();
+    return filtered.every((u) => selectedIds.has(u.user_id));
+  });
+
+  readonly isIndeterminate = computed(() => {
+    const filtered = this.filteredUsers();
+    if (filtered.length === 0) return false;
+    const selectedCount = filtered.filter((u) => this.isSelected(u)).length;
+    return selectedCount > 0 && selectedCount < filtered.length;
+  });
+
   // ============================================================================
   // CONSTRUCTOR & INITIALIZATION
   // ============================================================================
@@ -385,7 +400,30 @@ export class AllUsersComponent implements AfterViewInit {
   }
 
   onCheckboxSelected(checked: boolean, row: User): void {
-    this.selectedUser = checked ? [row] : [];
+    const current = this.selectedUser;
+    if (checked) {
+      this.selectedUser = [...current, row];
+    } else {
+      this.selectedUser = current.filter((u) => u.user_id !== row.user_id);
+    }
+  }
+
+  masterToggle(): void {
+    if (this.isAllSelected()) {
+      // Deselect all filtered users
+      const filteredIds = new Set(this.filteredUsers().map((u) => u.user_id));
+      this.selectedUser = this.selectedUser.filter(
+        (u) => !filteredIds.has(u.user_id)
+      );
+    } else {
+      // Select all filtered users
+      const current = this.selectedUser;
+      const currentIds = this.selectedUserIds();
+      const toAdd = this.filteredUsers().filter(
+        (u) => !currentIds.has(u.user_id)
+      );
+      this.selectedUser = [...current, ...toAdd];
+    }
   }
 
   visibleCardActions(item: User): CardAction[] {
@@ -476,6 +514,24 @@ export class AllUsersComponent implements AfterViewInit {
         finalize(() => this.cdr.markForCheck())
       )
       .subscribe();
+  }
+
+  bulkSendMessage(): void {
+    const selectedUsers = this.selectedUser;
+    if (selectedUsers.length === 0) {
+      this.showSnackBar('Please select users first.');
+      return;
+    }
+
+    const activeUsers = selectedUsers.filter(u => u.active_status_id === 1);
+
+    const dialogRef = this.dialog.open(BulkSendMessageDialogComponent, {
+      minWidth: '25vw',
+      maxWidth: '50vh',
+      data: { activeUsers: activeUsers },
+    });
+
+    this.refreshAfterDialogClose(dialogRef);
   }
 
   // ============================================================================
@@ -858,6 +914,14 @@ export class AllUsersComponent implements AfterViewInit {
             show: () => isAdmin,
           },
           {
+            label: 'Send',
+            icon: 'send',
+            color: 'primary',
+            disabled: () => selectedUsers.length === 0,
+            action: () => this.bulkSendMessage(),
+            show: () => isAdmin,
+          },
+          {
             label: 'Export to Excel',
             icon: 'download',
             color: 'accent',
@@ -923,6 +987,14 @@ export class AllUsersComponent implements AfterViewInit {
             color: 'primary',
             disabled: () => selectedUsers.length === 0,
             action: () => this.inactiveUser(),
+            show: () => isAdmin,
+          },
+          {
+            label: 'Send',
+            icon: 'send',
+            color: 'primary',
+            disabled: () => selectedUsers.length === 0,
+            action: () => this.bulkSendMessage(),
             show: () => isAdmin,
           },
           {
@@ -1006,6 +1078,14 @@ export class AllUsersComponent implements AfterViewInit {
           disabled: () => this.filteredUsers().length === 0,
           action: () => this.exportToExcel(),
           show: () => true,
+        },
+        {
+          label: 'Send',
+          icon: 'send',
+          color: 'primary',
+          disabled: () => selectedUsers.length === 0,
+          action: () => this.bulkSendMessage(),
+          show: () => isAdmin,
         },
         {
           label: 'Add New User',

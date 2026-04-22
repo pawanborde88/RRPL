@@ -82,37 +82,24 @@ interface PreferenceDropdown {
   [key: string]: unknown;
 }
 
-import { MatTabsModule } from '@angular/material/tabs';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { AllBillsComponent } from '../../../Channel Partner Meetings/all-bills/all-bills.component';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-all-site-visite',
   standalone: true,
   imports: [
+    AngularMaterialModule,
     CommonModule,
     RouterModule,
-    MatTabsModule,
     TemplateComponent,
     BreadcrumbComponent,
     AllBillsComponent,
-    MatCardModule,
-    MatIconModule,
-    MatExpansionModule,
     ConfigurableAgGridDataComponent,
     AllCPBookingListComponent,
     ReactiveFormsModule,
     AutocompleteReusableComponent,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule
   ],
   templateUrl: './all-site-visite.component.html',
   styleUrl: './all-site-visite.component.scss',
@@ -200,7 +187,7 @@ export class AllSiteVisiteComponent implements OnInit {
     { key: 'full_name', label: 'Client Name' },
     { key: 'mobile_no', label: 'Mobile No', type: 'sensitive' },
     { key: 'email_id', label: 'Email ID', type: 'sensitive' },
-    { key: 'lead_level', label: 'Lead Level' },
+    { key: 'lead_level', label: 'Enquiry Level' },
     { key: 'project_configuration', label: 'Configuration' },
     { key: 'min_budget', label: 'Min Budget', isAmount: true },
     { key: 'max_budget', label: 'Max Budget', isAmount: true },

@@ -102,7 +102,7 @@ export class ActionCellRendererComponent<T extends TableRowData = TableRowData> 
 
   visibleActions(): ActionButton<T>[] {
     const rowData = this.params?.data as T;
-    if (!rowData || !this.actions) return [];
+    if (!rowData || !this.actions || (rowData as any).__isPlaceholder) return [];
 
     const rowId = rowData.id;
     const actionsHash = this.getActionsHash();

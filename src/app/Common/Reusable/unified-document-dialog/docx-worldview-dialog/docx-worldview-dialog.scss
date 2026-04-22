@@ -1,18 +1,50 @@
+.dialog-title {
+    position: relative;
+    padding-right: 48px;
+    margin: 0;
+    padding-bottom: 4px;
+}
+
+.dialog-title-text {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+}
+
+.dialog-title-sub {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.56);
+    line-height: 1.35;
+    max-width: 42em;
+}
+
+.dialog-close {
+    position: absolute;
+    top: 4px;
+    right: 0;
+}
+
 .dialog-container {
     display: flex;
     flex-direction: column;
+    min-height: 0;
     height: 90vh;
     width: 80vw;
+    max-width: 1200px;
     overflow: hidden;
     position: relative;
 }
-
-
 
 mat-dialog-content {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-height: 0;
     padding: 0 !important;
     margin: 0 !important;
     overflow: hidden;
@@ -25,7 +57,8 @@ mat-dialog-content {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     padding: 40px;
     text-align: center;
 
@@ -37,24 +70,161 @@ mat-dialog-content {
     }
 }
 
-.viewer-container {
+.viewer-shell {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    width: 100%;
+    min-height: 0;
     height: 100%;
-    overflow: hidden;
+}
+
+.viewer-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 12px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: linear-gradient(180deg, #fafbfc 0%, #f5f6f8 100%);
+
+    button,
+    a[mat-stroked-button] {
+        mat-icon {
+            margin-right: 6px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+}
+
+.viewer-mode-toggle {
+    flex-shrink: 0;
+}
+
+.viewer-toolbar-hint,
+.viewer-toolbar-note {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.56);
+    line-height: 1.35;
+    max-width: 36rem;
+}
+
+.mammoth-panel {
+    position: absolute;
+    inset: 0;
     background-color: #fff;
 }
 
-ngx-doc-viewer {
+.mammoth-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 32px 20px;
+    text-align: center;
+    min-height: 200px;
+}
+
+.mammoth-state-error mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+}
+
+.mammoth-html-scroll {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    padding: 16px 20px 24px;
+}
+
+.mammoth-html-body {
+    max-width: 720px;
+    margin: 0 auto;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: #1e293b;
+
+    ::ng-deep p {
+        margin: 0 0 0.75em;
+    }
+
+    ::ng-deep table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+    }
+
+    ::ng-deep td,
+    ::ng-deep th {
+        border: 1px solid #cbd5e1;
+        padding: 6px 8px;
+    }
+}
+
+.viewer-container {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background-color: #e8eaed;
+}
+
+/* Fills flex parent so Office iframe gets a real height (avoids collapsed embed). */
+.doc-iframe {
     display: block;
     width: 100%;
     height: 100%;
+    min-height: 0;
     border: none;
 }
 
-mat-dialog-actions {
+.dialog-actions {
     padding: 12px 16px !important;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     background-color: #fafafa;
     margin: 0 !important;
+}
+
+.viewer-wrapper {
+    position: relative;
+}
+
+.doc-frame {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.doc-frame.loaded {
+    opacity: 1;
+}
+
+.overlay-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    font-weight: 500;
+}
+
+.skeleton-viewer {
+    height: 600px;
+    background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+
+    100% {
+        background-position: 200px 0;
+    }
 }

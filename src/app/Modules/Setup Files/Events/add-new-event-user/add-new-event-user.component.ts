@@ -169,18 +169,32 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
   private applyConditionalValidation(eventTypeId?: number): void {
 
     const isPublicEvent = eventTypeId === 1;
+    const isTypeThreeEvent = eventTypeId === 3;
 
     if (isPublicEvent) {
       // Disable fields for public events (id 1)
-      this.userForm.get('name')?.disable();
-      this.userForm.get('email')?.disable();
-      this.userForm.get('mobile')?.disable();
+      this.nameControl.disable();
+      this.emailControl.disable();
+      this.mobileControl.disable();
       this.noOfGuestControl.setValidators([Validators.required, Validators.min(1)]);
       this.firmNameControl.setValidators([Validators.minLength(2), Validators.maxLength(200)]);
       this.reraNoControl.setValidators([Validators.minLength(3), Validators.maxLength(50)]);
+      this.userForm.get('cp_type')?.setValidators([Validators.required]);
+
+    } else if (isTypeThreeEvent) {
+      // Event Type 3: Only Name, Email, Mobile required
+      this.nameControl.enable({ emitEvent: false });
+      this.mobileControl.enable({ emitEvent: false });
+      this.emailControl.enable({ emitEvent: false });
+
+      // Clear validators for other fields
+      this.noOfGuestControl.clearValidators();
+      this.firmNameControl.clearValidators();
+      this.reraNoControl.clearValidators();
+      this.userForm.get('cp_type')?.clearValidators();
 
     } else {
-      // Enable fields for non-public events (e.g., id 2)
+      // Enable fields for other non-public events (e.g., id 2)
       this.nameControl.enable({ emitEvent: false });
       this.mobileControl.enable({ emitEvent: false });
       this.emailControl.enable({ emitEvent: false });
@@ -196,12 +210,14 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
         Validators.minLength(3),
         Validators.maxLength(50)
       ]);
+      this.userForm.get('cp_type')?.setValidators([Validators.required]);
     }
 
     // Update validation
     this.noOfGuestControl.updateValueAndValidity({ emitEvent: false });
     this.firmNameControl.updateValueAndValidity({ emitEvent: false });
     this.reraNoControl.updateValueAndValidity({ emitEvent: false });
+    this.userForm.get('cp_type')?.updateValueAndValidity({ emitEvent: false });
 
   }
 
@@ -254,8 +270,13 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
       cp_type: formValue.cp_type?.trim() || '',
     };
 
-    if (details?.event_type_id === 1) {
-      payload.token_id = this.userData()?.token_id;
+    const userData: any = this.userData();
+    if (details?.event_type_id === 1 && userData) {
+      payload.token_id = userData.token_id;
+    }
+
+    if (details?.event_type_id === 3 && userData) {
+      payload.user_id = userData.user_id;
     }
 
     return payload;

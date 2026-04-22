@@ -1,0 +1,53 @@
+<h6 mat-dialog-title class="position-relative m-0 pe-10">
+    {{ isEditMode ? 'Edit strategy' : 'Add strategy' }}
+    <button mat-icon-button mat-dialog-close type="button" aria-label="Close dialog"
+        class="position-absolute top-0 end-0">
+        <mat-icon>close</mat-icon>
+    </button>
+</h6>
+
+<mat-dialog-content class="dialog-body">
+    @if (departmentsLoading()) {
+    <div class="d-flex justify-content-center py-4">
+        <mat-spinner diameter="36"></mat-spinner>
+    </div>
+    } @else {
+    <form [formGroup]="strategyForm" class="d-flex flex-column gap-3 pt-2">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Strategy name</mat-label>
+            <input matInput formControlName="strategy_name" placeholder="Enter strategy name" />
+            @if (strategyForm.get('strategy_name')?.hasError('required') && strategyForm.get('strategy_name')?.touched) {
+            <mat-error>Strategy name is required</mat-error>
+            }
+            @if (strategyForm.get('strategy_name')?.hasError('maxlength')) {
+            <mat-error>Maximum 500 characters</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Department</mat-label>
+            <mat-select formControlName="department_id" placeholder="Select department"
+                [compareWith]="compareDeptId">
+                @for (d of departments(); track d.department_id) {
+                <mat-option [value]="d.department_id">{{ d.department_name }}</mat-option>
+                }
+            </mat-select>
+            @if (strategyForm.get('department_id')?.hasError('required') && strategyForm.get('department_id')?.touched) {
+            <mat-error>Department is required</mat-error>
+            }
+        </mat-form-field>
+        @if (departments().length === 0) {
+        <p class="text-muted small mb-0">No departments returned from the server. You cannot save until departments are
+            available.</p>
+        }
+    </form>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="px-4 pb-3 border-top border-light">
+    <button mat-button mat-dialog-close type="button">Cancel</button>
+    <button mat-flat-button color="primary" type="button" (click)="onSubmit()"
+        [disabled]="strategyForm.invalid || loading || departmentsLoading() || departments().length === 0">
+        {{ loading ? 'Saving…' : (isEditMode ? 'Update' : 'Add') }}
+    </button>
+</mat-dialog-actions>

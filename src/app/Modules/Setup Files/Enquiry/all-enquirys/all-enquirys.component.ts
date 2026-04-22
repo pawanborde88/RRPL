@@ -159,6 +159,8 @@ export class AllEnquirysComponent implements OnInit {
     { key: 'firm_name', label: 'Channel Partner' },
     { key: 'source_description', label: 'Source Description' },
     { key: 'source_detail', label: 'Source Type' },
+    { key: 'remark', label: 'Remark', type: 'truncate' },
+
     { key: 'sourcing_manager', label: 'Sourcing Manager' },
     { key: 'is_imported', label: 'Imported' },
     { key: 'age_range', label: 'Age Range' },

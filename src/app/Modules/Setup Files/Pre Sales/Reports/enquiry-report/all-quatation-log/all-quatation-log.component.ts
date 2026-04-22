@@ -86,6 +86,7 @@ export class AllQuatationLogComponent {
     { key: 'created_at', label: 'Quotation Date', type: 'mediumDate' },
     { key: 'customer_name', label: 'Customer Name' },
     { key: 'floor_unit', label: 'Unit No' },
+    { key: 'unit_type', label: 'Unit Type' },
     { key: 'carpet', label: 'Carpet Area (sq ft)' },
     { key: 'basic_cost', label: 'Basic Cost',isAmount: true },
     { key: 'idc', label: 'IDC',isAmount: true },

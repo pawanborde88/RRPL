@@ -106,8 +106,6 @@
                     <mat-label>Unit ID</mat-label>
                     <input matInput formControlName="unit_id" readonly placeholder="Enter Unit No" />
                 </mat-form-field>
-            </div>
-            <div class="row g-3">
                 <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
                     <mat-label>Total Carpet (Sq.Ft)</mat-label>
                     <input matInput formControlName="carpet" readonly placeholder="Enter Carpet" />
@@ -135,8 +133,6 @@
                     <mat-label>GST (%) </mat-label>
                     <input matInput formControlName="gst_per" placeholder="Enter GST (%)  amount" />
                 </mat-form-field>
-            </div>
-            <div class="row g-3">
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>SD(%) </mat-label>
                     <input matInput formControlName="sd_per" placeholder="Enter SD(%)" />
@@ -155,6 +151,10 @@
                     <input matInput appAmount formControlName="idc" placeholder="Enter IDC amount" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>IDC GST</mat-label>
+                    <input matInput appAmount formControlName="idc_gst" placeholder="Enter IDC GST" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Agreement Cost</mat-label>
                     <input matInput appAmount formControlName="agreement_cost"
                         placeholder="Enter agreement cost" />
@@ -163,8 +163,6 @@
                     <mat-label>GST</mat-label>
                     <input matInput appAmount readonly formControlName="gst" placeholder="Enter GST" />
                 </mat-form-field>
-            </div>
-            <div class="row g-3">
                 <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
                     <mat-label>Stamp Duty</mat-label>
                     <input matInput appAmount readonly formControlName="stamp_duty"
@@ -189,11 +187,21 @@
                         placeholder="Enter Maintenance " />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Maintenance GST</mat-label>
+                    <input matInput appAmount formControlName="maintanace_gst" placeholder="Enter Maintenance GST" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Corpus</mat-label>
                     <input matInput appAmount formControlName="corpus" placeholder="Enter Corpus" />
                 </mat-form-field>
-            </div>
-            <div class="row g-3">
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Clubhouse Amount</mat-label>
+                    <input matInput appAmount formControlName="clubhouse_amount" placeholder="Enter Clubhouse Amount" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Clubhouse GST</mat-label>
+                    <input matInput appAmount formControlName="clubhouse_gst" placeholder="Enter Clubhouse GST" />
+                </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Other</mat-label>
                     <input matInput appAmount formControlName="other" placeholder="Enter other" />
@@ -236,8 +244,6 @@
                     placeholder="Select Partner Firm" [disabled]="isSourceFieldsDisabled()"
                     (inputChanged)="onPartnerSearch($event)">
                 </app-autocomplete-reusable-component>
-            </div>
-            <div class="row g-3">
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Source Info</mat-label>
                     <input matInput formControlName="source_description"

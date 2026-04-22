@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+/** Strategies grouped by department (`fetch_all_strategy`). */
+export interface StrategyDepartmentGroup {
+  department_name: string;
+  strategies: Array<{ strategy_id: number; strategy_name: string }>;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -847,7 +853,16 @@ export class CommonService {
         })
       );
   }
-
+  fetchConfigurations(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/fetch_configurations`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching configurations:', error);
+          return of([]);
+        })
+      );
+  }
   /**
    * Add project details
    * @param formData - FormData containing project details
@@ -874,6 +889,190 @@ export class CommonService {
         catchError((error) => {
           console.error('Error allotting parking:', error);
           throw error;
+        })
+      );
+  }
+  /**
+   * Add a full goal (Goal setting form submission)
+   * @param payload - The goal data payload
+   * @returns Observable of API response
+   */
+  addFullGoal(payload: any): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/add_full_goal`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding full goal:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Compute contribution % from project and annual goal (units).
+   */
+  checkContributionPercentage(payload: {
+    project_id: number;
+    my_goal: number;
+  }): Observable<{ status: boolean; percentage?: number | string }> {
+    return this.http
+      .post<{ status: boolean; percentage?: number | string }>(
+        `${this.baseUrl}/check_contribution_percentage`,
+        payload
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error checking contribution percentage:', error);
+          return of({ status: false as boolean });
+        })
+      );
+  }
+
+  /**
+   * Fetch goal dashboard summary
+   * @param userId - User ID
+   * @param roleId - Role ID
+   * @param projectId - Project ID
+   * @returns Observable of goal dashboard data
+   */
+  fetchGoalDashboard(userId: number | null, roleId: number | null = null, projectId: number | null = null): Observable<any> {
+    const payload: any = { user_id: userId };
+    if (roleId) payload.role_id = roleId;
+    if (projectId) payload.project_id = projectId;
+    
+    return this.http
+      .post<any>(`${this.baseUrl}/goal_dashboard`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching goal dashboard:', error);
+          return of(null);
+        })
+      );
+  }
+
+  /**
+   * Fetch what I need (goal details)
+   * @param userId - User ID
+   * @param roleId - Role ID
+   * @param projectId - Project ID
+   * @returns Observable of data
+   */
+  fetchWhatINeed(userId: number | null = null, roleId: number | null = null, projectId: number | null = null): Observable<any> {
+    const payload: any = { user_id: userId };
+    if (roleId) payload.role_id = roleId;
+    if (projectId) payload.project_id = projectId;
+
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_what_i_need`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching what I need:', error);
+          return of(null);
+        })
+      );
+  }
+
+  /**
+   * Fetch AGM goal
+   * @param userId - User ID
+   * @param roleId - Role ID
+   * @param projectId - Project ID
+   * @returns Observable of data
+   */
+  fetchAgmGoal(userId: number | null = null, roleId: number | null = null, projectId: number | null = null): Observable<any> {
+    const payload: any = { user_id: userId };
+    if (roleId) payload.role_id = roleId;
+    if (projectId) payload.project_id = projectId;
+
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_agm_goal`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching AGM goal:', error);
+          return of(null);
+        })
+      );
+  }
+  /**
+   * All strategies grouped by department (same payload as `fetch_all_strategy`).
+   */
+  fetchAllStrategysGrouped(): Observable<StrategyDepartmentGroup[]> {
+    return this.http
+      .get<{
+        status?: boolean;
+        data?: Array<{
+          department_name: string;
+          strategies?: Array<{ strategy_id: number; strategy_name: string }>;
+        }>;
+      }>(`${this.baseUrl}/fetch_all_strategy`)
+      .pipe(
+        map((res) => {
+          const rows = res?.data;
+          if (!Array.isArray(rows)) return [];
+          return rows
+            .map((dept) => ({
+              department_name: (dept.department_name ?? '').trim() || '—',
+              strategies: (dept.strategies ?? []).map((s) => ({
+                strategy_id: s.strategy_id,
+                strategy_name: (s.strategy_name ?? '').trim(),
+              })),
+            }))
+            .filter((d) => d.strategies.length > 0);
+        }),
+        catchError((error) => {
+          console.error('Error fetching strategies:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Flat list derived from grouped strategies (exports, Excel, etc.).
+   */
+  fetchAllStrategys(): Observable<
+    Array<{ strategy_id: number; strategy_name: string; department_name: string; label: string }>
+  > {
+    return this.fetchAllStrategysGrouped().pipe(
+      map((groups) => {
+        const out: Array<{
+          strategy_id: number;
+          strategy_name: string;
+          department_name: string;
+          label: string;
+        }> = [];
+        for (const dept of groups) {
+          const dname = dept.department_name;
+          for (const s of dept.strategies) {
+            out.push({
+              strategy_id: s.strategy_id,
+              strategy_name: s.strategy_name,
+              department_name: dname,
+              label: dname && dname !== '—' ? `${s.strategy_name} · ${dname}` : s.strategy_name,
+            });
+          }
+        }
+        return out;
+      })
+    );
+  }
+
+  /**
+   * Fetch main company goal
+   * @param roleId - Role ID
+   * @param projectId - Project ID
+   * @returns Observable of data
+   */
+  fetchCompanyGoalMain(roleId: number | null = null, projectId: number | null = null): Observable<any> {
+    const payload: any = {};
+    if (roleId) payload.role_id = roleId;
+    if (projectId) payload.project_id = projectId;
+
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_company_goal_main`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching company goal main:', error);
+          return of(null);
         })
       );
   }

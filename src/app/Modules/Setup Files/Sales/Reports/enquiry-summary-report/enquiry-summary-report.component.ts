@@ -320,7 +320,7 @@ export class EnquirySummaryReportComponent implements OnInit, OnDestroy {
         }
       },
       {
-        headerName: 'Lead Level',
+        headerName: 'Enquiry Level',
         field: 'lead_level',
         width: 150,
         filter: 'agTextColumnFilter',

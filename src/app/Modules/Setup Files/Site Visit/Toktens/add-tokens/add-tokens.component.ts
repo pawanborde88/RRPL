@@ -969,6 +969,14 @@ export class AddTokensComponent {
 
           const projectId = res.project_id;
 
+          if (res.channel_partner_id) {
+            this.onPartnerSearch('', true, res.channel_partner_id);
+          }
+          if (res.source_id && String(res.source_id) !== '3') {
+            this.fetchSourceDetails(res.source_id);
+          }
+          this.updateSourceValidators(res.source_id);
+
           // First, ensure token types are loaded
           if (projectId && res.token_type_id) {
             return this.http

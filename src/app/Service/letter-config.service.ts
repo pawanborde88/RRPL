@@ -29,6 +29,7 @@ export interface LetterConfig {
   wing_id: number;
   effective_date: string;
   project_id: number;
+  land_owner_setup_id: number | null;
   bank_id: number | null;
   html_content: string | null;
   html_file: string | null;

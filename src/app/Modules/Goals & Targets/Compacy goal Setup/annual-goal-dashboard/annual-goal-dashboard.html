@@ -1,0 +1,334 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active text-slate-500 text-[10px]">Goals & Targets</li>
+        <li class="breadcrumb-item active text-indigo-600 font-bold text-[10px]">Annual Goal Dashboard</li>
+    </app-breadcrumb>
+
+    <div class="dashboard-container p-4 space-y-4 custom-scroll">
+        <div [formGroup]="roleFilterForm"
+            class="glass-card p-2 px-4 rounded-2xl flex items-center gap-3 border-none shadow-sm h-16">
+            <div class="w-25">
+                <app-autocomplete-reusable-component formControlName="project_id" [options]="projects() || []"
+                    displayKey="property_name" [isMultiSelect]="true" idKey="project_id" placeholder="Select project">
+                </app-autocomplete-reusable-component>
+            </div>
+            <div class="w-25">
+                <mat-form-field appearance="outline" class="w-full h-full text-[10px] scale-90 origin-left">
+                    <mat-select formControlName="role_id" placeholder="Select Role" class="text-[11px]">
+                        <mat-option [value]="14" class="!text-[11px]">Sales Manager</mat-option>
+                        <mat-option [value]="7" class="!text-[11px]">Sales Executive</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <button mat-flat-button (click)="onApplyFilter()" color="primary">
+                Apply Filter
+            </button>
+
+            <div class="flex items-center gap-2 ml-auto border-l pl-3 border-slate-100">
+                <mat-slide-toggle [checked]="showUnitCount()" (change)="showUnitCount.set($event.checked)"
+                    color="primary" class="scale-75 origin-right">
+                    <span class="text-[10px] font-bold text-slate-600 tracking-tight">Show unit count</span>
+                </mat-slide-toggle>
+            </div>
+        </div>
+
+
+        <!-- Metrics Grid: Compact Glass Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- Projects Card -->
+            <div class="glass-card p-3 rounded-2xl animate-stagger-1">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-600">
+                        <mat-icon class="text-lg h-5 w-5">apartment</mat-icon>
+                    </div>
+                    <div class="space-y-0">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Projects</p>
+                        <h5 class="text-xl font-black text-slate-900 leading-tight">
+                            {{ dashboardSummary()?.project_count || 0 }}
+                        </h5>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center gap-1.5">
+                    <span class="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Live Portfolio
+                        Status</span>
+                </div>
+            </div>
+
+            <!-- Goal Target Card -->
+            <div class="glass-card p-3 rounded-2xl animate-stagger-2">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-500/10 rounded-xl text-emerald-600">
+                        <mat-icon class="text-lg h-5 w-5">track_changes</mat-icon>
+                    </div>
+                    <div class="space-y-0">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Annual Goal</p>
+                        <h5 class="text-xl font-black text-slate-900 leading-tight">
+                            {{ dashboardSummary()?.total_goal || 0 }}
+                        </h5>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+
+            @if (showUnitCount()) {
+            <!-- Unit Count Card -->
+            <div class="glass-card p-3 rounded-2xl animate-stagger-3">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-violet-500/10 rounded-xl text-violet-600">
+                        <mat-icon class="text-lg h-5 w-5">inventory_2</mat-icon>
+                    </div>
+                    <div class="space-y-0">
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Count</p>
+                        <h5 class="text-xl font-black text-slate-900 leading-tight">
+                            {{ dashboardSummary()?.unit_count ?? 0 }}
+                        </h5>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center gap-1.5">
+                    <span class="w-1 h-1 bg-violet-500 rounded-full"></span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Total units
+                        (portfolio)</span>
+                </div>
+            </div>
+            }
+
+        </div>
+
+
+        <!-- Charts Layout: Compact Grid 12 -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- Monthly Trends -->
+            <div class="glass-card p-4 rounded-3xl overflow-hidden group"
+                [ngClass]="selectedRoleId() === 7 ? 'lg:col-span-8' : 'lg:col-span-7'">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-100/50 pb-2">
+                    <div>
+                        <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-wide">Monthly Target
+                            Distribution</h6>
+                        <p class="text-[9px] text-slate-400 font-medium tracking-tight">Aggregate performance trends</p>
+                    </div>
+
+                </div>
+                <div class="relative h-[220px]">
+                    <div #chartHost data-chart-id="monthlyBookingChart" class="w-full h-full"></div>
+                </div>
+            </div>
+
+            <!-- Inventory Breakdown -->
+            <div class="glass-card p-4 rounded-3xl overflow-hidden"
+                [ngClass]="selectedRoleId() === 7 ? 'lg:col-span-4' : 'lg:col-span-5'">
+                <div class="mb-4 border-b border-slate-100/50 pb-2 text-center">
+                    <h6 class="text-[11px] font-black text-slate-900 uppercase tracking-wide">Inventory Type Breakdown
+                    </h6>
+                    <p class="text-[9px] text-slate-400 font-medium tracking-tight">Inventory Type Split</p>
+                </div>
+                <div class="relative h-[220px]">
+                    <div #chartHost data-chart-id="inventoryBreakdownChart" class="w-full h-full"></div>
+                </div>
+            </div>
+        </div>
+
+        @if (selectedRoleId() !== 7) {
+        <!-- Team & Hierarchy Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Team Requests (Wants) -->
+            <div class="glass-card p-4 rounded-3xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h6
+                        class="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-indigo-600 pl-2">
+                        What Teams Are Asking For</h6>
+                    <mat-icon class="text-slate-400 text-sm">auto_awesome</mat-icon>
+                </div>
+                <div class="space-y-2 max-h-[250px] overflow-y-auto custom-scroll pr-1">
+                    @for (item of whatINeedData(); track item.category) {
+                    <div
+                        class="p-2.5 rounded-xl bg-slate-50/50 border border-slate-100 group hover:border-indigo-200 transition-all">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider">{{ item.category
+                                }}</span>
+                            <span class="text-[9px] font-bold text-indigo-600 px-1.5 py-0.5 bg-indigo-50 rounded-md">
+                                {{ item.description.length }} Items
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            @for (desc of item.description | slice:0:3; track desc) {
+                            <span
+                                class="text-[8px] font-bold px-1.5 py-0.5 rounded-lg border bg-white shadow-sm border-slate-100 text-slate-600">
+                                {{ desc }}
+                            </span>
+                            }
+                        </div>
+                    </div>
+                    } @empty {
+                    <div
+                        class="text-center py-6 border-2 border-dashed border-slate-100 rounded-2xl italic text-[10px] text-slate-400">
+                        No What Teams Are Asking For identified.
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Reporting Hierarchy (AGMs) -->
+            <div class="lg:col-span-2 glass-card p-4 rounded-3xl">
+                <h6
+                    class="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-emerald-500 pl-2 mb-4">
+                    Team PerformanceReporting To · Consolidated View</h6>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[250px] overflow-y-auto custom-scroll pr-2">
+                    @for (agm of agmGoalsData(); track agm.agm_id) {
+                    <div
+                        class="p-3 bg-white/50 rounded-2xl border border-slate-100 hover:border-emerald-200 hover:shadow-lg transition-all group overflow-hidden relative">
+                        <!-- Background Glow on Hover -->
+                        <div
+                            class="absolute -right-4 -top-4 w-12 h-12 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-colors">
+                        </div>
+
+                        <div class="flex justify-between items-start mb-2 relative">
+                            <div class="max-w-[140px]">
+                                <h6
+                                    class="text-[11px] font-black text-slate-800 uppercase truncate group-hover:text-emerald-700 transition-colors">
+                                    {{ agm.agm_name }}</h6>
+                                <p class="text-[9px] font-bold text-slate-400 tracking-tighter uppercase mt-0.5">Asset
+                                    Lead</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="text-right">
+                                    <p class="text-xs font-black text-slate-900">{{ agm.total_unit }}u</p>
+                                    <p class="text-[8px] font-bold text-emerald-600 uppercase">Target</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 max-h-[125px] overflow-y-auto custom-scroll pr-1">
+                            @for (sm of agm.sales_manager; track sm.manager_id) {
+                            <div
+                                class="flex items-center justify-between text-[10px] px-2 py-1 rounded-lg bg-slate-50/50 group/item hover:bg-white transition-colors">
+                                <span class="font-semibold text-slate-500 truncate max-w-[100px]">{{ sm.name }}</span>
+                                <span class="font-black text-slate-900 bg-white px-1 rounded shadow-sm">{{ sm.unit
+                                    }}</span>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    } @empty {
+                    <div class="col-span-full py-10 text-center border-2 border-dashed border-slate-100 rounded-3xl">
+                        <mat-icon class="text-slate-200 text-3xl h-10 w-10 mb-2">groups_off</mat-icon>
+                        <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">No Active Team
+                            Hierarchies Found</p>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Roster Table: Premium Clean Look -->
+        <div class="glass-card rounded-3xl overflow-hidden shadow-2xl transition-all border-none">
+            <div class="px-5 py-3 bg-white/80 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <h6
+                        class="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-emerald-500 pl-2">
+                        Full Roster · All Submissions
+                    </h6>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button mat-flat-button (click)="exportToExcel()"
+                        class="!rounded-xl !bg-emerald-600 !text-white !px-4 !py-1.5 !h-auto group transition-all hover:!bg-emerald-700 hover:shadow-lg hover:shadow-emerald-200">
+                        <div class="flex items-center gap-2">
+                            <mat-icon
+                                class="!text-sm !h-4 !w-4 transition-transform group-hover:scale-110">download</mat-icon>
+                            <span class="text-[10px] font-black uppercase tracking-wider">Export</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scroll max-h-[400px]">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center w-12">Sr. No</th>
+                            <th>Name</th>
+                            <th>Project / Territory</th>
+                            <th>Reporting To</th>
+                            <th class="text-center">FY Units</th>
+                            @if (showUnitCount()) {
+                            <th class="text-center">Unit count</th>
+                            }
+                            <th class="text-center">Q1</th>
+                            <th class="text-center">Q2</th>
+                            <th class="text-center">Q3</th>
+                            <th class="text-center">Q4</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @for (goal of companyGoalMainData(); track goal.id; let i = $index) {
+                        <tr class="group">
+                            <td class="text-center font-black text-slate-400">{{ i + 1 | number: '2.0-0' }}</td>
+                            <td>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-[11px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors tracking-tight">{{
+                                        goal.user_name }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span
+                                    class="px-2 py-0.5 bg-slate-100 rounded-md text-[9px] font-black text-slate-600 uppercase">{{
+                                    goal.project_name }}</span>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
+                                    <span class="text-[10px] font-bold text-slate-600">{{ goal.manager_name }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span
+                                    class="inline-flex px-2 py-1 rounded-lg bg-slate-900 text-white text-[10px] font-black shadow-lg shadow-slate-900/10">
+                                    {{ goal.total_unit }}
+                                </span>
+                            </td>
+                            @if (showUnitCount()) {
+                            <td class="text-center">
+                                <span
+                                    class="inline-flex px-2 py-1 rounded-lg bg-violet-600 text-white text-[10px] font-black shadow-md shadow-violet-600/10">
+                                    {{ goal.unit_count ?? goal.total_unit }}
+                                </span>
+                            </td>
+                            }
+                            @for (q of goal.quarterwise_unit; track $index) {
+                            <td class="text-center">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-[10px] font-black"
+                                        [ngClass]="q.total_unit === '0' ? 'text-slate-200' : 'text-slate-700'">{{
+                                        q.total_unit }}</span>
+                                    @if(q.total_unit !== '0') {
+                                    <div class="w-4 h-0.5 bg-indigo-500/20 rounded-full mt-0.5"></div>
+                                    }
+                                </div>
+                            </td>
+                            }
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td [attr.colspan]="showUnitCount() ? 10 : 9" class="py-20 text-center animate-pulse">
+                                <mat-icon class="text-slate-200 text-4xl h-10 w-10 mb-2">inbox</mat-icon>
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">No Active
+                                    Records Found</p>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+        }
+    </div>
+</app-template>

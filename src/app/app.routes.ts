@@ -992,6 +992,14 @@ export const routes: Routes = [
         title: pageNames.LEDGET_REPORT,
     },
     {
+        path: 'after-sales/recovery-report-account',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Post Sales/Post Sales Report/recovery-report-account/recovery-report-account')
+                .then(m => m.RecoveryReportAccount),
+        canActivate: [AuthGuard],
+        title: pageNames.RECOVERY_REPORT_ACCOUNT,
+    },
+    {
         path: 'after-sales/deleted-receipts-log',
         loadComponent: () =>
             import('./Modules/Setup Files/Post Sales/Post Sales Report/deleted-receipts-log/deleted-receipts-log').then(m => m.DeletedReceiptsLog),
@@ -1525,4 +1533,29 @@ export const routes: Routes = [
         title: pageNames.ALL_HASHTAG_PLACEHOLDERS,
     },
 
+    // Goals & Targets
+    {
+        path: 'goals-targets/goals-form',
+        loadComponent: () => import('./Modules/Goals & Targets/goals-form/goals-form').then(m => m.GoalsForm),
+        canActivate: [AuthGuard],
+        title: pageNames.GOALS_FORM,
+    },
+    {
+        path: 'goals-targets/all-anngual-goals',
+        loadComponent: () => import('./Modules/Goals & Targets/Compacy goal Setup/all-anngual-goals/all-anngual-goals').then(m => m.AllAnngualGoals),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_ANNGUAL_GOALS,
+    },
+    {
+        path: 'goals-targets/annual-goal-dashboard',
+        loadComponent: () => import('./Modules/Goals & Targets/Compacy goal Setup/annual-goal-dashboard/annual-goal-dashboard').then(m => m.AnnualGoalDashboard),
+        canActivate: [AuthGuard],
+        title: pageNames.ANNUAL_GOAL_DASHBOARD,
+    },
+    {
+        path: 'goals-targets/all-strategys',
+        loadComponent: () => import('./Modules/Goals & Targets/all-strategys/all-strategys').then(m => m.AllStrategys),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_STRATEGYS,
+    },
 ];

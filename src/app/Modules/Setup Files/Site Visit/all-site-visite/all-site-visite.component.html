@@ -10,7 +10,7 @@
   <mat-tab-group>
     <!-- List Tab -->
     <mat-tab label="CP Enquiry List">
-      <mat-accordion class="w-100 mb-2">
+      <mat-accordion>
         <mat-expansion-panel hideToggle [expanded]="true">
           <mat-expansion-panel-header>
             <mat-panel-title>Advanced Filters</mat-panel-title>
@@ -18,7 +18,7 @@
 
           <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
             <!-- Row for Dropdowns and Date Filter -->
-            <div class="row">
+            <div class="row ">
               <div class="col-md-3">
                 <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
                   displayKey="property_name" idKey="project_id" [isMultiSelect]="true" placeholder="Select Project">
@@ -27,11 +27,13 @@
 
 
 
-              <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-3"
-                formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
-                placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
-                <!-- event handler -->
-              </app-autocomplete-reusable-component>
+              <div class="col-md-3">
+                <app-autocomplete-reusable-component [options]="allChannelPartnerList()"
+                  formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+                  placeholder="Select Partner Firm" (inputChanged)="onPartnerSearch($event)">
+                  <!-- event handler -->
+                </app-autocomplete-reusable-component>
+              </div>
 
 
 
@@ -50,9 +52,10 @@
                 </mat-form-field>
               </div>
 
-              <div class="col-md-2">
+              <div class="col-md-2 ">
+
                 <button mat-raised-button color="primary" (click)="fetchAllEnquiry()"
-                  class="d-flex align-items-center w-100" [disabled]="enquiryFilterForm.get('project_id')?.invalid">
+                  [disabled]="enquiryFilterForm.get('project_id')?.invalid">
                   Apply Filter
                 </button>
               </div>

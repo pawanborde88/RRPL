@@ -183,5 +183,22 @@ export class UserService {
         })
       );
   }
+
+  /**
+   * Send registration emails/invitations to users for a specific event
+   */
+  sendUsersRegEmail(eventId: number, userIds: number[]): Observable<any> {
+    return this.http
+      .post(`${this.baseUrl}/send_users_reg_email`, {
+        event_id: eventId,
+        user_id: userIds,
+      })
+      .pipe(
+        retry(this.RETRY_ATTEMPTS),
+        catchError(() => {
+          throw new Error('Unable to send invitations');
+        })
+      );
+  }
 }
 

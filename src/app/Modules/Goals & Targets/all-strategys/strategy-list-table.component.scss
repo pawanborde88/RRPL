@@ -1,0 +1,14 @@
+.nested-strategy-table {
+  background: transparent;
+
+  .mat-mdc-header-row {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  .actions-col {
+    width: 104px;
+    text-align: right;
+    padding-right: 4px;
+    white-space: nowrap;
+  }
+}

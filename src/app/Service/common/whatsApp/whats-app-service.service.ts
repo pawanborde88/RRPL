@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
@@ -32,6 +32,17 @@ export interface ChatMessage {
   created_at?: string;
   status?: string;
   direction?: 'incoming' | 'outgoing';
+  media_id?: string;
+  media_url?: string;
+  image_url?: string;
+  file_name?: string;
+  mime_type?: string;
+  location_data?: any;
+  buttons?: any[];
+  interactive_data?: any;
+  parent_question?: any;
+  is_question?: boolean;
+  question_text?: string;
 }
 
 export interface FetchChatResponse {
@@ -112,16 +123,11 @@ export class WhatsAppServiceService {
   }
 
   /**
-   * Send a custom message
-   * @param requestData Custom message data
+   * Send a custom message or media message
+   * @param requestData Custom message data or FormData for media
    * @returns Observable of send response
    */
-  sendMessage(requestData: {
-    to: string;
-    message: string;
-    project_lead_id: number;
-    created_by: number;
-  }): Observable<SendMessageResponse> {
+  sendMessage(requestData: any): Observable<SendMessageResponse> {
     return this.http.post<SendMessageResponse>(
       `${this.baseUrl}/send_messages`,
       requestData

@@ -1,6 +1,12 @@
 <div class="main-container">
+    <!-- Mobile Backdrop -->
+    <div class="sidebar-backdrop" 
+         [class.visible]="isSidebarExpanded()" 
+         (click)="toggleSidebar()">
+    </div>
+
     <!-- Full-height Sidebar on the left -->
-    <div class="sidebar-wrapper">
+    <div class="sidebar-wrapper" [ngClass]="sidebarClass()">
         <app-sidebar></app-sidebar>
     </div>
 

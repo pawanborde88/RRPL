@@ -7,9 +7,7 @@
         </mat-card-header>
         <mat-card-content>
             <div class="row g-3">
-                <app-autocomplete-reusable-component class="col-md-2" [options]="allprojectsPeoples()"
-                    formControlName="closed_by" displayKey="user_name" idKey="user_id" placeholder="Closed By">
-                </app-autocomplete-reusable-component>
+
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Select Wing</mat-label>
                     <mat-select formControlName="wing_id" [disabled]="!allWingslist().length">
@@ -118,6 +116,10 @@
                     <mat-label>IDC</mat-label>
                     <input matInput appAmount formControlName="idc" placeholder="Enter IDC amount" />
                 </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>IDC GST</mat-label>
+                    <input matInput appAmount formControlName="idc_gst" placeholder="Enter IDC GST" />
+                </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2"
                     [ngClass]="{ 'full-bg-readonly': (+((addBookingForm.get('based_on_id')?.value) ?? 0)) === 1 }">
                     <mat-label>Agreement Cost</mat-label>
@@ -153,8 +155,20 @@
                     <input matInput appAmount formControlName="maintenance" placeholder="Enter Maintenance " />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Maintenance GST</mat-label>
+                    <input matInput appAmount formControlName="maintanace_gst" placeholder="Enter Maintenance GST" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Corpus</mat-label>
                     <input matInput appAmount formControlName="corpus" placeholder="Enter Corpus" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Clubhouse Amount</mat-label>
+                    <input matInput appAmount formControlName="clubhouse_amount" placeholder="Enter Clubhouse Amount" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Clubhouse GST</mat-label>
+                    <input matInput appAmount formControlName="clubhouse_gst" placeholder="Enter Clubhouse GST" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Other</mat-label>
@@ -212,7 +226,9 @@
                     <mat-label>Source Info</mat-label>
                     <input matInput formControlName="source_description" placeholder="Enter Source description" />
                 </mat-form-field>
-
+                <app-autocomplete-reusable-component class="col-md-2" [options]="allprojectsPeoples()"
+                    formControlName="closed_by" displayKey="user_name" idKey="user_id" placeholder="Closed By">
+                </app-autocomplete-reusable-component>
 
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Remark</mat-label>

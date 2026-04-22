@@ -96,10 +96,12 @@ export class FetchRolesComponent {
     },
     {
       key: 'sr_no',
-      label: '',
+      label: 'Sr.No',
       type: 'index', // Add this to identify it as an index column
     },
+
     { key: 'role_name', label: 'Role' },
+    { key: 'role_id', label: 'Role ID' },
     { key: 'description', label: 'Description' },
 
     {

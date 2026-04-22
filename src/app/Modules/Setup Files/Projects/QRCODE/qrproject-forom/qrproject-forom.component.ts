@@ -351,10 +351,7 @@ export class QRProjectForomComponent {
   // Signal to track source_id for reactive computed signals
   private readonly sourceIdSignal = signal<number | null>(null);
 
-  readonly isChannelPartnerSource = computed(() => {
-    const sourceId = this.sourceIdSignal();
-    return sourceId !== null && sourceId === 3;
-  });
+
 
   readonly isSourceDetailRequired = computed(() => {
     const sourceId = this.sourceIdSignal();
@@ -607,21 +604,28 @@ export class QRProjectForomComponent {
       sourceDetailControl?.reset();
       channelPartnerControl?.reset();
       sourceExecutiveControl?.reset();
+      this.addEnquiryform.get('rera_no')?.reset();
     }
 
     if (sourceId === 3) {
       // Channel Partner source (source_id = 3)
+      this.sourceDetailedList.set([]);
       // Load initial channel partner data
-      this.onPartnerSearch('', true);
+      // this.onPartnerSearch('', true);
     } else {
       // All other sources (source_id ≠ 3)
       // Clear channel partner list for non-channel partner sources
       this.allChannelPartnerList.set([]);
       this.allCPExeuctiveList.set([]);
+
+      if (sourceId) {
+        this.fetchAllSourceDetails(sourceId);
+      } else {
+        this.sourceDetailedList.set([]);
+      }
     }
 
     this.applySourceDependentValidators(sourceId);
-    this.fetchAllSourceDetails(sourceId);
   }
 
   /**
@@ -767,6 +771,11 @@ export class QRProjectForomComponent {
       },
       { emitEvent: true }
     );
+
+    if (project.source_id === 3 && project.channel_partner_id) {
+      this.addEnquiryform.get('source_id')?.disable({ emitEvent: false });
+      this.addEnquiryform.get('channel_partner_id')?.disable({ emitEvent: false });
+    }
   }
 
   private fetchAllSubregions(): void {
@@ -988,7 +997,8 @@ export class QRProjectForomComponent {
         next: (res: ChannelPartner[]) => {
           this.allChannelPartnerList.set(res || []);
           // On initial load, if we have a partner, patch their RERA number
-          if (loadInitialData && res && res.length > 0) {
+          const sourceId = this.addEnquiryform.get('source_id')?.value;
+          if (loadInitialData && res && res.length > 0 && Number(sourceId) === 3) {
             this.addEnquiryform.patchValue({
               rera_no: res[0].rera || ' '
             }, { emitEvent: false });
@@ -1001,8 +1011,9 @@ export class QRProjectForomComponent {
     const selectedPartner = this.allChannelPartnerList().find(
       (p) => p.channel_partner_id === selectedId
     );
+    const sourceId = this.addEnquiryform.get('source_id')?.value;
 
-    if (selectedPartner) {
+    if (selectedPartner && Number(sourceId) === 3) {
       this.addEnquiryform.patchValue({
         rera_no: selectedPartner.rera || ' ',
       });
@@ -1272,18 +1283,25 @@ export class QRProjectForomComponent {
 
     this.addEnquiryform.patchValue(formData, { emitEvent: false });
 
-    if (responseData['channel_partner_id']) {
-      this.onPartnerSearch(
-        '',
-        true,
-        responseData['channel_partner_id'] as number
-      );
+    const sourceId = responseData['source_id'] ? Number(responseData['source_id']) : null;
+
+    if (sourceId === 3) {
+      this.sourceDetailedList.set([]);
+      if (responseData['channel_partner_id']) {
+        this.onPartnerSearch(
+          '',
+          true,
+          responseData['channel_partner_id'] as number
+        );
+      }
+    } else if (sourceId) {
+      this.allChannelPartnerList.set([]);
+      this.allCPExeuctiveList.set([]);
+      this.fetchAllSourceDetails(sourceId);
     }
 
-    const sourceId = responseData['source_id'];
     if (sourceId) {
-      this.applySourceDependentValidators(Number(sourceId));
-      this.fetchAllSourceDetails(Number(sourceId));
+      this.applySourceDependentValidators(sourceId);
     }
     this.checkAndShowSourceFields();
     this.isPatching.set(false);

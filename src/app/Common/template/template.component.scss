@@ -164,29 +164,34 @@
 
 @media (max-width: 575.98px) {
   .sidebar-wrapper {
-    z-index: 1050;
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1100; // Increased to be above navbar
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &.sidebar-collapsed {
+      transform: translateX(-100%);
+    }
+    
+    &.sidebar-expanded {
+      transform: translateX(0);
+    }
   }
 
   .right-side-container {
-    &.sidebar-expanded {
-      margin-left: 0;
-    }
-
-    &.sidebar-collapsed {
-      margin-left: 72px;
+    &.sidebar-expanded, &.sidebar-collapsed {
+      margin-left: 0 !important; // Content always full width on small mobile
     }
   }
 
   .navbar-fixed {
     position: sticky;
     top: 0;
+    z-index: 1000;
   }
 
   .breadcrumb-fixed {
     position: sticky;
     top: 56px;
-    /* Maintain navbar height offset on small screens */
   }
 
   .footer-fixed {
@@ -199,7 +204,26 @@
   }
 
   .content-area {
-    margin: 0 0.5rem 0.5rem;
+    margin: 0rem;
     min-height: calc(100vh - 140px);
+    width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Backdrop for mobile sidebar */
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }

@@ -449,3 +449,19 @@
     margin-bottom: 0.125rem;
   }
 }
+
+// Header filters: ensure consistent baseline/height across custom autocomplete + material fields
+:host ::ng-deep .dashboard-filters {
+  align-items: center;
+
+  // Global styles add spacing for form fields; keep this header compact
+  .mat-mdc-form-field {
+    margin-bottom: 0 !important;
+  }
+
+  // Custom component should behave like a block field in flex layout
+  app-autocomplete-reusable-component {
+    display: block;
+    margin-bottom: 0 !important;
+  }
+}

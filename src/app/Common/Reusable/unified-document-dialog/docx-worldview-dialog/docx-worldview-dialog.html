@@ -1,37 +1,36 @@
-<h2 mat-dialog-title>
-    Agreement Letter Details
-    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+<h2 mat-dialog-title class="dialog-title">
+    <span class="dialog-title-text">Agreement letter</span>
+    <span class="dialog-title-sub">Preview via Microsoft 365 for the web · read-only</span>
+    <button mat-icon-button mat-dialog-close class="dialog-close" type="button" aria-label="Close">
         <mat-icon>close</mat-icon>
     </button>
 </h2>
 
 <div class="dialog-container">
     <mat-dialog-content>
+
         @if (loading()) {
-        <div class="loading-container">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p>Fetching letter details...</p>
-        </div>
-        } @else if (letterData()?.file_url) {
-        <div class="viewer-container">
-            <ngx-doc-viewer [url]="letterData().file_url" viewer="office"
-                style="width: 100%; height: 100%; border: none;">
-            </ngx-doc-viewer>
-        </div>
-        } @else {
-        <div class="error-container">
-            <mat-icon color="warn" class="large-icon">error_outline</mat-icon>
-            <p>Failed to load letter details or file URL missing.</p>
-            <button mat-raised-button color="primary" (click)="fetchLetterData()">Retry</button>
-        </div>
+        <div class="loading">Loading document...</div>
         }
+
+        @else if (hasError()) {
+        <div class="error">Failed to load document</div>
+        }
+
+        @else if (safeOfficeUrl(); as officeUrl) {
+        <iframe [src]="officeUrl" width="100%" height="600px" frameborder="0" style="border: none;">
+        </iframe>
+        }
+
     </mat-dialog-content>
 </div>
 
-<mat-dialog-actions align="end">
-    @if (letterData()?.file_url) {
-    <a [href]="letterData().file_url" target="_blank" mat-raised-button color="primary">
-        <mat-icon>file_download</mat-icon> Download Document
+
+<mat-dialog-actions align="end" class="dialog-actions">
+    @if (previewUrl(); as href) {
+    <a [href]="href" target="_blank" rel="noopener noreferrer" mat-raised-button color="primary">
+        <mat-icon>file_download</mat-icon>
+        Download document
     </a>
     }
 </mat-dialog-actions>

@@ -63,9 +63,9 @@
                 </app-configurable-ag-grid-data>
             </div>
         </mat-tab>
-        <mat-tab label="Not Reg. Customers" *ngIf="selectedEventTypeId() === 1">
+        <mat-tab label="Not Reg. Customers" *ngIf="selectedEventTypeId() === 1 ">
             <div class="tab-content mt-4">
-                <app-configurable-ag-grid-data #notRegUserGrid [columns]="notRegColumnDefinitions"
+                <app-configurable-ag-grid-data #notRegUserGrid [columns]="notRegColumnDefinitions()"
                     [apiEndpoint]="'fetch_not_reg_users'" [actions]="bookingActions" [idProperty]="'token_id'"
                     (actionClick)="onBookingAction($event.action, $event.row)" [apiPayload]="notRegAgGridPayload()">
                 </app-configurable-ag-grid-data>

@@ -12,6 +12,9 @@ import { ClickableCellRendererComponent } from '../cell-renderers/clickable-cell
  * Provides memoized column definitions, formatters, and renderers
  * Optimized for Angular 17+ with proper dependency injection
  */
+/** Matches reusable-table `truncate` pipe limit (see reusable-table.component.html). */
+const TRUNCATE_DISPLAY_LENGTH = 35;
+
 @Injectable({ providedIn: 'root' })
 export class AgGridColumnService {
   private datePipe: DatePipe = new DatePipe('en-US');
@@ -160,6 +163,8 @@ export class AgGridColumnService {
       formatter = (params: { value: unknown }) => this.formatMediumDateValue(params.value);
     } else if (col.type === 'date' || col.type === 'short_date' || col.isDate) {
       formatter = (params: { value: unknown }) => this.formatDateValue(params.value);
+    } else if (col.type === 'truncate') {
+      formatter = (params: { value: unknown }) => this.formatTruncateDisplay(params.value);
     }
 
     if (formatter) {
@@ -193,6 +198,23 @@ export class AgGridColumnService {
     } catch {
       return String(value);
     }
+  }
+
+  private formatTruncateDisplay(value: unknown): string {
+    if (value == null || value === '') {
+      return '';
+    }
+    const s = typeof value === 'object' ? JSON.stringify(value) : String(value);
+    return s.length > TRUNCATE_DISPLAY_LENGTH
+      ? s.substring(0, TRUNCATE_DISPLAY_LENGTH) + '...'
+      : s;
+  }
+
+  private truncateTooltipFullText(value: unknown): string {
+    if (value == null || value === '') {
+      return '';
+    }
+    return typeof value === 'object' ? JSON.stringify(value) : String(value);
   }
 
   private formatMediumDateValue(value: unknown): string {
@@ -360,6 +382,43 @@ export class AgGridColumnService {
     // Lock position for action columns
     if (col.type === 'actions') {
       colDef.lockPosition = true;
+    }
+
+    // Explicit `type: 'index'` columns (e.g. S.No after Actions): row number from grid, not row data
+    if (col.type === 'index') {
+      colDef.field = undefined;
+      colDef.colId = col.key || 'serialNo';
+      colDef.valueGetter = (params: any) =>
+        params.node?.rowPinned || params.data?.['__isPlaceholder'] ? '' : (params.node?.rowIndex ?? 0) + 1;
+      colDef.width = 70;
+      colDef.minWidth = 70;
+      colDef.maxWidth = 70;
+      colDef.pinned = 'left';
+      colDef.resizable = false;
+      colDef.suppressHeaderMenuButton = true;
+      colDef.cellStyle = { justifyContent: 'center', display: 'flex' };
+      colDef.headerClass = `${colDef.headerClass || ''} ag-center-aligned-header`.trim();
+    }
+
+    // Truncate: short cell text + full value via AG Grid tooltip (TooltipModule registered on the grid)
+    if (col.type === 'truncate') {
+      colDef.tooltipValueGetter = (params: ITooltipParams<T, unknown>) => {
+        const full = this.truncateTooltipFullText(params.value);
+        return full.length > TRUNCATE_DISPLAY_LENGTH ? full : '';
+      };
+      const baseCellStyleForTruncate = colDef.cellStyle;
+      colDef.cellStyle = (params) => {
+        const base =
+          typeof baseCellStyleForTruncate === 'function'
+            ? (baseCellStyleForTruncate as (p: unknown) => Record<string, string>)(params)
+            : baseCellStyleForTruncate || {};
+        return {
+          ...base,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        };
+      };
     }
 
     // Apply alignment classes

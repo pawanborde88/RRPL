@@ -459,7 +459,7 @@
                                         *ngIf="addEnquiryform.get('source_detail_id')?.hasError('required')">Required</mat-error>
                                 </mat-form-field>
 
-                                <ng-container *ngIf="isChannelPartnerSource()">
+                                <ng-container *ngIf="addEnquiryform.controls['source_id'].value == '3'">
                                     <div class="w-full">
                                         <app-autocomplete-reusable-component [options]="allChannelPartnerList()"
                                             formControlName="channel_partner_id" displayKey="full_name"
@@ -479,8 +479,7 @@
                                     <div class="w-full">
                                         <app-autocomplete-reusable-component [options]="allCPExeuctiveList()"
                                             class="w-full" formControlName="source_executive_id" displayKey="full_name"
-                                            idKey="user_id" placeholder="Select CP Executive"
-                                            [required]="isChannelPartnerSource()">
+                                            idKey="user_id" placeholder="Select CP Executive">
                                         </app-autocomplete-reusable-component>
                                         <div class="text-red-500 text-xs mt-1.5 font-medium ml-4"
                                             *ngIf="addEnquiryform.get('source_executive_id')?.hasError('required') && addEnquiryform.get('source_executive_id')?.touched">

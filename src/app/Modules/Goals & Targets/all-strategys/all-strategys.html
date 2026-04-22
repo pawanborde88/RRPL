@@ -1,0 +1,78 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">Goals & Targets</li>
+        <li class="breadcrumb-item active">All Strategies</li>
+    </app-breadcrumb>
+
+    <div class="strategies-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+        <span class="text-muted small">Click a department row or the arrow to expand and view strategies in the table
+            below.</span>
+        <div class="d-flex flex-wrap gap-2">
+            <button mat-flat-button color="primary" type="button" (click)="openAddStrategy()">
+                <mat-icon class="me-1">add</mat-icon>
+                Add strategy
+            </button>
+            <button mat-stroked-button color="primary" type="button" (click)="loadStrategies()" [disabled]="loading()">
+                <mat-icon class="me-1">refresh</mat-icon>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="d-flex justify-content-center py-5">
+        <mat-spinner diameter="40"></mat-spinner>
+    </div>
+    } @else if (deptDataSource.data.length === 0) {
+    <mat-card class="p-4 text-center text-muted">
+        No strategy data found.
+    </mat-card>
+    } @else {
+    <mat-card class="strategies-table-card overflow-hidden p-0">
+        <table mat-table [dataSource]="deptDataSource" multiTemplateDataRows class="w-100 dept-table">
+
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef class="expand-col"></th>
+                <td mat-cell *matCellDef="let dept" class="expand-col">
+                    <button mat-icon-button type="button" aria-label="Expand department"
+                        (click)="toggleDept(dept, $event)">
+                        <mat-icon>{{ isExpanded(dept) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="department_name">
+                <th mat-header-cell *matHeaderCellDef>Department</th>
+                <td mat-cell *matCellDef="let dept">{{ dept.department_name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="strategy_count">
+                <th mat-header-cell *matHeaderCellDef class="text-end">Strategies</th>
+                <td mat-cell *matCellDef="let dept" class="text-end">{{ strategyCount(dept) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let dept" [attr.colspan]="displayedColumns.length" class="detail-cell">
+                    @if (isExpanded(dept)) {
+                    <div class="nested-table-wrap">
+                        @if (dept.strategies?.length) {
+                        <app-strategy-list-table [strategies]="dept.strategies"
+                            (editStrategy)="openEditStrategy($event)"
+                            (deleteStrategy)="confirmDeleteStrategy($event)" />
+                        } @else {
+                        <p class="empty-strategies mb-0">No strategies for this department.</p>
+                        }
+                    </div>
+                    }
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let dept; columns: displayedColumns" class="dept-row"
+                [class.dept-row-expanded]="isExpanded(dept)" (click)="toggleDept(dept)"></tr>
+            <tr mat-row *matRowDef="let dept; columns: ['expandedDetail']" class="detail-row"
+                [class.detail-row-hidden]="!isExpanded(dept)"></tr>
+        </table>
+    </mat-card>
+    }
+</app-template>

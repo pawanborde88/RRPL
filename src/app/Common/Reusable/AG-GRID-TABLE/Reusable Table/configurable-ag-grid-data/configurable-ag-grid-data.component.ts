@@ -47,6 +47,7 @@ import {
   RowApiModule,
   CellStyleModule,
   ClientSideRowModelModule,
+  TooltipModule,
   ValidationModule
 } from 'ag-grid-community';
 
@@ -54,6 +55,7 @@ ModuleRegistry.registerModules([
   RowApiModule,
   CellStyleModule,
   ClientSideRowModelModule,
+  TooltipModule,
   ValidationModule
 ]);
 
@@ -378,7 +380,25 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
     suppressHeaderMenuButton: true,
     wrapText: this.wrapText(),
     autoHeight: this.autoHeight(),
+    comparator: (valueA: any, valueB: any, nodeA: any, nodeB: any, isDescending: boolean) => {
+      const isAPlaceholder = nodeA.data?.['__isPlaceholder'];
+      const isBPlaceholder = nodeB.data?.['__isPlaceholder'];
 
+      if (isAPlaceholder && isBPlaceholder) return 0;
+      if (isAPlaceholder) return isDescending ? -1 : 1;
+      if (isBPlaceholder) return isDescending ? 1 : -1;
+
+      // Default sorting for non-placeholder data
+      if (valueA == null && valueB == null) return 0;
+      if (valueA == null) return -1;
+      if (valueB == null) return 1;
+
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        const res = valueA.localeCompare(valueB, undefined, { numeric: true, sensitivity: 'base' });
+        return res;
+      }
+      return (valueA > valueB) ? 1 : -1;
+    },
   }));
 
 
@@ -503,7 +523,7 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
       finalColumns.push({
         headerName: 'S.No',
         colId: 'serialNo',
-        valueGetter: (params) => params.node?.rowPinned ? '' : (params.node?.rowIndex ?? 0) + 1,
+        valueGetter: (params) => params.node?.rowPinned || params.data?.['__isPlaceholder'] ? '' : (params.node?.rowIndex ?? 0) + 1,
         width: 70,
         minWidth: 70,
         maxWidth: 70,

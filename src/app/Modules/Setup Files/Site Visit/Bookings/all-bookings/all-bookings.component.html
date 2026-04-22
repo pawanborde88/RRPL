@@ -100,7 +100,7 @@
     </mat-expansion-panel>
   </mat-accordion>
   <app-configurable-ag-grid-data [loading]="loading()" [columns]="bookingDisplayedColumns"
-    [apiEndpoint]="'fetch_all_bookings'" [apiMethod]="'POST'" [apiPayload]="getAgGridApiPayload()"
+    [storageKey]="'fetch_all_bookings_v2'" [apiEndpoint]="'fetch_all_bookings'" [apiMethod]="'POST'" [apiPayload]="getAgGridApiPayload()"
     [actions]="bookingActions" [headerButtons]="headerButtons" [showCheckbox]="true" [cacheBlockSize]="100"
     [idProperty]="'booking_id'" [selectedItems]="selectedBooking()"
     (actionClick)="onBookingAction($event.action, $event.row)" (rowSelected)="selectedBooking.set($event)"

@@ -311,11 +311,11 @@ export class UpdateBankDetailsComponent {
         debounceTime(200),
         filter(
           ([projectId, wingId, landOwnerSetupId]) =>
-            !!projectId && !!wingId && this.isValidWingId(wingId) && !!landOwnerSetupId
+            !!projectId && !!wingId && this.isValidWingId(wingId)
         ),
         switchMap(([projectId, wingId, landOwnerSetupId]) => {
           const selectedWingId = this.extractWingId(wingId);
-          if (selectedWingId && projectId && landOwnerSetupId) {
+          if (selectedWingId && projectId) {
             return this.bankService
               .fetchProjectBanks(projectId, selectedWingId, landOwnerSetupId)
               .pipe(
@@ -537,12 +537,7 @@ export class UpdateBankDetailsComponent {
         land_owner_setup_id: landOwnerSetupId
       }));
 
-    if (validPayload.length === 0) {
-      this.snackBar.open('Please select at least one bank account.', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
+
 
     this.bankService
       .submitBankDetails(validPayload)

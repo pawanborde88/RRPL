@@ -6,13 +6,13 @@ import { toObservable } from '@angular/core/rxjs-interop';
 })
 export class SidebarStateService {
   private readonly STORAGE_KEY = 'sidebarState';
-  
+
   // Use signal for reactive state management
   private readonly sidebarStateSignal = signal<boolean>(this.getInitialState());
-  
+
   // Expose as readonly signal
   readonly sidebarState = this.sidebarStateSignal.asReadonly();
-  
+
   // Observable for RxJS compatibility
   readonly sidebarState$ = toObservable(this.sidebarState);
 

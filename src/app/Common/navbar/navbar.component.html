@@ -5,9 +5,9 @@
     <!-- Left Section: Menu & Logo -->
     <div class="flex items-center gap-2 sm:gap-4">
       <button mat-icon-button
-        class="!w-9 !h-9 !flex !items-center !justify-center rounded-xl bg-slate-50/50 hover:bg-white hover:shadow-sm ring-1 ring-slate-200/50 transition-all duration-300 group"
+        class="!w-9 !h-9 sm:!w-10 sm:!h-10 !flex !items-center !justify-center rounded-xl bg-slate-100/80 hover:bg-white hover:shadow-sm ring-1 ring-slate-200/50 transition-all duration-300 group"
         (click)="toggleSidebar()" matTooltip="Toggle Sidebar" matTooltipPosition="below">
-        <mat-icon class="text-slate-500 group-hover:text-blue-600 transition-colors !text-[20px]">
+        <mat-icon class="text-slate-600 group-hover:text-blue-600 transition-colors !text-[20px] sm:!text-[22px]">
           {{ sidebarIcon() }}
         </mat-icon>
       </button>

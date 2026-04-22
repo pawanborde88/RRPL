@@ -74,6 +74,7 @@ interface UserSessionData {
   last_name: string;
   account_display_name: string;
   profile_image: string;
+  manager_name: string;
   permissions: string;
   account_logo: string;
   product_display_name: string;
@@ -522,7 +523,7 @@ export default class LoginComponent implements OnInit {
     this.authFacade.verifyOtp(email, otp).pipe(
       takeUntilDestroyed(this.destroyRef)
     ).subscribe({
-      next: (res) => this.handleOtpVerificationSuccess(res),
+      next: (res: any) => this.handleOtpVerificationSuccess(res),
       error: (err) => this.handleOtpVerificationError(err)
     });
   }
@@ -663,6 +664,7 @@ export default class LoginComponent implements OnInit {
       account_display_name: data.account_display_name,
       profile_image: data.profile_image,
       permission: data.permissions,
+      manager_name: data.manager_name,
       logo: data.account_logo,
       product_display_name: data.product_display_name,
       partner_id: data.partner_code,

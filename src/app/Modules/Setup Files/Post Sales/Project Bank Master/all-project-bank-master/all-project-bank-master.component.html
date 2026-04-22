@@ -54,24 +54,12 @@
 
 
       <div *ngIf="!loading() && projects().length === 0" class="flex flex-col items-center justify-center py-20 px-4">
-        <div class="relative mb-6">
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 rounded-full blur-3xl opacity-40 animate-pulse">
-          </div>
-          <div
-            class="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-slate-300 shadow-xl">
-            <mat-icon class="!text-5xl !w-12 !h-12 !text-slate-400">inventory_2</mat-icon>
-          </div>
-        </div>
-        <h3 class="text-xl font-bold text-slate-900 mb-2">No Project Bank Data Available</h3>
+
+        <h5 class="text-xl font-bold text-slate-900 mb-2">No Project Bank Data Available</h5>
         <p class="text-sm text-slate-500 text-center max-w-md mb-6">
           Please select a project and wing from the filters above to view the project bank data.
         </p>
-        <div
-          class="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm">
-          <mat-icon class="!text-blue-600">info</mat-icon>
-          <span class="text-sm font-medium text-blue-700">Select filters above to get started</span>
-        </div>
+
       </div>
 
 
@@ -116,7 +104,7 @@
                       class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-sky-500/20 text-base text-gray-700 group-hover:bg-sky-500/30">
                       <mat-icon class="!text-xl text-gray-700">account_balance</mat-icon>
                     </div>
-                    <h3
+                    <h5
                       class="text-sm font-semibold text-gray-900 mb-0 w-full flex items-center justify-center gap-1 flex-wrap">
                       <span class="truncate" [title]="bankData.bank_name">{{ bankData.bank_name || 'Unnamed Bank'
                         }}</span>
@@ -124,7 +112,7 @@
                         [title]="bankData.branch_name">
                         ({{ bankData.branch_name }})
                       </span>
-                    </h3>
+                    </h5>
                   </div>
 
                   <div class="space-y-1.5">
@@ -146,7 +134,8 @@
                       </div>
                     </div>
 
-                    <div class="flex items-center gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5" *ngIf="bankData.land_owner_name">
+                    <div class="flex items-center gap-2 rounded-md border border-gray-100 bg-gray-50/50 px-2 py-1.5"
+                      *ngIf="bankData.land_owner_name">
                       <mat-icon class="!text-sm text-gray-600">assignment_ind</mat-icon>
                       <div class="flex flex-col min-w-0 flex-1">
                         <span class="text-[9px] font-medium uppercase tracking-wide text-gray-500">Land Owner</span>

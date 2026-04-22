@@ -1,0 +1,55 @@
+<h6 mat-dialog-title>
+  {{ isEditMode ? 'Edit' : 'Add' }} Company Goal
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h6>
+
+<mat-dialog-content class="px-6 py-4 custom-scrollbar">
+  <form [formGroup]="companyGoalForm" class="flex flex-col gap-4 mt-2">
+    <div class="grid grid-cols-1 gap-4">
+      <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+        displayKey="property_name" idKey="project_id" placeholder="Select Project">
+      </app-autocomplete-reusable-component>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Actual Goal</mat-label>
+        <input matInput type="number" formControlName="manager_goal" placeholder="Enter Manager Goal">
+        <mat-error *ngIf="companyGoalForm.get('manager_goal')?.hasError('required')">
+          Actual Goal is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Aspiration Goal</mat-label>
+        <input matInput type="number" formControlName="aspiration_goal" placeholder="Enter Aspiration Goal">
+        <mat-error *ngIf="companyGoalForm.get('aspiration_goal')?.hasError('required')">
+          Aspiration Goal is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Aspiration Month</mat-label>
+        <input matInput type="number" min="1" max="12" formControlName="aspiration_month" placeholder="1–12">
+        <mat-error *ngIf="companyGoalForm.get('aspiration_month')?.hasError('required')">
+          Aspiration month is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Actual Month</mat-label>
+        <input matInput type="number" min="1" max="12" formControlName="actual_month" placeholder="1–12">
+        <mat-error *ngIf="companyGoalForm.get('actual_month')?.hasError('required')">
+          Actual month is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="px-6 py-3 border-t border-gray-200">
+
+  <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="companyGoalForm.invalid || loading">
+    {{ loading ? 'Saving...' : (isEditMode ? 'Update Goal' : 'Submit Goal') }}
+  </button>
+</mat-dialog-actions>

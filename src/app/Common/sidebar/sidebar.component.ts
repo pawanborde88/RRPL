@@ -481,6 +481,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (!this.isSidebarExpanded()) {
       this.closeTippy();
     }
+    // Auto-close on mobile
+    if (window.innerWidth < 576) {
+      this.sidebarStateService.setSidebarState(false);
+    }
   }
 
   toggleSidebar(): void {
@@ -500,12 +504,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
       this.toggleSubmenu(menuKey, event);
     } else if (menuItem.routerLink) {
       this.router.navigate([menuItem.routerLink]);
+      // Auto-close on mobile
+      if (window.innerWidth < 576) {
+        this.sidebarStateService.setSidebarState(false);
+      }
     }
   }
 
   handleSubItemClick(item: SubMenuItem): void {
     if (item.routerLink) {
       this.router.navigate([item.routerLink]);
+      // Auto-close on mobile
+      if (window.innerWidth < 576) {
+        this.sidebarStateService.setSidebarState(false);
+      }
     }
   }
 
@@ -593,50 +605,4 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.filteredMenuKeys().filter(key => supportKeys.includes(key));
   }
 
-  // Get icon for submenu items based on label
-  getSubmenuIcon(label: string): string {
-    const iconMap: { [key: string]: string } = {
-      'Social Media Marketing': 'schedule',
-      'Email Marketing': 'email',
-      'Physical Marketing': 'open_in_new',
-      'All courses': 'book',
-      'Leaderboard': 'emoji_events',
-      'Notice Board': 'campaign',
-      'All Leads': 'list',
-      'Pending Assigned Leads': 'pending',
-      'Lead Tracking': 'track_changes',
-      'Dismiss Leads': 'cancel',
-      'Reports': 'assessment',
-      'DSR Report': 'description',
-      'Floor level Units': 'layers',
-      'All Parking Units': 'local_parking',
-      'Parking Inventory Chart': 'garage',
-      'Project QR ': 'qr_code',
-      'Inventory': 'Inventory ',
-      'Client Logs': 'history',
-      'EOI': 'description',
-      'Booking': 'event',
-      'Account Setup': 'account_circle',
-      'Template Management': 'description',
-      'Unit Assigned Bank': 'account_balance',
-      'File upload': 'upload_file',
-      'Document Generation': 'description',
-      'Payment Collection': 'payment',
-      'Installment': 'credit_card',
-      'All CPs': 'people',
-      'CP Meetings': 'event',
-      'Brokerage Offer': 'local_offer',
-      'CP Executives': 'person',
-      'CP Levels': 'trending_up',
-      'CP Owners': 'business',
-      'Brokerage Slabs': 'layers',
-      'All Deals': 'handshake',
-      'CP Visits': 'location_on',
-      'All SOP': 'description',
-      'Budget': 'account_balance_wallet',
-      'Expenses': 'receipt',
-      'Facebook Setup': 'facebook',
-    };
-    return iconMap[label] || 'circle';
-  }
 }

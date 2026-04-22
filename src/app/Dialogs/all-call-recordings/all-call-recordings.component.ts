@@ -8,6 +8,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectorRef } from '@angular/core';
 
 interface Recording {
   recording_url: string;
@@ -39,6 +40,7 @@ export class AllCallRecordingsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private dialogRef = inject(MatDialogRef<AllCallRecordingsComponent>);
   private dialogData = inject(MAT_DIALOG_DATA);
+  private cdr = inject(ChangeDetectorRef);
 
   recordings: Recording[] = [];
   isLoading = false;
@@ -64,6 +66,7 @@ export class AllCallRecordingsComponent implements OnInit {
           answered_agent_name: this.dialogData.answered_agent_name || 'Unknown Agent'
         }];
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
       // Otherwise fetch recordings using projectLeadId
       else if (this.dialogData.projectLeadId) {
@@ -85,6 +88,7 @@ export class AllCallRecordingsComponent implements OnInit {
 
     this.isLoading = true;
     this.isError = false;
+    this.cdr.detectChanges();
 
     this.getCallRecordings(this.projectLeadId)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -114,6 +118,7 @@ export class AllCallRecordingsComponent implements OnInit {
               this.recordings = [];
             }
           }
+          this.cdr.detectChanges();
         },
         error: (error: any) => {
           this.isLoading = false;
@@ -133,6 +138,7 @@ export class AllCallRecordingsComponent implements OnInit {
             this.showError(this.errorMessage);
             this.recordings = [];
           }
+          this.cdr.detectChanges();
         }
       });
   }

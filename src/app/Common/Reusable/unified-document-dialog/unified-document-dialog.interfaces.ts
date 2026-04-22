@@ -189,6 +189,7 @@ export interface DemandData {
   gst_total?: number;
   received_amount?: number;
   received_gst?: number;
+  company_logo?: string;
   balance_amount?: number;
   balance_gst?: number;
   total_pending_with_gst?: number;
@@ -232,7 +233,7 @@ export interface LetterData {
   floor_unit?: string;
   floor_units?: any;
   wing_name?: string;
-  letter_date?: string;
+  letter_date?: any;
   applicant1_address?: string;
   applicant1_name?: string;
   applicant2_name?: string;
@@ -243,6 +244,7 @@ export interface LetterData {
   utility_balcony_sqft?: string;
   utility_balcony_sqm?: string;
   coapplicant_name?: string;
+  agreement_cost_with_gst?: string;
   all_applicant?: string;
   applicant_mobile?: string;
   agreement_no?: string;

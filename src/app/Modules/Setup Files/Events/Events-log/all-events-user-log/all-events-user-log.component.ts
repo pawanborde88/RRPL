@@ -175,6 +175,49 @@ export class AllEventsUserLogComponent implements OnInit {
       ];
     }
 
+    if (eventTypeId === 3) {
+      return [
+        {
+          key: 'actions',
+          label: 'Actions',
+          type: 'actions',
+          sticky: true,
+          disabled: false,
+        },
+        {
+          key: 'project_name',
+          label: 'Project Name',
+        },
+        {
+          key: 'name',
+          label: 'Employee Name',
+        },
+        {
+          key: 'mobile',
+          label: 'Phone Number',
+          type: 'sensitive',
+        },
+        {
+          key: 'email',
+          label: 'Email',
+          type: 'sensitive',
+        },
+        {
+          key: 'role_name',
+          label: 'Role',
+        },
+        {
+          key: 'manager_name',
+          label: 'Reporting Manager',
+        },
+        {
+          key: 'created_at',
+          label: 'Created Date & Time',
+          type: 'date',
+        },
+      ];
+    }
+
     // Default column definitions
     return [
       {
@@ -299,6 +342,54 @@ export class AllEventsUserLogComponent implements OnInit {
       ];
     }
 
+    if (eventTypeId === 3) {
+      return [
+        {
+          key: 'actions',
+          label: 'Actions',
+          type: 'actions',
+          sticky: true,
+          disabled: false,
+        },
+        {
+          key: 'project_name',
+          label: 'Project Name',
+        },
+        {
+          key: 'name',
+          label: 'Employee Name',
+        },
+        {
+          key: 'mobile',
+          label: 'Phone Number',
+          type: 'sensitive',
+        },
+        {
+          key: 'email',
+          label: 'Email',
+          type: 'sensitive',
+        },
+        {
+          key: 'role_name',
+          label: 'Role',
+        },
+        {
+          key: 'manager_name',
+          label: 'Reporting Manager',
+        },
+        {
+          key: 'created_at',
+          label: 'Created Date & Time',
+          type: 'date',
+        },
+        {
+          key: 'attendance_date',
+          label: 'Attendance Date',
+          type: 'date',
+        },
+      ];
+    }
+
     // Default column definitions for Attendance
     return [
       {
@@ -384,85 +475,108 @@ export class AllEventsUserLogComponent implements OnInit {
 
     ];
   });
-  readonly notRegColumnDefinitions: readonly TableColumn[] = [
-    {
-      key: 'actions',
-      label: 'Actions',
-      type: 'actions',
-      sticky: true,
-      disabled: false,
-    },
-    {
-      key: 'project_name',
-      label: 'Project Name',
-    },
-    {
-      key: 'name',
-      label: 'Customer Name',
-    },
-    {
-      key: 'mobile',
-      label: 'Mobile',
-      type: 'sensitive',
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      type: 'sensitive',
-    },
+  readonly notRegColumnDefinitions = computed<TableColumn[]>(() => {
+    const eventTypeId = this.selectedEventTypeId();
 
-    {
-      key: 'token_type',
-      label: 'Token Type',
-    },
-    {
-      key: 'token_id',
-      label: 'Token ID',
-    },
-    {
-      key: 'token_no',
-      label: 'Token No',
-    },
+    if (eventTypeId === 3) {
+      return [
+        {
+          key: 'actions',
+          label: 'Actions',
+          type: 'actions',
+          sticky: true,
+          disabled: false,
+        },
+        {
+          key: 'project_name',
+          label: 'Project Name',
+        },
+        {
+          key: 'name',
+          label: 'Employee Name',
+        },
+        {
+          key: 'mobile',
+          label: 'Phone Number',
+          type: 'sensitive',
+        },
+        {
+          key: 'email',
+          label: 'Email',
+          type: 'sensitive',
+        },
+        {
+          key: 'role_name',
+          label: 'Role',
+        },
+        {
+          key: 'reporting_manager_name',
+          label: 'Reporting Manager',
+        },
+        {
+          key: 'created_at',
+          label: 'Created Date & Time',
+          type: 'date',
+        },
+      ];
+    }
 
-    {
-      key: 'sales_executive_name',
-      label: 'Sales Executive',
-    },
+    return [
+      {
+        key: 'actions',
+        label: 'Actions',
+        type: 'actions',
+        sticky: true,
+        disabled: false,
+      },
+      {
+        key: 'project_name',
+        label: 'Project Name',
+      },
+      {
+        key: 'name',
+        label: 'Customer Name',
+      },
+      {
+        key: 'mobile',
+        label: 'Mobile',
+        type: 'sensitive',
+      },
+      {
+        key: 'email',
+        label: 'Email',
+        type: 'sensitive',
+      },
+
+      {
+        key: 'token_type',
+        label: 'Token Type',
+      },
+      {
+        key: 'token_id',
+        label: 'Token ID',
+      },
+      {
+        key: 'token_no',
+        label: 'Token No',
+      },
+
+      {
+        key: 'sales_executive_name',
+        label: 'Sales Executive',
+      },
 
 
-    {
-      key: 'wing_name',
-      label: 'Wing',
-    },
-    {
-      key: 'floor_unit',
-      label: 'Unit',
-    },
-
-    // {
-    //   key: 'rera_no',
-    //   label: 'RERA Number',
-    // },
-    // {
-    //   key: 'firm_name',
-    //   label: 'Firm Name',
-    // },
-
-
-
-
-
-    // {
-    //   key: 'rera_no',
-    //   label: 'RERA Number',
-    // },
-    // {
-    //   key: 'firm_name',
-    //   label: 'Firm Name',
-    // },
-
-
-  ] as const;
+      {
+        key: 'wing_name',
+        label: 'Wing',
+      },
+      {
+        key: 'floor_unit',
+        label: 'Unit',
+      },
+    ];
+  });
 
   readonly bookingActions: readonly any[] = [
 
