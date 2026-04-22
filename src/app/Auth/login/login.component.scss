@@ -12,6 +12,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -24,11 +25,12 @@
 
 /* Angular Material Overrides */
 ::ng-deep {
+
   /* Spinner color override */
   .mat-mdc-progress-spinner {
     --mdc-circular-progress-active-indicator-color: white !important;
   }
-  
+
   .mat-mdc-progress-spinner.mat-accent {
     --mdc-circular-progress-active-indicator-color: #4338ca !important;
   }

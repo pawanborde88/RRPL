@@ -87,7 +87,7 @@ export class OtpVerificationDialogComponent implements OnInit, OnDestroy {
     if (
       ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter'].includes(event.key) ||
       event.key.startsWith('Arrow') ||
-      event.ctrlKey || 
+      event.ctrlKey ||
       event.metaKey
     ) {
       if (event.key === 'Backspace' && !this.otpFields[index].value && index > 0) {
