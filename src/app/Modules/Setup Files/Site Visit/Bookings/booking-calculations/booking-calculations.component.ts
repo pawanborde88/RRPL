@@ -164,6 +164,7 @@ export class BookingCalculationsComponent {
     updated_by: new FormControl(this.userId),
     show_scheme: new FormControl(false),
     is_parking_charges_added: new FormControl(false),
+    tentative_loan_amount: new FormControl(''),
   });
 
   constructor() {
@@ -936,6 +937,7 @@ export class BookingCalculationsComponent {
         package_total_with_parking: null,
         parking_charges: null,
         is_parking_charges_added: false,
+        tentative_loan_amount: null,
       },
       { emitEvent: false }
     );
@@ -1017,6 +1019,7 @@ export class BookingCalculationsComponent {
       enter_package: formValue.enter_package,
       offer_name: formValue.offer_name,
       parking_charges: formValue.parking_charges,
+      tentative_loan_amount: formValue.tentative_loan_amount,
       created_by: this.userId,
     };
 
