@@ -6,7 +6,7 @@
   <div class="px-3 mb-3 shrink-0 pt-2" *ngIf="isSidebarExpanded()">
     <div class="relative group search-input-wrapper">
       <mat-icon
-        class="search-icon absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 transition-colors text-[16px]">search</mat-icon>
+        class="search-icon absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 transition-colors text-[18px]">search</mat-icon>
       <input [formControl]="searchControl" type="text" placeholder="Quick search..."
         class="w-full text-[12px] font-medium rounded-lg pl-8 pr-3 py-2 outline-none">
     </div>
@@ -15,7 +15,7 @@
   <div class="px-2 mb-4 shrink-0 flex justify-center pt-5" *ngIf="!isSidebarExpanded()">
     <button class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-all"
       (click)="toggleSidebar()" matTooltip="Quick Search" matTooltipPosition="right">
-      <mat-icon class="text-slate-500 text-[18px]">search</mat-icon>
+      <mat-icon class="text-slate-500 text-[20px]">search</mat-icon>
     </button>
   </div>
 
@@ -29,7 +29,7 @@
         class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer"
         [ngClass]="{'justify-center px-0': !isSidebarExpanded()}">
         <div class="flex items-center justify-center w-5 h-5">
-          <mat-icon class="text-[20px]">dashboard</mat-icon>
+          <mat-icon class="text-[22px]">dashboard</mat-icon>
         </div>
         <span *ngIf="isSidebarExpanded()" class="font-semibold text-[13.5px]">Dashboard</span>
       </a>
@@ -50,7 +50,7 @@
               (mouseleave)="onMenuItemLeave(menuKey)">
 
               <div class="flex items-center justify-center w-5 h-5 shrink-0">
-                <mat-icon class="text-[20px]">{{ menuItems()[menuKey].icon }}</mat-icon>
+                <mat-icon class="text-[22px]">{{ menuItems()[menuKey].icon }}</mat-icon>
               </div>
 
               <ng-container *ngIf="isSidebarExpanded()">
@@ -59,7 +59,7 @@
 
                 </div>
                 <mat-icon *ngIf="menuItems()[menuKey].items?.length"
-                  class="text-slate-400 text-[18px] transition-transform duration-200"
+                  class="text-slate-400 text-[20px] transition-transform duration-200"
                   [class.rotate-180]="isSubmenuExpanded(menuKey)">expand_more</mat-icon>
               </ng-container>
 
@@ -77,7 +77,7 @@
                     (click)="item.items ? toggleNestedSubmenu(menuKey, item.label, $event) : handleSubItemClick(item)"
                     [routerLink]="!item.items ? item.routerLink : null"
                     [routerLinkActive]="!item.items ? 'sub-item-active' : ''">
-                    <mat-icon *ngIf="item.icon" class="text-slate-400 text-[18px]">{{ item.icon }}</mat-icon>
+                    <mat-icon *ngIf="item.icon" class="text-slate-400 text-[20px]">{{ item.icon }}</mat-icon>
                     <span class="flex-1 truncate text-[12.5px] font-medium leading-relaxed">{{ item.label }}</span>
                     <mat-icon *ngIf="item.items" class="text-slate-300 text-[14px] transition-transform duration-200"
                       [class.rotate-90]="isNestedSubmenuExpanded(menuKey, item.label)">chevron_right</mat-icon>
@@ -110,7 +110,7 @@
           [ngClass]="{'nav-item-active': isMenuItemActive(menuKey), 'justify-center px-0': !isSidebarExpanded()}"
           (click)="onMainItemClick(menuKey, $event)">
           <div class="relative shrink-0 flex items-center justify-center w-5 h-5">
-            <mat-icon class="text-[20px]">{{ menuItems()[menuKey].icon }}</mat-icon>
+            <mat-icon class="text-[22px]">{{ menuItems()[menuKey].icon }}</mat-icon>
             <span *ngIf="menuKey === 'helpDesk'"
               class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
           </div>

@@ -118,7 +118,11 @@ export class NavbarComponent implements OnInit {
   });
 
   readonly sidebarIcon = computed(() =>
-    this.sidebarStateService.sidebarState() ? 'close' : 'menu'
+    this.sidebarStateService.sidebarState() ? 'menu_open' : 'menu'
+  );
+
+  readonly sidebarTooltip = computed(() =>
+    this.sidebarStateService.sidebarState() ? 'Collapse Sidebar' : 'Expand Sidebar'
   );
 
   // Private state for network monitoring

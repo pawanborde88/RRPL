@@ -8,11 +8,11 @@
     <mat-card *ngIf="!bookingIdValue" class="border border-slate-200 shadow-sm">
       <mat-card-content>
         <div class="info">
-          <form [formGroup]="addBookingForm" class="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
-              displayKey="property_name" idKey="project_id" placeholder="Select Project">
+          <form [formGroup]="addBookingForm" class="row g-3">
+            <app-autocomplete-reusable-component class="col-md-2" [options]="projectsList()"
+              formControlName="project_id" displayKey="property_name" idKey="project_id" placeholder="Select Project">
             </app-autocomplete-reusable-component>
-            <mat-form-field appearance="outline" class="md:col-span-1 xl:col-span-1">
+            <mat-form-field appearance="outline" class="col-md-2">
               <mat-label>Booking Date</mat-label>
               <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="bookingDate"
                 formControlName="booking_date" />
@@ -20,12 +20,12 @@
               <mat-datepicker #bookingDate></mat-datepicker>
             </mat-form-field>
 
-            <app-autocomplete-reusable-component class="md:col-span-1 xl:col-span-1" [options]="allSalesExecutive()"
+            <app-autocomplete-reusable-component class="col-md-2" [options]="allSalesExecutive()"
               formControlName="sales_executive_id" displayKey="user_name" idKey="user_id"
               placeholder="Select Sales Executive">
             </app-autocomplete-reusable-component>
 
-            <mat-form-field appearance="outline" class="md:col-span-1 xl:col-span-1">
+            <mat-form-field appearance="outline" class="col-md-2">
               <mat-label>Booking From</mat-label>
               <mat-select formControlName="booking_from_id">
                 <mat-option *ngFor="let bookingFroms of allBookingDropdown(); trackBy: trackByBookingFromId"
@@ -35,7 +35,7 @@
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="md:col-span-1 xl:col-span-1" *ngIf="bookingFromIdValue == '1'">
+            <mat-form-field appearance="outline" class="col-md-2" *ngIf="bookingFromIdValue == '1'">
               <mat-label>Select Token Type</mat-label>
               <mat-select formControlName="token_type_id">
                 <mat-option *ngFor="let token of allTokenType(); trackBy: trackByTokenTypeId"
@@ -45,17 +45,17 @@
               </mat-select>
             </mat-form-field>
 
-            <app-autocomplete-reusable-component class="md:col-span-1 xl:col-span-1" *ngIf="bookingFromIdValue == '1'"
+            <app-autocomplete-reusable-component class="col-md-2" *ngIf="bookingFromIdValue == '1'"
               [options]="allTokenNolist()" formControlName="token_id" displayKey="displayText" idKey="token_id"
               placeholder="Select Token">
             </app-autocomplete-reusable-component>
 
-            <app-autocomplete-reusable-component class="md:col-span-1 xl:col-span-1" *ngIf="bookingFromIdValue == '2'"
+            <app-autocomplete-reusable-component class="col-md-2" *ngIf="bookingFromIdValue == '2'"
               [options]="allEnquiryData()" formControlName="project_enq_id" displayKey="displayText"
               idKey="project_enq_id" placeholder="Select Enquiry">
             </app-autocomplete-reusable-component>
-            <div class="flex items-end md:col-span-1 xl:col-span-1">
-              <button mat-raised-button color="primary" class="w-full md:w-auto" [disabled]="!canSubmit()"
+            <div class="col-md-2">
+              <button mat-raised-button color="primary" class="w-full" [disabled]="!canSubmit()"
                 (click)="submitFirstData()">
                 <span *ngIf="!isSubmitting()">Add</span>
                 <span *ngIf="isSubmitting()">Adding...</span>

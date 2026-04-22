@@ -14,7 +14,8 @@
   --hover-bg: #0d4678;
   --sub-hover-bg: rgba(13, 70, 120, 0.08);
   --text-primary: #1e293b;
-  --text-secondary: #64748b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   --accent-color: #0d4678;
   --guide-line: rgba(0, 0, 0, 0.08);
   --glass-bg: rgba(0, 0, 0, 0.02);
@@ -37,9 +38,10 @@
 
     .mat-icon {
       overflow: visible;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      font-weight: 500;
       color: var(--text-secondary);
       transition: color 0.2s ease;
     }
@@ -184,8 +186,9 @@
 
   .mat-icon {
     color: var(--active-text) !important;
-    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24 !important;
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+    font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    transform: scale(1.05);
   }
 
   span {
@@ -395,9 +398,9 @@
   }
 
   .mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
     color: var(--text-secondary);
     transition: all 0.2s ease;
   }

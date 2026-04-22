@@ -66,7 +66,7 @@ export class MenuConfigService {
     return {
       allProjects: {
         title: 'All Project Setup',
-        icon: 'business',
+        icon: 'apartment',
         tippy: { id: 'all-projects-tippy', menuId: 'all-projects-tippy-menu' },
         routerLink: '/all-projects',
         visible: hasPermission('608'),
@@ -81,7 +81,7 @@ export class MenuConfigService {
       },
       LMS: {
         title: 'LMS',
-        icon: 'school',
+        icon: 'auto_stories',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
@@ -119,7 +119,7 @@ export class MenuConfigService {
       },
       GoalsAndTargets: {
         title: 'Goals & Targets',
-        icon: 'track_changes',
+        icon: 'ads_click',
         tippy: { id: 'goals-targets-tippy', menuId: 'goals-targets-tippy-menu' },
         items: [
           {
@@ -159,14 +159,14 @@ export class MenuConfigService {
       },
       DailyDAReport: {
         title: ' DA Report',
-        icon: 'history_edu',
+        icon: 'analytics',
         routerLink: '/Pre-sales/talecaller-salesexecutive-count',
         visible: hasPermission('616'),
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
       },
       preSales: {
         title: 'Lead Management',
-        icon: 'leaderboard',
+        icon: 'filter_alt',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
@@ -242,7 +242,7 @@ export class MenuConfigService {
 
       sales: {
         title: 'Site Visit Management',
-        icon: 'explore',
+        icon: 'location_on',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
 
@@ -721,7 +721,7 @@ export class MenuConfigService {
 
       Events: {
         title: 'Events',
-        icon: 'event',
+        icon: 'event_available',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
@@ -752,7 +752,7 @@ export class MenuConfigService {
       },
       Finance: {
         title: 'Finance',
-        icon: 'savings',
+        icon: 'payments',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
@@ -778,7 +778,7 @@ export class MenuConfigService {
       },
       metaSetup: {
         title: 'Meta setup',
-        icon: 'settings_input_component',
+        icon: 'api',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
@@ -798,14 +798,14 @@ export class MenuConfigService {
       },
       MOMInternalMeetings: {
         title: 'MOM ',
-        icon: 'forum',
+        icon: 'groups_3',
         routerLink: '/MOM/Internal-meetings/all-mom-meetings',
         visible: hasPermission('600'),
         tippy: { id: 'setup-tippy', menuId: 'setup-tippy-menu' },
       },
       targetAndAchievement: {
         title: 'Performance ',
-        icon: 'auto_graph',
+        icon: 'query_stats',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
@@ -837,7 +837,7 @@ export class MenuConfigService {
       },
       setup: {
         title: 'Setup',
-        icon: 'settings',
+        icon: 'settings_suggest',
         routerLink: '/all-setupDashboard',
         visible: hasPermission('217'),
         tippy: { id: 'setup-tippy', menuId: 'setup-tippy-menu' },
