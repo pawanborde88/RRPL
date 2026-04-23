@@ -452,6 +452,17 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
         });
       });
 
+      // Effect: Reload data when endpoint or payload changes (Reactive Sync)
+      effect(() => {
+        this.apiEndpoint();
+        this.apiPayload();
+        untracked(() => {
+          if (this.autoLoad() && this.facade.gridApi() && this.facade.hasInitiatedLoad()) {
+            this.refreshData();
+          }
+        });
+      });
+
       // Effect: Monitor Bulk Operation to emit changes when done
       effect(() => {
         const isBulk = this.facade.isBulkOperation();

@@ -6,35 +6,41 @@
   letter-spacing: 0.05em;
   line-height: 1.2;
   text-transform: uppercase;
-  color: #64748b; /* Slate 500 */
+  color: #64748b;
+  /* Slate 500 */
 }
 
 /* Modern input style - move away from dotted underline for better visibility */
 .gf-underline-input {
   width: 100%;
   border: none;
-  border-bottom: 2px solid #e2e8f0; /* Slate 200 */
+  border-bottom: 2px solid #e2e8f0;
+  /* Slate 200 */
   background: transparent;
   border-radius: 0;
   padding: 0.6rem 0.2rem;
   font-size: 0.95rem;
   font-weight: 500;
   line-height: 1.4;
-  color: #1e293b; /* Slate 800 */
+  color: #1e293b;
+  /* Slate 800 */
   outline: none;
   transition: all 0.2s ease;
 
   &::placeholder {
-    color: #94a3b8; /* Slate 400 */
+    color: #94a3b8;
+    /* Slate 400 */
     opacity: 0.8;
   }
 
   &:hover {
-    border-bottom-color: #cbd5e1; /* Slate 300 */
+    border-bottom-color: #cbd5e1;
+    /* Slate 300 */
   }
 
   &:focus {
-    border-bottom-color: #0d9488; /* Teal 600 - Match theme */
+    border-bottom-color: #0d9488;
+    /* Teal 600 - Match theme */
     background: linear-gradient(to top, rgba(13, 148, 136, 0.03), transparent);
   }
 
@@ -48,15 +54,17 @@
 .gf-role-card {
   background: #fff;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
+
   &:hover {
     box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
   }
 }
 
 .gf-role-badge {
-  background: #f0fdfa; /* Teal 50 */
-  color: #0f766e; /* Teal 700 */
+  background: #f0fdfa;
+  /* Teal 50 */
+  color: #0f766e;
+  /* Teal 700 */
   border: 1px solid #ccfbf1;
 }
 
@@ -78,7 +86,8 @@
   }
 
   .mat-mdc-button-touch-target {
-    height: 40px; /* Larger touch target for mobile */
+    height: 40px;
+    /* Larger touch target for mobile */
     width: 40px;
   }
 }
@@ -87,7 +96,7 @@
 .gf-targets-card {
   .mat-mdc-card-content {
     padding: 1rem !important;
-    
+
     @media (max-width: 640px) {
       padding: 0.75rem !important;
     }
@@ -162,7 +171,7 @@
   padding: 0.6rem;
   text-align: left;
   transition: all 0.15s ease;
-  
+
   &:focus-within {
     border-color: #0d9488;
     box-shadow: 0 0 0 1px #0d9488;
@@ -207,7 +216,7 @@
   align-items: center;
   gap: 0.5rem;
   margin: 1.25rem 0 0.75rem;
-  
+
   span {
     font-size: 10px !important;
     color: #64748b !important;
@@ -239,7 +248,7 @@
     color: #334155;
     font-size: 13px;
     padding: 0.6rem 0.5rem;
-    
+
     &:first-child {
       font-weight: 500;
       color: #1e293b;
@@ -252,8 +261,10 @@
 }
 
 .gf-target-q-cell {
-  background: #f0f9ff !important; /* Blue 50 */
-  color: #0369a1 !important; /* Blue 700 */
+  background: #f0f9ff !important;
+  /* Blue 50 */
+  color: #0369a1 !important;
+  /* Blue 700 */
   font-weight: 700 !important;
   text-align: center !important;
 }
@@ -278,12 +289,13 @@
 /* Scroll cues for overflowing tables */
 .overflow-x-auto {
   -webkit-overflow-scrolling: touch;
+
   &::-webkit-scrollbar {
     height: 4px;
   }
+
   &::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
   }
 }
-

@@ -305,8 +305,8 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
     setTimeout(() => {
       const projects = this.projects();
       if (projects.length > 0 && !this.selectedProjectId()) {
-        const defaultProjectId = projects[0].project_id;
-        this.filterForm.patchValue({ project_id: [defaultProjectId] });
+        const allProjectIds = projects.map(p => p.project_id);
+        this.filterForm.patchValue({ project_id: allProjectIds });
         // The valueChanges subscription will trigger fetchDashboardData.
       }
     }, 500);

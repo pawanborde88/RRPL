@@ -437,6 +437,13 @@ export const routes: Routes = [
         title: pageNames.ALL_CHANNEL_PARTNER,
     },
     {
+        path: 'single-cp-all-data/:slug/:channel_partner_id',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Channel Partner/single-cp-all-data/single-cp-all-data.component').then(m => m.SingleCPAllDataComponent),
+        canActivate: [AuthGuard],
+        title: pageNames.SINGLE_CP_ALL_DATA,
+    },
+    {
         path: 'CP-management/brokerage-offer',
         loadComponent: () =>
             import('./Modules/Setup Files/Projects/all-brokerage/Brokeage Offer/brokerage-offer/brokerage-offer.component').then(m => m.BrokerageOfferComponent),

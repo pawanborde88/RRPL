@@ -120,6 +120,7 @@ interface ProjectData {
   booking_count?: number;
   sub_region_name?: string;
   city_name?: string;
+  cp_status_id: number;
 }
 
 interface SelectedFile {
@@ -478,6 +479,7 @@ export class EditProjectComponent implements OnInit {
       ]),
       updated_at: new FormControl(''),
       project_id: new FormControl(''),
+      cp_status_id: new FormControl(0),
       project_image: new FormControl<File[]>([])
     });
   }
@@ -513,7 +515,8 @@ export class EditProjectComponent implements OnInit {
       project_thumbnail_img,
       project_logo,
       call_masking_id,
-      enq_otp_status
+      enq_otp_status,
+      cp_status_id
     } = projectData;
 
     // Convert receipt_no_start to string if it's a number
@@ -557,6 +560,7 @@ export class EditProjectComponent implements OnInit {
       project_code: project_code || '',
       enq_otp_status: enq_otp_status ?? 0,
       project_id: projectData.project_id || '',
+      cp_status_id: cp_status_id ?? 0,
       updated_at: projectData.updated_at || ''
     }, { emitEvent: false }); // Prevent unnecessary value change events
 
@@ -1219,6 +1223,7 @@ export class EditProjectComponent implements OnInit {
     'is_retro',
     'footer_description',
     'enq_otp_status',
+    'cp_status_id',
   ] as const;
 
   /**

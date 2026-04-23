@@ -279,6 +279,13 @@ export class AllChannelPartnerComponent implements OnInit {
       color: 'primary',
       disabled: false,
     },
+    {
+      action: 'viewAllCPData',
+      icon: 'zoom_out_map',
+      tooltip: 'View',
+      color: 'primary',
+      disabled: false,
+    },
   ];
 
   readonly headerButtons = [
@@ -445,10 +452,19 @@ export class AllChannelPartnerComponent implements OnInit {
         this.openAddFollowUpDialog(row);
         break;
 
+      case 'viewAllCPData':
+        this.viewAllCPData(row);
+        break;
+
       default:
         console.warn('Unknown action:', action);
         break;
     }
+  }
+
+  viewAllCPData(row: any): void {
+    const slug = row.firm_name ? row.firm_name.replace(/\s+/g, '-').toLowerCase() : 'cp';
+    this.router.navigate(['/single-cp-all-data', slug, row.channel_partner_id]);
   }
 
   openAddFollowUpDialog(row: Record<string, unknown>): void {

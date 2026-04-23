@@ -443,6 +443,7 @@ export class PlaceholderReplacerService {
         replacements['#FloorNo#'] = this.formatOrdinal(fu.floor_order);
 
         replacements['#CarpetSqm#'] = fu.carpet_sqm || letterData.carpet_sqm || '0';
+        replacements['#TotalCarpetAreaSqm#'] = fu.carpet_sqm || letterData.carpet_sqm || '0';
         replacements['#BalconySqm#'] = fu.balcony_sqm || letterData.balcony_sqm || '0';
         replacements['#Dry_balcony_sqm#'] = fu.dry_balcony_sqm || letterData.dry_balcony_sqm || '0';
         replacements['#Dry_balconay_sqm#'] = fu.dry_balcony_sqm || letterData.dry_balcony_sqm || '0';

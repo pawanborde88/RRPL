@@ -368,4 +368,396 @@ export class AnnualGoalDashboard implements OnInit, AfterViewInit, OnDestroy {
       this.snackBar.open('Failed to export report', 'Close', { duration: 3000 });
     }
   }
+
+  // ============================================
+  // PRINT LOGIC
+  // ============================================
+  onPrintGoal(goal: any): void {
+    if (!goal || !goal.id) return;
+    this.facade.fetchFullGoal(goal.id).subscribe({
+      next: (res) => {
+        if (res && res.status) {
+          const printData = { ...res.data, participantDetails: goal };
+          this.printGoalData(printData);
+        } else {
+          this.snackBar.open('Failed to fetch goal data for printing', 'Close', { duration: 3000 });
+        }
+      },
+      error: (err) => {
+        console.error('Print fetch failed:', err);
+        this.snackBar.open('Error fetching goal data', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  private printGoalData(data: any): void {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const htmlContent = this.generatePrintHtml(data);
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Small delay to ensure content is loaded before printing
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      // Optionally close after print dialog closes, but some browsers block if done too quickly.
+      // printWindow.close();
+    }, 500);
+  }
+
+  private generatePrintHtml(data: any): string {
+    const pDetails = data.participantDetails || {};
+
+    // 1. Roles
+    let rolesHtml = '';
+    if (data.roles && Array.isArray(data.roles)) {
+      data.roles.forEach((role: any, idx: number) => {
+        let actionsHtml = '';
+        if (role.actions && Array.isArray(role.actions)) {
+          actionsHtml = role.actions.map((item: string) => `<li>${item}</li>`).join('');
+        }
+
+        rolesHtml += `
+          <div class="role-section break-inside-avoid">
+            <div class="role-header">
+              <span class="role-badge">Role ${role.role_no || idx + 1}</span>
+              <span class="role-title">${role.title || 'N/A'}</span>
+            </div>
+            <div class="role-metrics">
+              <div class="metric-box">
+                <div class="metric-label">Measure of Success</div>
+                <div class="metric-value">${role.measure || 'N/A'}</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Annual Target</div>
+                <div class="metric-value font-highlight">${role.target || 'N/A'}</div>
+              </div>
+            </div>
+            <div class="role-actions">
+              <div class="metric-label" style="margin-bottom: 5px;">Key Action Items:</div>
+              <ul>${actionsHtml || '<li>None specified</li>'}</ul>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // 2. Monthly Target
+    const monthsOrder = ['apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar'];
+    let monthlyHtml = `
+      <table class="data-table">
+        <thead>
+          <tr>${monthsOrder.map(m => `<th>${m.toUpperCase()}</th>`).join('')}</tr>
+        </thead>
+        <tbody>
+          <tr>${monthsOrder.map(m => {
+      const mData = data.monthly?.find((x: any) => x.month.toLowerCase() === m);
+      return `<td>${mData ? mData.units : 0}</td>`;
+    }).join('')}</tr>
+        </tbody>
+      </table>
+    `;
+
+    // 3. Quarterly Combos (Units, Conversion, TAT, Needed)
+    let quartersHtml = '';
+    const qData = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => {
+      const qUnits = data.quarterly?.find((x: any) => x.quarter === q)?.total_units || 0;
+      const qConv = data.conversion?.find((x: any) => x.quarter === q)?.conversion_ratio || 0;
+      const qTat = data.tat?.find((x: any) => x.quarter === q) || {};
+      const qNeeded = data.needed?.find((x: any) => x.quarter === q)?.needed_units || 0;
+      return {
+        q,
+        units: qUnits,
+        conv: qConv,
+        atat: qTat.agreement_tat || 0,
+        dtat: qTat.disbursement_tat || 0,
+        needed: qNeeded
+      };
+    });
+
+    quartersHtml = `
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Quarter</th>
+            <th>Booking Units</th>
+            <th>Conversion Ratio</th>
+            <th>Agreement TAT (Days)</th>
+            <th>Disbursement TAT (Days)</th>
+            <th>Hiring Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${qData.map(d => `
+            <tr>
+              <td style="font-weight: bold;">${d.q}</td>
+              <td class="text-highlight">${d.units}</td>
+              <td>${d.conv}%</td>
+              <td>${d.atat}</td>
+              <td>${d.dtat}</td>
+              <td>${d.needed}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    // 4. Inventory
+    let inventoryHtml = '<div class="tags-container">';
+    if (data.inventory && typeof data.inventory === 'object') {
+      Object.keys(data.inventory).forEach(key => {
+        inventoryHtml += `<div class="tag-box"><span class="tag-label">${key}</span><span class="tag-val">${data.inventory[key]} Units</span></div>`;
+      })
+    } else {
+      inventoryHtml += '<p>No specific inventory breakdown.</p>';
+    }
+    inventoryHtml += '</div>';
+
+    // 5. Team Need
+    let teamHtml = '<div class="tags-container">';
+    if (data.team) {
+      if (data.team.sale_team) teamHtml += `<div class="tag-box"><span class="tag-label">Sales</span><span class="tag-val">${data.team.sale_team}</span></div>`;
+      if (data.team.crm_team) teamHtml += `<div class="tag-box"><span class="tag-label">CRM</span><span class="tag-val">${data.team.crm_team}</span></div>`;
+      if (data.team.pre_sale_team) teamHtml += `<div class="tag-box"><span class="tag-label">Pre-Sales</span><span class="tag-val">${data.team.pre_sale_team}</span></div>`;
+      if (data.team.source_team) teamHtml += `<div class="tag-box"><span class="tag-label">Sourcing</span><span class="tag-val">${data.team.source_team}</span></div>`;
+      if (data.team.gre !== undefined) teamHtml += `<div class="tag-box"><span class="tag-label">GRE</span><span class="tag-val">${data.team.gre}</span></div>`;
+      teamHtml += `<div class="tag-box bg-highlight"><span class="tag-label text-white">Total</span><span class="tag-val text-white">${data.team.total || 0}</span></div>`;
+    } else {
+      teamHtml += '<p>No team sizing defined.</p>';
+    }
+    teamHtml += '</div>';
+
+    // 6. What I Need
+    let whatINeedHtml = '<div class="what-i-need-grid">';
+    if (data.what_i_need && data.what_i_need.length) {
+      data.what_i_need.forEach((item: any) => {
+        whatINeedHtml += `
+               <div class="need-card avoid-break">
+                  <div class="need-card-header">${item.category}</div>
+                  <div class="need-card-body">
+                    <ul>${(item.description || []).map((d: string) => `<li>${d}</li>`).join('')}</ul>
+                  </div>
+               </div>
+            `;
+      });
+    } else {
+      whatINeedHtml += '<p>No additional support items requested.</p>';
+    }
+    whatINeedHtml += '</div>';
+
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>RRPL - Goal Commitment - ${pDetails.user_name || 'User'}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+          :root {
+            --primary: #0d4678;
+            --primary-light: #eff6ff;
+            --secondary: #475569;
+            --dark: #0f172a;
+            --gray-subtle: #f8fafc;
+            --gray-border: #cbd5e1;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --bg-page: #ffffff;
+          }
+
+          @page { size: A4; margin: 0; }
+          
+          body { 
+            font-family: 'Inter', sans-serif; 
+            color: var(--text-main); 
+            line-height: 1.35; 
+            margin: 0; 
+            padding: 0; 
+            background: var(--bg-page); 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+          }
+          
+          .page { 
+            width: 210mm; 
+            min-height: 297mm; 
+            background: white; 
+            padding: 10mm 15mm; 
+            margin: 0 auto; 
+            box-sizing: border-box; 
+            position: relative;
+          }
+          
+          /* Typography */
+          h1 { color: var(--dark); font-size: 16px; font-weight: 900; letter-spacing: -0.5px; margin: 0; text-transform: uppercase; }
+          h2 { color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-border); padding-bottom: 4px; margin-top: 0; margin-bottom: 12px; }
+          
+          /* Header Layout */
+          .header-brand { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--dark); padding-bottom: 8px; margin-bottom: 15px; }
+          .header-meta { text-align: right; }
+          .header-meta p { margin: 0; font-size: 8px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
+          /* User Profile Grid - Premium Accent */
+          .profile-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+            background: var(--primary-light); 
+            color: var(--dark); 
+            padding: 10px 14px; 
+            border: 1px solid var(--primary-light);
+            border-left: 4px solid var(--primary);
+            border-radius: 4px 6px 6px 4px; 
+            margin-bottom: 20px; 
+          }
+          .profile-item { display: flex; flex-direction: column; }
+          .profile-label { font-size: 7px; text-transform: uppercase; letter-spacing: 1px; color: var(--secondary); margin-bottom: 2px; font-weight: 800; }
+          .profile-val { font-size: 11px; font-weight: 900; color: var(--dark); }
+          .profile-val.highlight { font-size: 13px; color: var(--primary); }
+
+          /* Utilities */
+          .section { margin-bottom: 15px; }
+          .avoid-break, .role-section { break-inside: avoid; page-break-inside: avoid; }
+          .font-highlight { color: var(--primary); font-weight: 900 !important; }
+          .text-highlight { color: var(--dark) !important; font-weight: 900 !important; }
+
+          /* Roles Layout */
+          .roles-container { display: flex; flex-direction: column; gap: 10px; }
+          .role-section { border: 1px solid var(--gray-border); border-radius: 6px; overflow: hidden; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+          .role-header { background: var(--gray-subtle); padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--gray-border); }
+          .role-badge { background: var(--primary); color: white; padding: 3px 8px; border-radius: 12px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+          .role-title { font-size: 11px; font-weight: 800; color: var(--dark); }
+          
+          .role-metrics { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--gray-border); background: white; }
+          .metric-box { padding: 6px 12px; border-right: 1px solid var(--gray-border); }
+          .metric-box:last-child { border-right: none; }
+          .metric-label { font-size: 8px; color: var(--secondary); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+          .metric-value { font-size: 10px; font-weight: 700; color: var(--dark); margin-top: 2px; }
+          
+          .role-actions { padding: 6px 12px; background: white; }
+          .role-actions ul { margin: 0; padding-left: 15px; color: var(--text-main); font-size: 9.5px; }
+          .role-actions li { margin-bottom: 3px; }
+          .role-actions li:last-child { margin-bottom: 0; }
+
+          /* Modern Tabular Design */
+          .data-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; border-bottom: 2px solid var(--primary); }
+          .data-table th, .data-table td { padding: 8px 10px; text-align: center; font-size: 9px; border-right: none; border-left: none; }
+          .data-table th { font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.5px; background: white; border-top: 2px solid var(--dark); border-bottom: 1px solid var(--gray-border); }
+          .data-table td { color: var(--dark); font-weight: 600; border-bottom: 1px solid var(--gray-subtle); }
+          .data-table tr:last-child td { border-bottom: none; }
+
+          /* Tags for Inventory & Team - Premium Pills */
+          .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+          .tag-box { display: inline-flex; align-items: stretch; border: 1px solid var(--gray-border); border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+          .tag-label { display: flex; align-items: center; background: var(--primary-light); padding: 4px 10px; font-size: 8px; font-weight: 900; text-transform: uppercase; color: var(--primary); border-right: 1px solid var(--gray-border); }
+          .tag-val { display: flex; align-items: center; padding: 4px 10px; font-size: 9px; font-weight: 800; color: var(--dark); }
+
+          /* What I Need Grid */
+          .what-i-need-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+          .need-card { border: 1px solid var(--gray-border); border-radius: 6px; background: white; border-top: 3px solid var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+          .need-card-header { background: white; color: var(--dark); padding: 8px 12px; font-size: 9px; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid var(--gray-subtle); letter-spacing: 0.5px; }
+          .need-card-body { padding: 8px 12px; }
+          .need-card-body ul { margin: 0; padding-left: 15px; font-size: 9.5px; color: var(--text-main); }
+          .need-card-body li { margin-bottom: 3px; font-weight: 500; }
+
+          /* Footer */
+          .footer { position: absolute; bottom: 10mm; left: 15mm; right: 15mm; display: flex; justify-content: space-between; border-top: 1px solid var(--gray-border); padding-top: 10px; font-size: 7px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
+
+          @media print {
+             .page { margin: 0; padding: 10mm 15mm; box-shadow: none; border: none; min-height: auto; width: 100%; }
+             body { background: white; }
+          }
+        </style>
+      </head>
+      <body>
+
+        <!-- PAGE 1: Core Goal & Roles -->
+        <div class="page" style="page-break-after: always; break-after: page;">
+          <div class="header-brand">
+            <div>
+              <h1>Strategic Goal Commitment</h1>
+              <h1 style="color: var(--primary); font-size: 14px;">FY 2026–27</h1>
+            </div>
+            <div class="header-meta">
+              <p>RRPL Performance Tracker</p>
+              <p>Generated: ${new Date().toLocaleDateString()}</p>
+            </div>
+          </div>
+
+          <div class="profile-grid avoid-break">
+            <div class="profile-item">
+              <span class="profile-label">Participant Name</span>
+              <span class="profile-val">${pDetails.user_name || 'N/A'}</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Project / Territory</span>
+              <span class="profile-val">${pDetails.project_name || 'N/A'}</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Reporting To</span>
+              <span class="profile-val">${pDetails.manager_name || 'N/A'}</span>
+            </div>
+            <div class="profile-item">
+              <span class="profile-label">Annual Unit Goal</span>
+              <span class="profile-val highlight">${data.main?.my_goal || pDetails.total_unit || 0}</span>
+            </div>
+          </div>
+
+          <div class="section avoid-break">
+             <h2>Monthly Unit Target Distribution</h2>
+             ${monthlyHtml}
+          </div>
+
+          <div class="section">
+             <h2>Defined Roles & Key Objectives</h2>
+             <div class="roles-container">
+               ${rolesHtml || '<p>No specific roles defined.</p>'}
+             </div>
+          </div>
+          
+       
+        </div>
+
+        <!-- PAGE 2: Execution Details -->
+        <div class="page">
+          <div class="header-brand">
+            <div>
+              <h1>Execution & Strategy Breakdown</h1>
+              <h1 style="color: var(--primary); font-size: 14px;">FY 2026–27</h1>
+            </div>
+            <div class="header-meta">
+              <p>${pDetails.user_name || 'Participant'}</p>
+              <p>${pDetails.project_name || 'Project'}</p>
+            </div>
+          </div>
+
+          <div class="section avoid-break">
+             <h2>Quarterly Performance Benchmarks</h2>
+             ${quartersHtml}
+          </div>
+
+          <div class="section avoid-break">
+             <h2>Inventory Type Targets</h2>
+             ${inventoryHtml}
+          </div>
+
+          <div class="section avoid-break">
+             <h2>Team Sizing / Manpower Setup</h2>
+             ${teamHtml}
+          </div>
+
+          <div class="section avoid-break">
+             <h2>Direct Support & Strategy Requirements</h2>
+             ${whatINeedHtml}
+          </div>
+
+       
+        </div>
+
+      </body>
+      </html>
+    `;
+  }
 }

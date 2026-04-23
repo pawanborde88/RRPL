@@ -334,6 +334,7 @@ export class AllBookingsComponent implements OnInit {
         { key: 'parking_no', label: 'Parking No' },
         { key: 'parking_charges', label: 'Parking Charges', isAmount: true },
         { key: 'parking_type', label: 'Parking Type' },
+        { key: 'tentative_loan_amount', label: 'Tentative Loan Amount', isAmount: true },
         { key: 'package_total', label: 'Package Total', isAmount: true },
         { key: 'source', label: 'Source' },
         { key: 'source_detail', label: 'Source Type' },

@@ -95,9 +95,10 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
     const basePayload = this.store.basePayload();
     const existingFilters = (basePayload['filters'] as any) || {};
 
+    const searchVal = basePayload['search'] || this.store.searchText() || '';
     const payload = {
       ...basePayload,
-      search: basePayload['search'] || this.store.searchText() || '',
+      search: searchVal,
       filters: Object.keys(existingFilters).length > 0 ? existingFilters : undefined,
       ...overridePayload
     };
@@ -151,8 +152,10 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
     this.store.setPinnedBottomRowData(data);
   }
 
-  refreshData(): void {
-    this.store.setSearchText('');
+  refreshData(clearSearch: boolean = true): void {
+    if (clearSearch) {
+      this.store.setSearchText('');
+    }
     this.store.resetDataState();
     const api = this.store.gridApi();
     if (api) {
@@ -163,7 +166,7 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
 
   updateSearchText(text: string): void {
     this.store.setSearchText(text);
-    this.refreshData();
+    this.refreshData(false);
   }
 
   clearSearch(): void {

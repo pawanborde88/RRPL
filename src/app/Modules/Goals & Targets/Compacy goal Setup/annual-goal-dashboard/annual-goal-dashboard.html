@@ -263,12 +263,15 @@
                             <th class="text-center">Q2</th>
                             <th class="text-center">Q3</th>
                             <th class="text-center">Q4</th>
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @for (goal of companyGoalMainData(); track goal.id; let i = $index) {
                         <tr class="group">
-                            <td class="text-center font-black text-slate-400">{{ i + 1 | number: '2.0-0' }}</td>
+                            <td class="text-center font-black text-slate-400">
+                                {{ i + 1 | number: '2.0-0' }}
+                            </td>
                             <td>
                                 <div class="flex flex-col">
                                     <span
@@ -313,10 +316,17 @@
                                 </div>
                             </td>
                             }
+                            <td class="text-center">
+                                <button mat-icon-button (click)="onPrintGoal(goal)"
+                                    class="!w-7 !h-7 !bg-indigo-50 !text-indigo-600 rounded-lg hover:!bg-indigo-100 transition-colors"
+                                    title="Print Goal">
+                                    <mat-icon class="!text-[16px] !h-4 !w-4">print</mat-icon>
+                                </button>
+                            </td>
                         </tr>
                         } @empty {
                         <tr>
-                            <td [attr.colspan]="showUnitCount() ? 10 : 9" class="py-20 text-center animate-pulse">
+                            <td [attr.colspan]="showUnitCount() ? 11 : 10" class="py-20 text-center animate-pulse">
                                 <mat-icon class="text-slate-200 text-4xl h-10 w-10 mb-2">inbox</mat-icon>
                                 <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">No Active
                                     Records Found</p>

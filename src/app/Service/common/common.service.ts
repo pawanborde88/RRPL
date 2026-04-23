@@ -1076,4 +1076,21 @@ export class CommonService {
         })
       );
   }
+
+  /**
+   * Fetch full goal details for printing
+   * @param goalId - Goal ID
+   * @returns Observable of full goal data
+   */
+  fetchFullGoal(goalId: number): Observable<any> {
+    const payload = { goal_id: goalId };
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_full_goal`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching full goal:', error);
+          return of(null);
+        })
+      );
+  }
 }

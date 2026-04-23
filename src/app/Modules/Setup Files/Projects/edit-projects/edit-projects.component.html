@@ -10,7 +10,7 @@
     <div class="container-fluid p-0">
       <!-- Header Section -->
       <mat-card-header
-        class="sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full bg-gray-200  backdrop-blur-md shadow-sm border-b border-gray-100 rounded-t-2xl">
+        class="sticky top-0 z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full bg-gray-100 py-2 px-3 backdrop-blur-md shadow-sm border-b border-gray-200 rounded-t-2xl">
         <!-- Left Section -->
         <div class="flex items-center gap-4 mb-4 sm:mb-0">
 
@@ -25,21 +25,21 @@
         <!-- Right Section -->
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
           <button mat-stroked-button
-            class="flex-1 sm:flex-none h-11 px-6 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-bold transition-all rounded-xl"
+            class="flex-1 sm:flex-none h-9 px-4 border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 font-bold transition-all rounded-lg"
             routerLink="/all-projects">
             <mat-icon class="mr-2 !w-5 !h-5">arrow_back</mat-icon>
             Back
           </button>
 
           <button mat-stroked-button color="warn"
-            class="flex-1 sm:flex-none h-11 px-6 border-red-200 hover:bg-red-50 hover:border-red-400 text-red-600 font-bold transition-all rounded-xl"
+            class="flex-1 sm:flex-none h-9 px-4 border-red-200 hover:bg-red-50 hover:border-red-400 text-red-600 font-bold transition-all rounded-lg"
             (click)="discardChanges()" [disabled]="!editProjectForm.dirty">
             <mat-icon class="mr-2 !w-5 !h-5">refresh</mat-icon>
             Discard
           </button>
 
           <button mat-raised-button color="primary"
-            class="flex-1 sm:flex-none h-11 px-8 bg-primary-600 hover:bg-primary-700 shadow-lg hover:shadow-xl transition-all font-black rounded-xl text-white"
+            class="flex-1 sm:flex-none h-9 px-6 bg-primary-600 hover:bg-primary-700 shadow-lg hover:shadow-xl transition-all font-black rounded-lg text-white"
             (click)="onSubmit()">
             <mat-icon class="mr-2 !w-5 !h-5">save</mat-icon>
             Save Changes
@@ -48,29 +48,29 @@
       </mat-card-header>
 
       <!-- Form Content -->
-      <div class="p-4 sm:p-6">
-        <form [formGroup]="editProjectForm" class="space-y-6">
+      <div class="p-2 sm:p-3">
+        <form [formGroup]="editProjectForm" class="space-y-4">
 
 
           <!-- Expansion Panels -->
-          <mat-accordion multi class="space-y-4">
+          <mat-accordion multi class="space-y-2">
             <!-- Section 1: Project Images -->
             <mat-expansion-panel [expanded]="true"
-              class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-primary-200 transition-all duration-300 overflow-hidden">
-              <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-primary-200 transition-all duration-300 overflow-hidden">
+              <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
                 <mat-panel-title class="flex items-center gap-4">
-                  <div class="p-2.5 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl shadow-sm">
-                    <mat-icon class="text-primary-600 text-xl">photo_library</mat-icon>
+                  <div class="p-1.5 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg shadow-sm">
+                    <mat-icon class="text-primary-600 !text-lg !w-5 !h-5">photo_library</mat-icon>
                   </div>
                   <div>
-                    <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Visuals</h5>
+                    <h5 class="text-base font-bold text-gray-800 tracking-tight">Project Visuals</h5>
                   </div>
                 </mat-panel-title>
               </mat-expansion-panel-header>
 
-              <div class="px-6 pb-6 pt-2">
+              <div class="pb-3 pt-1">
                 <!-- Image Upload Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
                   <!-- Company Logo -->
                   <div class="space-y-4">
@@ -299,14 +299,14 @@
 
             <!-- Section 2: Basic Information -->
             <mat-expansion-panel
-              class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-blue-200 transition-all duration-300 overflow-hidden">
-              <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+              class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-blue-200 transition-all duration-300 overflow-hidden">
+              <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
                 <mat-panel-title class="flex items-center gap-4">
-                  <div class="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm">
-                    <mat-icon class="text-blue-600 text-xl">info</mat-icon>
+                  <div class="p-1.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm">
+                    <mat-icon class="text-blue-600 !text-lg !w-5 !h-5">info</mat-icon>
                   </div>
                   <div>
-                    <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Details</h5>
+                    <h5 class="text-base font-bold text-gray-800 tracking-tight">Project Details</h5>
                   </div>
                 </mat-panel-title>
                 <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -319,20 +319,22 @@
                 </mat-panel-description>
               </mat-expansion-panel-header>
 
-              <div class="p-6 md:p-8">
+              <div>
                 <!-- Grid Container -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-x-4 gap-y-2">
                   <!-- Row 1: General Info -->
                   <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Name</mat-label>
                     <input matInput formControlName="property_name" placeholder="Enter Project Name" />
-                    <mat-error *ngIf="editProjectForm.get('property_name')?.hasError('required')">Name is required</mat-error>
+                    <mat-error *ngIf="editProjectForm.get('property_name')?.hasError('required')">Name is
+                      required</mat-error>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Code</mat-label>
                     <input matInput formControlName="project_code" placeholder="Project Code" />
-                    <mat-error *ngIf="editProjectForm.get('project_code')?.hasError('required')">Code is required</mat-error>
+                    <mat-error *ngIf="editProjectForm.get('project_code')?.hasError('required')">Code is
+                      required</mat-error>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="w-full text-sm">
@@ -382,7 +384,7 @@
                     <input matInput formControlName="max_cost" placeholder="0" appAmount />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Pricing Details</mat-label>
                     <input matInput formControlName="pricing_desc" placeholder="e.g. Including all taxes" />
                   </mat-form-field>
@@ -414,6 +416,14 @@
                     </mat-select>
                   </mat-form-field>
 
+                  <mat-form-field appearance="outline" class="w-full text-sm">
+                    <mat-label>CP Status</mat-label>
+                    <mat-select formControlName="cp_status_id">
+                      <mat-option [value]="1">Active</mat-option>
+                      <mat-option [value]="0">Inactive</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
                   <mat-form-field appearance="outline" class="w-full text-sm" *ngIf="roleId === 2">
                     <mat-label>Call Masking</mat-label>
                     <mat-select formControlName="call_masking_id">
@@ -438,7 +448,8 @@
 
                   <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Event Date</mat-label>
-                    <input matInput [matDatepicker]="event_date_picker" formControlName="event_date" (click)="event_date_picker.open()" />
+                    <input matInput [matDatepicker]="event_date_picker" formControlName="event_date"
+                      (click)="event_date_picker.open()" />
                     <mat-datepicker #event_date_picker></mat-datepicker>
                   </mat-form-field>
 
@@ -456,41 +467,41 @@
                     </mat-select>
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-3">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Event Description</mat-label>
                     <input matInput formControlName="event_remark" placeholder="Describe the event" />
                   </mat-form-field>
 
                   <!-- Row 6: URLs & Footer -->
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Map Location URL</mat-label>
                     <input matInput formControlName="map_location" placeholder="Google Maps Link" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Website</mat-label>
                     <input matInput formControlName="website" placeholder="https://example.com" />
                   </mat-form-field>
 
                   <!-- Row 7: Address & Footer Text -->
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Address</mat-label>
                     <input matInput formControlName="address" placeholder="Full site address" />
                   </mat-form-field>
 
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-2">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Microsite Footer Text</mat-label>
                     <input matInput formControlName="footer_description" placeholder="Disclaimer or copyright text" />
                   </mat-form-field>
 
                   <!-- Row 8: Full Description -->
-                  <mat-form-field appearance="outline" class="w-full text-sm lg:col-span-4">
+                  <mat-form-field appearance="outline" class="w-full text-sm">
                     <mat-label>Project Description</mat-label>
                     <input matInput formControlName="description" placeholder="Brief project overview" />
                   </mat-form-field>
 
                   <!-- Row 9: Features -->
-                  <div class="lg:col-span-4 flex gap-6 py-2">
+                  <div class="flex gap-6 py-2">
                     <mat-checkbox formControlName="is_featured" color="primary">
                       <span class="text-sm font-bold text-gray-800">Featured Project</span>
                     </mat-checkbox>
@@ -508,18 +519,18 @@
       </div>
 
       <!-- Additional Sections Accordion -->
-      <div class="px-4 sm:px-6 pb-6">
-        <mat-accordion multi class="space-y-4">
+      <div class="px-3 sm:px-4 pb-4">
+        <mat-accordion multi class="space-y-3">
           <!-- Section 6: Phases -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-teal-200 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-teal-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm">
-                  <mat-icon class="text-teal-600 text-xl">layers</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-teal-600 !text-lg !w-5 !h-5">layers</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Phases</h5>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Project Phases</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -527,21 +538,21 @@
                   class="text-xs font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full uppercase tracking-tighter">Manage</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
+            <div class="p-2">
               <app-all-phases [projectID]="projectID()"></app-all-phases>
             </div>
           </mat-expansion-panel>
 
           <!-- Section 7: Project Wings -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-indigo-200 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-indigo-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl shadow-sm">
-                  <mat-icon class="text-indigo-600 text-xl">apartment</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-indigo-600 !text-lg !w-5 !h-5">apartment</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Wings</h5>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Project Wings</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -549,21 +560,21 @@
                   class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-tighter">Configure</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
+            <div class="p-2">
               <app-all-project-wings [projectID]="projectID()"></app-all-project-wings>
             </div>
           </mat-expansion-panel>
 
           <!-- Section 8: Configurations -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-pink-200 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-pink-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl shadow-sm">
-                  <mat-icon class="text-pink-600 text-xl">grid_view</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-pink-600 !text-lg !w-5 !h-5">grid_view</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Configurations</h5>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Configurations</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -571,22 +582,21 @@
                   class="text-xs font-bold text-pink-600 bg-pink-50 px-3 py-1 rounded-full uppercase tracking-tighter">Edit</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
+            <div class="p-2">
               <app-all-configuration [projectID]="projectID()"></app-all-configuration>
             </div>
           </mat-expansion-panel>
 
           <!-- Section 9: Specifications -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-amber-200 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-amber-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl shadow-sm">
-                  <mat-icon class="text-amber-600 text-xl">checklist</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-amber-600 !text-lg !w-5 !h-5">checklist</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Specifications</h5>
-
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Specifications</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -594,21 +604,21 @@
                   class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-tighter">Define</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
+            <div class="p-2">
               <app-all-specifications [projectID]="projectID()"></app-all-specifications>
             </div>
           </mat-expansion-panel>
 
           <!-- Section 10: Amenities & Signatures -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-cyan-200 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-cyan-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl shadow-sm">
-                  <mat-icon class="text-cyan-600 text-xl">home_work</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-cyan-600 !text-lg !w-5 !h-5">home_work</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Amenities & Signatures</h5>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Amenities & Signatures</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -616,22 +626,18 @@
                   class="text-xs font-bold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full uppercase tracking-tighter">Review</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="p-2">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- Amenities -->
-                <div class="space-y-4">
-                  <div class="flex items-center gap-2">
-                  </div>
-                  <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div class="space-y-2">
+                  <div class="p-2 bg-white rounded-xl border border-gray-100 shadow-sm">
                     <app-all-aminities [projectID]="projectID()"></app-all-aminities>
                   </div>
                 </div>
 
                 <!-- Signatures -->
-                <div class="space-y-4">
-                  <div class="flex items-center gap-2">
-                  </div>
-                  <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                <div class="space-y-2">
+                  <div class="p-2 bg-white rounded-xl border border-gray-100 shadow-sm">
                     <app-fetch-all-project-signature [projectID]="projectID()"></app-fetch-all-project-signature>
                   </div>
                 </div>
@@ -641,14 +647,14 @@
 
           <!-- Section 11: Documents -->
           <mat-expansion-panel
-            class="!rounded-2xl !shadow-sm !border border-gray-200 hover:!border-gray-300 transition-all duration-300 overflow-hidden">
-            <mat-expansion-panel-header class="!h-16 px-6 hover:!bg-gray-50/50">
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-gray-300 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
               <mat-panel-title class="flex items-center gap-4">
-                <div class="p-2.5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl shadow-sm">
-                  <mat-icon class="text-gray-600 text-xl">folder</mat-icon>
+                <div class="p-1.5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-sm">
+                  <mat-icon class="text-gray-600 !text-lg !w-5 !h-5">folder</mat-icon>
                 </div>
                 <div>
-                  <h5 class="text-lg font-bold text-gray-800 tracking-tight">Project Documents</h5>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Project Documents</h5>
                 </div>
               </mat-panel-title>
               <mat-panel-description class="hidden sm:flex justify-end pr-4">
@@ -656,7 +662,7 @@
                   class="text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-tighter">Browse</span>
               </mat-panel-description>
             </mat-expansion-panel-header>
-            <div class="p-6">
+            <div class="p-4">
               <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
                 <app-all-documents [projectID]="projectID()"></app-all-documents>
               </div>

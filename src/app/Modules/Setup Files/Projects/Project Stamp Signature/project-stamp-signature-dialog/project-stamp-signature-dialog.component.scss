@@ -1,55 +1,57 @@
 /* Dialog container */
 mat-dialog-content {
-  padding: 16px;
-  min-width: 400px;
-  max-width: 600px;
+  padding: 12px 16px !important;
+  min-width: 380px;
+  max-width: 500px;
 }
 
 /* Section styling */
 .image-upload-section {
-  margin-bottom: 24px;
-  padding: 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
   background: #fafafa;
 
-  h3 {
+  h6 {
     margin-top: 0;
-    color: #333;
-    font-size: 1.1rem;
-    font-weight: 500;
+    color: #444;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 }
 
 /* Image preview container */
 .image-preview {
-  margin: 12px 0;
-  
+  margin: 8px 0;
+
   .image-container {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 140px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f5f5f5;
+    background-color: #f8f9fa;
     border-radius: 4px;
     overflow: hidden;
-    border: 1px dashed #ccc;
+    border: 1px dashed #ddd;
   }
 
   .preview-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    padding: 8px;
+    padding: 6px;
   }
 
   .delete-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 6px;
+    right: 6px;
     background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
     &:hover {
       background: rgba(255, 255, 255, 1);
     }
@@ -60,25 +62,22 @@ mat-dialog-content {
 .upload-control {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 
   .upload-btn {
     width: fit-content;
   }
 
   .file-hint {
-    color: #666;
-    font-size: 0.8rem;
+    color: #888;
+    font-size: 0.75rem;
   }
 }
 
 /* Dialog actions */
 mat-dialog-actions {
-  padding: 16px;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 16px;
-
-
+  padding: 8px 16px !important;
+  border-top: 1px solid #eee;
 }
 
 /* Responsive adjustments */
@@ -86,9 +85,10 @@ mat-dialog-actions {
   mat-dialog-content {
     min-width: unset;
     width: 100%;
+    padding: 12px !important;
   }
 
   .image-preview .image-container {
-    height: 150px;
+    height: 120px;
   }
 }

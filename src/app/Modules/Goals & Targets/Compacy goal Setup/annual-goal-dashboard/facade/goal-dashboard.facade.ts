@@ -201,4 +201,8 @@ export class GoalDashboardFacade {
   refreshSummary(): void {
     this.summaryResource.reload();
   }
+
+  fetchFullGoal(goalId: number) {
+    return this.commonService.fetchFullGoal(goalId);
+  }
 }

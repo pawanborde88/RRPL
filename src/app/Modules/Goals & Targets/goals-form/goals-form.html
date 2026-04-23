@@ -7,13 +7,17 @@
     <form [formGroup]="goalsForm"
         class="goals-form px-3 py-3 sm:px-4 md:px-5 max-w-6xl w-full mx-auto space-y-3 bg-slate-50 font-sans text-sm">
 
-        <div class="mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b border-slate-200 pb-4">
+        <div
+            class="mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b border-slate-200 pb-4">
             <div>
-                <h5 class="text-2xl font-extrabold text-slate-800 tracking-tight leading-none mb-1">My Annual Commitment</h5>
-                <p class="text-xs font-medium text-slate-500 uppercase tracking-widest">FY 2026–27 · Strategic Goal Setting</p>
+                <h5 class="text-2xl font-extrabold text-slate-800 tracking-tight leading-none mb-1">My Annual Commitment
+                </h5>
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-widest">FY 2026–27 · Strategic Goal
+                    Setting</p>
             </div>
             <div class="hidden sm:block">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
                     <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-teal-500"></span>
                     Active Session
                 </span>
@@ -77,57 +81,59 @@
                 <div class="flex items-center gap-3 mb-6">
                     <div
                         class="flex items-center justify-center w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-100 font-bold text-sm">
-                        {{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }}
+                        {{ i + 1 < 10 ? '0' : '' }}{{ i + 1 }} </div>
+                            <h6 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Role Definition</h6>
+                            <div class="flex-1 border-t border-slate-100 hidden sm:block"></div>
                     </div>
-                    <h6 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Role Definition</h6>
-                    <div class="flex-1 border-t border-slate-100 hidden sm:block"></div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 mb-8">
-                    <div class="flex flex-col gap-1.5 min-w-0">
-                        <label class="gf-role-label">What is my top {{ i + 1 }} role</label>
-                        <input type="text" formControlName="title" class="gf-underline-input"
-                            placeholder="e.g. TAT Owner">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 mb-8">
+                        <div class="flex flex-col gap-1.5 min-w-0">
+                            <label class="gf-role-label">What is my top {{ i + 1 }} role</label>
+                            <input type="text" formControlName="title" class="gf-underline-input"
+                                placeholder="e.g. TAT Owner">
+                        </div>
+                        <div class="flex flex-col gap-1.5 min-w-0">
+                            <label class="gf-role-label">Measured by</label>
+                            <input type="text" formControlName="measure" class="gf-underline-input"
+                                placeholder="e.g. Agreement &amp; disbursement TAT">
+                        </div>
+                        <div class="flex flex-col gap-1.5 min-w-0">
+                            <label class="gf-role-label">Annual target</label>
+                            <input type="text" formControlName="target" class="gf-underline-input"
+                                placeholder="e.g. Under 48 hours">
+                        </div>
                     </div>
-                    <div class="flex flex-col gap-1.5 min-w-0">
-                        <label class="gf-role-label">Measured by</label>
-                        <input type="text" formControlName="measure" class="gf-underline-input"
-                            placeholder="e.g. Agreement &amp; disbursement TAT">
-                    </div>
-                    <div class="flex flex-col gap-1.5 min-w-0">
-                        <label class="gf-role-label">Annual target</label>
-                        <input type="text" formControlName="target" class="gf-underline-input"
-                            placeholder="e.g. Under 48 hours">
-                    </div>
-                </div>
 
-                <div class="bg-slate-50/50 rounded-xl p-4 md:p-5 border border-slate-100">
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Key Action Items</div>
-                    <div formArrayName="actionItems" class="space-y-3">
-                        @for (item of roleActionItems(i).controls; track item; let j = $index) {
-                        <div [formGroupName]="j" class="flex items-center gap-3 group">
-                            <span class="text-xs font-bold text-slate-300 w-5 shrink-0 tabular-nums">{{ j + 1 }}.</span>
-                            <input type="text" formControlName="text" class="gf-underline-input flex-1 min-w-0 !py-2"
-                                placeholder="e.g. Submit agreement docs to CRM within 24h">
-                            @if (roleActionItems(i).length > 3) {
-                            <button mat-icon-button type="button" (click)="removeRoleActionItem(i, j)"
-                                class="!w-9 !h-9 shrink-0 gf-action-remove"
-                                [attr.aria-label]="'Remove action ' + (j + 1)">
-                                <mat-icon class="!text-lg">close</mat-icon>
-                            </button>
+                    <div class="bg-slate-50/50 rounded-xl p-4 md:p-5 border border-slate-100">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Key Action
+                            Items</div>
+                        <div formArrayName="actionItems" class="space-y-3">
+                            @for (item of roleActionItems(i).controls; track item; let j = $index) {
+                            <div [formGroupName]="j" class="flex items-center gap-3 group">
+                                <span class="text-xs font-bold text-slate-300 w-5 shrink-0 tabular-nums">{{ j + 1
+                                    }}.</span>
+                                <input type="text" formControlName="text"
+                                    class="gf-underline-input flex-1 min-w-0 !py-2"
+                                    placeholder="e.g. Submit agreement docs to CRM within 24h">
+                                @if (roleActionItems(i).length > 3) {
+                                <button mat-icon-button type="button" (click)="removeRoleActionItem(i, j)"
+                                    class="!w-9 !h-9 shrink-0 gf-action-remove"
+                                    [attr.aria-label]="'Remove action ' + (j + 1)">
+                                    <mat-icon class="!text-lg">close</mat-icon>
+                                </button>
+                                }
+                            </div>
                             }
                         </div>
-                        }
-                    </div>
 
-                    <button mat-button type="button" class="gf-add-action mt-4 !text-xs !px-2 !rounded-lg"
-                        (click)="addRoleActionItem(i)">
-                        <mat-icon class="!w-4 !h-4 !text-base mr-1">add_circle</mat-icon>
-                        Add action item
-                    </button>
+                        <button mat-button type="button" class="gf-add-action mt-4 !text-xs !px-2 !rounded-lg"
+                            (click)="addRoleActionItem(i)">
+                            <mat-icon class="!w-4 !h-4 !text-base mr-1">add_circle</mat-icon>
+                            Add action item
+                        </button>
+                    </div>
                 </div>
-            </div>
-            }
+                }
 
             </div>
 
@@ -148,9 +154,11 @@
                             <span class="gf-months-header-title">Units / bookings</span>
                             @if (annualUnitsGoalNumber() !== null) {
                             <span class="gf-months-header-goal"
-                                title="Annual unit target (from “My goal is to” above)">Goal {{ annualUnitsGoalNumber() }}</span>
+                                title="Annual unit target (from “My goal is to” above)">Goal {{ annualUnitsGoalNumber()
+                                }}</span>
                             <span class="gf-months-header-progress tabular-nums"
-                                title="Allocated units this FY vs goal">{{ totalMonthlyUnitsSum() }}/{{ annualUnitsGoalNumber() }}</span>
+                                title="Allocated units this FY vs goal">{{ totalMonthlyUnitsSum() }}/{{
+                                annualUnitsGoalNumber() }}</span>
                             }
                             @if (monthlyUnitsFullyMatchGoal()) {
                             <span class="gf-months-header-met">
@@ -160,25 +168,25 @@
                             }
                             <span class="gf-months-header-rule" aria-hidden="true"></span>
                         </div>
-                        <div class="gf-months-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 w-full min-w-0">
+                        <div
+                            class="gf-months-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 w-full min-w-0">
                             @for (m of MONTH_KEYS; track m) {
                             <div class="gf-month-cell">
                                 <div class="gf-month-label">
                                     <span>{{ m }}</span>
                                     @if (monthCumulativeDoneFlags()[m]) {
-                                    <mat-icon
-                                        class="gf-month-done-icon !w-4 !h-4 !text-base text-emerald-500 shrink-0"
+                                    <mat-icon class="gf-month-done-icon !w-4 !h-4 !text-base text-emerald-500 shrink-0"
                                         [attr.aria-label]="'Annual unit goal reached through ' + m">check_circle</mat-icon>
                                     }
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <ng-container formGroupName="months">
-                                        <input type="number" [formControlName]="m" class="gf-month-input" placeholder="0">
+                                        <input type="number" [formControlName]="m" class="gf-month-input"
+                                            placeholder="0">
                                     </ng-container>
                                     @if (isFullForm) {
                                     <ng-container formGroupName="monthStrategies">
-                                        <app-month-strategy-multiselect
-                                            [control]="getMonthStrategyControl(m)"
+                                        <app-month-strategy-multiselect [control]="getMonthStrategyControl(m)"
                                             [groups]="store.strategysGrouped()" />
                                     </ng-container>
                                     }
@@ -304,56 +312,72 @@
 
             @if (isFullForm) {
             <!-- INVENTORY -->
-            <mat-card class="!border-l-4 !border-l-emerald-500 !shadow-sm !rounded-2xl overflow-hidden" formGroupName="inventory">
+            <mat-card class="!border-l-4 !border-l-emerald-500 !shadow-sm !rounded-2xl overflow-hidden"
+                formGroupName="inventory">
                 <mat-card-content class="!p-5 md:!p-6">
                     <div class="flex items-center gap-2 mb-1">
                         <mat-icon class="!text-emerald-600 !w-5 !h-5 !text-xl">inventory_2</mat-icon>
-                        <div class="text-xs font-extra-bold text-emerald-800 uppercase tracking-widest">Sanctioned Inventory · 1 Apr 2026</div>
+                        <div class="text-xs font-extra-bold text-emerald-800 uppercase tracking-widest">Sanctioned
+                            Inventory · 1 Apr 2026</div>
                     </div>
-                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Opening stock by configuration; quarterly need to meet plan.</p>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Opening stock by configuration; quarterly
+                        need to meet plan.</p>
 
                     <div class="space-y-6">
                         <div formArrayName="opening"
                             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                             @for (row of inventoryOpening.controls; track row; let i = $index) {
-                            <div [formGroupName]="i" class="bg-slate-50 p-3 rounded-xl border border-slate-100 transition hover:border-emerald-200">
-                                <div class="text-[10px] font-bold text-slate-500 mb-2 leading-tight uppercase tracking-wider">
+                            <div [formGroupName]="i"
+                                class="bg-slate-50 p-3 rounded-xl border border-slate-100 transition hover:border-emerald-200">
+                                <div
+                                    class="text-[10px] font-bold text-slate-500 mb-2 leading-tight uppercase tracking-wider">
                                     {{ row.get('configuration_name')?.value }}
                                 </div>
                                 <input type="number" formControlName="units"
                                     class="w-full bg-transparent border-none border-b-2 border-slate-200 font-bold text-sm focus:border-emerald-500 focus:outline-none py-1">
                             </div>
                             }
-                            <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex flex-col justify-center">
-                                <div class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Total Opening</div>
-                                <div class="font-black text-emerald-600 text-lg tabular-nums leading-none">{{ totalInventoryOpening() || '0' }}</div>
+                            <div
+                                class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl flex flex-col justify-center">
+                                <div class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Total
+                                    Opening</div>
+                                <div class="font-black text-emerald-600 text-lg tabular-nums leading-none">{{
+                                    totalInventoryOpening() || '0' }}</div>
                             </div>
                         </div>
 
-                        <div formGroupName="needed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 border-t border-slate-100 pt-6">
+                        <div formGroupName="needed"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 border-t border-slate-100 pt-6">
                             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q1</div>
+                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q1
+                                </div>
                                 <input type="number" formControlName="q1"
                                     class="w-full bg-transparent border-none border-b-2 border-slate-200 font-bold text-sm focus:border-emerald-500 focus:outline-none py-1">
                             </div>
                             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q2</div>
+                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q2
+                                </div>
                                 <input type="number" formControlName="q2"
                                     class="w-full bg-transparent border-none border-b-2 border-slate-200 font-bold text-sm focus:border-emerald-500 focus:outline-none py-1">
                             </div>
                             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q3</div>
+                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q3
+                                </div>
                                 <input type="number" formControlName="q3"
                                     class="w-full bg-transparent border-none border-b-2 border-slate-200 font-bold text-sm focus:border-emerald-500 focus:outline-none py-1">
                             </div>
                             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q4</div>
+                                <div class="text-[10px] font-bold text-slate-500 mb-1 uppercase tracking-wider">Need Q4
+                                </div>
                                 <input type="number" formControlName="q4"
                                     class="w-full bg-transparent border-none border-b-2 border-slate-200 font-bold text-sm focus:border-emerald-500 focus:outline-none py-1">
                             </div>
-                            <div class="bg-emerald-600 p-3 rounded-xl lg:col-span-2 flex flex-col justify-center shadow-md">
-                                <div class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-1">FY Total Needed</div>
-                                <div class="font-black text-white text-lg tabular-nums leading-none">{{ totalInventoryNeeded() || '0' }}</div>
+                            <div
+                                class="bg-emerald-600 p-3 rounded-xl lg:col-span-2 flex flex-col justify-center shadow-md">
+                                <div class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-1">FY
+                                    Total Needed</div>
+                                <div class="font-black text-white text-lg tabular-nums leading-none">{{
+                                    totalInventoryNeeded() || '0' }}</div>
                             </div>
                         </div>
                     </div>
@@ -369,7 +393,8 @@
                         <mat-icon class="!text-indigo-600 !w-5 !h-5 !text-xl">groups</mat-icon>
                         <div class="text-xs font-bold text-indigo-800 uppercase tracking-widest">Team Strength</div>
                     </div>
-                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Current strength of your functional teams.</p>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Current strength of your functional teams.
+                    </p>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div class="flex flex-col gap-1.5">
@@ -391,7 +416,8 @@
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <label class="gf-section-label">Sourcing Team</label>
-                            <input type="number" formControlName="source_team" class="gf-underline-input" placeholder="0">
+                            <input type="number" formControlName="source_team" class="gf-underline-input"
+                                placeholder="0">
                         </div>
                     </div>
                 </mat-card-content>
@@ -489,21 +515,24 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 pt-6 border-t border-slate-200">
-                <button mat-flat-button class="!bg-emerald-600 hover:!bg-emerald-700 !text-white !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto transition-all shadow-md hover:shadow-lg"
+                <!-- <button mat-flat-button
+                    class="!bg-emerald-600 hover:!bg-emerald-700 !text-white !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto transition-all shadow-md hover:shadow-lg"
                     (click)="downloadExcel()">
                     <mat-icon class="mr-2">description</mat-icon>
                     Export Excel
                 </button>
-                
-                <button mat-flat-button class="!bg-rose-600 hover:!bg-rose-700 !text-white !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto transition-all shadow-md hover:shadow-lg"
+
+                <button mat-flat-button
+                    class="!bg-rose-600 hover:!bg-rose-700 !text-white !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto transition-all shadow-md hover:shadow-lg"
                     (click)="printForm()">
                     <mat-icon class="mr-2">picture_as_pdf</mat-icon>
                     Export PDF
-                </button>
+                </button> -->
 
                 <div class="flex-1 hidden md:block"></div>
 
-                <button mat-stroked-button class="!border-slate-300 !text-slate-600 !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto hover:!bg-slate-50 transition-all"
+                <button mat-stroked-button
+                    class="!border-slate-300 !text-slate-600 !font-bold !rounded-xl !px-6 !py-6 !text-sm w-full sm:w-auto hover:!bg-slate-50 transition-all"
                     type="button" (click)="clearForm()">
                     Reset Form
                 </button>
@@ -520,8 +549,7 @@
                 </button>
 
                 <div class="w-full text-center sm:text-left mt-2">
-                    <span
-                        class="text-xs font-bold text-emerald-600 transition-opacity duration-300"
+                    <span class="text-xs font-bold text-emerald-600 transition-opacity duration-300"
                         [class.opacity-0]="!store.downloadMessage()" [class.opacity-100]="store.downloadMessage()">
                         <mat-icon class="!text-sm !w-4 !h-4 align-middle mr-1">check_circle</mat-icon>
                         Downloaded successfully.

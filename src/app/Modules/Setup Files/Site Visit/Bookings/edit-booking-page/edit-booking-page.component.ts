@@ -524,6 +524,7 @@ export class EditBookingPageComponent {
       .subscribe({
         next: (res: any) => {
           if (res.success) {
+            this.calculationsDisabled.set(true);
             this.stateService.setFloorUnitField(true);
             const bookingData = res.data;
 
@@ -675,18 +676,18 @@ export class EditBookingPageComponent {
             if (bookingData.project_enq_id) {
               this.fetchSingleEnquiry(bookingData.project_enq_id);
             }
-            this.triggerCalculations();
-
-            // Re-enable calculations
 
             // Re-apply role-based field state after data is loaded
             this.handleSourceFieldsBasedOnRole();
+
+            this.calculationsDisabled.set(false);
 
             // Reset flag after patching is complete
             setTimeout(() => {
               this.isPatchingFromBooking = false;
             }, 100);
           }
+
         },
         error: () => {
           this.snackBar.open('Unable to fetch booking details.', 'Close', {
@@ -746,7 +747,7 @@ export class EditBookingPageComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
-          this.triggerCalculations();
+          this.calculationsDisabled.set(true);
 
           // Skip patching source fields if we're currently patching from booking data
           // This prevents overwriting values that were already patched from booking
@@ -759,6 +760,7 @@ export class EditBookingPageComponent {
               }, { emitEvent: false });
             }
             this.handleSourceFieldsBasedOnRole();
+            this.calculationsDisabled.set(false);
             return;
           }
 
@@ -790,7 +792,9 @@ export class EditBookingPageComponent {
           }
 
           this.handleSourceFieldsBasedOnRole();
+          this.calculationsDisabled.set(false);
         },
+
         error: () => {
           this.snackBar.open('Unable to fetch enquiry details.', 'Close', {
             duration: 3000,

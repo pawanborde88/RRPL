@@ -109,6 +109,7 @@ export const ALL_BANKS = 'All Banks - Relation Realtech PVT.LTD.';
 
 // Channel Partner Module
 export const ALL_CHANNEL_PARTNER = 'All Channel Partners - Relation Realtech PVT.LTD.';
+export const SINGLE_CP_ALL_DATA = 'Single CP All Data - Relation Realtech PVT.LTD.';
 export const ADD_CHANNEL_PARTNER = 'Add Channel Partner - Relation Realtech PVT.LTD.';
 export const EDIT_CHANNEL_PARTNER = 'Edit Channel Partner - Relation Realtech PVT.LTD.';
 export const BROKERAGE_OFFER = 'Brokerage Offer - Relation Realtech PVT.LTD.';
