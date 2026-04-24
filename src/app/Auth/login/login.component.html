@@ -73,11 +73,13 @@
             <!-- Action Button -->
             <div class="pt-2">
               <button type="submit" mat-raised-button color="primary" [disabled]="!canSignIn()"
-                class="w-full flex items-center justify-center rounded-lg  py-3.5 text-base font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
-                @if (isLoading()) {
-                <mat-spinner diameter="20" class="mr-2"></mat-spinner>
-                }
-                Login
+                class="w-full rounded-lg py-3.5 text-base font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                <span class="flex items-center justify-center">
+                  @if (isLoading()) {
+                  <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+                  }
+                  Login
+                </span>
               </button>
             </div>
           </form>

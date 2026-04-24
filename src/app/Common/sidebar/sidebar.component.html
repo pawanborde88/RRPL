@@ -1,37 +1,39 @@
 <!-- Main Sidebar Container -->
-<div class="sidebar-container flex flex-col h-screen transition-all duration-300 ease-in-out relative font-sans"
-  [ngClass]="isSidebarExpanded() ? 'w-[240px]' : 'w-[64px]'">
+<div
+  class="flex flex-col h-screen bg-slate-50 border-r border-slate-200 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all duration-300 ease-in-out relative font-sans z-20"
+  [ngClass]="isSidebarExpanded() ? 'w-[240px]' : 'w-[76px]'">
 
   <!-- Search Section -->
-  <div class="px-3 mb-3 shrink-0 pt-2" *ngIf="isSidebarExpanded()">
-    <div class="relative group search-input-wrapper">
+  <div class="px-4 mb-2 shrink-0 pt-6" *ngIf="isSidebarExpanded()">
+    <div
+      class="relative group flex items-center bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 hover:shadow-sm focus-within:bg-white focus-within:border-sky-500 focus-within:ring-4 focus-within:ring-sky-500/10 transition-all duration-200 cursor-text">
       <mat-icon
-        class="search-icon absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 transition-colors text-[18px]">search</mat-icon>
+        class="absolute left-3.5 text-slate-400 group-focus-within:text-sky-600 transition-colors text-[20px]">search</mat-icon>
       <input [formControl]="searchControl" type="text" placeholder="Quick search..."
-        class="w-full text-[12px] font-medium rounded-lg pl-8 pr-3 py-2 outline-none">
+        class="w-full bg-transparent text-[13px] font-medium text-slate-800 placeholder:text-slate-400 rounded-xl pl-10 pr-3 py-2.5 outline-none transition-all">
     </div>
   </div>
 
-  <div class="px-2 mb-4 shrink-0 flex justify-center pt-5" *ngIf="!isSidebarExpanded()">
-    <button class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-all"
+  <div class="px-3 mb-2 shrink-0 flex justify-center pt-6" *ngIf="!isSidebarExpanded()">
+    <button
+      class="w-[42px] h-[42px] rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:border-slate-300 hover:shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-500/20"
       (click)="toggleSidebar()" matTooltip="Quick Search" matTooltipPosition="right">
-      <mat-icon class="text-slate-500 text-[20px]">search</mat-icon>
+      <mat-icon class="text-slate-500 group-hover:text-slate-700 text-[22px]">search</mat-icon>
     </button>
   </div>
 
   <!-- Scrollable Menu Content -->
-  <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pb-4 px-2.5">
-
+  <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar pb-6 px-3.5">
 
     <!-- Dashboard Item -->
     <div class="mb-1">
       <a routerLink="/home-page" routerLinkActive="nav-item-active" [routerLinkActiveOptions]="{exact: false}"
-        class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer"
+        class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900"
         [ngClass]="{'justify-center px-0': !isSidebarExpanded()}">
-        <div class="flex items-center justify-center w-5 h-5">
-          <mat-icon class="text-[22px]">dashboard</mat-icon>
+        <div class="flex items-center justify-center w-[22px] h-[22px] shrink-0">
+          <mat-icon class="text-[22px] transition-colors group-hover:text-sky-600">dashboard</mat-icon>
         </div>
-        <span *ngIf="isSidebarExpanded()" class="font-semibold text-[13.5px]">Dashboard</span>
+        <span *ngIf="isSidebarExpanded()" class="font-semibold text-[13.5px] tracking-tight">Dashboard</span>
       </a>
     </div>
 
@@ -42,57 +44,69 @@
           <div class="animate-slide-in">
             <!-- Top Level Item -->
             <div
-              class="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 relative select-none"
+              class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 relative select-none"
               [ngClass]="{
                   'nav-item-active': isMenuItemActive(menuKey),
+                  'text-slate-600 hover:bg-slate-50 hover:text-slate-900': !isMenuItemActive(menuKey),
                   'justify-center px-0': !isSidebarExpanded()
                 }" (click)="onMainItemClick(menuKey, $event)" (mouseenter)="onMenuItemHover(menuKey, $event)"
               (mouseleave)="onMenuItemLeave(menuKey)">
 
-              <div class="flex items-center justify-center w-5 h-5 shrink-0">
-                <mat-icon class="text-[22px]">{{ menuItems()[menuKey].icon }}</mat-icon>
+              <!-- Active Line Indicator (Collapsed Mode) -->
+              <div *ngIf="!isSidebarExpanded() && isMenuItemActive(menuKey)"
+                class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full bg-[#0d4678]"></div>
+
+              <div class="flex items-center justify-center w-[22px] h-[22px] shrink-0">
+                <mat-icon class="text-[22px] transition-colors"
+                  [ngClass]="!isMenuItemActive(menuKey) ? 'group-hover:text-sky-600' : ''">{{ menuItems()[menuKey].icon
+                  }}</mat-icon>
               </div>
 
               <ng-container *ngIf="isSidebarExpanded()">
                 <div class="flex-1 flex items-center justify-between min-w-0">
-                  <span class="text-[13.5px] truncate font-semibold">{{ menuItems()[menuKey].title }}</span>
-
+                  <span class="text-[13.5px] truncate font-semibold tracking-tight">{{ menuItems()[menuKey].title
+                    }}</span>
                 </div>
                 <mat-icon *ngIf="menuItems()[menuKey].items?.length"
-                  class="text-slate-400 text-[20px] transition-transform duration-200"
+                  class="text-[18px] transition-transform duration-200"
+                  [ngClass]="!isMenuItemActive(menuKey) ? 'text-slate-400 group-hover:text-slate-600' : ''"
                   [class.rotate-180]="isSubmenuExpanded(menuKey)">expand_more</mat-icon>
               </ng-container>
-
-              <div *ngIf="!isSidebarExpanded() && isMenuItemActive(menuKey)"
-                class="absolute right-0.5 top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-full bg-indigo-500"></div>
             </div>
 
             <!-- Submenu Items -->
             <div *ngIf="isSidebarExpanded() && menuItems()[menuKey].items && isSubmenuExpanded(menuKey)"
-              class="submenu-wrapper mt-0.5 mb-1 space-y-0.5 overflow-hidden" [@slidePanel]="'expanded'">
-              <ng-container *ngFor="let item of menuItems()[menuKey].items">
-                <ng-container *ngIf="isSubMenuItemVisible(item)">
-                  <a class="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-all duration-200"
-                    [ngClass]="{'sub-item-active': isSubmenuItemActive(item.routerLink)}"
-                    (click)="item.items ? toggleNestedSubmenu(menuKey, item.label, $event) : handleSubItemClick(item)"
-                    [routerLink]="!item.items ? item.routerLink : null"
-                    [routerLinkActive]="!item.items ? 'sub-item-active' : ''">
-                    <mat-icon *ngIf="item.icon" class="text-slate-400 text-[20px]">{{ item.icon }}</mat-icon>
-                    <span class="flex-1 truncate text-[12.5px] font-medium leading-relaxed">{{ item.label }}</span>
-                    <mat-icon *ngIf="item.items" class="text-slate-300 text-[14px] transition-transform duration-200"
-                      [class.rotate-90]="isNestedSubmenuExpanded(menuKey, item.label)">chevron_right</mat-icon>
-                  </a>
-
-                  <!-- Level 3 -->
-                  <div *ngIf="item.items && isNestedSubmenuExpanded(menuKey, item.label)"
-                    class="nested-submenu-wrapper mt-0.5 mb-1 space-y-0.5 animate-slide-in">
-                    <a *ngFor="let nested of item.items" [routerLink]="nested.routerLink"
-                      routerLinkActive="sub-item-active"
-                      class="flex items-center gap-2 px-3 py-1.5 rounded-md text-[12px] text-slate-500 truncate transition-all duration-200">
-                      {{ nested.label }}
-                    </a>
+              class="submenu-wrapper mt-1.5 mb-2.5 space-y-1 overflow-hidden" [@slidePanel]="'expanded'">
+              <ng-container
+                *ngFor="let item of getVisibleSubMenuItems(menuItems()[menuKey].title, menuItems()[menuKey].items)">
+                <a class="group/sub flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all duration-200"
+                  [ngClass]="{'sub-item-active': isSubmenuItemActive(item.routerLink), 'text-slate-600 hover:bg-slate-50 hover:text-slate-900': !isSubmenuItemActive(item.routerLink)}"
+                  (click)="item.items ? toggleNestedSubmenu(menuKey, item.label, $event) : handleSubItemClick(item)"
+                  [routerLink]="!item.items ? item.routerLink : null"
+                  [routerLinkActive]="!item.items ? 'sub-item-active' : ''">
+                  <div class="flex items-center justify-center w-5 h-5 shrink-0">
+                    <mat-icon *ngIf="item.icon" class="text-[18px] transition-colors"
+                      [ngClass]="!isSubmenuItemActive(item.routerLink) ? 'text-slate-400 group-hover/sub:text-sky-600' : ''">{{
+                      item.icon }}</mat-icon>
                   </div>
-                </ng-container>
+                  <span class="flex-1 truncate text-[13px] font-medium leading-relaxed tracking-tight">{{ item.label
+                    }}</span>
+                  <mat-icon *ngIf="item.items" class="text-[14px] transition-transform duration-200"
+                    [ngClass]="isSubmenuItemActive(item.routerLink) ? 'text-white' : 'text-slate-300'"
+                    [class.rotate-90]="isNestedSubmenuExpanded(menuKey, item.label)">chevron_right</mat-icon>
+                </a>
+
+                <!-- Level 3 -->
+                <div *ngIf="item.items && isNestedSubmenuExpanded(menuKey, item.label)"
+                  class="nested-submenu-wrapper mt-1 mb-2 space-y-0.5 animate-slide-in">
+                  <a *ngFor="let nested of getVisibleNestedItems(menuItems()[menuKey].title, item.label, item.items)"
+                    [routerLink]="nested.routerLink"
+                    routerLinkActive="bg-sky-50 text-sky-700 font-bold border-l-[3px] border-sky-600 pl-[9px]"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-slate-500 hover:text-slate-900 hover:bg-slate-50 truncate transition-all duration-200">
+                    <div class="w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-70"></div>
+                    {{ nested.label }}
+                  </a>
+                </div>
               </ng-container>
             </div>
           </div>
@@ -100,95 +114,106 @@
       </ng-container>
     </div>
 
-    <!-- Conta Section Header -->
-
+    <!-- Support Section Header -->
+    <div class="mt-4 mb-2 px-4" *ngIf="isSidebarExpanded()">
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Support</div>
+    </div>
+    <div class="my-2 border-t border-slate-100 mx-3" *ngIf="!isSidebarExpanded()"></div>
 
     <div class="space-y-1">
       <ng-container *ngFor="let menuKey of getSupportMenuKeys(); trackBy: trackByMenuKey">
         <div *ngIf="isMenuItemVisible(menuKey)"
-          class="group flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200"
+          class="group flex items-center gap-3.5 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           [ngClass]="{'nav-item-active': isMenuItemActive(menuKey), 'justify-center px-0': !isSidebarExpanded()}"
           (click)="onMainItemClick(menuKey, $event)">
-          <div class="relative shrink-0 flex items-center justify-center w-5 h-5">
-            <mat-icon class="text-[22px]">{{ menuItems()[menuKey].icon }}</mat-icon>
+          <div class="relative shrink-0 flex items-center justify-center w-[22px] h-[22px]">
+            <mat-icon class="text-[22px] transition-colors group-hover:text-sky-600">{{ menuItems()[menuKey].icon
+              }}</mat-icon>
             <span *ngIf="menuKey === 'helpDesk'"
-              class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-white"></span>
+              class="absolute -top-0.5 -right-0.5 w-[7px] h-[7px] bg-red-500 rounded-full border-2 border-white shadow-sm ring-1 ring-red-200"></span>
           </div>
-          <span *ngIf="isSidebarExpanded()" class="flex-1 text-[13.5px] font-semibold truncate">{{
+          <span *ngIf="isSidebarExpanded()" class="flex-1 text-[13.5px] font-semibold truncate tracking-tight">{{
             menuItems()[menuKey].title }}</span>
         </div>
       </ng-container>
     </div>
   </div>
 
-  <div class="p-2 shrink-0 user-section group transition-all duration-300">
-    <div class="flex items-center gap-2.5 p-1.5 rounded-lg transition-all cursor-pointer"
+  <div class="p-3 shrink-0 bg-slate-50 border-t border-slate-100 z-10 transition-all duration-300">
+    <div class="flex items-center gap-3 p-1.5 rounded-xl transition-all cursor-pointer hover:bg-slate-50"
       [ngClass]="isSidebarExpanded() ? '' : 'justify-center p-1'" (click)="toggleUserMenu()"
       [matMenuTriggerFor]="userMenu">
-      <div class="w-8 h-8 rounded-lg bg-white/10 shrink-0 overflow-hidden relative border border-white/20">
+      <div
+        class="w-10 h-10 rounded-[10px] bg-slate-100 shrink-0 overflow-hidden relative border border-slate-200 shadow-sm">
         <img [src]="profileImage()" (error)="handleImageError()" alt="User" class="w-full h-full object-cover">
         <div
-          class="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border border-white rounded-full shadow-[0_0_8px_rgba(34,197,94,0.5)]">
+          class="absolute bottom-[2px] right-[2px] w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-sm">
         </div>
       </div>
       <div *ngIf="isSidebarExpanded()" class="flex-1 min-w-0 flex flex-col justify-center">
-        <div class="text-[12px] font-bold text-slate-800 truncate">{{ userName() }}</div>
-        <div class="text-[10px] text-slate-500 truncate font-medium">{{ userRole() }}</div>
+        <div class="text-[13px] font-bold text-slate-800 truncate tracking-tight">{{ userName() }}</div>
+        <div class="text-[11px] text-slate-500 truncate font-medium mt-0.5">{{ userRole() }}</div>
       </div>
       <mat-icon *ngIf="isSidebarExpanded()"
-        class="text-white/30 text-[16px] group-hover:text-white transition-colors">unfold_more</mat-icon>
+        class="text-slate-400 text-[18px] hover:text-slate-700 transition-colors">unfold_more</mat-icon>
     </div>
   </div>
 </div>
 
 <!-- User Menu Popup -->
 <mat-menu #userMenu="matMenu" xPosition="after" class="compact-erp-menu">
-  <div class="px-4 py-2 border-b border-slate-50">
-    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0">Account</p>
+  <div class="px-4 pt-3 pb-2 border-b border-slate-100">
+    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0">Account Settings</p>
   </div>
-  <button mat-menu-item (click)="logout()" class="group">
-    <mat-icon class="text-red-500 group-hover:text-red-600">logout</mat-icon>
-    <span class="text-slate-700 font-medium">Logout</span>
+  <button mat-menu-item (click)="logout()" class="group mt-1">
+    <mat-icon class="text-red-500/80 group-hover:text-red-600 transition-colors">logout</mat-icon>
+    <span class="text-slate-700 font-semibold group-hover:text-red-600 transition-colors">Secure Logout</span>
   </button>
 </mat-menu>
 
 <!-- Hover Menu for Collapsed State Popover -->
 <div *ngIf="!isSidebarExpanded() && hoveredMenuKey() && menuItems()[hoveredMenuKey()!]?.items"
-  class="fixed left-[72px] z-[9999] tippy-popover border border-slate-100 p-1 min-w-[220px] animate-slide-in shadow-2xl"
+  class="fixed left-[78px] z-[9999] tippy-popover bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-200 p-1.5 min-w-[240px] animate-slide-in"
   [style.top.px]="tippyPosition().top" (mouseenter)="onTippyHover()" (mouseleave)="onTippyLeave()">
-  <div class="px-3 py-2 border-b border-slate-50 mb-1 flex items-center gap-2">
-    <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{{ menuItems()[hoveredMenuKey()!].title }}</span>
+
+  <!-- Popover Header -->
+  <div class="px-3 py-2.5 border-b border-slate-100 mb-1.5 flex items-center gap-2.5">
+    <div class="w-1.5 h-4 bg-[#0d4678] rounded-full"></div>
+    <span class="text-[11px] font-bold text-[#0d4678] uppercase tracking-wider">{{ menuItems()[hoveredMenuKey()!].title
+      }}</span>
   </div>
 
   <div class="space-y-0.5 max-h-[450px] overflow-y-auto custom-scrollbar p-0.5">
     <ng-container *ngFor="let item of menuItems()[hoveredMenuKey()!].items">
       <div class="relative group/item">
         <a [routerLink]="!item.items ? item.routerLink : null"
-          class="flex items-center gap-2.5 px-2.5 py-1.5 text-[12.5px] text-slate-600 font-semibold rounded-lg transition-all duration-200 cursor-pointer"
+          class="flex items-center gap-3 px-3 py-2 text-[13px] text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition-all duration-200 cursor-pointer"
           [ngClass]="{
-            'popover-item-active': isSubmenuItemActive(item.routerLink),
-            'popover-item-expanded': isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)
-          }"
-          (click)="item.items ? toggleNestedSubmenu(hoveredMenuKey()!, item.label, $event) : onSubmenuItemClick()">
-          <div class="w-7 h-7 rounded-md bg-slate-50 flex items-center justify-center transition-colors group-hover/item:bg-white/20 shrink-0">
-            <mat-icon class="text-[16px]">{{ item.icon || 'circle' }}</mat-icon>
+            'bg-[#0d4678] text-white shadow-md shadow-[#0d4678]/20 hover:bg-[#0f4a7c]': isSubmenuItemActive(item.routerLink),
+            'bg-slate-50 text-sky-700': isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)
+          }" (click)="item.items ? toggleNestedSubmenu(hoveredMenuKey()!, item.label, $event) : onSubmenuItemClick()">
+
+          <div class="w-7 h-7 rounded-lg bg-transparent flex items-center justify-center transition-colors shrink-0"
+            [ngClass]="{'bg-white/20': isSubmenuItemActive(item.routerLink), 'bg-white shadow-sm border border-slate-100 group-hover/item:border-slate-200': !isSubmenuItemActive(item.routerLink)}">
+            <mat-icon class="text-[18px] transition-colors"
+              [ngClass]="isSubmenuItemActive(item.routerLink) ? 'text-white' : 'text-slate-500 group-hover/item:text-sky-600'">{{
+              item.icon || 'circle' }}</mat-icon>
           </div>
-          <span class="flex-1 truncate">{{ item.label }}</span>
-          <mat-icon *ngIf="item.items" 
-            class="text-[14px] text-slate-300 transition-transform duration-200"
+          <span class="flex-1 truncate tracking-tight">{{ item.label }}</span>
+
+          <mat-icon *ngIf="item.items" class="text-[16px] transition-transform duration-200"
+            [ngClass]="isSubmenuItemActive(item.routerLink) ? 'text-white/80' : 'text-slate-400'"
             [class.rotate-90]="isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)">chevron_right</mat-icon>
         </a>
 
         <!-- Level 3 Nested Items in Popover -->
         <div *ngIf="item.items && isNestedSubmenuExpanded(hoveredMenuKey()!, item.label)"
-          class="popover-nested-wrapper space-y-0.5 mt-0.5 mb-1 animate-slide-in">
-          <a *ngFor="let nested of item.items"
-            [routerLink]="nested.routerLink"
-            routerLinkActive="popover-nested-active"
-            class="flex items-center gap-2 px-8 py-1.5 text-[11.5px] text-slate-500 font-medium rounded-md hover:bg-slate-50 transition-all cursor-pointer"
+          class="popover-nested-wrapper space-y-1 mx-2 mt-1 mb-2 pl-4 border-l border-slate-200 animate-slide-in">
+          <a *ngFor="let nested of item.items" [routerLink]="nested.routerLink"
+            routerLinkActive="!text-sky-700 font-bold bg-sky-50 rounded-lg"
+            class="flex items-center gap-2.5 px-3 py-2 text-[12.5px] text-slate-500 font-medium rounded-lg hover:text-slate-900 hover:bg-slate-50 transition-all cursor-pointer"
             (click)="onSubmenuItemClick()">
-            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-70"></div>
             {{ nested.label }}
           </a>
         </div>

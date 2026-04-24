@@ -7,25 +7,15 @@
   display: block;
   height: 100%;
 
-  --sidebar-bg: #fafafa;
-  --sidebar-border: rgba(0, 0, 0, 0.06);
-  --active-bg: #0d4678;
-  --active-text: #ffffff;
-  --hover-bg: #0d4678;
-  --sub-hover-bg: rgba(13, 70, 120, 0.08);
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --accent-color: #0d4678;
-  --guide-line: rgba(0, 0, 0, 0.08);
-  --glass-bg: rgba(0, 0, 0, 0.02);
-  --glass-border: rgba(0, 0, 0, 0.05);
+  /* Core brand colors mapped from the user's ERP theme */
+  --brand-color: #0d4678;
+  --brand-hover: #0f4a7c;
+  --brand-active: #0a355c;
 
   ::ng-deep {
     a {
       text-decoration: none !important;
       color: inherit;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
       &:hover,
       &:visited,
@@ -38,60 +28,45 @@
 
     .mat-icon {
       overflow: visible;
-      font-size: 22px;
       width: 22px;
       height: 22px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      transition: color 0.2s ease;
+      font-size: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 400;
     }
 
+    /* Modern ERP Account Menu */
     .compact-erp-menu {
-      margin-top: 8px !important;
-      border-radius: 12px !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+      margin-top: 0.5rem;
+      border: 1px solid #f1f5f9;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
 
       .mat-mdc-menu-content {
-        padding: 6px !important;
+        padding: 0.5rem;
       }
 
       button.mat-mdc-menu-item {
-        height: 38px !important;
-        border-radius: 8px !important;
-        margin: 2px 0;
-        transition: all 0.2s ease;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        margin: 0.125rem 0;
+        transition: background-color 0.2s, color 0.2s;
+        font-family: inherit;
+        font-size: 13px;
 
         &:hover {
-          background-color: var(--hover-bg) !important;
-        }
-
-        .mat-icon {
-          color: var(--text-secondary);
+          background-color: #f8fafc;
+          color: #0f172a;
         }
       }
     }
   }
 }
 
-.sidebar-container {
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
-  box-shadow: 4px 0 24px -12px rgba(0, 0, 0, 0.05);
-  color: var(--text-secondary);
-}
-
-.section-header {
-  padding: 0 16px;
-  margin-bottom: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-/* Force Hide Scrollbar but keep functionality */
+/* Base scrollbar hide logic */
 ::ng-deep {
   .custom-scrollbar {
     -ms-overflow-style: none !important;
@@ -106,131 +81,72 @@
   }
 }
 
-/* Sidebar Menu Item Base Hover */
-.group {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--text-secondary);
-  position: relative;
+/* Nav Item Active Override */
+.nav-item-active {
+  background-color: var(--brand-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px -5px rgba(13, 70, 120, 0.4) !important;
 
-  &.hover\:bg-slate-100:hover,
-  &:hover {
-    background-color: var(--hover-bg) !important;
-    color: white !important;
-    transform: translateX(4px);
-
-    .mat-icon {
-      color: #f5932e !important;
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 8px rgba(245, 147, 46, 0.2));
-    }
+  .mat-icon,
+  span {
+    color: #ffffff !important;
+    fill: #ffffff !important;
   }
 
   .mat-icon {
-    transition: all 0.3s ease;
+    font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
+  }
+
+  &:hover {
+    background-color: var(--brand-hover) !important;
   }
 }
 
-/* Submenu Wrapper & Items */
+/* Submenu layout wrappers */
 .submenu-wrapper {
   position: relative;
-  margin-left: 2.25rem;
-  padding-left: 0.5rem;
+  margin-left: 20px;
+  padding-left: 0.75rem;
 
   &::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--guide-line);
-  }
-
-  a {
-    position: relative;
-    margin: 2px 0;
-    color: var(--text-secondary) !important;
-
-    &:hover {
-      background-color: var(--hover-bg) !important;
-      color: white !important;
-
-      .mat-icon {
-        color: #f5932e !important;
-      }
-    }
-  }
-}
-
-/* Nested Submenu (Level 3) */
-.nested-submenu-wrapper {
-  margin-left: 0.75rem;
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--guide-line);
-
-  a {
-    &:hover {
-      background-color: var(--sub-hover-bg) !important;
-      color: var(--accent-color) !important;
-    }
-  }
-}
-
-/* Active State Styles */
-.nav-item-active {
-  background: var(--active-bg) !important;
-  color: var(--active-text) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.2), 0 4px 8px -4px rgba(0, 0, 0, 0.1);
-  transform: translateX(0) !important;
-
-  .mat-icon {
-    color: var(--active-text) !important;
-    font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24 !important;
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-    transform: scale(1.05);
-  }
-
-  span {
-    color: var(--active-text) !important;
-  }
-
-  /* Transition for icons inside active item */
-  ::ng-deep .mat-icon {
-    color: var(--active-text) !important;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background-color: #f1f5f9;
+    border-radius: 9999px;
   }
 }
 
 .submenu-wrapper a.sub-item-active {
-  color: #f8fafc !important;
-  background-color: #0d4678 !important;
-  font-weight: 700 !important;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(13, 70, 120, 0.3);
+  background-color: var(--brand-color) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 10px -4px rgba(13, 70, 120, 0.3) !important;
+  transform: translateX(4px);
 
-  span {
-    color: #f8fafc !important;
-  }
-
+  span,
   .mat-icon {
-    color: #f8fafc !important;
+    color: #ffffff !important;
   }
 
   &::before {
     content: '';
     position: absolute;
-    left: -8.5px;
+    left: -14px;
     top: 50%;
     transform: translateY(-50%);
     width: 6px;
     height: 6px;
-    background: #0d4678;
+    background: var(--brand-color);
     border-radius: 50%;
-    box-shadow: 0 0 0 2px rgba(13, 70, 120, 0.2);
+    box-shadow: 0 0 0 3px rgba(13, 70, 120, 0.15);
   }
 }
 
-/* Animations */
+/* Animations defined in SCSS */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -245,163 +161,4 @@
 
 .animate-slide-in {
   animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Search Bar Enhancement */
-.search-input-wrapper {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
-  input {
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-    color: var(--text-primary) !important;
-    transition: all 0.3s ease;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    &:focus {
-      background: rgba(255, 255, 255, 0.15) !important;
-      border-color: rgba(255, 255, 255, 0.3) !important;
-      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
-    }
-  }
-
-  &:focus-within {
-    .search-icon {
-      color: #ffffff;
-      transform: translateY(-50%) scale(1.1);
-    }
-  }
-}
-
-/* User Section Refinement */
-.user-section {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--glass-border) !important;
-  margin: 8px;
-  border-radius: 12px;
-
-  .group:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-
-    .text-slate-800,
-    .text-slate-500 {
-      color: #ffffff !important;
-    }
-  }
-
-  .text-slate-800 {
-    color: var(--text-primary) !important;
-    font-weight: 600;
-  }
-
-  .text-slate-500 {
-    color: var(--text-secondary) !important;
-  }
-}
-
-/* Collapsed State Popover Tweaks - Enhanced for Compactness & Nesting */
-.tippy-popover {
-  background: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  border: 1px solid rgba(255, 255, 255, 0.4) !important;
-
-  a {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      background-color: var(--hover-bg) !important;
-      color: #ffffff !important;
-      transform: translateX(2px);
-
-      div {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-      }
-
-      .mat-icon {
-        color: #ffffff !important;
-        transform: scale(1.05);
-      }
-
-      span {
-        color: #ffffff !important;
-      }
-    }
-
-    &.popover-item-active {
-      background: var(--active-bg) !important;
-      color: #ffffff !important;
-      box-shadow: 0 4px 12px rgba(13, 70, 120, 0.25);
-
-      div {
-        background-color: rgba(255, 255, 255, 0.2) !important;
-      }
-
-      span {
-        color: #ffffff !important;
-        font-weight: 700;
-      }
-
-      .mat-icon {
-        color: #ffffff !important;
-      }
-    }
-
-    &.popover-item-expanded {
-      background-color: rgba(13, 70, 120, 0.04);
-      color: var(--accent-color);
-
-      .mat-icon:last-child {
-        color: var(--accent-color);
-      }
-    }
-  }
-
-  .popover-nested-wrapper {
-    margin: 0 4px;
-    padding: 2px 0;
-    background: rgba(0, 0, 0, 0.015);
-    border-radius: 8px;
-
-    a {
-      &:hover {
-        background-color: rgba(13, 70, 120, 0.06) !important;
-        color: var(--accent-color) !important;
-        transform: translateX(2px);
-
-        .w-1 {
-          background-color: var(--accent-color);
-          transform: scale(1.5);
-        }
-      }
-
-      &.popover-nested-active {
-        background-color: rgba(13, 70, 120, 0.1) !important;
-        color: var(--accent-color) !important;
-        font-weight: 700;
-
-        .w-1 {
-          background-color: var(--accent-color);
-          box-shadow: 0 0 8px rgba(13, 70, 120, 0.4);
-        }
-      }
-    }
-  }
-
-  .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-  }
 }

@@ -198,10 +198,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   filterMenuItems(searchTerm: string): void {
     if (!searchTerm.trim()) {
       this.filteredMenuKeys.set([...this.menuKeys()]);
+      this.updateOpenMenusBasedOnRoute();
       return;
     }
 
     const searchLower = searchTerm.toLowerCase();
+    const newExpandedMenus = new Set<string>();
+    const newExpandedNested: { [key: string]: Set<string> } = { ...this.expandedNestedMenus() };
+
     const filtered = this.menuKeys().filter((key) => {
       const menuItem = this.menuItems()[key];
       if (!menuItem) return false;
@@ -211,9 +215,28 @@ export class SidebarComponent implements OnInit, OnDestroy {
         this.searchInSubMenu(item, searchLower)
       );
 
+      if (titleMatch || itemsMatch) {
+        newExpandedMenus.add(key);
+
+        if (menuItem.items) {
+          const nestedSet = new Set<string>(newExpandedNested[key] || []);
+          menuItem.items.forEach(child => {
+            if (
+              child.items && 
+              child.items.some(nested => nested.label.toLowerCase().includes(searchLower))
+            ) {
+              nestedSet.add(child.label);
+            }
+          });
+          newExpandedNested[key] = nestedSet;
+        }
+      }
+
       return titleMatch || itemsMatch;
     });
 
+    this.expandedMenus.set(newExpandedMenus);
+    this.expandedNestedMenus.set(newExpandedNested);
     this.filteredMenuKeys.set(filtered);
   }
 
@@ -222,8 +245,49 @@ export class SidebarComponent implements OnInit, OnDestroy {
       return true;
     }
     return item.items?.some((nestedItem) =>
-      this.searchInSubMenu(nestedItem, searchLower)
+      nestedItem.label.toLowerCase().includes(searchLower)
     ) ?? false;
+  }
+
+  getVisibleSubMenuItems(parentTitle: string, items: SubMenuItem[] | undefined): SubMenuItem[] {
+    if (!items) return [];
+    const searchTerm = this.searchControl.value?.toLowerCase().trim() || '';
+
+    return items.filter(item => {
+      if (item.visible === false) return false;
+      if (!searchTerm) return true;
+
+      // If the top level parent matches, show all its defined direct children
+      if (parentTitle.toLowerCase().includes(searchTerm)) {
+        return true;
+      }
+
+      const itemMatch = item.label.toLowerCase().includes(searchTerm);
+      const childrenMatch = item.items && item.items.some(child => 
+        child.label.toLowerCase().includes(searchTerm) && child.visible !== false
+      );
+
+      return itemMatch || childrenMatch;
+    });
+  }
+
+  getVisibleNestedItems(parentTitle: string, subItemLabel: string, items: SubMenuItem[] | undefined): SubMenuItem[] {
+    if (!items) return [];
+    const searchTerm = this.searchControl.value?.toLowerCase().trim() || '';
+
+    return items.filter(item => {
+      if (item.visible === false) return false;
+      if (!searchTerm) return true;
+
+      if (
+        parentTitle.toLowerCase().includes(searchTerm) || 
+        subItemLabel.toLowerCase().includes(searchTerm)
+      ) {
+        return true;
+      }
+
+      return item.label.toLowerCase().includes(searchTerm);
+    });
   }
 
   closeAllSubmenus(): void {
@@ -586,11 +650,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   // Helper method to check if menu item is visible
   isMenuItemVisible(menuKey: string): boolean {
     return this.menuItems()[menuKey]?.visible ?? false;
-  }
-
-  // Helper method to check if submenu item is visible
-  isSubMenuItemVisible(item: SubMenuItem): boolean {
-    return item.visible ?? false;
   }
 
   // Get general menu keys (exclude support items)

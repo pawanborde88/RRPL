@@ -1,39 +1,49 @@
 <app-costom-loading [loading]="loading()"></app-costom-loading>
 <app-template>
-    <div class="min-h-screen bg-gradient-to-br from-slate-100 via-stone-50 to-slate-100 pt-0 mt-0">
-        <div class="w-full max-w-[1600px] pt-0 mt-0">
+    <div class="min-h-screen bg-[#f4f7f9] font-sans text-slate-800">
+        <!-- Enterprise App Bar -->
+        <div
+            class="sticky top-0 z-30 w-full bg-white backdrop-blur-xl border-b border-slate-300/80 shadow-[0_2px_20px_-8px_rgba(0,0,0,0.1)]">
+            <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+                <header class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 animate-fade-in">
+                    <div class="flex flex-col min-w-0 gap-1.5">
+                        <div class="flex items-center gap-3">
 
-            <div
-                class="rounded-b-2xl border border-slate-200/90 bg-white/95 backdrop-blur-md shadow-enterprise-md ring-1 ring-slate-900/5 mb-4 sm:mb-6 sticky top-0 z-20">
-                <header
-                    class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-4 px-4 sm:px-6 py-4 sm:py-5 animate-fade-in">
-                    <div class="flex flex-col gap-1 min-w-0">
-                      
-                        <h3 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-slate-900 leading-tight">
-                            {{ greetingText() }}, {{ greetingName() }}
-                        </h3>
-                        <div class="flex items-center gap-2 text-slate-500">
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/90">
+                            <h5 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-none">
+                                {{ greetingText() }},{{greetingName()}}
+                            </h5>
+                        </div>
+                        <div class="flex items-center gap-2 ml-12">
+                            <span
+                                class="text-[11px] font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
                                 {{ currentDate() | date:'EEEE, MMMM d, y' }}
                             </span>
+                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+
                         </div>
                     </div>
-                    <div class="dashboard-filters flex flex-wrap items-center gap-3 w-full lg:w-auto lg:max-w-[920px]" [formGroup]="filterForm">
-                        <app-autocomplete-reusable-component class="w-[220px] !mb-0" [options]="projects()"
-                            idKey="project_id" displayKey="property_name" [isMultiSelect]="true"
+                    <div class="dashboard-filters flex flex-wrap items-center gap-2 lg:gap-3 p-1.5 bg-slate-100/80 border border-slate-200/80 rounded-lg shadow-inner"
+                        [formGroup]="filterForm">
+                        <app-autocomplete-reusable-component
+                            class="w-[220px] !mb-0 filter-enterprise bg-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+                            [options]="projects()" idKey="project_id" displayKey="property_name" [isMultiSelect]="true"
                             formControlName="project_id" placeholder="Select Project"
                             (selectedIdChange)="onProjectChange($event)">
                         </app-autocomplete-reusable-component>
-                        <mat-form-field appearance="outline" class="w-[180px] !mb-0 dense-form-field">
+                        <div class="h-6 w-px bg-slate-300/60 hidden lg:block"></div>
+                        <mat-form-field appearance="outline"
+                            class="w-[160px] !mb-0 filter-enterprise bg-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <mat-select formControlName="date_preset" placeholder="Select Period">
                                 <mat-option value="30days">Last 30 Days</mat-option>
-                                <mat-option value="1month">One month overview</mat-option>
-                                <mat-option value="3month">Three Month overview</mat-option>
-                                <mat-option value="6month">six month overview</mat-option>
-                                <mat-option value="1year">one year overview</mat-option>
+                                <mat-option value="1month">One Month</mat-option>
+                                <mat-option value="3month">Three Months</mat-option>
+                                <mat-option value="6month">Six Months</mat-option>
+                                <mat-option value="1year">One Year</mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <mat-form-field appearance="outline" class="w-[240px] !mb-0 dense-form-field">
+                        <div class="h-6 w-px bg-slate-300/60 hidden lg:block"></div>
+                        <mat-form-field appearance="outline"
+                            class="w-[240px] !mb-0 filter-enterprise bg-white rounded shadow-[0_1px_2px_rgba(0,0,0,0.05)]">
                             <mat-date-range-input [rangePicker]="picker" [max]="currentDate()" [formGroup]="filterForm">
                                 <input matStartDate formControlName="start_date" placeholder="Start">
                                 <input matEndDate formControlName="end_date" placeholder="End">
@@ -42,24 +52,25 @@
                             <mat-date-range-picker #picker></mat-date-range-picker>
                         </mat-form-field>
                     </div>
-
                 </header>
             </div>
+        </div>
 
+        <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <mat-tab-group animationDuration="0ms" mat-stretch-tabs="false"
-                class="premium-tabs mat-mdc-tab-group w-full" (selectedTabChange)="onTabChange()">
+                class="enterprise-tabs mat-mdc-tab-group w-full" (selectedTabChange)="onTabChange()">
 
                 <!-- DASHBOARD TAB -->
                 <mat-tab label="Dashboard">
-                    <div class="animate-fade-in">
-                        <div
-                            class="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
+                    <div class="animate-fade-in mt-6">
+                        <div class="space-y-5">
 
                             <!-- KPI tiles (Ref Image Style) -->
                             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                                 <div *ngFor="let metric of headerMetrics(); let i = index; trackBy: trackByMetricId"
                                     class="animate-fade-in" [class]="'stagger-' + (i+1)">
-                                    <div class="metric-card h-full group transition-all duration-500" [ngClass]="{
+                                    <div class="metric-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded p-5 hover:border-slate-300 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 relative overflow-hidden group/card h-full group transition-all duration-500"
+                                        [ngClass]="{
                                                 'tint-rose': i === 0,
                                                 'tint-amber': i === 1,
                                                 'tint-emerald': i === 2,
@@ -106,7 +117,8 @@
                                 *ngIf="salesMetrics().length > 0">
                                 <div *ngFor="let metric of salesMetrics(); let i = index; trackBy: trackByMetricId"
                                     class="animate-fade-in" [class]="'stagger-' + (i+1)">
-                                    <div class="metric-card group flex flex-col gap-3 !p-5">
+                                    <div
+                                        class="metric-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded p-5 hover:border-slate-300 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 relative overflow-hidden group/card group flex flex-col gap-3 !p-5">
                                         <div class="flex items-center gap-4">
                                             <div class="metric-icon-box scale-110 !shadow-lg" [ngClass]="{
                                                     'tint-blue': i === 0,
@@ -143,14 +155,18 @@
                             <!-- Enquiry + Unit Distribution (ECharts in sized containers) -->
                             <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-2">
                                 <div class="lg:col-span-4 animate-fade-in stagger-1 flex flex-col min-h-0">
-                                    <div class="chart-card flex-1 flex flex-col min-h-0">
-                                        <div class="chart-card-header">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                             <div>
                                                 <div class="chart-title">Enquiry Analysis</div>
-                                                <div class="chart-subtitle tracking-[0.1em]">Conversion Analysis</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Conversion Analysis</div>
                                             </div>
                                             <span
-                                                class="kpi-badge bg-indigo-50/50 text-indigo-700 glass-pill">Column</span>
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-indigo-50/50 text-indigo-700 glass-pill">Column</span>
                                         </div>
                                         <div class="chart-card-body flex flex-col min-h-0">
                                             <div class="h-[320px] w-full chart-container-dark enterprise-chart-wrap">
@@ -161,14 +177,18 @@
                                     </div>
                                 </div>
                                 <div class="lg:col-span-8 animate-fade-in stagger-2 flex flex-col min-h-0">
-                                    <div class="chart-card flex-1 flex flex-col min-h-0">
-                                        <div class="chart-card-header">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                             <div>
                                                 <div class="chart-title">Unit Distribution</div>
-                                                <div class="chart-subtitle tracking-[0.1em]">Inventory Overview</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Inventory Overview</div>
                                             </div>
                                             <span
-                                                class="kpi-badge bg-emerald-50/50 text-emerald-700 glass-pill">Inventory</span>
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-emerald-50/50 text-emerald-700 glass-pill">Inventory</span>
                                         </div>
                                         <div class="chart-card-body flex flex-col min-h-0">
                                             <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
@@ -183,336 +203,392 @@
                             <!-- Lead Sources -->
                             <div class="grid grid-cols-1 gap-3 mb-2"
                                 [ngClass]="hasTokenData() ? 'lg:grid-cols-3' : 'lg:grid-cols-2'">
-                        <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Presale Lead Sources</div>
-                                        <div class="chart-subtitle tracking-[0.1em]">Attribution</div>
+                                <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Presale Lead Sources</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Attribution</div>
+                                            </div>
+                                            <span
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-amber-50/50 text-amber-700 glass-pill">Channels</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="presaleSource_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="kpi-badge bg-amber-50/50 text-amber-700 glass-pill">Channels</span>
                                 </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="presaleSource_d" class="w-full h-full"></div>
+                                <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Sales Enquiry Sources</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Conversion</div>
+                                            </div>
+                                            <span
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-blue-50/50 text-blue-700 glass-pill">Channels</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="salesSource_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Token Type Distribution moved here -->
+                                <div class="animate-fade-in stagger-3 flex flex-col min-h-0" *ngIf="hasTokenData()">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Token Type Distribution</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Sales Tokens</div>
+                                            </div>
+                                            <span
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-violet-50/50 text-violet-700 glass-pill">Sales</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="tokenTypeCount_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Sales Enquiry Sources</div>
-                                        <div class="chart-subtitle tracking-[0.1em]">Conversion</div>
-                                    </div>
-                                    <span class="kpi-badge bg-blue-50/50 text-blue-700 glass-pill">Channels</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="salesSource_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Token Type Distribution moved here -->
-                        <div class="animate-fade-in stagger-3 flex flex-col min-h-0" *ngIf="hasTokenData()">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Token Type Distribution</div>
-                                        <div class="chart-subtitle tracking-[0.1em]">Sales Tokens</div>
-                                    </div>
-                                    <span class="kpi-badge bg-violet-50/50 text-violet-700 glass-pill">Sales</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="tokenTypeCount_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
 
-                    <!-- Pipelines & Age Analysis Row -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
-                        <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Presale Pipeline Stages</div>
-                                        <div class="chart-subtitle">Distribution</div>
+                            <!-- Pipelines & Age Analysis Row -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
+                                <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Presale Pipeline Stages</div>
+                                                <div class="chart-subtitle">Distribution</div>
+                                            </div>
+                                            <span class="kpi-badge">Presale</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="presaleLeadLevel_d"
+                                                    class="w-full h-full"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="kpi-badge">Presale</span>
                                 </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="presaleLeadLevel_d" class="w-full h-full"></div>
+                                <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Sales Pipeline Stages</div>
+                                                <div class="chart-subtitle">Performance</div>
+                                            </div>
+                                            <span class="kpi-badge">Sales</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="salesLeadLevel_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Age Group Analysis moved here -->
+                                <div class="animate-fade-in stagger-3 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Age Group Analysis</div>
+                                                <div class="chart-subtitle">Profile</div>
+                                            </div>
+                                            <span class="kpi-badge">Demographics</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="ageRange_d" class="w-full h-full"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Sales Pipeline Stages</div>
-                                        <div class="chart-subtitle">Performance</div>
-                                    </div>
-                                    <span class="kpi-badge">Sales</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="salesLeadLevel_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Age Group Analysis moved here -->
-                        <div class="animate-fade-in stagger-3 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Age Group Analysis</div>
-                                        <div class="chart-subtitle">Profile</div>
-                                    </div>
-                                    <span class="kpi-badge">Demographics</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="ageRange_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Industry, Booking & Import Row -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
-                        <!-- Industry Distribution -->
-                        <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Industry Distribution</div>
-                                        <div class="chart-subtitle">Segments</div>
-                                    </div>
-                                    <span class="kpi-badge">Demographics</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="industry_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Booking Source Analysis -->
-                        <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Booking Source Analysis</div>
-                                        <div class="chart-subtitle tracking-[0.1em]">Confirmed Deals</div>
-                                    </div>
-                                    <span class="kpi-badge bg-emerald-50 text-emerald-700 glass-pill">Confirmed</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="sourceWiseBooking_d" class="w-full h-full"></div>
+                            <!-- Industry, Booking & Import Row -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-2">
+                                <!-- Industry Distribution -->
+                                <div class="animate-fade-in stagger-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Industry Distribution</div>
+                                                <div class="chart-subtitle">Segments</div>
+                                            </div>
+                                            <span class="kpi-badge">Demographics</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="industry_d" class="w-full h-full"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <!-- Booking Status -->
-                        <div class="animate-fade-in stagger-3 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Booking Status</div>
-                                        <div class="chart-subtitle">Unit Status</div>
+                                <!-- Booking Source Analysis -->
+                                <div class="animate-fade-in stagger-2 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Booking Source Analysis</div>
+                                                <div
+                                                    class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest tracking-[0.1em]">
+                                                    Confirmed Deals</div>
+                                            </div>
+                                            <span
+                                                class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-emerald-50 text-emerald-700 glass-pill">Confirmed</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="sourceWiseBooking_d"
+                                                    class="w-full h-full"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="kpi-badge">Real-time</span>
                                 </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="bookingStatus_d" class="w-full h-full"></div>
-                                    </div>
+                                <!-- Booking Status -->
+                                <div class="animate-fade-in stagger-3 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Booking Status</div>
+                                                <div class="chart-subtitle">Unit Status</div>
+                                            </div>
+                                            <span class="kpi-badge">Real-time</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="bookingStatus_d" class="w-full h-full">
+                                                </div>
+                                            </div>
 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
 
-                    <!-- Buyer Intent -->
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-2">
-                        <div class="lg:col-span-3 animate-fade-in stagger-3 flex flex-col min-h-0">
-                            <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Booking Plan</div>
-                                        <div class="chart-subtitle">Timeline</div>
+                            <!-- Buyer Intent -->
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-2">
+                                <div class="lg:col-span-3 animate-fade-in stagger-3 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Booking Plan</div>
+                                                <div class="chart-subtitle">Timeline</div>
+                                            </div>
+                                            <span class="kpi-badge">Intent</span>
+                                        </div>
+                                        <div class="chart-card-body flex-1 flex flex-col min-h-0 p-0">
+                                            <div class="h-full w-full chart-container-dark enterprise-chart-wrap p-4">
+                                                <div #chartHost data-chart-id="bookingPlan_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="kpi-badge">Intent</span>
                                 </div>
-                                <div class="chart-card-body flex-1 flex flex-col min-h-0 p-0">
-                                    <div class="h-full w-full chart-container-dark enterprise-chart-wrap p-4">
-                                        <div #chartHost data-chart-id="bookingPlan_d" class="w-full h-full"></div>
+                                <div class="lg:col-span-3 animate-fade-in stagger-4 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Buying Purpose</div>
+                                                <div class="chart-subtitle">Strategy</div>
+                                            </div>
+                                            <span class="kpi-badge">Intent</span>
+                                        </div>
+                                        <div class="chart-card-body flex-1 flex flex-col min-h-0 p-0">
+                                            <div class="h-full w-full chart-container-dark enterprise-chart-wrap p-4">
+                                                <div #chartHost data-chart-id="buyingPurpose_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="digitalCampaigns().length > 0"
+                                    class="lg:col-span-6 animate-fade-in stagger-2 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Campaign Performance</div>
+                                                <div class="chart-subtitle">ROI & Delivery</div>
+                                            </div>
+                                            <span class="kpi-badge">Digital</span>
+                                        </div>
+                                        <div class="chart-card-body flex-1 overflow-hidden p-0">
+                                            <div class="h-full flex flex-col">
+                                                <div
+                                                    class="overflow-y-auto premium-scrollbar flex-1 border-t border-slate-100">
+                                                    <table class="campaign-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="text-left">Campaign Name</th>
+                                                                <th class="text-center">Leads</th>
+                                                                <th class="text-center">Duplicates</th>
+                                                                <th class="text-center">Site Visits</th>
+                                                                <th class="text-center">Bookings</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
+                                                                class="group">
+                                                                <td>
+                                                                    <div class="campaign-name-cell">
+                                                                        <span class="main-name">{{
+                                                                            campaign.integration_name
+                                                                            }}</span>
+                                                                        <div class="status-indicator">
+                                                                            <div class="status-dot"></div>
+                                                                            <span class="status-text">Active
+                                                                                Integration</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span class="compact-count-badge tint-indigo">
+                                                                        {{ campaign.lead_count }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span class="compact-count-badge tint-slate">
+                                                                        {{ campaign.duplicate_leads }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span
+                                                                        class="compact-count-badge tint-slate !font-black !text-slate-700">
+                                                                        {{ campaign.site_visit_count }}
+                                                                    </span>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <span class="compact-count-badge tint-emerald">
+                                                                        {{ campaign.booking_count }}
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="lg:col-span-3 animate-fade-in stagger-4 flex flex-col min-h-0">
-                            <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Buying Purpose</div>
-                                        <div class="chart-subtitle">Strategy</div>
+
+                            <!-- Geo Preferences -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                <div class="animate-fade-in stagger-5 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Native Place</div>
+                                                <div class="chart-subtitle">Origin</div>
+                                            </div>
+                                            <span class="kpi-badge">Geo</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="nativePlace_d" class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class="kpi-badge">Intent</span>
                                 </div>
-                                <div class="chart-card-body flex-1 flex flex-col min-h-0 p-0">
-                                    <div class="h-full w-full chart-container-dark enterprise-chart-wrap p-4">
-                                        <div #chartHost data-chart-id="buyingPurpose_d" class="w-full h-full"></div>
+                                <div class="animate-fade-in stagger-6 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Possession Timeline</div>
+                                                <div class="chart-subtitle">Urgency</div>
+                                            </div>
+                                            <span class="kpi-badge">Timeline</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="possessionRequired_d"
+                                                    class="w-full h-full">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div *ngIf="digitalCampaigns().length > 0"
-                            class="lg:col-span-6 animate-fade-in stagger-2 flex flex-col min-h-0">
-                            <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Campaign Performance</div>
-                                        <div class="chart-subtitle">ROI & Delivery</div>
-                                    </div>
-                                    <span class="kpi-badge">Digital</span>
-                                </div>
-                                <div class="chart-card-body flex-1 overflow-hidden p-0">
-                                    <div class="h-full flex flex-col">
-                                        <div class="overflow-y-auto premium-scrollbar flex-1 border-t border-slate-100">
-                                            <table class="campaign-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="text-left">Campaign Name</th>
-                                                        <th class="text-center">Leads</th>
-                                                        <th class="text-center">Duplicates</th>
-                                                        <th class="text-center">Site Visits</th>
-                                                        <th class="text-center">Bookings</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr *ngFor="let campaign of digitalCampaigns(); trackBy: trackByCampaign"
-                                                        class="group">
-                                                        <td>
-                                                            <div class="campaign-name-cell">
-                                                                <span class="main-name">{{ campaign.integration_name
-                                                                    }}</span>
-                                                                <div class="status-indicator">
-                                                                    <div class="status-dot"></div>
-                                                                    <span class="status-text">Active Integration</span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="compact-count-badge tint-indigo">
-                                                                {{ campaign.lead_count }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="compact-count-badge tint-slate">
-                                                                {{ campaign.duplicate_leads }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span
-                                                                class="compact-count-badge tint-slate !font-black !text-slate-700">
-                                                                {{ campaign.site_visit_count }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <span class="compact-count-badge tint-emerald">
-                                                                {{ campaign.booking_count }}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                <div class="animate-fade-in stagger-7 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                        <div
+                                            class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
+                                            <div>
+                                                <div class="chart-title">Preferred Location</div>
+                                                <div class="chart-subtitle">Demand</div>
+                                            </div>
+                                            <span class="kpi-badge">Location</span>
+                                        </div>
+                                        <div class="chart-card-body flex flex-col min-h-0">
+                                            <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
+                                                <div #chartHost data-chart-id="preferredLocation_d"
+                                                    class="w-full h-full"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Geo Preferences -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div class="animate-fade-in stagger-5 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Native Place</div>
-                                        <div class="chart-subtitle">Origin</div>
-                                    </div>
-                                    <span class="kpi-badge">Geo</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="nativePlace_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="animate-fade-in stagger-6 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Possession Timeline</div>
-                                        <div class="chart-subtitle">Urgency</div>
-                                    </div>
-                                    <span class="kpi-badge">Timeline</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="possessionRequired_d" class="w-full h-full">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="animate-fade-in stagger-7 flex flex-col min-h-0">
-                            <div class="chart-card flex-1 flex flex-col min-h-0">
-                                <div class="chart-card-header">
-                                    <div>
-                                        <div class="chart-title">Preferred Location</div>
-                                        <div class="chart-subtitle">Demand</div>
-                                    </div>
-                                    <span class="kpi-badge">Location</span>
-                                </div>
-                                <div class="chart-card-body flex flex-col min-h-0">
-                                    <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
-                                        <div #chartHost data-chart-id="preferredLocation_d" class="w-full h-full"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
                     </div>
 
                 </mat-tab>
 
                 <!-- ─────────────── SITE VISIT MANAGEMENT TAB ─────────────── -->
                 <mat-tab label="Site Visit Management">
-                    <div
-                        class="animate-fade-in rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
+                    <div class="animate-fade-in mt-6 space-y-5">
 
                         <!-- SITE VISIT METRICS (Ref Style) -->
                         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                             <div *ngFor="let metric of salesMetrics(); let i = index; trackBy: trackByMetricId"
                                 class="animate-fade-in" [class]="'stagger-' + (i+1)">
-                                <div class="metric-card h-full flex flex-col group transition-all duration-500"
+                                <div class="metric-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded p-5 hover:border-slate-300 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 relative overflow-hidden group/card h-full flex flex-col group transition-all duration-500"
                                     [ngClass]="{
                                                 'tint-blue': i === 0,
                                                 'tint-emerald': i === 1,
@@ -556,17 +632,20 @@
                         <!-- Sales SV Sources -->
                         <div class="grid grid-cols-1 gap-5 mb-6">
                             <div class="animate-fade-in stagger-2 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
                                             <div
-                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors duration-300">
                                                 Sales Lead Sources</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Attribution analysis</div>
                                         </div>
-                                        <span class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">All
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-indigo-50 text-indigo-600 glass-pill text-[10px]">All
                                             Channels</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -581,17 +660,20 @@
                         <!-- Enquiry + Unit Distribution (Sales) -->
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
                             <div class="animate-fade-in stagger-3 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-amber-600 transition-colors">
                                                 Enquiry Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Status Breakdown</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Column</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-amber-50 text-amber-700 glass-pill text-[10px]">Column</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[300px] w-full chart-container-dark enterprise-chart-wrap">
@@ -604,16 +686,19 @@
 
                             <div class="lg:col-span-2 animate-fade-in stagger-4 group">
                                 <div class="chart-card">
-                                    <div class="chart-card-header">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">Unit
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-emerald-600 transition-colors">
+                                                Unit
                                                 Distribution</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Inventory overview</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
@@ -629,17 +714,20 @@
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
                             <!-- Industry Analysis -->
                             <div class="animate-fade-in stagger-5 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-amber-600 transition-colors">
                                                 Industry Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Buyer profession breakdown</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
@@ -650,17 +738,21 @@
                             </div>
                             <!-- Age Range Analysis -->
                             <div class="animate-fade-in stagger-6 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-violet-600 transition-colors">Age
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-violet-600 transition-colors">
+                                                Age
                                                 Range Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Customer demographics</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[280px] w-full chart-container-dark enterprise-chart-wrap">
@@ -671,14 +763,19 @@
                             </div>
                             <!-- Booking Status Overview -->
                             <div class="animate-fade-in stagger-7 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-teal-600 transition-colors">Booking
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-teal-600 transition-colors">
+                                                Booking
                                                 Status
                                                 Overview</div>
                                         </div>
-                                        <span class="kpi-badge bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking
                                             Insights</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -712,17 +809,20 @@
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
                             <!-- Booking Plan -->
                             <div class="animate-fade-in stagger-8 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-emerald-600 transition-colors">
                                                 Booking Plan</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Planned booking timelines</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-emerald-50 text-emerald-700 glass-pill text-[10px]">Lead
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-emerald-50 text-emerald-700 glass-pill text-[10px]">Lead
                                             Intent</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -734,16 +834,21 @@
                             </div>
                             <!-- Buying Purpose -->
                             <div class="animate-fade-in stagger-9 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-pink-600 transition-colors">Buying
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-pink-600 transition-colors">
+                                                Buying
                                                 Purpose</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Investment vs Self-use</div>
                                         </div>
-                                        <span class="kpi-badge bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
                                             Intent</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -756,18 +861,20 @@
                             </div>
                             <!-- Sales Lead Levels moved here -->
                             <div class="animate-fade-in stagger-10 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
                                             <div
-                                                class="chart-title group-hover:text-indigo-600 transition-colors duration-300">
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors duration-300">
                                                 Sales Lead Levels</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Pipeline Stage analysis</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM</span>
                                     </div>
                                     <div class="chart-card-body flex flex-col items-center">
                                         <div class="w-full chart-container-dark p-4 flex flex-col items-center">
@@ -801,13 +908,16 @@
                         <!-- Geo Preferences (Sales) -->
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                             <div class="animate-fade-in stagger-10 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Native Place</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Buyer origins</div>
                                         </div>
                                     </div>
@@ -819,13 +929,16 @@
                                 </div>
                             </div>
                             <div class="animate-fade-in stagger-11 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Possession Timeline</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Urgency of requirement</div>
                                         </div>
                                     </div>
@@ -838,13 +951,16 @@
                                 </div>
                             </div>
                             <div class="animate-fade-in stagger-12 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Preferred Location</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 All desired areas</div>
                                         </div>
                                     </div>
@@ -863,14 +979,14 @@
 
                 <!-- ─────────────────── LEAD MANAGEMENT TAB ─────────────────── -->
                 <mat-tab label="Lead Management">
-                    <div
-                        class="animate-fade-in rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-6 lg:p-8 shadow-enterprise ring-1 ring-slate-900/[0.04]">
+                    <div class="animate-fade-in mt-6 space-y-5">
 
                         <!-- KPI METRICS (Ref Style) -->
                         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                             <div *ngFor="let metric of presaleMetrics(); let i = index; trackBy: trackByMetricId"
                                 class="animate-fade-in" [class]="'stagger-' + (i+1)">
-                                <div class="metric-card flex flex-col h-full">
+                                <div
+                                    class="metric-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded p-5 hover:border-slate-300 hover:shadow-[0_4px_20px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 relative overflow-hidden group/card flex flex-col h-full">
                                     <div class="flex justify-between items-start">
                                         <div class="flex flex-col">
                                             <div class="metric-label">{{ metric.title }}</div>
@@ -905,13 +1021,16 @@
                         <!-- Enquiry + Unit Distribution (Lead Mgmt) - SHIFTED TO 1ST -->
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                             <div class="animate-fade-in stagger-5 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Enquiry Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Status breakdown</div>
                                         </div>
                                     </div>
@@ -927,17 +1046,21 @@
                                 </div>
                             </div>
                             <div class="lg:col-span-2 animate-fade-in stagger-6 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-emerald-600 transition-colors">Unit
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-emerald-600 transition-colors">
+                                                Unit
                                                 Distribution</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Inventory Overview</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-emerald-50 text-emerald-600 glass-pill text-[10px]">Inventory
                                             Status</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -955,17 +1078,20 @@
                             <!-- Campaign Performance Table -->
                             <div *ngIf="digitalCampaigns().length > 0"
                                 class="lg:col-span-8 animate-fade-in stagger-1 group flex flex-col">
-                                <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Campaign Performance</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Digital Marketing ROI</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-indigo-50 text-indigo-700 glass-pill text-[10px]">Real-time</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-indigo-50 text-indigo-700 glass-pill text-[10px]">Real-time</span>
                                     </div>
                                     <div class="chart-card-body flex-1 overflow-hidden p-0">
                                         <div class="h-full flex flex-col">
@@ -1027,16 +1153,20 @@
 
                             <!-- Presale Lead Levels (Lead Mgmt) -->
                             <div class="lg:col-span-4 animate-fade-in stagger-2 group flex flex-col">
-                                <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Presale Pipeline</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Distribution Analysis</div>
                                         </div>
-                                        <span class="kpi-badge bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-indigo-50 text-indigo-600 glass-pill text-[10px]">CRM
                                             Funnel</span>
                                     </div>
                                     <div class="chart-card-body flex-1 overflow-y-auto premium-scrollbar p-0">
@@ -1071,16 +1201,20 @@
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                             <!-- Presale Lead Sources -->
                             <div class="animate-fade-in stagger-3 group flex flex-col">
-                                <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-amber-600 transition-colors">
                                                 Presale Lead Sources</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Attribution channels</div>
                                         </div>
-                                        <span class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">All
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-amber-50 text-amber-700 glass-pill text-[10px]">All
                                             Channels</span>
                                     </div>
                                     <div class="chart-card-body flex-1 overflow-y-auto premium-scrollbar">
@@ -1093,17 +1227,20 @@
                             </div>
                             <!-- Booking Status -->
                             <div class="animate-fade-in stagger-4 group flex flex-col">
-                                <div class="chart-card unified-row-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 unified-row-card flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-teal-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-teal-600 transition-colors">
                                                 Booking Status</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Current Insights</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-teal-50 text-teal-700 glass-pill text-[10px]">Booking</span>
                                     </div>
                                     <div class="chart-card-body flex-1 overflow-y-auto premium-scrollbar">
                                         <div class="h-[320px] w-full chart-container-dark enterprise-chart-wrap p-4">
@@ -1115,17 +1252,21 @@
                             </div>
                             <!-- Age Group Analysis moved here -->
                             <div class="animate-fade-in stagger-10 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-violet-600 transition-colors">Age
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-violet-600 transition-colors">
+                                                Age
                                                 Group Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Customer demographics</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-violet-50 text-violet-700 glass-pill text-[10px]">Segment</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[320px] w-full chart-container-dark enterprise-chart-wrap">
@@ -1141,17 +1282,20 @@
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                             <!-- Industry Analysis -->
                             <div class="animate-fade-in stagger-7 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-amber-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-amber-600 transition-colors">
                                                 Industry Analysis</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Buyer profession breakdown</div>
                                         </div>
                                         <span
-                                            class="kpi-badge bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-amber-50 text-amber-700 glass-pill text-[10px]">Segment</span>
                                     </div>
                                     <div class="chart-card-body">
                                         <div class="h-[320px] w-full chart-container-dark enterprise-chart-wrap">
@@ -1162,16 +1306,21 @@
                             </div>
                             <!-- Booking Plan -->
                             <div class="animate-fade-in stagger-8 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-blue-600 transition-colors">Booking
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
+                                                Booking
                                                 Plan</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Timeline for planned bookings</div>
                                         </div>
-                                        <span class="kpi-badge bg-blue-50 text-blue-700 glass-pill text-[10px]">Lead
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-blue-50 text-blue-700 glass-pill text-[10px]">Lead
                                             Intent</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -1183,16 +1332,21 @@
                             </div>
                             <!-- Buying Purpose -->
                             <div class="animate-fade-in stagger-9 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-pink-600 transition-colors">Buying
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-pink-600 transition-colors">
+                                                Buying
                                                 Purpose</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Investment vs Self-use</div>
                                         </div>
-                                        <span class="kpi-badge bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
+                                        <span
+                                            class="kpi-badge px-2 py-0.5 text-[9px] font-bold tracking-widest uppercase rounded flex items-center border border-slate-200 shadow-sm bg-white bg-pink-50 text-pink-700 glass-pill text-[10px]">Lead
                                             Intent</span>
                                     </div>
                                     <div class="chart-card-body">
@@ -1210,13 +1364,16 @@
                         <!-- Geographic Preferences (Lead Mgmt) -->
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
                             <div class="animate-fade-in stagger-11 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Native Place</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Buyer origins</div>
                                         </div>
                                     </div>
@@ -1228,13 +1385,16 @@
                                 </div>
                             </div>
                             <div class="animate-fade-in stagger-12 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                                                 Possession Timeline</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 Urgency of requirement</div>
                                         </div>
                                     </div>
@@ -1247,13 +1407,17 @@
                                 </div>
                             </div>
                             <div class="animate-fade-in stagger-13 group flex flex-col">
-                                <div class="chart-card flex-1 flex flex-col min-h-0">
-                                    <div class="chart-card-header">
+                                <div
+                                    class="chart-card bg-white border border-slate-200/80 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] rounded hover:shadow-[0_6px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 flex-1 flex flex-col min-h-0">
+                                    <div
+                                        class="chart-card-header flex items-start justify-between p-3.5 border-b border-slate-100 bg-slate-50/30 rounded-t">
                                         <div>
-                                            <div class="chart-title group-hover:text-indigo-600 transition-colors">Area
+                                            <div
+                                                class="chart-title text-[14px] font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
+                                                Area
                                                 Preferences</div>
                                             <div
-                                                class="chart-subtitle uppercase tracking-[0.2em] font-black opacity-60">
+                                                class="chart-subtitle text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest uppercase tracking-[0.2em] font-black opacity-60">
                                                 All desired locations</div>
                                         </div>
                                     </div>
@@ -1273,7 +1437,7 @@
                 <!-- ─────────────────── CRM TAB ─────────────────── -->
                 <mat-tab label="CRM">
                     <div
-                        class="animate-fade-in flex min-h-[400px] items-center justify-center rounded-2xl border border-dashed border-slate-200/90 bg-gradient-to-b from-slate-50/90 via-white to-stone-50/40 p-8 sm:p-12 shadow-enterprise ring-1 ring-slate-900/[0.03]">
+                        class="animate-fade-in mt-6 flex min-h-[400px] items-center justify-center rounded border-2 border-dashed border-slate-300 bg-white p-8 sm:p-12 shadow-sm">
                         <div class="text-center max-w-md">
                             <div
                                 class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-900 text-amber-100 flex items-center justify-center mx-auto mb-5 shadow-enterprise-md ring-1 ring-slate-900/10">

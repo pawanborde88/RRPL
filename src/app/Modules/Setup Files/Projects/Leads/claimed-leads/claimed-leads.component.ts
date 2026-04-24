@@ -614,6 +614,7 @@ export class ClaimedLeadsComponent implements OnInit {
       ...(isClaimed ? [{ key: 'lead_type', label: 'Lead Type' }] : []),
       { key: 're_enquiry', label: 'Re-enquiry' },
       { key: 'integration_name', label: 'Campaign Name' },
+      { key: 'ai_lead_level', label: 'AI Lead Level' },
       {
         key: 'imported',
         label: 'Imported',
