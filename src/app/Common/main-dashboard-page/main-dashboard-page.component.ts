@@ -29,6 +29,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PriceFormatPipe } from '../../Pipes/price-format.pipe';
 import { PriceShortPipe } from '../../Pipes/price-short.pipe';
 import { GreetingPipe } from '../../Pipes/greeting.pipe';
@@ -88,6 +89,7 @@ interface DashboardMetric {
     MatSelectModule,
     MatInputModule,
     MatDatepickerModule,
+    MatTooltipModule,
     PriceFormatPipe,
     PriceShortPipe,
     GreetingPipe,
@@ -266,6 +268,69 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
   private timeUpdateIntervalId: ReturnType<typeof setInterval> | null = null;
 
   // ============================================
+  // PREMIUM ANALYTICS — Smart Insights & Rates
+  // ============================================
+  readonly lastUpdated = signal<Date>(new Date());
+  private readonly filterState = signal<{ projectIds: number[]; preset: string }>({ projectIds: [], preset: '30days' });
+
+  readonly activeFilterChips = computed(() => {
+    const state = this.filterState();
+    const chips: { label: string; type: string }[] = [];
+    if (state.projectIds.length > 0) {
+      const names = this.projects()
+        .filter(p => state.projectIds.includes(p.project_id))
+        .map(p => p.property_name);
+      chips.push({ label: names.length === 1 ? names[0] : `${names.length} Projects`, type: 'project' });
+    }
+    if (state.preset) chips.push({ label: this.presetLabel(state.preset), type: 'date' });
+    return chips;
+  });
+
+  readonly enquiryConversionRate = computed(() => {
+    const flow = this.enquiryFlowData();
+    if (!flow || flow.enquiries === 0) return 0;
+    return Math.round((flow.bookings / flow.enquiries) * 1000) / 10;
+  });
+
+  readonly inventoryHealth = computed(() => {
+    const data = this.allProjectSummaryData();
+    if (!data || data.floor_unit_count === 0) return { bookedPct: 0, availablePct: 100, status: 'healthy' as const };
+    const bookedPct = Math.round((data.booking_count / data.floor_unit_count) * 1000) / 10;
+    const status = bookedPct > 80 ? 'critical' : bookedPct > 50 ? 'warning' : 'healthy';
+    return { bookedPct, availablePct: 100 - bookedPct, status };
+  });
+
+  readonly topSourceInsight = computed(() => {
+    const raw = this.presaleDashboardRaw();
+    const sources = raw?.source || [];
+    if (!sources.length) return null;
+    const top = sources.reduce((a: any, b: any) => (a.lead_count > b.lead_count ? a : b));
+    return { name: top.source, count: top.lead_count, pct: Math.round((top.lead_count / sources.reduce((s: number, c: any) => s + c.lead_count, 0)) * 100) };
+  });
+
+  readonly digitalROIColor = computed(() => {
+    const campaigns = this.digitalCampaigns();
+    if (!campaigns.length) return 'neutral';
+    const totalLeads = campaigns.reduce((s, c) => s + c.lead_count, 0);
+    const totalBookings = campaigns.reduce((s, c) => s + c.booking_count, 0);
+    const rate = totalLeads ? (totalBookings / totalLeads) * 100 : 0;
+    return rate > 5 ? 'emerald' : rate > 2 ? 'amber' : 'rose';
+  });
+
+  private presetLabel(preset: string): string {
+    const map: Record<string, string> = {
+      '30days': 'Last 30 Days', '1month': 'One Month', '3month': 'Three Months',
+      '6month': 'Six Months', '1year': 'One Year'
+    };
+    return map[preset] || preset;
+  }
+
+  refreshDashboard(): void {
+    this.lastUpdated.set(new Date());
+    this.fetchDashboardData();
+  }
+
+  // ============================================
   // LIFECYCLE HOOKS
   // ============================================
   ngOnInit(): void {
@@ -317,6 +382,7 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((projectIds) => {
         const pIds = projectIds || [];
+        this.filterState.update(s => ({ ...s, projectIds: pIds as number[] }));
         this.onProjectChange(pIds);
         if (pIds.length > 0) {
           this.facade.loadTelecallers(pIds);
@@ -336,6 +402,7 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((preset) => {
         if (preset) {
+          this.filterState.update(s => ({ ...s, preset }));
           this.onDatePresetChange(preset);
         }
       });
@@ -348,6 +415,7 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
     this.allProjectSummaryData();
 
     untracked(() => {
+      this.lastUpdated.set(new Date());
       setTimeout(() => this.updateCharts(), 100);
     });
   });
@@ -569,7 +637,24 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
       nativePlace: { data: this.ensureArray(salesData?.native_place), key: 'native_place', val: 'enquiry_count' }
     };
 
-    const commonGrid = { top: 40, left: '3%', right: '4%', bottom: '15%', containLabel: true };
+    const commonGrid = { top: 28, left: '3%', right: '4%', bottom: '10%', containLabel: true };
+
+    const premiumTooltip = (formatter?: string): any => ({
+      backgroundColor: 'rgba(15, 23, 42, 0.92)',
+      borderColor: 'rgba(148, 163, 184, 0.15)',
+      borderWidth: 1,
+      padding: [10, 14],
+      textStyle: { color: '#f8fafc', fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif' },
+      extraCssText: 'box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.1); border-radius: 12px; backdrop-filter: blur(8px);',
+      formatter: formatter || undefined
+    });
+
+    const premiumAxis: any = {
+      axisLine: { lineStyle: { color: '#e2e8f0', width: 1 } },
+      axisTick: { show: false },
+      axisLabel: { color: '#64748b', fontSize: 11, fontWeight: 600, fontFamily: 'Inter, system-ui, sans-serif' },
+      splitLine: { lineStyle: { type: 'dashed' as const, color: '#f1f5f9' } }
+    };
 
     let options: echarts.EChartsOption | null = null;
     switch (id) {
@@ -585,43 +670,57 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
 
         options = {
           tooltip: {
+            ...premiumTooltip(),
             trigger: 'axis',
-            axisPointer: { type: 'shadow' }
+            axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(99, 102, 241, 0.06)' } }
           },
           grid: commonGrid,
           xAxis: {
             type: 'category',
             data: stages.map(s => s.name),
-            axisLine: { lineStyle: { color: '#e2e8f0' } },
-            axisLabel: { color: '#64748b', fontWeight: 600 }
-          },
+            axisLine: { lineStyle: { color: '#e2e8f0', width: 1 } },
+            axisTick: { show: false },
+            axisLabel: { color: '#64748b', fontWeight: 600, fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif' }
+          } as any,
           yAxis: {
             type: 'value',
-            splitLine: { lineStyle: { type: 'dashed', color: '#f1f5f9' } },
-            axisLabel: { color: '#64748b' }
-          },
+            splitLine: { lineStyle: { type: 'dashed' as const, color: '#f1f5f9' } },
+            axisLabel: { color: '#64748b', fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif' },
+            axisLine: { show: false },
+            axisTick: { show: false }
+          } as any,
           series: [{
             name: 'Total',
             type: 'bar',
-            barWidth: '40%',
+            barWidth: '45%',
             data: stages.map((s, i) => ({
               value: s.value,
               itemStyle: {
-                borderRadius: [6, 6, 0, 0],
-                // Subtle gradient for premium look
+                borderRadius: [8, 8, 0, 0],
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                   { offset: 0, color: colors[i % colors.length] },
-                  { offset: 1, color: colors[i % colors.length] + 'dd' }
-                ])
+                  { offset: 1, color: colors[i % colors.length] + 'bb' }
+                ]),
+                shadowColor: colors[i % colors.length] + '33',
+                shadowBlur: 12,
+                shadowOffsetY: 6
               }
             })),
             label: {
               show: true,
               position: 'top',
-              color: '#475569',
-              fontWeight: 700,
-              fontSize: 11
-            }
+              color: '#334155',
+              fontWeight: 800,
+              fontSize: 12,
+              fontFamily: 'Inter, system-ui, sans-serif'
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 20,
+                shadowColor: 'rgba(99, 102, 241, 0.3)'
+              }
+            },
+            animationDelay: (idx: number) => idx * 80
           }]
         };
         break;
@@ -660,13 +759,23 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
 
         options = {
           tooltip: { trigger: 'item' },
-          legend: { orient: 'vertical', right: 0, top: 'middle', textStyle: { fontSize: 10 } },
+          legend: {
+            orient: 'horizontal',
+            bottom: 0,
+            left: 'center',
+            type: 'scroll',
+            textStyle: { fontSize: 10, fontFamily: 'Inter, system-ui, sans-serif' },
+            itemWidth: 10,
+            itemHeight: 10,
+            itemGap: 8,
+            padding: [4, 0]
+          },
           series: [{
             type: 'pie',
-            radius: ['40%', '75%'],
-            center: ['40%', '50%'],
+            radius: ['42%', '68%'],
+            center: ['50%', '46%'],
             avoidLabelOverlap: false,
-            itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+            itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
             label: { show: false },
             data: data.map((d, i) => ({
               name: d.name || 'N/A',
@@ -685,13 +794,14 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
 
         options = {
           tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-          grid: { top: 20, left: 10, right: 40, bottom: 10, containLabel: true },
+          grid: { top: 10, left: 10, right: '18%', bottom: 10, containLabel: true },
           xAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
-          yAxis: { type: 'category', data: levels.map(l => l.lead_level) },
+          yAxis: { type: 'category', data: levels.map(l => l.lead_level), axisLine: { show: false }, axisTick: { show: false } },
           series: [{
             type: 'bar',
-            data: levels.map((l, i) => ({ value: l.lead_level_count, itemStyle: { color: colors[i % colors.length], borderRadius: [0, 4, 4, 0] } })),
-            label: { show: true, position: 'right' }
+            barWidth: '55%',
+            data: levels.map((l, i) => ({ value: l.lead_level_count, itemStyle: { color: colors[i % colors.length], borderRadius: [0, 6, 6, 0] } })),
+            label: { show: true, position: 'right', fontWeight: 700, fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif', color: '#334155' }
           }]
         };
         break;
@@ -871,10 +981,79 @@ export class MainDashboardPageComponent implements OnInit, AfterViewInit, OnDest
         if (bpData.length === 0) return null;
         options = {
           grid: commonGrid,
-          tooltip: { trigger: 'axis' },
-          xAxis: { type: 'category', data: bpData.map(d => d.booking) },
-          yAxis: { type: 'value' },
-          series: [{ type: 'bar', data: bpData.map(d => d.enquiry_count), itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] } }]
+          tooltip: premiumTooltip(),
+          xAxis: { type: 'category', data: bpData.map(d => d.booking), ...premiumAxis } as any,
+          yAxis: { type: 'value', ...premiumAxis } as any,
+          series: [{ type: 'bar', data: bpData.map(d => d.enquiry_count), itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#10b981' }, { offset: 1, color: '#059669' }]), borderRadius: [6, 6, 0, 0] }, barWidth: '50%', label: { show: true, position: 'top', color: '#475569', fontWeight: 700, fontSize: 11 } }]
+        };
+        break;
+      }
+
+      case 'conversionFunnel': {
+        if (!flowData) return null;
+        const funnelStages = [
+          { value: flowData.enquiries || 0, name: 'Enquiries' },
+          { value: flowData.tokens || 0, name: 'Tokens' },
+          { value: flowData.bookings || 0, name: 'Bookings' },
+          { value: flowData.booking_agreements || 0, name: 'Agreements' },
+          { value: flowData.disbursements || 0, name: 'Disbursements' }
+        ];
+        const barColors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316'];
+        options = {
+          tooltip: {
+            ...premiumTooltip(),
+            trigger: 'axis',
+            axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(99, 102, 241, 0.06)' } }
+          },
+          grid: { top: 10, left: '18%', right: '16%', bottom: 10, containLabel: true },
+          xAxis: {
+            type: 'value',
+            splitLine: { lineStyle: { type: 'dashed' as const, color: '#f1f5f9' } },
+            axisLabel: { color: '#64748b', fontSize: 11, fontFamily: 'Inter, system-ui, sans-serif' },
+            axisLine: { show: false },
+            axisTick: { show: false }
+          } as any,
+          yAxis: {
+            type: 'category',
+            data: funnelStages.map(s => s.name),
+            axisLine: { lineStyle: { color: '#e2e8f0', width: 1 } },
+            axisTick: { show: false },
+            axisLabel: { color: '#64748b', fontWeight: 700, fontSize: 12, fontFamily: 'Inter, system-ui, sans-serif' }
+          } as any,
+          series: [{
+            name: 'Pipeline',
+            type: 'bar',
+            barWidth: '55%',
+            data: funnelStages.map((s, i) => ({
+              value: s.value,
+              itemStyle: {
+                borderRadius: [0, 8, 8, 0],
+                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                  { offset: 0, color: barColors[i] + 'cc' },
+                  { offset: 1, color: barColors[i] }
+                ]),
+                shadowColor: barColors[i] + '33',
+                shadowBlur: 12,
+                shadowOffsetY: 6
+              }
+            })),
+            label: {
+              show: true,
+              position: 'right',
+              color: '#334155',
+              fontWeight: 800,
+              fontSize: 12,
+              fontFamily: 'Inter, system-ui, sans-serif',
+              formatter: '{c}'
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 20,
+                shadowColor: 'rgba(99, 102, 241, 0.25)'
+              }
+            },
+            animationDelay: (idx: number) => idx * 100
+          }]
         };
         break;
       }

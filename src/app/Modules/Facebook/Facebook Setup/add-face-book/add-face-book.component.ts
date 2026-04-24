@@ -13,7 +13,7 @@ import {
 } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize } from 'rxjs';
+import { catchError, finalize, of } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { SuccessDialogComponent } from '../../../../Common/success-dialog/success-dialog.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
@@ -37,6 +37,8 @@ interface FacebookSetupFormData {
   created_by: number;
   updated_by: number;
   facebook_setup_id: number | null;
+  meta_cost: string | null;
+  branding_cost: string | null;
 }
 
 /**
@@ -48,6 +50,8 @@ interface FacebookDialogData {
     project_id: number;
     form_id: string;
     integration_name?: string;
+    meta_cost?: string;
+    branding_cost?: string;
   };
 }
 
@@ -102,6 +106,8 @@ export class AddFaceBookComponent implements OnInit {
     project_id: FormControl<number | null>;
     form_id: FormControl<string | null>;
     integration_name: FormControl<string | null>;
+    meta_cost: FormControl<string | null>;
+    branding_cost: FormControl<string | null>;
     created_by: FormControl<number>;
     updated_by: FormControl<number>;
     facebook_setup_id: FormControl<number | null>;
@@ -109,6 +115,8 @@ export class AddFaceBookComponent implements OnInit {
     project_id: new FormControl<number | null>(null, { validators: [Validators.required], nonNullable: false }),
     form_id: new FormControl<string | null>(null, { validators: [Validators.required], nonNullable: false }),
     integration_name: new FormControl<string | null>(null, { nonNullable: false }),
+    meta_cost: new FormControl<string | null>(null, { nonNullable: false }),
+    branding_cost: new FormControl<string | null>(null, { nonNullable: false }),
     created_by: new FormControl<number>(this.userId, { nonNullable: true }),
     updated_by: new FormControl<number>(this.userId, { nonNullable: true }),
     facebook_setup_id: new FormControl<number | null>(null, { nonNullable: false }),
@@ -125,28 +133,26 @@ export class AddFaceBookComponent implements OnInit {
   /**
    * Fetch all projects from API using CommonService
    */
-  private fetchAllProjects(): void {
-    this.isLoading.set(true);
-    
-    this.commonService
-      .fetchProjectsDropdown()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => this.isLoading.set(false))
-      )
-      .subscribe({
-        next: (projects) => {
-          this.projectsList.set(projects);
-        },
-        error: () => {
-          this.snackBar.open('Failed to fetch projects data.', 'Close', {
-            duration: 3000,
-          });
-          this.projectsList.set([]);
-        },
-      });
-  }
-
+   fetchAllProjects(): void {
+     this.isLoading.set(true);
+     const userId = this.userId;
+ 
+     this.commonService
+       .fetchUserProjectDropdown(userId)
+       .pipe(
+         catchError((err) => {
+           console.error('Error fetching projects:', err);
+           return of([]);
+         }),
+         finalize(() => this.isLoading.set(false)),
+         takeUntilDestroyed(this.destroyRef)
+       )
+       .subscribe({
+         next: (res) => {
+           this.projectsList.set(res || []);
+         },
+       });
+   }
   /**
    * Patch form values when in edit mode
    */
@@ -159,6 +165,8 @@ export class AddFaceBookComponent implements OnInit {
       form_id: editData.form_id,
       integration_name: editData.integration_name ?? null,
       facebook_setup_id: editData.facebook_setup_id,
+      meta_cost: editData.meta_cost ?? null,
+      branding_cost: editData.branding_cost ?? null,
     });
   }
 
@@ -180,12 +188,16 @@ export class AddFaceBookComponent implements OnInit {
           project_id: formValue.project_id!,
           form_id: formValue.form_id!,
           integration_name: formValue.integration_name ?? undefined,
+          meta_cost: formValue.meta_cost ?? undefined,
+          branding_cost: formValue.branding_cost ?? undefined,
           updated_by: this.userId,
         }
       : {
           project_id: formValue.project_id!,
           form_id: formValue.form_id!,
           integration_name: formValue.integration_name ?? undefined,
+          meta_cost: formValue.meta_cost ?? undefined,
+          branding_cost: formValue.branding_cost ?? undefined,
           created_by: this.userId,
           updated_by: this.userId,
         };

@@ -209,6 +209,38 @@
                         </div>
                     </div>
 
+                    <!-- CP Executives -->
+                    <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
+                        <div class="px-3 py-2 border-b border-slate-100 bg-[#f8f9fa] flex items-center justify-between">
+                            <h5
+                                class="text-[10px] font-black text-[#0d4678] flex items-center gap-2 uppercase tracking-wide">
+                                <span class="w-1.5 h-3 bg-[#0d4678] rounded-full"></span>
+                                CP Executives
+                            </h5>
+                            <span class="text-[9px] font-bold text-slate-400">{{ cpExecutives().length }} Found</span>
+                        </div>
+                        <div class="p-2 flex flex-col gap-1.5 max-h-52 overflow-y-auto">
+                            <div *ngFor="let exec of cpExecutives()"
+                                class="flex items-center p-2 rounded border border-slate-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all">
+                                <div
+                                    class="w-7 h-7 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 mr-2.5 shrink-0">
+                                    <mat-icon class="!text-base">person</mat-icon>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="text-[11px] font-bold text-slate-700 truncate">{{ exec.first_name }} {{ exec.last_name }}</span>
+                                    <span class="text-[9px] text-slate-500 font-medium">{{ exec.user_phone || 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="cpExecutives().length === 0 && !isLoadingExecutives()"
+                                class="text-center py-4 bg-slate-25 rounded border border-dashed border-slate-200">
+                                <mat-icon class="text-slate-300 !text-2xl mb-1">group_off</mat-icon>
+                                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">No Executives</div>
+                            </div>
+                            <div *ngIf="isLoadingExecutives()" class="flex justify-center py-3">
+                                <mat-spinner diameter="20" color="primary"></mat-spinner>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>

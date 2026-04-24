@@ -62,11 +62,9 @@ mat-card {
   }
 }
 
-// Improved card content with better spacing
+// Card content - let component control padding
 mat-card-content {
-  padding: 1rem !important;
   position: relative;
-  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
 }
 
 // Card footer with better visibility
@@ -199,7 +197,6 @@ mat-icon {
   .user-card {
     mat-card-content {
       min-height: auto;
-      padding: 0.875rem !important;
     }
   }
 }

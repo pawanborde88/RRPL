@@ -85,6 +85,7 @@
 .nav-item-active {
   background-color: var(--brand-color) !important;
   color: #ffffff !important;
+  border-right: 3px solid #f06c24 !important;
   box-shadow: 0 4px 14px -5px rgba(13, 70, 120, 0.4) !important;
 
   .mat-icon,

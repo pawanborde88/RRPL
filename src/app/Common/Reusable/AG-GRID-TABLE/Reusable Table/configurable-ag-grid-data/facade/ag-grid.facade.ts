@@ -201,7 +201,7 @@ export class AgGridFacade<T extends TableRowData = TableRowData> {
         if (parsedState.columnState) {
           api.applyColumnState({
             state: parsedState.columnState,
-            applyOrder: true,
+            applyOrder: false,
           });
         }
       } catch (e) {

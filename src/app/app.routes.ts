@@ -973,7 +973,7 @@ export const routes: Routes = [
     {
         path: 'after-sales/MSEBDetailsReport',
         loadComponent: () =>
-            import('./Modules/Setup Files/Post Sales/Post Sales Report/msebdetails-report/msebdetails-report.component').then(m => m.MSEBDetailsReportComponent),
+            import('./features/reports/pages/msebdetails-report/msebdetails-report.component').then(m => m.MSEBDetailsReportComponent),
         canActivate: [AuthGuard],
         title: pageNames.MSEB_DETAILS_REPORT,
     },
@@ -987,7 +987,7 @@ export const routes: Routes = [
     {
         path: 'after-sales/mis-report',
         loadComponent: () =>
-            import('./Modules/Setup Files/Post Sales/Post Sales Report/mis-report/mis-report.component').then(m => m.MisReportComponent),
+            import('./features/reports/pages/mis-report/mis-report.component').then(m => m.MisReportComponent),
         canActivate: [AuthGuard],
         title: pageNames.MIS_REPORT,
     },
@@ -1009,7 +1009,7 @@ export const routes: Routes = [
     {
         path: 'after-sales/deleted-receipts-log',
         loadComponent: () =>
-            import('./Modules/Setup Files/Post Sales/Post Sales Report/deleted-receipts-log/deleted-receipts-log').then(m => m.DeletedReceiptsLog),
+            import('./features/reports/pages/deleted-receipts-log/deleted-receipts-log').then(m => m.DeletedReceiptsLog),
         canActivate: [AuthGuard],
         title: pageNames.DELETED_RECEIPTS_LOG,
     },

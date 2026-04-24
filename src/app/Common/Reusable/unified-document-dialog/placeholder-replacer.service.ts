@@ -97,6 +97,17 @@ export class PlaceholderReplacerService {
         replacements['#RERA# '] = this.getReraNo(bookingData, dialogType);
         replacements['#BookingDate#'] = this.formatDate(bookingData.booking_date, currentDate);
 
+        // Booking TAT dates
+        const tat = bookingData?.booking_tat;
+        replacements['#SecondDayOfBooking#'] = tat?.second_booking_day || '';
+        replacements['#10thDayOfBooking#'] = tat?.['10_booking_day'] || '';
+        replacements['#15thDayOfBooking#'] = tat?.['15_booking_day'] || '';
+        replacements['#20thDayOfBooking#'] = tat?.['20_booking_day'] || '';
+        replacements['#30thDayOfBooking#'] = tat?.['30_booking_day'] || '';
+
+        // TDS (1% of agreement cost)
+        replacements['#1%TDS#'] = this.formatCurrency(bookingData.tds || 0);
+
         // Applicant 1
         replacements['#Applicant1#'] = applicant;
         replacements['#Address#'] = bookingData.applicant_current_address || '';

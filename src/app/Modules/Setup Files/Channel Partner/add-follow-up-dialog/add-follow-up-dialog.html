@@ -61,7 +61,7 @@
     <div class="comment-input-row flex w-full">
       <mat-form-field appearance="outline" class="comment-input flex-1 min-w-0">
         <mat-label>Add your follow-up</mat-label>
-        <textarea matInput formControlName="message" rows="2" placeholder="e.g. Client interested in 2BHK flat"></textarea>
+        <input matInput formControlName="message" placeholder="e.g. Client interested in 2BHK flat">
         <mat-error *ngIf="form.get('message')?.hasError('required')">Message is required</mat-error>
         <button mat-icon-button matSuffix color="primary" type="submit" [disabled]="form.invalid || isSubmitting"
           matTooltip="Add follow-up">

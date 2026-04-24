@@ -9,16 +9,16 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 
-import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { environment } from '../../../../../../environments/environment';
-import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
-import { AddLetterGenerationDialogComponent } from '../../Letter Generation/add-letter-generation-dialog/add-letter-generation-dialog.component';
+import { AngularMaterialModule } from '../../../../../angular-material.module';
+import { environment } from '../../../../../environments/environment';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
+import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
+import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
+import { AddLetterGenerationDialogComponent } from '../../../../Modules/Setup Files/Post Sales/Letter Generation/add-letter-generation-dialog/add-letter-generation-dialog.component';
 
 @Component({
   selector: 'app-msebdetails-report',

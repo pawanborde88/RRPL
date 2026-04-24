@@ -56,7 +56,7 @@ import { OtpVerificationDialogComponent } from '../../Projects/QRCODE/qrproject-
     trigger('fadeIn', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out ', style({ opacity: 1, transform: 'translateY(0)' })),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ]),
     ]),
   ],

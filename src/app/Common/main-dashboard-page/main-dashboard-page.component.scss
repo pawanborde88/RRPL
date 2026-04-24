@@ -32,8 +32,8 @@
   position: relative;
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 1.25rem;
-  padding: 1.5rem;
+  border-radius: 1rem;
+  padding: 1.25rem;
   background: white;
   border: 1px solid var(--enterprise-border);
   box-shadow: var(--enterprise-shadow);
@@ -67,9 +67,9 @@
 }
 
 .metric-icon-box {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.85rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,9 +79,9 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   mat-icon {
-    width: 20px !important;
-    height: 20px !important;
-    font-size: 20px !important;
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 18px !important;
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -102,19 +102,19 @@
 }
 
 .metric-label {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   margin-bottom: 2px;
 }
 
 .metric-value {
-  font-size: 2.25rem;
+  font-size: 1.875rem;
   font-weight: 950;
   color: #0f172a;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 1.1;
   font-family: 'Outfit', 'Inter', sans-serif;
 }
@@ -123,9 +123,9 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
-  padding: 0.25rem 0.625rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 9999px;
   backdrop-filter: blur(4px);
 
@@ -189,7 +189,7 @@
 }
 
 .chart-card-header {
-  padding: 0.75rem 1.25rem;
+  padding: 0.6rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,7 +243,7 @@
 }
 
 .chart-card-body {
-  padding: 0.75rem 1rem 1rem;
+  padding: 0.6rem 0.875rem 0.875rem;
   flex: 1;
   min-height: 0;
 }
@@ -463,5 +463,116 @@
   app-autocomplete-reusable-component {
     display: block;
     margin-bottom: 0 !important;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Smart Insights Banner
+// ─────────────────────────────────────────────
+.insights-banner {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    box-shadow: 0 10px 22px -8px rgb(15 23 42 / 0.1), 0 4px 8px -4px rgb(15 23 42 / 0.06);
+    border-color: #cbd5e1;
+  }
+}
+
+.insight-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+  cursor: default;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  mat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.insight-chip-conversion {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #e0e7ff;
+}
+
+.insight-chip-healthy {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #d1fae5;
+}
+
+.insight-chip-warning {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fef3c7;
+}
+
+.insight-chip-critical {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #ffe4e6;
+}
+
+.insight-chip-source {
+  background: #fdf4ff;
+  color: #a21caf;
+  border-color: #fae8ff;
+}
+
+.insight-chip-emerald {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #d1fae5;
+}
+
+.insight-chip-amber {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fef3c7;
+}
+
+.insight-chip-rose {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #ffe4e6;
+}
+
+.insight-chip-neutral {
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #f1f5f9;
+}
+
+// ─────────────────────────────────────────────
+// Campaign Table Enhancements
+// ─────────────────────────────────────────────
+.conversion-rate-bar {
+  height: 4px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  overflow: hidden;
+  width: 100%;
+  margin-top: 0.25rem;
+
+  .conversion-rate-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.6s ease;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
   }
 }

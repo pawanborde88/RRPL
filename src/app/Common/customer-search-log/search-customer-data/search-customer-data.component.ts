@@ -1,33 +1,15 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, Input, OnInit, signal, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, DestroyRef, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../angular-material.module';
 import { TruncatePipe } from '../../../Pipes/truncate.pipe';
 import { AutocompleteReusableComponent } from '../../autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
-import { ReusableTableComponent } from '../../Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../template/template.component';
-import { HttpClient } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { environment } from '../../../../environments/environment';
-import { ExecutiveProjectQRComponent } from '../../../Modules/Setup Files/Enquiry/executive-project-qr/executive-project-qr.component';
-import { CommentLogComponent } from '../../../Modules/Setup Files/comment-log/comment-log.component';
-import { ConfirmDialogComponent } from '../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { AddEnquiryComponent } from '../../../Modules/Setup Files/Enquiry/add-enquiry/add-enquiry.component';
-import { AssignProjectDialogComponent } from '../../../Modules/Setup Files/Enquiry/assign-project-dialog/assign-project-dialog.component';
-import { ClaimEnquiryComponent } from '../../../Modules/Setup Files/Enquiry/claim-enquiry/claim-enquiry.component';
-import { AssignLeadsComponent } from '../../../Modules/Setup Files/Projects/Leads/assign-leads/assign-leads.component';
-import { AddSiteVisitComponent } from '../../../Modules/Setup Files/Site Visit/add-site-visit/add-site-visit.component';
-import { FetchFunctionsService } from '../../../Service/fetch-functions.service';
-import { ViewInfoMobEmailComponent } from '../../View Mobile Email/view-info-mob-email/view-info-mob-email.component';
-import { PaginationComponent } from '../../pagination/pagination.component';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs';
 import { AuthService } from '../../../Service/auth.service';
 import { CommonService } from '../../../Service/common/common.service';
 import { ConfigurableAgGridDataComponent } from '../../Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
@@ -36,7 +18,8 @@ import { TableColumn } from '../../Reusable/reusable-table/reusable-table-refact
 @Component({
   selector: 'app-search-customer-data',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     RouterModule,
     TemplateComponent,
     BreadcrumbComponent,
@@ -45,45 +28,31 @@ import { TableColumn } from '../../Reusable/reusable-table/reusable-table-refact
     ReactiveFormsModule,
     TruncatePipe,
     AutocompleteReusableComponent,
-    ReusableTableComponent,
-    PaginationComponent,
-    AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
-
-    ReusableTableComponent,],
+  ],
   templateUrl: './search-customer-data.component.html',
   styleUrl: './search-customer-data.component.scss'
 })
 export class SearchCustomerDataComponent implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly fetch = inject(FetchFunctionsService);
   private readonly authService = inject(AuthService);
   private readonly commonService = inject(CommonService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly baseUrl = environment.API_URL;
-  readonly storageUrl = environment.STORAGE_URL;
   readonly userId = this.authService.userId();
-  @ViewChild(ConfigurableAgGridDataComponent) agGridTable!: ConfigurableAgGridDataComponent<any>;
 
   // Signals for state management
   readonly loading = signal<boolean>(false);
   readonly allWingslist = signal<any[]>([]);
   readonly projectsList = signal<any[]>([]);
-  readonly FloorUnitDropdown = signal<any[]>([]);
 
   // Form signal for reactive payload
   private readonly formValues = signal<any>({});
 
-  @Input() agreementStatus: number = 1;
-  @Input() active: boolean = false;
 
   readonly bookingForm = new FormGroup({
     project_id: new FormControl(null, Validators.required),
-    wing_id: new FormControl(null, Validators.required),
-
+    wing_id: new FormControl(null),
   });
 
   readonly agreementDetailsColumnsNames: (TableColumn & { claimedOnly?: boolean })[] = [
@@ -130,7 +99,7 @@ export class SearchCustomerDataComponent implements OnInit {
     { key: 'updated_at', label: 'Updated At', type: 'date', claimedOnly: true },
   ];
 
-
+ 
 
   // Computed signal for AG Grid payload
   readonly agGridPayload = computed(() => {
@@ -143,19 +112,15 @@ export class SearchCustomerDataComponent implements OnInit {
     return { filters };
   });
 
-
-
-
-
-
+  @ViewChild(ConfigurableAgGridDataComponent) agGridTable!: ConfigurableAgGridDataComponent<any>;
 
   ngOnInit(): void {
-    // this.loadInitialData();
-    // this.setupFormSubscriptions();
+    this.loadInitialData();
+    this.setupFormSubscriptions();
 
-    // this.bookingForm.valueChanges
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe(() => this.updateFormValues());
+    this.bookingForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.updateFormValues());
   }
 
   fetchAllBookings(): void {
@@ -182,7 +147,7 @@ export class SearchCustomerDataComponent implements OnInit {
     this.bookingForm.get('project_id')?.valueChanges
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        filter(id => !!id)
+        filter((id: any) => !!id)
       )
       .subscribe(projectID => {
         this.fetchAllWings(projectID);
@@ -200,6 +165,7 @@ export class SearchCustomerDataComponent implements OnInit {
 
   fetchAllWings(projectID: any): void {
     this.commonService.fetchWingDropdown(projectID)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
           this.allWingslist.set(res);
@@ -209,23 +175,5 @@ export class SearchCustomerDataComponent implements OnInit {
         },
       });
   }
-  selectedBooking: any = null; // Change from selectedBookingId to selectedBooking
-
-  onBookingSelectionChange(checked: boolean, booking: any) {
-    if (checked) {
-      this.selectedBooking = booking;
-      console.log('Selected booking:', this.selectedBooking);
-    } else {
-      // Deselect if the currently selected booking is unchecked
-      if (
-        this.selectedBooking &&
-        this.selectedBooking.floor_rise_id === booking.floor_rise_id
-      ) {
-        this.selectedBooking = null;
-      }
-    }
-  }
-
-
-
+  readonly trackByWingId = (_index: number, item: any): number => item.wing_id;
 }

@@ -72,6 +72,14 @@ export interface BookingData {
   project_logo?: string;
   stages?: PaymentStage[];
   phases?: Array<{ rera_no?: string }>;
+  booking_tat?: {
+    booking_date?: string;
+    second_booking_day?: string;
+    '10_booking_day'?: string;
+    '15_booking_day'?: string;
+    '20_booking_day'?: string;
+    '30_booking_day'?: string;
+  };
   floor_units?: {
     total_carpet_area_sqft?: string;
     total_carpet_area_sqm?: string;

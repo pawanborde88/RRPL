@@ -900,25 +900,11 @@ export const routes: Routes = [
     title: pageNames.LEAD_TRANSFER_REPORT,
   },
   {
-    path: 'after-sales/MSEBDetailsReport',
-    loadComponent: () =>
-      import('./Modules/Setup Files/Post Sales/Post Sales Report/msebdetails-report/msebdetails-report.component').then(m => m.MSEBDetailsReportComponent),
-    canActivate: [AuthGuard],
-    title: pageNames.MSEB_DETAILS_REPORT,
-  },
-  {
     path: 'after-sales/property-tax-report',
     loadComponent: () =>
       import('./Modules/Setup Files/Post Sales/Post Sales Report/property-tax-report/property-tax-report.component').then(m => m.PropertyTaxReportComponent),
     canActivate: [AuthGuard],
     title: pageNames.PROPERTY_TAX_REPORT,
-  },
-  {
-    path: 'after-sales/mis-report',
-    loadComponent: () =>
-      import('./Modules/Setup Files/Post Sales/Post Sales Report/mis-report/mis-report.component').then(m => m.MisReportComponent),
-    canActivate: [AuthGuard],
-    title: pageNames.MIS_REPORT,
   },
   {
     path: 'after-sales/ledget-report',

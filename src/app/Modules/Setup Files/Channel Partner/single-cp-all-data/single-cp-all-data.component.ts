@@ -48,13 +48,43 @@ export class SingleCPAllDataComponent implements OnInit {
   channelPartnerID: string | null = null;
   readonly channelPartnerData = signal<any>(null);
   readonly isLoading = signal<boolean>(false);
+  readonly cpExecutives = signal<any[]>([]);
+  readonly isLoadingExecutives = signal<boolean>(false);
 
   ngOnInit(): void {
     this.channelPartnerID = this.route.snapshot.paramMap.get('channel_partner_id');
     if (this.channelPartnerID) {
       this.fetchSingleChannelPartner();
+      this.fetchCPExecutives();
       this.initializeReportStore('site_visit');
     }
+  }
+
+  fetchCPExecutives(): void {
+    if (!this.channelPartnerID) return;
+
+    this.isLoadingExecutives.set(true);
+    this.http
+      .post<any[]>(`${this.baseUrl}/fetch_cp_executives`, {
+        channel_partner_id: [Number(this.channelPartnerID)],
+        role_id: 6,
+        active_status_id: 1,
+      })
+      .subscribe({
+        next: (res: any) => {
+          this.isLoadingExecutives.set(false);
+          this.cpExecutives.set(res || []);
+        },
+        error: (err) => {
+          this.isLoadingExecutives.set(false);
+          console.error(err);
+          this.snackBar.open(
+            'Error occurred while fetching CP executives, please try later',
+            'Close',
+            { duration: 3000 }
+          );
+        },
+      });
   }
 
   initializeReportStore(type: DialogType): void {

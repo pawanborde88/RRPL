@@ -869,7 +869,7 @@ export class AllUsersComponent implements AfterViewInit {
   }
 
   private buildModeDefinition(mode: Mode): ModeDefinition {
-    const isAdmin = this.roleId === ROLE_IDS.ADMIN;
+    const isAdmin = this.roleId === 2 || this.roleId === 19;
     const selectedUsers = this.selectedUser;
 
     if (mode === 'cp-executives') {

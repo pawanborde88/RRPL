@@ -107,12 +107,13 @@ export class ChannelPartnerMeetingService {
   }
 
   /**
-   * Fetch sales executives by role ID
+   * Fetch sales executives by role ID and optional project IDs
    */
-  fetchSalesExecutives(roleIds: number[]): Observable<Executive[]> {
+  fetchSalesExecutives(roleIds: number[], projectIds?: number[]): Observable<Executive[]> {
     return this.http
       .post<Executive[]>(`${this.baseUrl}/sales_executive_dropdown`, {
         role_id: roleIds,
+        project_id: projectIds,
       })
       .pipe(
         map((res) =>

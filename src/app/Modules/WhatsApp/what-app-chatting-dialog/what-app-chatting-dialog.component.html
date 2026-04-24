@@ -1,6 +1,9 @@
 <h2 mat-dialog-title>
     {{data.chattingData.customer_name
     || 'Customer'}}
+    <button mat-icon-button (click)="fetchAllWhatsAppChatting()" style="position: absolute; top: 10px; right: 48px;" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+    </button>
     <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
         <mat-icon>close</mat-icon>
     </button>

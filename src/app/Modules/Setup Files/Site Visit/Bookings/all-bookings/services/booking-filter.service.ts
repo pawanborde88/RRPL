@@ -32,46 +32,51 @@ export class BookingFilterService {
    * Builds filter payload from form values
    * Handles both Date objects (from form) and string dates (from API)
    */
-  buildFilterPayload(
-    formValues: Partial<Omit<BookingFilterPayload, 'start_date' | 'end_date'> & { start_date?: Date | string | null; end_date?: Date | string | null }>,
-    preservedBookingId: number | null
-  ): BookingFilterPayload {
-    const filters: BookingFilterPayload = {
-      ...formValues,
-      booking_id: preservedBookingId,
-      start_date: formValues.start_date
-        ? (typeof formValues.start_date === 'string'
-          ? formValues.start_date
-          : this.datePipe.transform(formValues.start_date, 'yyyy-MM-dd') ?? null)
-        : null,
-      end_date: formValues.end_date
-        ? (typeof formValues.end_date === 'string'
-          ? formValues.end_date
-          : this.datePipe.transform(formValues.end_date, 'yyyy-MM-dd') ?? null)
-        : null,
-    };
+buildFilterPayload(
+  formValues: Partial<
+    Omit<BookingFilterPayload, 'start_date' | 'end_date'> & {
+      start_date?: Date | string | null;
+      end_date?: Date | string | null;
+    }
+  >,
+  preservedBookingId: number | null
+): BookingFilterPayload {
 
-    // Add channel partner ID for role 5 users
-    if (this.authService.hasOnlyRoles([5])) {
-      filters.channel_partner_id = this.channelPartnerId()
-        ? [this.channelPartnerId()!]
-        : null;
-      filters.source_id = 3;
-    }
-    if (this.authService.hasOnlyRoles([7])) {
-      filters.sales_executive_id = this.authService.userId() ? [this.authService.userId()] : null;
-    } else {
-      filters.sales_executive_id = Array.isArray(formValues.sales_executive_id)
-        ? formValues.sales_executive_id
-        : (formValues.sales_executive_id ? [formValues.sales_executive_id] : null);
-    }
-    // Add source ID for role 6 users
-    if (this.authService.hasOnlyRoles([6])) {
-      filters.source_id = 3;
-    }
+  const filters: BookingFilterPayload = {
+    ...formValues,
+    booking_id: preservedBookingId,
+    start_date: formValues.start_date
+      ? (typeof formValues.start_date === 'string'
+        ? formValues.start_date
+        : this.datePipe.transform(formValues.start_date, 'yyyy-MM-dd') ?? null)
+      : null,
+    end_date: formValues.end_date
+      ? (typeof formValues.end_date === 'string'
+        ? formValues.end_date
+        : this.datePipe.transform(formValues.end_date, 'yyyy-MM-dd') ?? null)
+      : null,
+  };
 
-    return filters;
+  // Role 5 (Channel Partner)
+  if (this.authService.hasOnlyRoles([5])) {
+    filters.channel_partner_id = this.channelPartnerId()
+      ? [this.channelPartnerId()!]
+      : null;
+    filters.source_id = 3;
   }
+
+  // Default sales_executive_id logic (applies to all now)
+  filters.sales_executive_id = Array.isArray(formValues.sales_executive_id)
+    ? formValues.sales_executive_id
+    : (formValues.sales_executive_id ? [formValues.sales_executive_id] : null);
+
+  // Role 6
+  if (this.authService.hasOnlyRoles([6])) {
+    filters.source_id = 3;
+  }
+
+  return filters;
+}
 
   /**
    * Builds API payload for ag-grid component
