@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import * as pageNames from './Common/pageNames';
 import { AuthGuard } from './Guard/auth.guard';
-import { AllDigitalLeadsComponent } from './Modules/Facebook/Digital Lead/all-digital-leads/all-digital-leads.component';
 
 export const routes: Routes = [
     {
@@ -467,6 +466,31 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         title: pageNames.FACEBOOK_LIST,
     },
+    // Digital All Facebook Budget
+    {
+        path: 'metaSetup/all-digital-budget/list',
+        loadComponent: () =>
+            import('./Modules/Facebook/Digital Facebook/Facebook Budget/digital-all-facebook-budget/digital-all-facebook-budget').then(m => m.DigitalAllFacebookBudget),
+        canActivate: [AuthGuard],
+        title: pageNames.DIGITAL_ALL_FACEBOOK_BUDGET,
+    },
+    //Digital All Facebook spend
+    {
+        path: 'metaSetup/all-digital-spend/list',
+        loadComponent: () =>
+            import('./Modules/Facebook/Spend/all-face-spend/all-face-spend').then(m => m.AllFaceSpend),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_FACEBOOK_SPEND,
+    },
+    // Digital All Facebook Reports
+    {
+        path: 'metaSetup/all-digital-activity-report/list',
+        loadComponent: () =>
+            import('./Modules/Facebook/Reports/detail-activity-report/detail-activity-report').then(m => m.DetailActivityReport),
+        canActivate: [AuthGuard],
+        title: pageNames.DIGITAL_ALL_FACEBOOK_ACTIVITY_REPORTS,
+    },
+    // Digital All Facebook Leads
     {
         path: 'metaSetup/all-digital-leads/list',
         loadComponent: () =>
@@ -999,6 +1023,14 @@ export const routes: Routes = [
         title: pageNames.LEDGET_REPORT,
     },
     {
+        path: 'after-sales/crm-activity-report',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Post Sales/Post Sales Report/crm-activity-report/crm-activity-report')
+                .then(m => m.CrmActivityReport),
+        canActivate: [AuthGuard],
+        title: pageNames.CRM_ACTIVITY_REPORT,
+    },
+    {
         path: 'after-sales/recovery-report-account',
         loadComponent: () =>
             import('./Modules/Setup Files/Post Sales/Post Sales Report/recovery-report-account/recovery-report-account')
@@ -1516,7 +1548,14 @@ export const routes: Routes = [
     },
 
     // Dravyam Setup
-
+    // Aminities
+    {
+        path: 'setup/all-global-aminities',
+        loadComponent: () =>
+            import('./Modules/Setup Files/Projects/Aminities/global-aminities/global-aminities').then(m => m.GlobalAminities),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_GLOBAL_AMINITIES,
+    },
 
     // IVR
     {
@@ -1547,6 +1586,21 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         title: pageNames.GOALS_FORM,
     },
+    // Goals & Targets
+    {
+        path: 'target-achievement/all-monthly-target',
+        loadComponent: () => import('./Modules/Target & Achievement/allmonthly-targets/allmonthly-targets').then(m => m.AllmonthlyTargets),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_MONTHLY_TARGET,
+    },
+    // source wise targets
+    {
+        path: 'target-achievement/all-source-wise-targets',
+        loadComponent: () => import('./Modules/Target & Achievement/Source Wise Target/all-source-wise-targets/all-source-wise-targets').then(m => m.AllSourceWiseTargets),
+        canActivate: [AuthGuard],
+        title: pageNames.ALL_SOURCE_WISE_TARGETS,
+    },
+
     {
         path: 'goals-targets/all-anngual-goals',
         loadComponent: () => import('./Modules/Goals & Targets/Compacy goal Setup/all-anngual-goals/all-anngual-goals').then(m => m.AllAnngualGoals),

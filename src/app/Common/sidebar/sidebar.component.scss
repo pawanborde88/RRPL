@@ -106,7 +106,7 @@
 /* Submenu layout wrappers */
 .submenu-wrapper {
   position: relative;
-  margin-left: 20px;
+  margin-left: 15px;
   padding-left: 0.75rem;
 
   &::before {
@@ -162,4 +162,45 @@
 
 .animate-slide-in {
   animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Nested Menu Active State */
+a.nested-item-active {
+  background-color: var(--brand-color) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-left: 3px solid #f06c24 !important;
+  padding-left: 9px !important;
+  box-shadow: 0 4px 10px -4px rgba(13, 70, 120, 0.3) !important;
+
+  div {
+    border-color: #ffffff !important;
+  }
+
+  &:hover,
+  &:visited,
+  &:active,
+  &:focus {
+    background-color: var(--brand-color) !important;
+    color: #ffffff !important;
+  }
+}
+
+a.nested-item-active-popover {
+  background-color: var(--brand-color) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 10px -4px rgba(13, 70, 120, 0.3) !important;
+
+  div {
+    border-color: #ffffff !important;
+  }
+
+  &:hover,
+  &:visited,
+  &:active,
+  &:focus {
+    background-color: var(--brand-color) !important;
+    color: #ffffff !important;
+  }
 }

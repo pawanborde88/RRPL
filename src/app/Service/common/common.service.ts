@@ -438,6 +438,96 @@ export class CommonService {
   }
 
   /**
+   * Add project budget (Meta/Facebook budget per source)
+   * @param payload - Budget data
+   */
+  addProjectBudget(payload: {
+    source_id: number;
+    project_id: number;
+    budget: number;
+    created_by: number;
+    updated_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/add_project_budget`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding project budget:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Edit project budget (Meta/Facebook budget per source)
+   * @param payload - Budget data including project_budget_setup_id
+   */
+  editProjectBudget(payload: {
+    project_budget_setup_id: number;
+    source_id: number;
+    project_id: number;
+    budget: number;
+    created_by: number;
+    updated_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/edit_project_budget`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error editing project budget:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Add Facebook spend record
+   */
+  addSpend(payload: {
+    project_id: number;
+    source_detail_id: number;
+    source_id: number;
+    start_date: string;
+    end_date: string;
+    spend_amount: number;
+    remaning_amount: number;
+    created_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/add_spend`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding spend:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Edit Facebook spend record
+   */
+  editSpend(payload: {
+    spend_id: number;
+    project_id: number;
+    source_detail_id: number;
+    source_id: number;
+    start_date: string;
+    end_date: string;
+    spend_amount: number;
+    remaning_amount: number;
+    created_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/edit_spend`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error editing spend:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
    * Fetch sourcing managers dropdown
    * @param roleIds - Array of role IDs (default: [18])
    * @returns Observable of sourcing managers array
@@ -1090,6 +1180,169 @@ export class CommonService {
         catchError((error) => {
           console.error('Error fetching full goal:', error);
           return of(null);
+        })
+      );
+  }
+
+  /**
+   * Add global amenity
+   * @param payload - Amenity data
+   */
+  addAmenity(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/add_amenity`, payload).pipe(
+      catchError((error) => {
+        console.error('Error adding amenity:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Edit global amenity
+   * @param payload - Amenity data including amenity_id
+   */
+  editAmenity(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/edit_amenity`, payload).pipe(
+      catchError((error) => {
+        console.error('Error editing amenity:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Delete global amenity
+   * @param amenityId - Amenity ID
+   */
+  deleteAmenity(amenityId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/delete_amenity`, { amenity_id: amenityId }).pipe(
+      catchError((error) => {
+        console.error('Error deleting amenity:', error);
+        throw error;
+      })
+    );
+  }
+  /**
+   * Add monthly target
+   * @param payload - Monthly target data
+   * @returns Observable of API response
+   */
+  addMonthlyTarget(payload: {
+    target_from: string;
+    target_to: string;
+    booking_target: number;
+    agreement_target: number;
+    disbursement_target: number;
+    project_id: number;
+    created_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/add_monthely_target`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding monthly target:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Edit monthly target
+   * @param payload - Monthly target data including monthly_project_target_id
+   * @returns Observable of API response
+   */
+  editMonthlyTarget(payload: {
+    monthly_project_target_id: number;
+    target_from: string;
+    target_to: string;
+    booking_target: number;
+    agreement_target: number;
+    disbursement_target: number;
+    project_id: number;
+    updated_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/edit_monthely_target`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error editing monthly target:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Fetch CRM report data
+   * @param payload - Payload containing project_id, from_date, to_date
+   * @returns Observable of CRM report data
+   */
+  crm_report(payload: { project_id: any; from_date: string; to_date: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/crm_report`, payload).pipe(
+      catchError((error) => {
+        console.error('Error fetching CRM report:', error);
+        return of(null);
+      })
+    );
+  }
+
+  /**
+   * Fetch detailed activity report
+   * @param payload - Payload containing project_id and start_date
+   * @returns Observable of detailed activity report data
+   */
+  fetchDetailActivityReport(payload: { project_id: any; start_date: string | null }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/detail_activity_report`, payload).pipe(
+      catchError((error) => {
+        console.error('Error fetching detail activity report:', error);
+        return of(null);
+      })
+    );
+  }
+  /**
+   * Add source target
+   * @param payload - Source target data
+   */
+  addSourceTarget(payload: {
+    project_id: number;
+    source_id: number;
+    target_from: string;
+    target_to: string;
+    site_visit_target: number;
+    lead_target: number;
+    booking_target: number;
+    created_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/add_source_target`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding source target:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
+   * Edit source target
+   * @param payload - Source target data including source_target_id
+   */
+  editSourceTarget(payload: {
+    source_target_id: number;
+    project_id: number;
+    source_id: number;
+    target_from: string;
+    target_to: string;
+    site_visit_target: number;
+    lead_target: number;
+    booking_target: number;
+    updated_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/edit_source_target`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error editing source target:', error);
+          throw error;
         })
       );
   }

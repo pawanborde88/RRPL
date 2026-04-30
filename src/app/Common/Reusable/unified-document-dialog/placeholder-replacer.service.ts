@@ -206,6 +206,7 @@ export class PlaceholderReplacerService {
         replacements['#FloorNo#'] = this.formatOrdinal(bookingData.floor_name);
         replacements['#CarpetSqm#'] = bookingData.carpet ? `${bookingData.carpet} Sq.Ft` : 'N/A';
         replacements['#TotalCarpetAreaSqm#'] = bookingData.carpet ? `${bookingData.carpet} Sq.Ft` : 'N/A';
+
         replacements['#TotalCarpetAreaSqft#'] = String(bookingData.carpet || '0');
         replacements['#BalconySqm#'] = bookingData.floor_units?.balcony_sqm || '';
         replacements['#BalconySqft#'] = bookingData.floor_units?.balcony_sqft || '';
@@ -213,9 +214,7 @@ export class PlaceholderReplacerService {
         replacements['#TerraceArea#'] = bookingData.floor_units?.balcony_sqm || '';
         replacements['#TotalUsableArea#'] = bookingData.floor_units?.total_carpet_area_sqm || '';
         replacements['#ReraCarpetArea#'] = bookingData.floor_units?.carpet_sqm || '';
-
-        // Total Carpet Area in Square Meters - set for all document types
-        replacements['#TotalCarpetAreaSqmtr#'] = String(bookingData.floor_units?.total_carpet_area_sqm || '');
+        replacements['#TotalCarpetAreaSqmtr#'] = bookingData.floor_units?.total_carpet_area_sqm || '';
 
         // Additional fields
         replacements['#ParkingType#'] = bookingData.parking_type || bookingData.floor_units?.parking_type || '';
@@ -1016,7 +1015,7 @@ export class PlaceholderReplacerService {
         replacements['#Source#'] = tokenData.source || 'N/A';
         replacements['#SourceDetail#'] = tokenData.source_detail || 'N/A';
         replacements['#FirmName#'] = tokenData.firm_name || 'N/A';
-        replacements['#AmountinWords#'] = this.numberToWords(tokenData.token_amount || 0);
+        replacements['#AmountinWords#'] = this.numberToWords(tokenData.amount_paid || 0);
         replacements['#Amount#'] = formatCurrency(tokenData.token_amount || 0);
         replacements['#BankBranch#'] = latestTransaction.bank_branch || 'N/A';
         replacements['#BankName#'] = latestTransaction.bank_name || 'N/A';

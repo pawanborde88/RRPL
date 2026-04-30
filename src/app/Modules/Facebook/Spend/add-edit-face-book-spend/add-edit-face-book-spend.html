@@ -1,0 +1,115 @@
+<h6 mat-dialog-title>
+    {{ isEditMode() ? 'Edit' : 'Add' }} Facebook Spend
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="spendForm" class="container row mt-2 g-3">
+
+        <!-- Project -->
+        <div class="col-md-6">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                displayKey="property_name" idKey="project_id" placeholder="Select Project *">
+            </app-autocomplete-reusable-component>
+            <mat-error *ngIf="spendForm.get('project_id')?.invalid && spendForm.get('project_id')?.touched">
+                Project is required
+            </mat-error>
+        </div>
+
+        <!-- Source -->
+        <div class="col-md-6">
+            <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()"
+                displayKey="source" idKey="source_id" placeholder="Select Source *">
+            </app-autocomplete-reusable-component>
+            <mat-error *ngIf="spendForm.get('source_id')?.invalid && spendForm.get('source_id')?.touched">
+                Source is required
+            </mat-error>
+        </div>
+
+        <!-- Source Detail -->
+        <div class="col-md-12">
+            <app-autocomplete-reusable-component formControlName="source_detail_id" [options]="sourceDetailsList()"
+                displayKey="source_detail" idKey="source_detail_id" placeholder="Select Source Detail *">
+            </app-autocomplete-reusable-component>
+            <mat-error *ngIf="spendForm.get('source_detail_id')?.invalid && spendForm.get('source_detail_id')?.touched">
+                Source Detail is required
+            </mat-error>
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Start Date</mat-label>
+                <input matInput type="date" formControlName="start_date">
+                <mat-error *ngIf="spendForm.get('start_date')?.invalid && spendForm.get('start_date')?.touched">
+                    Start Date is required
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>End Date</mat-label>
+                <input matInput type="date" formControlName="end_date">
+                <mat-error *ngIf="spendForm.get('end_date')?.invalid && spendForm.get('end_date')?.touched">
+                    End Date is required
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Spend Amount -->
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Spend Amount (₹)</mat-label>
+                <input matInput type="number" formControlName="spend_amount" placeholder="e.g. 50000" min="0">
+                <mat-error *ngIf="spendForm.get('spend_amount')?.hasError('required') && spendForm.get('spend_amount')?.touched">
+                    Spend Amount is required
+                </mat-error>
+                <mat-error *ngIf="spendForm.get('spend_amount')?.hasError('min')">
+                    Amount must be 0 or greater
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Remaining Amount -->
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Remaining Amount (₹)</mat-label>
+                <input matInput type="number" formControlName="remaning_amount" placeholder="e.g. 20000" min="0">
+                <mat-error *ngIf="spendForm.get('remaning_amount')?.hasError('required') && spendForm.get('remaning_amount')?.touched">
+                    Remaining Amount is required
+                </mat-error>
+                <mat-error *ngIf="spendForm.get('remaning_amount')?.hasError('min')">
+                    Amount must be 0 or greater
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Quantity -->
+        <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Quantity</mat-label>
+                <input matInput type="number" formControlName="quantity" placeholder="e.g. 10" min="1">
+                <mat-error *ngIf="spendForm.get('quantity')?.hasError('required') && spendForm.get('quantity')?.touched">
+                    Quantity is required
+                </mat-error>
+                <mat-error *ngIf="spendForm.get('quantity')?.hasError('min')">
+                    Quantity must be 1 or greater
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="spendForm.invalid || isSubmitting()">
+        <span *ngIf="isSubmitting()" class="spinner-container">
+            <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+        </span>
+        {{ isSubmitting() ? 'Saving...' : 'Save' }}
+    </button>
+</mat-dialog-actions>

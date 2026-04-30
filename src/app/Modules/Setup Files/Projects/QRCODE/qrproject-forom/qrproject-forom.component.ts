@@ -134,11 +134,7 @@ interface SubRegionItem {
   [key: string]: unknown;
 }
 
-interface PreferredLocationItem {
-  preferred_location_id: number;
-  preferred_location: string;
-  [key: string]: unknown;
-}
+
 
 interface NativePlaceItem {
   native_place_id: number;
@@ -243,7 +239,7 @@ export class QRProjectForomComponent {
 
   // Dropdown data signals
   readonly allSubregions = signal<SubRegionItem[]>([]);
-  readonly preferredLocationDropdown = signal<PreferredLocationItem[]>([]);
+
   readonly confiList = signal<ProjectConfigurationItem[]>([]);
   readonly sourcesList = signal<SourceItem[]>([]);
   readonly ageRangeDropdown = signal<AgeRangeItem[]>([]);
@@ -314,9 +310,7 @@ export class QRProjectForomComponent {
       Validators.required
     ),
     project_lead_id: new FormControl<string | number>(''),
-    preferred_location_id: new FormControl<string | number>(
-      '',
-    ),
+
     job_location: new FormControl<string>(''),
     rera_no: new FormControl<string>(''),
     source_id: new FormControl<string | number>('', Validators.required),
@@ -406,13 +400,7 @@ export class QRProjectForomComponent {
         catchError(() => this.handleError<AgeRangeItem>('Unable to fetch age ranges.')),
         shareReplay(1)
       ),
-      preferredLocations: this.enquiryService.fetchPreferredLocations().pipe(
-        map((res: any[]) => res.map(item => ({ preferred_location_id: item.preferred_location_id, preferred_location: item.preferred_location }))),
-        catchError(() =>
-          this.handleError<PreferredLocationItem>('Failed to fetch preferred location data.')
-        ),
-        shareReplay(1)
-      ),
+
       salutations: this.enquiryService.fetchSalutations().pipe(
         map((res: any[]) => res.map(item => ({ salution_id: item.salution_id, salution: item.salution }))),
         catchError(() => this.handleError<SalutationItem>('Failed to fetch salutation data.')),
@@ -460,7 +448,7 @@ export class QRProjectForomComponent {
         next: (results: {
           sources: SourceItem[];
           ageRanges: AgeRangeItem[];
-          preferredLocations: PreferredLocationItem[];
+
           salutations: SalutationItem[];
           nativePlaces: NativePlaceItem[];
           industries: IndustryItem[];
@@ -471,7 +459,7 @@ export class QRProjectForomComponent {
         }) => {
           this.sourcesList.set(results.sources || []);
           this.ageRangeDropdown.set(results.ageRanges || []);
-          this.preferredLocationDropdown.set(results.preferredLocations || []);
+
           this.salutationDropdown.set(results.salutations || []);
           this.nativePlaceDropdown.set(results.nativePlaces || []);
           this.industryDropdown.set(results.industries || []);
@@ -1058,7 +1046,7 @@ export class QRProjectForomComponent {
       job_location: 'Job Location',
       company_name: 'Company Name',
       current_living_place_id: 'Current Location',
-      preferred_location_id: 'Preferred Location',
+
       native_place_id: 'Native Location',
       industry_id: 'Industry',
       possession_req_id: 'Possession Requirement',

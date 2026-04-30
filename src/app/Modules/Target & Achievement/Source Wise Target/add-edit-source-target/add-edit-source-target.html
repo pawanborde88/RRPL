@@ -1,0 +1,96 @@
+<h2 mat-dialog-title> {{ isEditMode ? 'Edit' : 'Add' }} Source Wise Target
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="targetForm" class="mt-3">
+    <div class="row">
+      <!-- Project Selection -->
+      <div class="col-md-6 mb-3">
+        <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+          [idKey]="'project_id'" [displayKey]="'property_name'"
+          placeholder="Select Project"></app-autocomplete-reusable-component>
+      </div>
+
+      <!-- Source Selection -->
+      <div class="col-md-6 mb-3">
+        <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()" [idKey]="'source_id'"
+          [displayKey]="'source'" placeholder="Select Source "></app-autocomplete-reusable-component>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Target From Date -->
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Target From </mat-label>
+          <input matInput [matDatepicker]="fromPicker" formControlName="target_from">
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
+          <mat-datepicker #fromPicker></mat-datepicker>
+          <mat-error *ngIf="targetForm.get('target_from')?.hasError('required')">
+            Target From is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Target To Date -->
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Target To</mat-label>
+          <input matInput [matDatepicker]="toPicker" formControlName="target_to">
+          <mat-hint>MM/DD/YYYY</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
+          <mat-datepicker #toPicker></mat-datepicker>
+          <mat-error *ngIf="targetForm.get('target_to')?.hasError('required')">
+            Target To is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Site Visit Target -->
+      <div class="col-md-4 mb-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Site Visit Target </mat-label>
+          <input matInput type="number" formControlName="site_visit_target" min="0">
+          <mat-error *ngIf="targetForm.get('site_visit_target')?.hasError('required')">
+            Site Visit Target is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Lead Target -->
+      <div class="col-md-4 mb-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Lead Target </mat-label>
+          <input matInput type="number" formControlName="lead_target" min="0">
+          <mat-error *ngIf="targetForm.get('lead_target')?.hasError('required')">
+            Lead Target is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Booking Target -->
+      <div class="col-md-4 mb-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Booking Target </mat-label>
+          <input matInput type="number" formControlName="booking_target" min="0">
+          <mat-error *ngIf="targetForm.get('booking_target')?.hasError('required')">
+            Booking Target is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="targetForm.invalid || loading()">
+    <mat-spinner diameter="20" *ngIf="loading()" class="me-2 d-inline-block"></mat-spinner>
+    {{ isEditMode ? 'Update' : 'Save' }}
+  </button>
+</mat-dialog-actions>

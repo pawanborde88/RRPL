@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal, effect, DestroyRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -15,7 +15,10 @@ import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.co
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { EventRegistrationStore } from './add-new-event-user.store';
-import { takeUntil, Subject } from 'rxjs';
+import { takeUntil, Subject, debounceTime, distinctUntilChanged, EMPTY, switchMap, catchError, map, of, tap } from 'rxjs';
+import { ChannelPartnerMeetingService, ChannelPartner } from '../../../Channel Partner Meetings/all-channel-partner-meeting/channel-partner-meeting.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 
 // ============ INTERFACE DEFINITIONS ============
 // Note: Interfaces moved to store for clean separation
@@ -26,6 +29,7 @@ interface UserFormControls {
   name: FormControl<string | null>;
   mobile: FormControl<string | null>;
   email: FormControl<string | null>;
+  partner_selection: FormControl<any | null>;
   firm_name: FormControl<string | null>;
   rera_no: FormControl<string | null>;
   no_of_guest: FormControl<number | null>;
@@ -43,7 +47,8 @@ interface UserFormControls {
     TemplateComponent,
     BreadcrumbComponent,
     AngularMaterialModule,
-    TruncatePipe
+    TruncatePipe,
+    AutocompleteReusableComponent
   ],
   templateUrl: './add-new-event-user.component.html',
   styleUrls: ['./add-new-event-user.component.scss'],
@@ -56,15 +61,26 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private route = inject(ActivatedRoute);
+  readonly selectedCPId = signal<any>(null);
 
+  readonly isLoadingProjects = signal<boolean>(false);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly isLoadingPartners = signal<boolean>(false);
+  readonly isOtherFirm = signal<boolean>(false);
+  private readonly baseUrl = environment.API_URL;
+  private readonly storageUrl = environment.STORAGE_URL;
+  private readonly DATE_FORMAT = 'yyyy-MM-dd';
   // ============ PUBLIC PROPERTIES (SIGNALS) ============
-  readonly storageUrl = environment.STORAGE_URL;
   readonly eventDetails = this.store.eventDetails;
   readonly userData = this.store.userData;
   readonly isLoading = this.store.isLoading;
   readonly isSubmitting = this.store.isSubmitting;
   readonly error = this.store.error;
-
+  private readonly service = inject(ChannelPartnerMeetingService);
+  readonly allChannelPartnerList = signal<ChannelPartner[]>([]);
+  private readonly MIN_SEARCH_LENGTH = 3;
+  private readonly SEARCH_DEBOUNCE_MS = 300;
   userForm!: FormGroup<UserFormControls>;
   eventId = signal<number>(0);
   eventSlug = signal<string>('');
@@ -88,6 +104,7 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
       }
     });
   }
+  private readonly partnerSearchSubject = new Subject<string>();
 
   // ============ LIFECYCLE HOOKS ============
   ngOnInit(): void {
@@ -103,13 +120,117 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
   private initializeComponent(): void {
     this.parseRouteParams();
     this.initForm();
+    this.setupPartnerSearch();
 
     // Trigger store fetch
     if (this.eventId() > 0) {
       this.store.fetchEventDetails(this.eventId(), this.eventSlug());
     }
   }
+  onPartnerSearch(searchText: string): void {
+    this.partnerSearchSubject.next(searchText);
+  }
+  private searchPartners(searchText: string) {
+    this.isLoadingPartners.set(true);
 
+    return this.service.searchChannelPartners(searchText)
+      .pipe(
+        map(partners => {
+          // Add 'Other' option - it will always be displayed thanks to the autocomplete logic
+          const otherOption = {
+            channel_partner_id: -1,
+            firm_name: 'Other',
+            full_name: 'Other',
+            rera: ''
+          } as ChannelPartner;
+          return [...partners, otherOption];
+        }),
+        tap((partners) => {
+          this.allChannelPartnerList.set(partners);
+          this.isLoadingPartners.set(false);
+        }),
+        catchError(() => {
+          this.isLoadingPartners.set(false);
+          return of<ChannelPartner[]>([]);
+        })
+      );
+  }
+  onCpchange(eventOrId: any): void {
+    if (eventOrId && typeof eventOrId === 'object') {
+      const partner = eventOrId;
+      console.log('Patching partner details:', partner);
+
+      if (partner.firm_name === 'Other') {
+        this.setOtherFirmMode(true);
+      } else {
+        this.setOtherFirmMode(false);
+        this.selectedCPId.set(partner.channel_partner_id);
+
+        // Auto-fill form fields
+        this.userForm.patchValue({
+          firm_name: partner.firm_name,
+          rera_no: partner.rera || partner.rera_no || ''
+        });
+      }
+    } else {
+      this.selectedCPId.set(eventOrId);
+      if (eventOrId === 'Other') {
+        this.setOtherFirmMode(true);
+      } else {
+        // If they type something manually, we check if it's 'Other'
+        // Otherwise, we keep the isOtherFirm state as is or reset it if it matches a partner
+        // For simplicity, we'll let the user type.
+      }
+    }
+  }
+
+  private setOtherFirmMode(isOther: boolean): void {
+    this.isOtherFirm.set(isOther);
+    if (isOther) {
+      this.selectedCPId.set(null);
+      // When Other is selected, firm_name becomes required for manual entry
+      this.firmNameControl.setValidators([
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(200)
+      ]);
+      
+      // The autocomplete selection is no longer strictly required once 'Other' is picked
+      this.partnerSelectionControl.clearValidators();
+      this.partnerSelectionControl.updateValueAndValidity();
+
+      // Use setTimeout to ensure we clear the value AFTER the autocomplete's internal update
+      setTimeout(() => {
+        this.firmNameControl.setValue('', { emitEvent: false });
+        this.firmNameControl.updateValueAndValidity();
+      }, 0);
+
+      this.userForm.patchValue({
+        rera_no: ''
+      });
+    } else {
+      // For specific partners, firm_name is auto-filled
+      this.partnerSelectionControl.setValidators([Validators.required]);
+      this.partnerSelectionControl.updateValueAndValidity();
+    }
+  }
+  private setupPartnerSearch(): void {
+    this.partnerSearchSubject
+      .pipe(
+        debounceTime(this.SEARCH_DEBOUNCE_MS),
+        distinctUntilChanged(),
+        switchMap((searchText) => {
+          const trimmed = searchText.trim();
+          if (trimmed.length < this.MIN_SEARCH_LENGTH) {
+            this.allChannelPartnerList.set([]);
+            return EMPTY;
+          }
+          return this.searchPartners(trimmed);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
   private parseRouteParams(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
     const slugParam = this.route.snapshot.paramMap.get('slug');
@@ -141,11 +262,12 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
         Validators.required,
         Validators.pattern('^[0-9]{10}$')
       ]),
-      email: this.fb.control('', [
+            email: this.fb.control('', [
         Validators.required,
         Validators.email,
         Validators.maxLength(150)
       ]),
+      partner_selection: this.fb.control(null),
       firm_name: this.fb.control('', [
         Validators.minLength(2),
         Validators.maxLength(200)
@@ -171,12 +293,13 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
     const isPublicEvent = eventTypeId === 1;
     const isTypeThreeEvent = eventTypeId === 3;
 
-    if (isPublicEvent) {
+        if (isPublicEvent) {
       // Disable fields for public events (id 1)
       this.nameControl.disable();
       this.emailControl.disable();
       this.mobileControl.disable();
       this.noOfGuestControl.setValidators([Validators.required, Validators.min(1)]);
+      this.partnerSelectionControl.clearValidators();
       this.firmNameControl.setValidators([Validators.minLength(2), Validators.maxLength(200)]);
       this.reraNoControl.setValidators([Validators.minLength(3), Validators.maxLength(50)]);
       this.userForm.get('cp_type')?.setValidators([Validators.required]);
@@ -189,6 +312,7 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
 
       // Clear validators for other fields
       this.noOfGuestControl.clearValidators();
+      this.partnerSelectionControl.clearValidators();
       this.firmNameControl.clearValidators();
       this.reraNoControl.clearValidators();
       this.userForm.get('cp_type')?.clearValidators();
@@ -200,6 +324,10 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
       this.emailControl.enable({ emitEvent: false });
 
       this.noOfGuestControl.clearValidators();
+      
+      // Default validators for Type 2
+      this.partnerSelectionControl.setValidators([Validators.required]);
+      
       this.firmNameControl.setValidators([
         Validators.required,
         Validators.minLength(2),
@@ -211,10 +339,16 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
         Validators.maxLength(50)
       ]);
       this.userForm.get('cp_type')?.setValidators([Validators.required]);
+      
+      // If already in "Other" mode, adjust
+      if (this.isOtherFirm()) {
+        this.partnerSelectionControl.clearValidators();
+      }
     }
 
     // Update validation
     this.noOfGuestControl.updateValueAndValidity({ emitEvent: false });
+    this.partnerSelectionControl.updateValueAndValidity({ emitEvent: false });
     this.firmNameControl.updateValueAndValidity({ emitEvent: false });
     this.reraNoControl.updateValueAndValidity({ emitEvent: false });
     this.userForm.get('cp_type')?.updateValueAndValidity({ emitEvent: false });
@@ -359,8 +493,12 @@ export class AddNewEventUserComponent implements OnInit, OnDestroy {
     return this.userForm.get('mobile') as FormControl<string | null>;
   }
 
-  get emailControl(): FormControl<string | null> {
+    get emailControl(): FormControl<string | null> {
     return this.userForm.get('email') as FormControl<string | null>;
+  }
+
+  get partnerSelectionControl(): FormControl<any | null> {
+    return this.userForm.get('partner_selection') as FormControl<any | null>;
   }
 
   get firmNameControl(): FormControl<string | null> {

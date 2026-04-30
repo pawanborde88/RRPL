@@ -53,6 +53,7 @@ import { AllDealValuesComponent } from '../Deal Value/all-deal-values/all-deal-v
 import { AllFloorListComponent } from '../Floor/all-floor-list/all-floor-list.component';
 import { FetchAllProjectSignatureComponent } from '../Project Stamp Signature/fetch-all-project-signature/fetch-all-project-signature.component';
 import { ProjectSettingsComponent } from '../project-settings/project-settings.component';
+import { AllNearbyLocations } from '../Nearby Locations/all-nearby-locations/all-nearby-locations';
 
 // Define interfaces for better type safety
 interface City {
@@ -163,7 +164,8 @@ interface ImagePreview {
     BrokerageOfferComponent,
     AllFloorListComponent,
     AmountDirective,
-    FetchAllProjectSignatureComponent
+    FetchAllProjectSignatureComponent,
+    AllNearbyLocations
   ],
   templateUrl: './edit-projects.component.html',
   styleUrl: './edit-projects.component.scss'

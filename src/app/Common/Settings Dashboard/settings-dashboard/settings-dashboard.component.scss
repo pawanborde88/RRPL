@@ -6,9 +6,7 @@
   width: 100%;
 }
 
-// Custom animations or unique utilities not easily done in Tailwind
 .settings-dashboard {
-
   // Material Icon adjustments to ensure alignment in our custom flex containers
   mat-icon {
     font-family: 'Material Icons';
@@ -24,19 +22,46 @@
     white-space: nowrap;
     direction: ltr;
 
-    // Allow for !text- size overrides from Tailwind
     &.mat-icon {
       width: auto;
       height: auto;
     }
   }
 
-  // Ensure backdrop blur works even in older browsers with fallback
-  .backdrop-blur-md {
-    @supports not (backdrop-filter: blur(12px)) {
-      background-color: rgba(255, 255, 255, 0.95) !important;
+  // Utility for horizontal scrolling without visible scrollbar
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
     }
   }
+
+  // Animation utilities
+  .animate-in {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-in-from-top {
+    from { transform: translateY(-1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes slide-in-from-bottom {
+    from { transform: translateY(1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .fade-in { animation-name: fade-in; }
+  .slide-in-from-top-4 { animation-name: slide-in-from-top; }
+  .slide-in-from-bottom-4 { animation-name: slide-in-from-bottom; }
 }
 
 // Custom line-clamp for browsers needing it

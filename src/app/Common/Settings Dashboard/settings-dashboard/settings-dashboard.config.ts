@@ -242,6 +242,16 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     disabled: false,
     section: 'system',
   },
+  {
+    routerLink: '/setup/all-global-aminities',
+    icon: 'grid_view',
+    label: 'Global Aminities',
+    description: 'Manage Global Aminities',
+    color: '#d24919',
+    requiredPermission: '224',
+    disabled: false,
+    section: 'system',
+  },
 
 ] as const;
 

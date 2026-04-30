@@ -1,0 +1,51 @@
+<app-template>
+    <app-breadcrumb>
+
+        <li class="breadcrumb-item active">Target & Achievement</li>
+
+        <li class="breadcrumb-item active">Monthly Target</li>
+    </app-breadcrumb>
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true">
+            <mat-expansion-panel-header>
+
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="enquiryFilterForm" class="w-100 g-3">
+                <!-- Row for Dropdowns and Date Filter -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <app-autocomplete-reusable-component [options]="projectsList()" displayKey="property_name"
+                            idKey="project_id" placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+
+
+
+
+                    <!-- <div class="col-md-2 d-flex align-items-center">
+                    <mat-checkbox formControlName="ignore_date_filters">Ignore Date Filters</mat-checkbox>
+                  </div> -->
+                    <div class="col-md-2">
+                        <button mat-raised-button color="primary" (click)="fetchAllMonthlyTargets()"
+                            class="d-flex align-items-center w-100">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+
+        </mat-expansion-panel>
+    </mat-accordion>
+
+
+
+    <app-configurable-ag-grid-data [columns]="columnDefinitions" [apiEndpoint]="'fetch_monthely_target'"
+        [apiMethod]="'POST'" [apiPayload]="agGridPayload()" [actions]="bookingActions" [headerButtons]="headerButtons"
+        [idProperty]="'monthly_project_target_id'" [cacheBlockSize]="100" [autoLoad]="false"
+        (actionClick)="onMonthlyTargetAction($event.action, $event.row)">
+    </app-configurable-ag-grid-data>
+
+</app-template>

@@ -1,0 +1,81 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit' : 'Add' }} Monthly Target
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+
+<mat-dialog-content class="dialog-content">
+  <form [formGroup]="targetForm">
+    <div class="row g-3">
+      <!-- Project Selection -->
+      <div class="col-md-6">
+        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id" idKey="project_id"
+          displayKey="property_name" placeholder="Select Project">
+        </app-autocomplete-reusable-component>
+      </div>
+
+      <!-- Target From Date -->
+
+      <!-- Target To Date -->
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Target Date</mat-label>
+          <mat-date-range-input [rangePicker]="leadDatePicker">
+            <input matStartDate formControlName="target_from" placeholder="Start date" (click)="leadDatePicker.open()">
+            <input matEndDate formControlName="target_to" placeholder="End date" (click)="leadDatePicker.open()">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+          <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+        </mat-form-field>
+
+      </div>
+
+      <!-- Agreement Target -->
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Booking Target</mat-label>
+          <input matInput type="number" formControlName="booking_target" placeholder="0">
+          @if (targetForm.get('booking_target')?.hasError('required') && targetForm.get('booking_target')?.touched)
+          {
+          <mat-error>Required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Agreement Target</mat-label>
+          <input matInput type="number" formControlName="agreement_target" placeholder="0">
+          @if (targetForm.get('agreement_target')?.hasError('required') && targetForm.get('agreement_target')?.touched)
+          {
+          <mat-error>Required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Disbursement Target -->
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Disbursement Target</mat-label>
+          <input matInput type="number" formControlName="disbursement_target" placeholder="0">
+
+          @if (targetForm.get('disbursement_target')?.hasError('required') &&
+          targetForm.get('disbursement_target')?.touched) {
+          <mat-error>Required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="loading() || targetForm.invalid">
+    @if (loading()) {
+    <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+    <span>{{ isEditMode ? 'Update' : 'Save' }} Target</span>
+    }
+  </button>
+</mat-dialog-actions>

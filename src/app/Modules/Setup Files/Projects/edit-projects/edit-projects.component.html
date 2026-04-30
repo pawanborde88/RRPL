@@ -668,6 +668,27 @@
               </div>
             </div>
           </mat-expansion-panel>
+
+          <mat-expansion-panel
+            class="!rounded-xl !shadow-sm !border border-gray-200 hover:!border-amber-200 transition-all duration-300 overflow-hidden">
+            <mat-expansion-panel-header class="!h-12 px-4 hover:!bg-gray-50/50">
+              <mat-panel-title class="flex items-center gap-4">
+                <div class="p-1.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg shadow-sm">
+                  <mat-icon class="text-amber-600 !text-lg !w-5 !h-5">checklist</mat-icon>
+                </div>
+                <div>
+                  <h5 class="text-base font-bold text-gray-800 tracking-tight">Nearby Areas</h5>
+                </div>
+              </mat-panel-title>
+              <mat-panel-description class="hidden sm:flex justify-end pr-4">
+                <span
+                  class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-tighter">Define</span>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div class="p-2">
+              <app-all-nearby-locations [projectID]="projectID()"></app-all-nearby-locations>
+            </div>
+          </mat-expansion-panel>
         </mat-accordion>
       </div>
 

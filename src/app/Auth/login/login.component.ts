@@ -602,8 +602,6 @@ export default class LoginComponent implements OnInit {
     this.showOtpForm.set(false);
     this.otpForm.reset();
     this.otpValue.set('');
-    this.loginForm.get('password')?.reset();
-    this.loginForm.get('password')?.markAsUntouched();
     this.updateFormValidity();
     this.stopResendTimer();
   }

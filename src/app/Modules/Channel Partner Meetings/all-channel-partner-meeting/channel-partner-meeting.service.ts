@@ -13,6 +13,7 @@ export interface ChannelPartner {
   firm_name: string;
   cp_owner?: string;
   full_name?: string;
+  rera?: string;
 }
 
 export interface Executive {

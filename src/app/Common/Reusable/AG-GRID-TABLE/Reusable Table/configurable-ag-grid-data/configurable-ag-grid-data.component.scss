@@ -10,7 +10,7 @@
   pointer-events: none;
   z-index: 1000;
   white-space: normal;
-  
+
   max-width: 300px;
 }
 
@@ -239,6 +239,7 @@
 // ─── Pinned Bottom Row Highlight ──────────────────────────
 // Uses multiple selectors to cover AG Grid theming variants (CSS class & JS themeQuartz)
 ::ng-deep {
+
   // Target the pinned bottom container rows
   .ag-pinned-bottom-rows-container .ag-row {
     background-color: #dbeafe !important;

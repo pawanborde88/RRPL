@@ -1,0 +1,55 @@
+﻿<h6 mat-dialog-title>
+    {{ isEditMode() ? 'Edit' : 'Add' }} Facebook Budget
+    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+        <mat-icon>close</mat-icon>
+    </button>
+</h6>
+
+<mat-dialog-content class="mat-typography">
+    <form [formGroup]="budgetForm" class="container row mt-2 g-3">
+
+        <!-- Project -->
+        <div class="col-md-6">
+            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                displayKey="property_name" idKey="project_id" placeholder="Select Project *">
+            </app-autocomplete-reusable-component>
+            <mat-error *ngIf="budgetForm.get('project_id')?.invalid && budgetForm.get('project_id')?.touched">
+                Project is required
+            </mat-error>
+        </div>
+
+        <!-- Source -->
+        <div class="col-md-6">
+            <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()"
+                displayKey="source" idKey="source_id" placeholder="Select Source *">
+            </app-autocomplete-reusable-component>
+            <mat-error *ngIf="budgetForm.get('source_id')?.invalid && budgetForm.get('source_id')?.touched">
+                Source is required
+            </mat-error>
+        </div>
+
+        <!-- Budget -->
+        <div class="col-md-12">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Budget (₹)</mat-label>
+                <input matInput type="number" formControlName="budget" placeholder="e.g. 100000" min="0">
+                <mat-error *ngIf="budgetForm.get('budget')?.hasError('required') && budgetForm.get('budget')?.touched">
+                    Budget is required
+                </mat-error>
+                <mat-error *ngIf="budgetForm.get('budget')?.hasError('min')">
+                    Budget must be 0 or greater
+                </mat-error>
+            </mat-form-field>
+        </div>
+
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="budgetForm.invalid || isSubmitting()">
+        <span *ngIf="isSubmitting()" class="spinner-container">
+            <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+        </span>
+        {{ isSubmitting() ? 'Saving...' : 'Save' }}
+    </button>
+</mat-dialog-actions>

@@ -108,6 +108,16 @@ export class SettingsDashboardComponent {
     untracked(() => sessionStorage.getItem('role_name') ?? 'Administrator')
   );
 
+  /**
+   * Featured modules for the top section
+   */
+  readonly featuredItems = [
+    { key: 'users', label: 'Users', icon: 'person_search', color: 'sky', desc: 'System users & roles' },
+    { key: 'customers', label: 'Customers', icon: 'badge', color: 'emerald', desc: 'Client database' },
+    { key: 'teams', label: 'Teams', icon: 'groups', color: 'purple', desc: 'Org structure' },
+    { key: 'vendors', label: 'Vendors', icon: 'home_work', color: 'orange', desc: 'Partner network' }
+  ] as const;
+
 
   // ============================================
   // COMPUTED SIGNALS - Derived State (Memoized)
@@ -460,7 +470,7 @@ export class SettingsDashboardComponent {
    * Get route for user management sub-modules
    * Returns routes matching MENU_ITEMS configuration for consistency
    */
-  getUserManagementRoute(type: 'users' | 'customers' | 'teams' | 'vendors'): string {
+  getUserManagementRoute(type: string): string {
     // Routes matching the MENU_ITEMS configuration
     const routes: Record<string, string> = {
       users: '/setup/all-users',

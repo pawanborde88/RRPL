@@ -1,0 +1,152 @@
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item active">Detailed Activity Report</li>
+    </app-breadcrumb>
+
+    <mat-accordion>
+        <mat-expansion-panel hideToggle [expanded]="true" class="filter-panel shadow-sm border-0">
+            <mat-expansion-panel-header>
+                <mat-panel-title> Advanced Filters </mat-panel-title>
+            </mat-expansion-panel-header>
+            <form [formGroup]="enquiryFilterForm">
+                <div class="row">
+                    <div class="col-md-4">
+                        <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                            displayKey="property_name" idKey="project_id" placeholder="Select Project">
+                        </app-autocomplete-reusable-component>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Start Date</mat-label>
+                            <input matInput [matDatepicker]="picker" formControlName="start_date">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-2">
+                        <button mat-raised-button color="primary" (click)="fetchAllFaceBookList()"
+                            [disabled]="!enquiryFilterForm.get('project_id')?.value || loading()">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </mat-expansion-panel>
+    </mat-accordion>
+    <app-costom-loading [loading]="loading()" [text]="'Fetching Detailed Activity Report'"></app-costom-loading>
+
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+            <h5 class="text-sm font-bold text-gray-700 text-center uppercase tracking-wider">
+                Detailed Activity Report
+            </h5>
+        </div>
+
+        <!-- Scrollable Table Container -->
+        <div class="overflow-x-auto overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar border border-gray-200">
+            <table class="w-full text-left border-collapse min-w-[1600px] border border-gray-300">
+                <thead class="sticky top-0 z-20">
+                    <tr class="bg-sky-900 text-white shadow-sm">
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap">
+                            Activity Name</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-right">
+                            Allocated Budget</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-right">
+                            Spends</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Status</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Qty</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Leads</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Unqualified</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Qualified</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            CPQL</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Visits</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Revisits</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Lost</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Bookings</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-center">
+                            Cost/Booking</th>
+                        <th
+                            class="px-2 py-2 text-[11px] font-bold uppercase tracking-wider border border-blue-500/50 whitespace-nowrap text-right">
+                            Balance</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr *ngFor="let row of reportData()" class="hover:bg-blue-50/40 transition-colors">
+                        <td
+                            class="px-2 py-1.5 text-[13px] font-semibold text-gray-800 border border-gray-200 whitespace-nowrap">
+                            {{ row.source || '-' }}</td>
+                        <td class="px-2 py-1.5 text-[13px] text-right font-medium text-gray-600 border border-gray-200">
+                            {{ (row.total_budget || 0) | currency:'INR':'symbol':'1.0-0' }}</td>
+                        <td class="px-2 py-1.5 text-[13px] text-right font-medium text-gray-600 border border-gray-200">
+                            {{ (row.total_spend || 0) | currency:'INR':'symbol':'1.0-0' }}</td>
+                        <td class="px-2 py-1.5 text-center border border-gray-200">
+                            <span
+                                [ngClass]="row.active_status_id === 1 ? 'bg-green-100 text-green-700 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'"
+                                class="px-2 py-0.5 rounded text-[10px] font-bold border uppercase">
+                                {{ row.active_status_id === 1 ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="px-2 py-1.5 text-center text-[13px] text-gray-600 border border-gray-200">
+                            {{ row.qty || 0 }}</td>
+                        <td class="px-2 py-1.5 text-center text-[13px] font-bold text-gray-900 border border-gray-200">
+                            {{ row.total_lead || 0 }}</td>
+                        <td
+                            class="px-2 py-1.5 text-center text-[13px] font-bold text-orange-600 border border-gray-200">
+                            {{ (row.total_lead - row.quality_leads) || 0 }}</td>
+                        <td class="px-2 py-1.5 text-center text-[13px] font-bold text-green-600 border border-gray-200">
+                            {{ row.quality_leads || 0 }}</td>
+                        <td
+                            class="px-2 py-1.5 text-center text-[13px] font-extrabold text-blue-700 border border-gray-200 bg-blue-50/20">
+                            {{ row.cost_per_quality_lead || 0 }}</td>
+                        <td class="px-2 py-1.5 text-center text-[13px] text-gray-600 border border-gray-200">
+                            {{ row.site_visits || 0 }}</td>
+                        <td class="px-2 py-1.5 text-center text-[13px] text-gray-600 border border-gray-200">
+                            {{ row.revisits || 0 }}</td>
+                        <td class="px-2 py-1.5 text-center text-[13px] text-gray-600 border border-gray-200">
+                            {{ row.lost_visits || 0 }}</td>
+                        <td
+                            class="px-2 py-1.5 text-center text-[13px] font-bold text-purple-700 border border-gray-200">
+                            {{ row.bookings || 0 }}</td>
+                        <td
+                            class="px-2 py-1.5 text-center text-[13px] font-extrabold text-blue-700 border border-gray-200 bg-blue-50/20">
+                            {{ row.cost_per_booking || 0 }}</td>
+                        <td class="px-2 py-1.5 text-[13px] text-right font-extrabold border border-gray-200"
+                            [ngClass]="row.remaining_amount < 0 ? 'text-red-600 bg-red-50/10' : 'text-green-700 bg-green-50/10'">
+                            {{ (row.remaining_amount || 0) | currency:'INR':'symbol':'1.0-0' }}
+                        </td>
+                    </tr>
+                    <tr *ngIf="reportData().length === 0 && !loading()">
+                        <td colspan="15" class="py-12 text-center text-gray-400 border border-gray-200">
+                            No activity data found. Apply filters to view results.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</app-template>

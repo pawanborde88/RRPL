@@ -160,7 +160,8 @@ export class AutocompleteReusableComponent
     // Memoized filtering with early return
     return options.filter((item) => {
       const displayValue = item[displayKey];
-      return displayValue?.toLowerCase().includes(search);
+      const isOther = displayValue === 'Other';
+      return isOther || displayValue?.toLowerCase().includes(search);
     });
   });
 

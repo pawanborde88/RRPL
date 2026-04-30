@@ -222,19 +222,13 @@
                         </app-autocomplete-reusable-component>
                     </div>
 
-                    <!-- Preferred Location -->
-                    <div class="col-md-2">
-                        <app-autocomplete-reusable-component [options]="allSubregions()"
-                            formControlName="preferred_location_id" displayKey="sub_region" idKey="sub_region_id"
-                            placeholder="Preferred Location *">
-                        </app-autocomplete-reusable-component>
-                    </div>
+
 
                     <!-- Native Location -->
                     <div class="col-md-2">
-                        <app-autocomplete-reusable-component [options]="preferredLocationDropdown()"
-                            formControlName="native_place_id" displayKey="preferred_location"
-                            idKey="preferred_location_id" placeholder="Native Location">
+                        <app-autocomplete-reusable-component [options]="nativePlaceDropdown()"
+                            formControlName="native_place_id" displayKey="native_place"
+                            idKey="native_place_id" placeholder="Native Location">
                         </app-autocomplete-reusable-component>
                     </div>
                     <div class="col-md-2">

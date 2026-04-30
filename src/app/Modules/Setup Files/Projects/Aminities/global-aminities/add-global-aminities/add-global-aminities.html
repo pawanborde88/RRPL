@@ -1,0 +1,65 @@
+<div class="dialog-container">
+    <div class="dialog-header d-flex justify-content-between align-items-center p-3">
+        <h2 mat-dialog-title class="m-0">{{ data ? 'Edit' : 'Add' }} Global Amenity</h2>
+        <button mat-icon-button mat-dialog-close>
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="p-3">
+        <form [formGroup]="amenityForm" class="row">
+            <!-- Amenity Name -->
+            <div class="col-md-12 mb-3">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Amenity Name</mat-label>
+                    <input matInput formControlName="amenitie_name" placeholder="Enter Amenity Name">
+                    <mat-error *ngIf="amenityForm.get('amenitie_name')?.hasError('required')">
+                        Amenity Name is required
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+            <!-- Icon Text -->
+            <div class="col-md-12 mb-3">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Icon Text</mat-label>
+                    <input matInput formControlName="icon_text" placeholder="Enter Icon Text">
+                </mat-form-field>
+            </div>
+
+            <!-- Logo Upload -->
+            <div class="col-md-12 mb-3">
+                <div class="file-upload-container">
+                    <button type="button" mat-stroked-button (click)="logoInput.click()">
+                        <mat-icon>upload</mat-icon> Upload Logo
+                    </button>
+                    <input #logoInput type="file" (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+                    <span class="ms-2" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+                </div>
+                
+                <!-- Logo Preview -->
+                <div class="logo-preview mt-2" *ngIf="logoPreview">
+                    <img [src]="logoPreview" alt="Logo Preview" style="max-height: 100px; border-radius: 4px;">
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-12 mb-3">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status_id">
+                        <mat-option [value]="1">Active</mat-option>
+                        <mat-option [value]="0">Inactive</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="p-3">
+        <button mat-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="primary" [disabled]="amenityForm.invalid || loading()" (click)="saveAmenity()">
+            {{ loading() ? 'Saving...' : (data ? 'Update' : 'Save') }}
+        </button>
+    </mat-dialog-actions>
+</div>

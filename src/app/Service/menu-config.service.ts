@@ -66,7 +66,7 @@ export class MenuConfigService {
     return {
       allProjects: {
         title: 'All Project Setup',
-        icon: 'apartment',
+        icon: 'domain',
         tippy: { id: 'all-projects-tippy', menuId: 'all-projects-tippy-menu' },
         routerLink: '/all-projects',
         visible: hasPermission('608'),
@@ -74,14 +74,14 @@ export class MenuConfigService {
 
       hrms: {
         title: 'HRMS',
-        icon: 'groups',
+        icon: 'badge',
         routerLink: '/hrms',
         visible: hasPermission('216'),
         tippy: { id: '', menuId: '' },
       },
       LMS: {
         title: 'LMS',
-        icon: 'auto_stories',
+        icon: 'school',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
@@ -93,13 +93,13 @@ export class MenuConfigService {
           {
             routerLink: '/setup/courses',
             label: 'All courses',
-            icon: 'library_books',
+            icon: 'menu_book',
             visible: hasPermission('248'),
           },
           {
             routerLink: '/setup/course-user-report',
             label: 'Course User Report',
-            icon: 'assessment',
+            icon: 'assignment_ind',
             visible: hasPermission('583'),
           },
           {
@@ -111,7 +111,7 @@ export class MenuConfigService {
           {
             routerLink: '/setup/courses/notice-board',
             label: 'Notice Board',
-            icon: 'campaign',
+            icon: 'notifications_active',
             visible: hasPermission('583'),
           }
         ],
@@ -119,25 +119,25 @@ export class MenuConfigService {
       },
       GoalsAndTargets: {
         title: 'Goals & Targets',
-        icon: 'ads_click',
+        icon: 'track_changes',
         tippy: { id: 'goals-targets-tippy', menuId: 'goals-targets-tippy-menu' },
         items: [
           {
             routerLink: '/goals-targets/all-strategys',
             label: 'All Strategies',
-            icon: 'lightbulb',
+            icon: 'psychology',
             visible: hasPermission('665'),
           },
           {
             routerLink: '/goals-targets/annual-goal-dashboard',
             label: 'Annual Goal Dashboard',
-            icon: 'analytics',
+            icon: 'speed',
             visible: hasPermission('665'),
           },
           {
             routerLink: '/goals-targets/all-anngual-goals',
             label: 'All Annual Goals',
-            icon: 'military_tech',
+            icon: 'stars',
             visible: hasPermission('666'),
           },
           {
@@ -152,68 +152,68 @@ export class MenuConfigService {
       },
       customerSearch: {
         title: 'Customers',
-        icon: 'person_search',
+        icon: 'contact_page',
         routerLink: '/customer-search',
         visible: hasPermission('217'),
         tippy: { id: '', menuId: '' },
       },
       DailyDAReport: {
         title: ' DA Report',
-        icon: 'analytics',
+        icon: 'insights',
         routerLink: '/Pre-sales/talecaller-salesexecutive-count',
         visible: hasPermission('616'),
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
       },
       preSales: {
         title: 'Lead Management',
-        icon: 'filter_alt',
+        icon: 'leaderboard',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
             routerLink: '/leadManagement-all-projectleads',
             label: 'All Leads',
-            icon: 'list',
+            icon: 'group_add',
             visible: hasPermission('232'),
           },
           {
             routerLink: '/all-leadsTrackings',
             label: 'Lead Tracking ',
-            icon: 'share_location',
+            icon: 'my_location',
             visible: hasPermission('291'),
           },
           {
             routerLink: '/leadManagement-all-dismissLeads',
             label: 'Dismiss Leads',
-            icon: 'cancel',
+            icon: 'person_remove',
             visible: hasPermission('292'),
           },
           {
             label: 'Reports',
-            icon: 'bar_chart',
+            icon: 'pie_chart',
             visible: hasPermission('233'),
             items: [
               {
                 routerLink: '/leadManagement/leadCallLogs',
                 label: 'Lead Call Logs',
-                icon: 'call',
+                icon: 'ring_volume',
                 visible: hasPermission('619'),
               },
               {
                 routerLink: '/leadManagement-all-preSalesReport',
                 label: 'Site Visited Report',
-                icon: 'location_city',
+                icon: 'home_work',
                 visible: hasPermission('633'),
               },
               {
                 routerLink: '/leadManagement-all-DigitalHoardingLeadsReport',
                 label: 'Digital Hoarding Report',
-                icon: 'ad_units',
+                icon: 'featured_video',
                 visible: hasPermission('612'),
               },
               {
                 routerLink: '/leadManagement-all-Re-enquiryReport',
                 label: 'Digital Re-Enquiry Report',
-                icon: 'autorenew',
+                icon: 'sync_problem',
                 visible: hasPermission('294'),
               },
               {
@@ -225,13 +225,13 @@ export class MenuConfigService {
               {
                 routerLink: '/leadManagement-all-AllDissmissLeadsReport',
                 label: ' Dismiss Lead Report',
-                icon: 'block',
+                icon: 'report_off',
                 visible: hasPermission('299'),
               },
               {
                 routerLink: '/after-sales/leads-transfer-report',
                 label: 'Transfer Report',
-                icon: 'transfer_within_a_station',
+                icon: 'move_down',
                 visible: hasPermission('300'),
               },
             ],
@@ -242,56 +242,56 @@ export class MenuConfigService {
 
       sales: {
         title: 'Site Visit Management',
-        icon: 'location_on',
+        icon: 'travel_explore',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
 
           {
             routerLink: '/salesManagement-dailyDSRReport',
             label: 'DSR Report',
-            icon: 'description',
+            icon: 'assignment',
             visible: hasPermission('582'),
           },
 
           {
             routerLink: '/all-FloorUnits',
             label: 'Floor level Units',
-            icon: 'layers',
+            icon: 'view_quilt',
             visible: hasPermission('416'),
           },
           {
             routerLink: '/all-parking-units',
             label: 'All Parking Units',
-            icon: 'local_parking',
+            icon: 'directions_car',
             visible: hasPermission('618'),
           },
           {
             routerLink: '/parking-inventory-chart',
             label: 'Parking Inventory Chart',
-            icon: 'garage',
+            icon: 'pie_chart_outline',
             visible: hasPermission('617'),
           },
           {
             routerLink: '/salesManagement-inventory',
             label: 'Inventory ',
-            icon: 'inventory_2',
+            icon: 'warehouse',
             visible: hasPermission('302'),
           },
           {
             routerLink: '/siteVisitManagement/projectWise-QR',
             label: 'Project QR ',
-            icon: 'qr_code',
+            icon: 'qr_code_2',
             visible: hasPermission('235'),
           },
           {
             label: 'Client Logs',
-            icon: 'history',
+            icon: 'recent_actors',
             visible: hasPermission('234'),
             items: [
               {
                 routerLink: '/siteVisitManagement-Enquiries',
                 label: 'Client List',
-                icon: 'people',
+                icon: 'person_add_alt',
                 visible: hasPermission('306'),
               },
               {
@@ -304,26 +304,26 @@ export class MenuConfigService {
           },
           {
             label: 'EOI',
-            icon: 'assignment_ind',
+            icon: 'draw',
             visible: hasPermission('237'),
             items: [
               {
                 routerLink: '/setup/sales-tokens',
                 label: 'All EOI',
-                icon: 'description',
+                icon: 'history_edu',
                 visible: hasPermission('303'),
               },
             ],
           },
           {
             label: 'Booking',
-            icon: 'event_available',
+            icon: 'book_online',
             visible: hasPermission('238'),
             items: [
               {
                 routerLink: '/salesManagement/site-bookings',
                 label: 'All Bookings',
-                icon: 'event_available',
+                icon: 'event_note',
                 visible: hasPermission('309'),
               },
               {
@@ -335,38 +335,44 @@ export class MenuConfigService {
               {
                 routerLink: '/siteVisitManagement/tokens/GuestBooking',
                 label: 'Guest Entry',
-                icon: 'person_add',
+                icon: 'person_add_alt_1',
                 visible: hasPermission('304'),
               },
             ],
           },
           {
             label: 'Reports',
-            icon: 'bar_chart',
+            icon: 'bar_chart_4_bars',
             visible: hasPermission('364'),
             items: [
               {
+                routerLink: '/metaSetup/all-digital-activity-report/list',
+                label: 'Detailed  Activity Report',
+                icon: 'insights',
+                visible: hasPermission('582'),
+              },
+              {
                 routerLink: '/salesManagement-Enquiry-RevisitReport',
                 label: 'Enquiry Revisit Report',
-                icon: 'history',
+                icon: 'replay',
                 visible: hasPermission('308'),
               },
               {
                 routerLink: '/salesManagement/allEnquiryTrackingReport',
                 label: 'Enquiry Tracking  Report',
-                icon: 'track_changes',
+                icon: 'location_searching',
                 visible: hasPermission('237'),
               },
               {
                 routerLink: '/salesManagement/allQuatationLog',
                 label: 'Quotation Report',
-                icon: 'request_quote',
+                icon: 'price_check',
                 visible: hasPermission('628'),
               },
               {
                 routerLink: '/salesManagement-EnquiryOverviewReport',
                 label: ' Enquiry Overview Report',
-                icon: 'summarize',
+                icon: 'description',
                 visible: hasPermission('237'),
               },
               {
@@ -378,7 +384,7 @@ export class MenuConfigService {
               {
                 routerLink: '/sales-reports/sales-enquiry-transfer-report',
                 label: 'Transfer Report',
-                icon: 'move_up',
+                icon: 'input',
                 visible: hasPermission('237'),
               },
             ],
@@ -388,19 +394,19 @@ export class MenuConfigService {
       },
       postSales: {
         title: 'After Sales  ',
-        icon: 'handshake',
+        icon: 'verified',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
             routerLink: '/post-sales/account-setup-master',
             label: 'Account Setup ',
-            icon: 'manage_accounts',
+            icon: 'admin_panel_settings',
             visible: hasPermission('240'),
           },
           {
             routerLink: '/postsales-config/TemplateManagement',
             label: 'Template Management',
-            icon: 'description',
+            icon: 'file_copy',
             visible: hasPermission('468'),
           },
           {
@@ -412,42 +418,42 @@ export class MenuConfigService {
           {
             routerLink: '/after-sales-DocumentUploadManagements',
             label: 'File upload',
-            icon: 'upload_file',
+            icon: 'cloud_upload',
             visible: hasPermission('318'),
           },
           {
             routerLink: '/after-sales/document-generation',
             label: 'Document Generation',
-            icon: 'article',
+            icon: 'history_edu',
             visible: hasPermission('246'),
           },
           {
             label: 'Payment Collection',
-            icon: 'payments',
+            icon: 'account_balance_wallet',
             visible: hasPermission('241'),
             items: [
               {
                 routerLink: '/after-sales/paymentCollection-paymentCollectionList',
                 label: 'Payment Collection List',
-                icon: 'list_alt',
+                icon: 'format_list_bulleted',
                 visible: hasPermission('323'),
               },
               {
                 routerLink: '/after-sales/paymentCollection-updateClientData',
                 label: 'Update Client Data',
-                icon: 'refresh',
+                icon: 'update',
                 visible: hasPermission('324'),
               },
               {
                 routerLink: '/after-sales/paymentCollection-AgreementRecords',
                 label: 'Agreement Records',
-                icon: 'history_edu',
+                icon: 'gavel',
                 visible: hasPermission('325'),
               },
               {
                 routerLink: '/after-sales/paymentCollection-AgreementInprogress',
                 label: 'Agreement In Progress',
-                icon: 'pending_actions',
+                icon: 'hourglass_top',
                 visible: hasPermission('326'),
               },
               {
@@ -460,19 +466,19 @@ export class MenuConfigService {
           },
           {
             label: 'Setup Config',
-            icon: 'settings_suggest',
+            icon: 'tune',
             visible: hasPermission('244'),
             items: [
               {
                 routerLink: '/placeholder-tag-setup/all-hashtagplacehodler',
                 label: 'Modify Tags',
-                icon: 'label',
+                icon: 'style',
                 visible: hasPermission('319'),
               },
               {
                 routerLink: '/placeholder-tag-setup/EmailTeamplates',
                 label: 'Email Templates',
-                icon: 'alternate_email',
+                icon: 'forward_to_inbox',
                 visible: hasPermission('320'),
               },
 
@@ -480,31 +486,31 @@ export class MenuConfigService {
           },
           {
             label: 'Installment',
-            icon: 'credit_card',
+            icon: 'calendar_month',
             visible: hasPermission('244'),
             items: [
               {
                 routerLink: '/after-sales/Installment-modifyStages',
                 label: 'Modify Stages',
-                icon: 'linear_scale',
+                icon: 'reorder',
                 visible: hasPermission('319'),
               },
               {
                 routerLink: '/post-sales/demand-DemandStageConfig',
                 label: 'Unit Payment Setup',
-                icon: 'admin_panel_settings',
+                icon: 'settings_input_component',
                 visible: hasPermission('320'),
               },
               {
                 routerLink: '/after-sales/installment-installment-generation',
                 label: 'Installment Generation',
-                icon: 'receipt',
+                icon: 'post_add',
                 visible: hasPermission('321'),
               },
               {
                 routerLink: '/post-sales/demand-dashboard-estimantion-payments',
                 label: 'Stage wise Payments',
-                icon: 'leaderboard',
+                icon: 'assessment',
                 visible: hasPermission('322'),
               },
             ],
@@ -515,15 +521,21 @@ export class MenuConfigService {
             visible: hasPermission('245'),
             items: [
               {
+                routerLink: '/after-sales/crm-activity-report',
+                label: 'CRM Activity Report',
+                icon: 'restore_from_trash',
+                visible: hasPermission('234'),
+              },
+              {
                 routerLink: '/after-sales/deleted-receipts-log',
                 label: 'Deleted Receipts Log',
-                icon: 'delete_forever',
+                icon: 'restore_from_trash',
                 visible: hasPermission('234'),
               },
               {
                 routerLink: '/after-sales/MSEBDetailsReport',
                 label: ' MSEB Report',
-                icon: 'electric_bolt',
+                icon: 'bolt',
                 visible: hasPermission('234'),
               },
               {
@@ -535,43 +547,43 @@ export class MenuConfigService {
               {
                 routerLink: '/after-sales/property-tax-report',
                 label: 'Property Tax Report',
-                icon: 'real_estate_agent',
+                icon: 'request_page',
                 visible: hasPermission('234'),
               },
               {
                 routerLink: '/after-sales/mis-report',
                 label: 'MIS Report',
-                icon: 'summarize',
+                icon: 'assessment',
                 visible: hasPermission('376'),
               },
               {
                 routerLink: '/after-sales/recovery-report-account',
                 label: 'Recovery Report',
-                icon: 'restart_alt',
+                icon: 'published_with_changes',
                 visible: hasPermission('376'),
               },
               {
                 routerLink: '/after-sales/receipt-report',
                 label: 'Receipts Report ',
-                icon: 'list_alt',
+                icon: 'view_list',
                 visible: hasPermission('372'),
               },
               {
                 routerLink: '/after-sales/consolidated-collection-report',
                 label: ' Consolidated Collection',
-                icon: 'vertical_split',
+                icon: 'grid_view',
                 visible: hasPermission('369'),
               },
               {
                 routerLink: '/after-sales/agreement-report',
                 label: '  Agreement Report',
-                icon: 'assignment',
+                icon: 'fact_check',
                 visible: hasPermission('368'),
               },
               {
                 routerLink: '/after-sales/stages-payment-report',
                 label: '  Stages Payment Report',
-                icon: 'timeline',
+                icon: 'stacked_line_chart',
                 visible: hasPermission('234'),
               },
             ],
@@ -581,25 +593,25 @@ export class MenuConfigService {
       },
       channelPartners: {
         title: 'CP Management',
-        icon: 'hub',
+        icon: 'diversity_3',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
             routerLink: '/all-channelpartner',
             label: 'All Channel Partners',
-            icon: 'business_center',
+            icon: 'corporate_fare',
             visible: hasPermission('330'),
           },
           {
             routerLink: '/module/channel-partners-meeting',
             label: 'CP Meetings',
-            icon: 'groups',
+            icon: 'handshake',
             visible: hasPermission('339'),
           },
           {
             routerLink: '/CP-management/brokerage-offer',
             label: 'Brokerage Offer',
-            icon: 'local_offer',
+            icon: 'percent',
             visible: hasPermission('339'),
           },
           {
@@ -611,19 +623,19 @@ export class MenuConfigService {
           {
             routerLink: '/all-CPLevels',
             label: 'CP Levels',
-            icon: 'signal_cellular_alt',
+            icon: 'stairs',
             visible: hasPermission('331'),
           },
           {
             routerLink: '/all-CPOwner',
             label: 'CP Owners',
-            icon: 'person_outline',
+            icon: 'face',
             visible: hasPermission('331'),
           },
           {
             routerLink: '/setup/all-brokerage',
             label: 'Brokerage Slabs',
-            icon: 'view_module',
+            icon: 'grid_on',
             visible: hasPermission('332'),
           },
           {
@@ -634,50 +646,50 @@ export class MenuConfigService {
           },
           {
             label: 'CP Visits',
-            icon: 'location_on',
+            icon: 'where_to_vote',
             visible: hasPermission('334'),
             items: [
               {
                 routerLink: '/setup/site-visits',
                 label: 'Site Visits',
-                icon: 'location_on',
+                icon: 'place',
                 visible: hasPermission('335'),
               },
               {
                 routerLink: '/sales/cp-site-visits/cp-payout',
                 label: 'CP Payout',
-                icon: 'currency_rupee',
+                icon: 'payments',
                 visible: hasPermission('336'),
               },
               {
                 routerLink: '/sales/cp-site-visits/cp-bill-approved',
                 label: 'CP Bill Approval',
-                icon: 'task_alt',
+                icon: 'fact_check',
                 visible: hasPermission('337'),
               },
               {
                 routerLink: '/setu',
                 label: ' Bulk Shoot',
-                icon: 'send',
+                icon: 'rocket_launch',
                 visible: hasPermission('338'),
               },
             ],
           },
           {
             label: 'Reports',
-            icon: 'bar_chart',
+            icon: 'poll',
             visible: hasPermission('343'),
             items: [
               {
                 routerLink: '/channel-partner/reports/cp-executive-follow-up-report',
                 label: 'CP Follow-up Report',
-                icon: 'track_changes',
+                icon: 'repeat',
                 visible: hasPermission('343'),
               },
               {
                 routerLink: '/channel-partner/reports/event-attendance-report',
                 label: 'Event Attendance Report',
-                icon: 'checklist',
+                icon: 'playlist_add_check',
                 visible: hasPermission('343'),
               },
               {
@@ -689,19 +701,19 @@ export class MenuConfigService {
               {
                 routerLink: '/channel-partner/reports/cpSiteVisitReport',
                 label: 'CP Site Visit Report',
-                icon: 'pin_drop',
+                icon: 'map',
                 visible: hasPermission('341'),
               },
               {
                 routerLink: '/channel-partner/reports/CPTarget',
                 label: 'CP Target',
-                icon: 'ads_click',
+                icon: 'gps_fixed',
                 visible: hasPermission('342'),
               },
               {
                 routerLink: '/channel-partner/reports/CPReport',
                 label: 'CP Report',
-                icon: 'assessment',
+                icon: 'query_stats',
                 visible: hasPermission('342'),
               },
             ],
@@ -712,7 +724,7 @@ export class MenuConfigService {
 
       helpDesk: {
         title: 'Help Desk',
-        icon: 'support_agent',
+        icon: 'headset_mic',
         routerLink: '/all-feedbacks',
         visible: hasPermission('471'),
         tippy: { id: 'setup-tippy', menuId: 'setup-tippy-menu' },
@@ -721,13 +733,13 @@ export class MenuConfigService {
 
       Events: {
         title: 'Events',
-        icon: 'event_available',
+        icon: 'celebration',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
             routerLink: '/events/all-events-user-log',
             label: 'All Events',
-            icon: 'event',
+            icon: 'confirmation_number',
             visible: hasPermission('622'),
           },
 
@@ -738,13 +750,13 @@ export class MenuConfigService {
 
       sop: {
         title: 'SOP',
-        icon: 'fact_check',
+        icon: 'rule',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
             routerLink: '/all-sop',
             label: 'All SOP',
-            icon: 'fact_check',
+            icon: 'rule',
             visible: hasPermission('229'),
           },
         ],
@@ -752,25 +764,25 @@ export class MenuConfigService {
       },
       Finance: {
         title: 'Finance',
-        icon: 'payments',
+        icon: 'savings',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
           {
             routerLink: '/all-budget',
             label: 'Budget',
-            icon: 'account_balance_wallet',
+            icon: 'account_tree',
             visible: hasPermission('229'),
           },
           {
             routerLink: '/all-expenses',
             label: 'Expenses',
-            icon: 'receipt',
+            icon: 'shopping_bag',
             visible: hasPermission('230'),
           },
           {
             routerLink: '/all-expenseSummary',
             label: 'Reports',
-            icon: 'assessment',
+            icon: 'show_chart',
             visible: hasPermission('231'),
           },
         ],
@@ -778,9 +790,22 @@ export class MenuConfigService {
       },
       metaSetup: {
         title: 'Meta setup',
-        icon: 'api',
+        icon: 'campaign',
         tippy: { id: 'marketing-tippy', menuId: 'marketing-tippy-menu' },
         items: [
+          {
+            routerLink: '/metaSetup/all-digital-budget/list',
+            label: 'All Facebook Budget',
+            icon: 'account_balance_wallet',
+            visible: hasPermission('420'),
+          },
+          {
+            routerLink: '/metaSetup/all-digital-spend/list',
+            label: 'All Facebook Spend',
+            icon: 'monetization_on',
+            visible: hasPermission('420'),
+          },
+
           {
             routerLink: '/metaSetup/all-digital-Facebook/list',
             label: 'Facebook Setup',
@@ -790,7 +815,7 @@ export class MenuConfigService {
           {
             routerLink: '/metaSetup/all-digital-leads/list',
             label: 'Digital Leads',
-            icon: 'ads_click',
+            icon: 'person_add_alt',
             visible: hasPermission('634'),
           },
         ],
@@ -798,26 +823,38 @@ export class MenuConfigService {
       },
       MOMInternalMeetings: {
         title: 'MOM ',
-        icon: 'groups_3',
+        icon: 'forum',
         routerLink: '/MOM/Internal-meetings/all-mom-meetings',
         visible: hasPermission('600'),
         tippy: { id: 'setup-tippy', menuId: 'setup-tippy-menu' },
       },
       targetAndAchievement: {
         title: 'Performance ',
-        icon: 'query_stats',
+        icon: 'speed',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
           {
+            routerLink: '/target-achievement/all-source-wise-targets',
+            label: 'Source Wise Target',
+            icon: 'show_chart',
+            visible: hasPermission('234'),
+          },
+          {
             routerLink: '/target-achievement/pre-sales/all-presale-target-list',
             label: 'Sales',
-            icon: 'trending_up',
+            icon: 'show_chart',
             visible: hasPermission('234'),
           },
           {
             routerLink: '/target-achievement/pre-sales/all-insentive-bonus-master-list',
             label: ' Incentive  Report',
-            icon: 'workspace_premium',
+            icon: 'military_tech',
+            visible: hasPermission('234'),
+          },
+          {
+            routerLink: '/target-achievement/all-monthly-target',
+            label: 'Monthly Target',
+            icon: 'military_tech',
             visible: hasPermission('234'),
           },
           {
@@ -829,7 +866,7 @@ export class MenuConfigService {
           {
             routerLink: '/target-achievement/incentive-slabs/all-insentive-slabs',
             label: 'Setup Incentive Slabs',
-            icon: 'engineering',
+            icon: 'construction',
             visible: hasPermission('234'),
           },
         ],
@@ -837,7 +874,7 @@ export class MenuConfigService {
       },
       setup: {
         title: 'Setup',
-        icon: 'settings_suggest',
+        icon: 'settings',
         routerLink: '/all-setupDashboard',
         visible: hasPermission('217'),
         tippy: { id: 'setup-tippy', menuId: 'setup-tippy-menu' },

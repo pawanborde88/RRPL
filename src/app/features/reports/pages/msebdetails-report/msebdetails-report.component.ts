@@ -16,7 +16,6 @@ import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.co
 import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
 import { AddLetterGenerationDialogComponent } from '../../../../Modules/Setup Files/Post Sales/Letter Generation/add-letter-generation-dialog/add-letter-generation-dialog.component';
 
@@ -31,9 +30,8 @@ import { AddLetterGenerationDialogComponent } from '../../../../Modules/Setup Fi
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-AutocompleteReusableComponent,
-    ReusableTableComponent, // Add the pipe here
+    AutocompleteReusableComponent,
+    ReusableTableComponent, 
   ], 
   templateUrl: './msebdetails-report.component.html',
   styleUrl: './msebdetails-report.component.scss'

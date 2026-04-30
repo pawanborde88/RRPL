@@ -90,7 +90,7 @@ export class ClaimEnquiryComponent {
   readonly sourceDetailedList = signal<DropdownItem[]>([]);
   readonly preferredBankDropdown = signal<DropdownItem[]>([]);
   readonly preferenceDropdown = signal<DropdownItem[]>([]);
-  readonly preferredLocationDropdown = signal<DropdownItem[]>([]);
+
   readonly allBookingPlans = signal<DropdownItem[]>([]);
   readonly enqStatusDropdown = signal<DropdownItem[]>([]);
   readonly allSubregions = signal<DropdownItem[]>([]);
@@ -135,7 +135,7 @@ export class ClaimEnquiryComponent {
     buying_purpose_id: new FormControl(''),
     preferred_bank_id: new FormControl(''),
     project_configuration_id: new FormControl('', Validators.required),
-    preferred_location_id: new FormControl('', Validators.required),
+
     job_location: new FormControl(''),
     follow_up_date: new FormControl(this.getFormattedDate(), Validators.required),
     source_id: new FormControl('', Validators.required),
@@ -284,7 +284,7 @@ export class ClaimEnquiryComponent {
       possession_req_id: res.possession_req_id,
       buying_purpose_id: res.buying_purpose_id,
       booking_plan_within_id: res.booking_plan_within_id,
-      preferred_location_id: res.preferred_location_id,
+
       preferred_bank_id: res.preferred_bank_id,
       job_location: res.job_location,
       source_id: res.source_id,
@@ -320,7 +320,7 @@ export class ClaimEnquiryComponent {
     this.fetchPossessionReqDropdown();
     this.fetchBuyingPurposeDropdown();
     this.fetchPreferredBankDropdown();
-    this.fetchPreferredLocationDropdown();
+
     this.fetchEnqStatusDropdown();
     this.fetchAllLeadLevels();
     this.fetchAllBookingPlans();
@@ -450,12 +450,7 @@ export class ClaimEnquiryComponent {
       .subscribe((res) => this.preferredBankDropdown.set(res));
   }
 
-  private fetchPreferredLocationDropdown(): void {
-    this.enquiryService
-      .fetchPreferredLocations()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((res) => this.preferredLocationDropdown.set(res));
-  }
+
 
   private fetchEnqStatusDropdown(): void {
     // Note: This endpoint might need to be added to the service

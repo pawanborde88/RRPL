@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import * as pageNames from './Common/pageNames';
 import { AuthGuard } from './Guard/auth.guard';
-import { AllDigitalLeadsComponent } from './Modules/Facebook/Digital Lead/all-digital-leads/all-digital-leads.component';
 
 export const routes: Routes = [
   {

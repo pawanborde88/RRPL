@@ -113,7 +113,7 @@ export class AddEnquiryComponent {
   readonly sourceDetailedList = signal<any[]>([]);
   readonly preferredBankDropdown = signal<any[]>([]);
   readonly preferenceDropdown = signal<any[]>([]);
-  readonly preferredLocationDropdown = signal<any[]>([]);
+
   readonly allBookingPlans = signal<any[]>([]);
   readonly enqStatusDropdown = signal<any[]>([]);
   readonly allCPExeuctiveList = signal<any[]>([]);
@@ -314,7 +314,7 @@ export class AddEnquiryComponent {
     preferred_bank_id: new FormControl<string>(''),
     project_configuration_id: new FormControl<number[]>([], Validators.required),
     project_lead_id: new FormControl<string>(''),
-    preferred_location_id: new FormControl<string>(' ', Validators.required),
+
     job_location: new FormControl<string>(''),
     rera_no: new FormControl<string>(''),
     follow_up_date: new FormControl<string>(
@@ -379,7 +379,7 @@ export class AddEnquiryComponent {
       whatsapp_no: null, salution_id: null, age_range_id: null,
       current_living_place_id: null, native_place_id: null, industry_id: null,
       company_name: null, possession_req_id: null, buying_purpose_id: null,
-      booking_plan_within_id: null, preferred_location_id: null,
+      booking_plan_within_id: null,
       preferred_bank_id: null, job_location: null, source_id: null,
       source_detail_id: null, channel_partner_id: null, source_executive_id: null,
       sourcing_manager: null, source_description: null, remark: null,
@@ -850,12 +850,7 @@ export class AddEnquiryComponent {
           return of([]);
         })
       ),
-      preferredLocation: this.http.get<any[]>(`${this.baseUrl}/fetch_preferred_location`).pipe(
-        catchError(() => {
-          this.snackBar.open('Failed to fetch preferred location data.', 'Close', { duration: 3000 });
-          return of([]);
-        })
-      ),
+
       enqStatus: this.http.get<any[]>(`${this.baseUrl}/enq_status_dropdown`).pipe(
         catchError(() => {
           this.snackBar.open('Failed to fetch enquiry status data.', 'Close', { duration: 3000 });
@@ -891,7 +886,7 @@ export class AddEnquiryComponent {
         this.possessionReqDropdown.set(results.possessionReq || []);
         this.buyingPurposeDropdown.set(results.buyingPurpose || []);
         this.preferredBankDropdown.set(results.preferredBank || []);
-        this.preferredLocationDropdown.set(results.preferredLocation || []);
+
         this.enqStatusDropdown.set(results.enqStatus || []);
         this.allLeadLevels.set(results.leadLevels || []);
         this.currentLivingPlaceDropdown.set(results.currentLivingPlace || []);

@@ -222,7 +222,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
           const nestedSet = new Set<string>(newExpandedNested[key] || []);
           menuItem.items.forEach(child => {
             if (
-              child.items && 
+              child.items &&
               child.items.some(nested => nested.label.toLowerCase().includes(searchLower))
             ) {
               nestedSet.add(child.label);
@@ -263,7 +263,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       }
 
       const itemMatch = item.label.toLowerCase().includes(searchTerm);
-      const childrenMatch = item.items && item.items.some(child => 
+      const childrenMatch = item.items && item.items.some(child =>
         child.label.toLowerCase().includes(searchTerm) && child.visible !== false
       );
 
@@ -280,7 +280,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       if (!searchTerm) return true;
 
       if (
-        parentTitle.toLowerCase().includes(searchTerm) || 
+        parentTitle.toLowerCase().includes(searchTerm) ||
         subItemLabel.toLowerCase().includes(searchTerm)
       ) {
         return true;

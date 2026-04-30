@@ -21,12 +21,7 @@ interface EnquiryFilterForm {
   ignore_date_filters: FormControl<boolean | null>;
 }
 
-interface PaginationConfig {
-  offset: number;
-  limit: number;
-  sortBy: string;
-  sortOrder: 'asc' | 'desc';
-}
+
 @Component({
   selector: 'app-pre-sales-report',
   standalone: true,
@@ -66,12 +61,6 @@ export class PreSalesReportComponent implements OnInit {
   // State signals
   readonly loading = signal<boolean>(false);
   readonly projectsList = signal<any[]>([]);
-  readonly paginationConfig = signal<PaginationConfig>({
-    offset: 0,
-    limit: this.DEFAULT_PAGE_SIZE,
-    sortBy: 'created_at',
-    sortOrder: 'desc',
-  });
 
   // Form definition
   readonly enquiryFilterForm: FormGroup<EnquiryFilterForm> = new FormGroup({
@@ -123,14 +112,9 @@ export class PreSalesReportComponent implements OnInit {
   readonly agGridPayload = computed(() => {
     const formValues = this.formValues();
     const filters = this.buildFilters(formValues);
-    const pagination = this.paginationConfig();
 
     return {
-      offset: pagination.offset,
-      limit: pagination.limit,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      search: '', // Search is handled by AG Grid component internally
+
       filters,
     };
   });
