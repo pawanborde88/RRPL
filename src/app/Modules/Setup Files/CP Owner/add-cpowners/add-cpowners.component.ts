@@ -46,7 +46,7 @@ export class AddCPOwnersComponent implements OnInit {
     last_name: [this.dialogData?.rowData?.last_name || '', Validators.required],
     user_email: [this.dialogData?.rowData?.user_email || '', [Validators.required, Validators.email]],
     user_phone: [this.dialogData?.rowData?.user_phone || '', [Validators.required, Validators.pattern(/^[6-9]\d{9}$/)]],
-    dob: [this.dialogData?.rowData?.dob || '', Validators.required],
+    dob: [this.dialogData?.rowData?.dob || ''],
     gender: [this.dialogData?.rowData?.gender ?? null],
     pan_no: [this.dialogData?.rowData?.pan_no || ''],
     address: [this.dialogData?.rowData?.address || ''],

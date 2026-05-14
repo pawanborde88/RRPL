@@ -17,9 +17,10 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../../environments/environment';
 
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -39,17 +40,12 @@ import {
   tap,
 } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { ActionColumnComponent } from '../../../../Common/action-column/action-column.component';
 import { InactiveUserComponent } from '../inactive-user/inactive-user.component';
 import { ResetUserPasswordComponent } from '../add-user/Reset Password/reset-user-password/reset-user-password.component';
 import { UserProjctsComponent } from './User Projects/user-projcts/user-projcts.component';
 import { SuccessDialogComponent } from '../../../../Common/success-dialog/success-dialog.component';
 import { AddUserComponent } from '../add-user/add-user.component';
 import { CostomLoadingComponent } from '../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
-import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { AddCPExecutivesComponent } from '../../CP Executive/add-cpexecutives/add-cpexecutives.component';
 import { AddCPOwnersComponent } from '../../CP Owner/add-cpowners/add-cpowners.component';
 import { UserService, User } from '../services/user.service';
@@ -153,16 +149,12 @@ const SEARCH_FIELD_MAP: Record<Mode, readonly string[]> = {
   imports: [
     CommonModule,
     RouterModule,
+    TemplateComponent,
+    BreadcrumbComponent,
 
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    AutocompleteReusableComponent,
-    ActionColumnComponent,
     CostomLoadingComponent,
-    ReusableTableComponent,
-    TemplateComponent,
-    BreadcrumbComponent,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -890,6 +882,14 @@ export class AllUsersComponent implements AfterViewInit {
         },
         headerButtons: [
           {
+            label: 'Resend Email',
+            icon: 'drafts',
+            color: 'primary',
+            disabled: () => selectedUsers.length === 0,
+            action: () => this.resendEmail(),
+            show: () => isAdmin,
+          },
+          {
             label: 'Add CP Executive',
             icon: 'assignment_ind',
             color: 'primary',
@@ -965,6 +965,14 @@ export class AllUsersComponent implements AfterViewInit {
           emptyIcon: 'groups',
         },
         headerButtons: [
+          {
+            label: 'Resend Email',
+            icon: 'drafts',
+            color: 'primary',
+            disabled: () => selectedUsers.length === 0,
+            action: () => this.resendEmail(),
+            show: () => isAdmin,
+          },
           {
             label: 'Add CP Owner',
             icon: 'add_circle',

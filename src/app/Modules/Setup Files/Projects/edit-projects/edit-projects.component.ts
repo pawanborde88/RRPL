@@ -41,7 +41,6 @@ import { TemplateComponent } from '../../../../Common/template/template.componen
 import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { FileSizePipe } from '../../../../Pipes/file-size.pipe';
 import { AllBrokerageComponent } from '../all-brokerage/all-brokerage.component';
-import { BrokerageOfferComponent } from '../all-brokerage/Brokeage Offer/brokerage-offer/brokerage-offer.component';
 import { AllConfigurationComponent } from '../all-configuration/all-configuration.component';
 import { AllDocumentsComponent } from '../all-documents/all-documents.component';
 import { AllLinksComponent } from '../all-links/all-links.component';
@@ -49,10 +48,7 @@ import { AllPhasesComponent } from '../all-phases/all-phases.component';
 import { AllProjectWingsComponent } from '../all-project-wings/all-project-wings.component';
 import { AllSpecificationsComponent } from '../all-specifications/all-specifications.component';
 import { AllAminitiesComponent } from '../Aminities/all-aminities/all-aminities.component';
-import { AllDealValuesComponent } from '../Deal Value/all-deal-values/all-deal-values.component';
-import { AllFloorListComponent } from '../Floor/all-floor-list/all-floor-list.component';
 import { FetchAllProjectSignatureComponent } from '../Project Stamp Signature/fetch-all-project-signature/fetch-all-project-signature.component';
-import { ProjectSettingsComponent } from '../project-settings/project-settings.component';
 import { AllNearbyLocations } from '../Nearby Locations/all-nearby-locations/all-nearby-locations';
 
 // Define interfaces for better type safety
@@ -158,11 +154,7 @@ interface ImagePreview {
     AllAminitiesComponent,
     AllDocumentsComponent,
     AllLinksComponent,
-    ProjectSettingsComponent,
     AllProjectWingsComponent,
-    AllDealValuesComponent,
-    BrokerageOfferComponent,
-    AllFloorListComponent,
     AmountDirective,
     FetchAllProjectSignatureComponent,
     AllNearbyLocations

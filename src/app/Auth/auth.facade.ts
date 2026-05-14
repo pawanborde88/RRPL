@@ -2,6 +2,7 @@ import { inject, Injectable, signal, computed } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { environment } from '../../environments/environment';
 import { AppStore } from '../Core/store/app.store';
 import { catchError, finalize, EMPTY, tap } from 'rxjs';
@@ -41,6 +42,7 @@ export class AuthFacade {
     private readonly http = inject(HttpClient);
     private readonly router = inject(Router);
     private readonly snackBar = inject(MatSnackBar);
+    private readonly dialog = inject(MatDialog);
     private readonly appStore = inject(AppStore);
     private readonly platformId = inject(PLATFORM_ID);
     private readonly baseUrl = environment.API_URL;
@@ -106,6 +108,7 @@ export class AuthFacade {
     }
 
     logout() {
+        this.dialog.closeAll();
         if (isPlatformBrowser(this.platformId)) {
             sessionStorage.clear();
             localStorage.removeItem('rememberedUsername');

@@ -6,11 +6,14 @@
 <mat-dialog-content [formGroup]="form">
     <p class="mt-2">Assigning Sourcing Executive to <strong>{{store.partnerNames()}}</strong></p>
     <app-autocomplete-reusable-component formControlName="project_id" [options]="store.projects()"
-        displayKey="property_name" idKey="project_id"  placeholder="Select Project">
+        displayKey="property_name" idKey="project_id" placeholder="Select Project">
     </app-autocomplete-reusable-component>
-    <app-autocomplete-reusable-component [options]="store.executives()"
-        formControlName="source_executive_id" [isMultiSelect]="true" displayKey="full_name" idKey="user_id"
-        placeholder=" Select Sourcing Executive">
+    <app-autocomplete-reusable-component class="col-md-2" [options]="store.salesExecutives()"
+        formControlName="sales_executive_id" [isMultiSelect]="true" displayKey="user_name" idKey="user_id"
+        placeholder="Select Sales Executive">
+    </app-autocomplete-reusable-component>
+    <app-autocomplete-reusable-component [options]="store.executives()" formControlName="source_executive_id"
+        [isMultiSelect]="true" displayKey="full_name" idKey="user_id" placeholder=" Select Sourcing Executive">
     </app-autocomplete-reusable-component>
     @if (store.error()) {
     <p class="text-danger mt-2">{{store.error()}}</p>

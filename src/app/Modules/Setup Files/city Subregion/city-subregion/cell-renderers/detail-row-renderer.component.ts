@@ -12,7 +12,7 @@ import { interval } from 'rxjs';
 @Component({
   selector: 'app-detail-row-renderer',
   standalone: true,
-  imports: [CommonModule, AgGridAngular, AngularMaterialModule, ActionCellRendererComponent],
+  imports: [CommonModule, AgGridAngular, AngularMaterialModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div style="padding: 16px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">

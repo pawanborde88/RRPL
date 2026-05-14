@@ -138,7 +138,7 @@
           (click)="$event.stopPropagation()" color="primary">
         </mat-checkbox>
 
-        <button (click)="roleId === 2 ? onCardAction('edit', user) : null; $event.stopPropagation()"
+        <button (click)="roleId === 2 || roleId === 19 ? onCardAction('edit', user) : null; $event.stopPropagation()"
           class="px-2.5 py-0.5 rounded border border-[#3EC3B4] text-[10px] font-semibold text-gray-700 bg-white hover:bg-[#3EC3B4]/5 transition-all duration-200"
           [matTooltip]="roleId === 2 || roleId === 19 ? 'Edit Profile' : 'View Profile'" matTooltipPosition="above">
           {{ roleId === 2 || roleId === 19 ? 'Edit Profile' : 'View Profile' }}
@@ -183,7 +183,7 @@
       </mat-card-content>
       <mat-card-actions class="!border-t !border-gray-100 !px-2 !py-1 !m-0 w-full flex items-center justify-between bg-gray-50/50 mt-auto">
         <mat-checkbox [checked]="isSelected(executive)" (change)="onCheckboxSelected($any($event).checked, executive)" (click)="$event.stopPropagation()" color="primary"></mat-checkbox>
-        <button (click)="roleId === 2 ? onCardAction('edit', executive) : null; $event.stopPropagation()" class="px-2.5 py-0.5 rounded border border-[#3EC3B4] text-[10px] font-semibold text-gray-700 bg-white hover:bg-[#3EC3B4]/5 transition-all duration-200" [matTooltip]="roleId === 2 ? 'Edit Executive' : 'View Profile'" matTooltipPosition="above">{{ roleId === 2 ? 'Edit Profile' : 'View Profile' }}</button>
+        <button (click)="roleId === 2 || roleId === 19 ? onCardAction('edit', executive) : null; $event.stopPropagation()" class="px-2.5 py-0.5 rounded border border-[#3EC3B4] text-[10px] font-semibold text-gray-700 bg-white hover:bg-[#3EC3B4]/5 transition-all duration-200" [matTooltip]="roleId === 2 || roleId === 19 ? 'Edit Executive' : 'View Profile'" matTooltipPosition="above">{{ roleId === 2 || roleId === 19 ? 'Edit Profile' : 'View Profile' }}</button>
       </mat-card-actions>
     </mat-card>
     }
@@ -224,7 +224,7 @@
       </mat-card-content>
       <mat-card-actions class="!border-t !border-gray-100 !px-2 !py-1 !m-0 w-full flex items-center justify-between bg-gray-50/50 mt-auto">
         <mat-checkbox [checked]="isSelected(owner)" (change)="onCheckboxSelected($any($event).checked, owner)" (click)="$event.stopPropagation()" color="primary"></mat-checkbox>
-        <button (click)="roleId === 2 ? onCardAction('edit', owner) : null; $event.stopPropagation()" class="px-2.5 py-0.5 rounded border border-[#3EC3B4] text-[10px] font-semibold text-gray-700 bg-white hover:bg-[#3EC3B4]/5 transition-all duration-200" [matTooltip]="roleId === 2 ? 'Edit Owner' : 'View Profile'" matTooltipPosition="above">{{ roleId === 2 ? 'Edit Profile' : 'View Profile' }}</button>
+        <button (click)="roleId === 2 || roleId === 19 ? onCardAction('edit', owner) : null; $event.stopPropagation()" class="px-2.5 py-0.5 rounded border border-[#3EC3B4] text-[10px] font-semibold text-gray-700 bg-white hover:bg-[#3EC3B4]/5 transition-all duration-200" [matTooltip]="roleId === 2 || roleId === 19 ? 'Edit Owner' : 'View Profile'" matTooltipPosition="above">{{ roleId === 2 || roleId === 19 ? 'Edit Profile' : 'View Profile' }}</button>
       </mat-card-actions>
     </mat-card>
     }

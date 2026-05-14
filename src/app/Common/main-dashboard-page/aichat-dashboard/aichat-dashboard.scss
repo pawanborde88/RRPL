@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Animations */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 4s linear infinite;
+}
+
+/* Material component overrides for Compact Theme */
+::ng-deep {
+  .mat-datepicker-content {
+    background-color: white !important;
+    border: 1px solid #eef2ff;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.12) !important;
+    
+    .mat-calendar-body-selected {
+      background-color: #4f46e5 !important;
+    }
+  }
+
+  .mat-mdc-select-panel {
+    background-color: white !important;
+    border: 1px solid #eef2ff;
+    border-radius: 16px !important;
+    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.1) !important;
+    
+    .mat-mdc-option {
+      color: #312e81 !important;
+      font-size: 14px !important;
+      border-radius: 8px !important;
+      
+      &:hover:not(.mdc-list-item--disabled) {
+        background-color: #f5f7ff !important;
+      }
+      
+      &.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+        background-color: #eef2ff !important;
+        .mdc-list-item__primary-text {
+          color: #4f46e5 !important;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  /* Datepicker toggle color */
+  .mat-datepicker-toggle {
+    color: #4f46e5 !important;
+    button {
+      border-radius: 8px;
+    }
+  }
+}
+
+/* Custom scrollbar for insights and cards */
+.whitespace-pre-wrap {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(79, 70, 229, 0.2) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(79, 70, 229, 0.2);
+    border-radius: 20px;
+    
+    &:hover {
+      background-color: rgba(79, 70, 229, 0.4);
+    }
+  }
+}

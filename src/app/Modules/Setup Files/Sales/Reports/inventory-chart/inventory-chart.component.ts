@@ -24,8 +24,6 @@ import { AngularMaterialModule } from '../../../../../../angular-material.module
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-import { IndianCurrencyPipe } from '../../../../../Pipes/currency/indianCurrency/pipes/indian-currency.pipe';
 import { UnitDetailsDialogComponent } from '../unit-details-dialog/unit-details-dialog.component';
 import { CommonService } from '../../../../../Service/common/common.service';
 
@@ -76,9 +74,7 @@ interface InventoryStats {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
-    IndianCurrencyPipe,
   ],
   templateUrl: './inventory-chart.component.html',
   styleUrl: './inventory-chart.component.scss',

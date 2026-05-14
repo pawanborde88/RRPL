@@ -116,6 +116,8 @@ export class AllChannelPartnerComponent implements OnInit {
   private readonly SNACKBAR_DURATION = 3000;
   protected readonly store = inject(ChannelPartnerStore);
   private readonly service = inject(ChannelPartnerMeetingService);
+  roleId = Number(sessionStorage.getItem('role_id'));
+  userId = Number(sessionStorage.getItem('session_id'));
 
   // Signals for state management
   readonly cpTargetLoggedData = signal<unknown>(null);
@@ -179,15 +181,20 @@ export class AllChannelPartnerComponent implements OnInit {
     { key: 'rera_approvel', label: 'RERA Approved', applyChequeStatusColor: true, cellStyle: ({ data }: { data: TableRowData }) => data ? this.columnDynamicColorService.getChequeStatusStyle((data as unknown as ChannelPartner).rera_approvel_id) : undefined },
 
     { key: 'sourcing_executive_name', label: 'Source Executive' },
+    { key: 'sale_executive_name', label: 'Sales Executive' },
 
     { key: 'booking_count', label: 'Booking Count', isAmount: true },
     { key: 'token_count', label: 'Token Count', isAmount: true },
     { key: 'site_visit_count', label: 'Site Visit Count', isAmount: true },
+    { key: 'latest_followup_message', label: 'Latest Followup Message' },
+    { key: 'latest_followup_date', label: 'Latest Followup Date', type: 'date' },
+    { key: 'latest_followup_prospect_count', label: 'Latest Followup Prospect Count', isAmount: true },
+    { key: 'latest_followup_created_at', label: 'Latest Followup Created At', type: 'date' },
     { key: 'firm_email', label: 'Firm Email', type: 'sensitive' },
     { key: 'firm_phone', label: 'Firm Phone', type: 'sensitive' },
     { key: 'firm_city', label: 'Firm City' },
 
-    { key: 'created_by', label: 'Created By' },
+    { key: 'created_by_name', label: 'Created By' },
     { key: 'created_at', label: 'Created At', type: 'date' },
     { key: 'updated_by_name', label: 'Updated By' },
     { key: 'updated_at', label: 'Updated At', type: 'date' },
@@ -365,7 +372,9 @@ export class AllChannelPartnerComponent implements OnInit {
     if (formValues.project_id && Array.isArray(formValues.project_id) && formValues.project_id.length > 0) {
       filters['project_id'] = formValues.project_id;
     }
-
+    if (this.roleId === 7) {
+      filters['sales_executive_id'] = [this.userId];
+    }
     // Handle channel_partner_id - single-select returns single value, but payload needs array
     if (formValues.channel_partner_id) {
       filters['channel_partner_id'] = Array.isArray(formValues.channel_partner_id)
@@ -478,7 +487,10 @@ export class AllChannelPartnerComponent implements OnInit {
       maxWidth: '50vw',
       data: {
         channel_partner_id: channelPartnerId,
-        firm_name: row['firm_name'] ?? undefined,
+        title: 'Add Follow Up' + ' - ' + (row['firm_name'] ?? undefined),
+        addApi: 'add_cp_follow_up',
+        fetchApi: 'fetch_cp_follow_up',
+        showProspectCount: true
       },
     });
     dialogRef.afterClosed().subscribe((result) => {

@@ -1,12 +1,16 @@
 <form [formGroup]="addBookingForm">
+
     <mat-card class="mat-elevation-z2">
-        <mat-card-header>
-            <mat-card-title>
-                <h4>Booking Calculation </h4>
+        <mat-card-header class="border-b border-slate-100 bg-sky-900 px-4 py-3">
+            <mat-card-title class="!m-0">
+                <div class="title-with-line">
+                    <h5 class="text-sm font-bold uppercase tracking-wide text-white">Property Calculation Details</h5>
+                </div>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <div class="row g-3">
+
+            <div class="row g-3 mt-1">
 
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Select Wing</mat-label>
@@ -180,7 +184,14 @@
                     <input matInput appAmount readonly formControlName="package_total"
                         placeholder="Enter total package value" />
                 </mat-form-field>
-
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Parking Type</mat-label>
+                    <mat-select formControlName="parking_type_id">
+                        <mat-option *ngFor="let basedOn of allParkingTypeList()" [value]="basedOn.parking_type_id">
+                            {{ basedOn.parking_type }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Parking Charges</mat-label>
                     <input matInput appAmount formControlName="parking_charges" placeholder="Enter Parking Charges" />
@@ -196,12 +207,12 @@
                     <mat-label>Parking No.</mat-label>
                     <input matInput formControlName="parking_no" placeholder="Enter Parking No." />
                 </mat-form-field>
-
+<!-- 
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Tentative Loan Amount</mat-label>
                     <input matInput appAmount formControlName="tentative_loan_amount"
                         placeholder="Enter Tentative Loan Amount" />
-                </mat-form-field>
+                </mat-form-field> -->
 
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Source</mat-label>
@@ -234,7 +245,7 @@
                     formControlName="closed_by" displayKey="user_name" idKey="user_id" placeholder="Closed By">
                 </app-autocomplete-reusable-component>
 
-                <mat-form-field appearance="outline" class="col-md-2">
+                <mat-form-field appearance="outline" class="col-md-4">
                     <mat-label>Remark</mat-label>
                     <input matInput formControlName="remark" placeholder="Enter Remark" />
                 </mat-form-field>
@@ -245,59 +256,254 @@
                 </mat-checkbox>
             </div>
 
-        </mat-card-content>
-    </mat-card>
+            <mat-card *ngIf="addBookingForm.get('show_scheme')?.value" class="mat-elevation-z2 mt-1">
+                <mat-card-header class="border-b border-slate-100 bg-sky-900 px-4 py-3">
+                    <mat-card-title class="!m-0">
+                        <div class="title-with-line text-white">
+                            <h5 class="text-sm font-bold uppercase tracking-wide text-white">Scheme Details</h5>
+                        </div>
+                    </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <div class="row g-3 mt-1">
+                        <mat-form-field appearance="outline" class="col-md-6">
+                            <mat-label>Offer Name</mat-label>
+                            <input matInput type="text" formControlName="offer_name" placeholder="Enter offer Name" />
+                        </mat-form-field>
+                    </div>
+                </mat-card-content>
+            </mat-card>
 
-    <mat-card *ngIf="addBookingForm.get('show_scheme')?.value" class="mat-elevation-z2 mt-1">
-        <mat-card-header class="mb-3">
-            <mat-card-title>
-                <h4 class="mat-h4">Scheme Details</h4>
+
+
+        </mat-card-content>
+
+
+    </mat-card>
+    <mat-card class="mat-elevation-z2 mt-2">
+        <mat-card-header class="border-b border-slate-100 bg-sky-900 px-4 py-3">
+            <mat-card-title class="!m-0">
+                <div class="title-with-line">
+                    <h5 class="text-sm font-bold uppercase tracking-wide text-white">Milestone Due Dates
+                    </h5>
+                </div>
             </mat-card-title>
         </mat-card-header>
         <mat-card-content>
-            <div class="row g-3">
-                <mat-form-field appearance="outline" class="col-md-6">
-                    <mat-label>Offer Name</mat-label>
-                    <input matInput type="text" formControlName="offer_name" placeholder="Enter offer Name" />
+            <div class="row g-3 mt-1">
+                <div class="col-md-2">
+                    <mat-form-field appearance="outline" class="w-100" subscriptSizing="fixed">
+                        <mat-label>Type of Payment</mat-label>
+                        <mat-select formControlName="type_of_payment">
+                            <mat-option value="1">Home Loan</mat-option>
+                            <mat-option value="2">Self Fund</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <!-- Home Loan -->
+                <ng-container *ngIf="addBookingForm.get('type_of_payment')?.value == '1'">
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Home Loan Amount</mat-label>
+                            <input matInput appAmount formControlName="home_loan_amount"
+                                [required]="addBookingForm.get('type_of_payment')?.value == '1'"
+                                placeholder="Enter Home Loan Amount">
+                            <mat-error *ngIf="addBookingForm.get('home_loan_amount')?.hasError('required')">
+                                Loan amount is required
+                            </mat-error>
+                            <mat-error
+                                *ngIf="addBookingForm.get('home_loan_amount')?.hasError('amountExceedsAgreement')">
+                                Cannot exceed Agreement Cost
+                            </mat-error>
+                            <mat-error *ngIf="addBookingForm.get('home_loan_amount')?.hasError('minLoanRequired')">
+                                Min 11% of Agreement Cost required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Home Loan Doc.</mat-label>
+
+                            <input matInput [matDatepicker]="dp1" formControlName="home_loan_doc_submission_date"
+                                [min]="baseBookingDate()" [max]="homeLoanMaxDate()"
+                                [required]="addBookingForm.get('type_of_payment')?.value == '1'" />
+
+                            <mat-datepicker-toggle matSuffix [for]="dp1"></mat-datepicker-toggle>
+                            <mat-datepicker #dp1></mat-datepicker>
+                        </mat-form-field>
+
+                        <div class="date-hint" *ngIf="homeLoanMaxDate()">
+                            <mat-icon>info_outline</mat-icon>
+                            Due: {{ homeLoanMaxDate() | date:'dd MMM yyyy' }}
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Tax -->
+                <div class="col-md-2">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Tax Payment</mat-label>
+
+                        <input matInput [matDatepicker]="dp2" formControlName="tax_payment_completion_date"
+                            [min]="baseBookingDate()" [max]="taxPaymentMaxDate()"
+                            [required]="addBookingForm.get('type_of_payment')?.value == '2'" />
+
+                        <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                        <mat-datepicker #dp2></mat-datepicker>
+                    </mat-form-field>
+
+                    <div class="date-hint" *ngIf="taxPaymentMaxDate()">
+                        <mat-icon>info_outline</mat-icon>
+                        Due: {{ taxPaymentMaxDate() | date:'dd MMM yyyy' }}
+                    </div>
+                </div>
+
+                <!-- Own Contribution -->
+                <div class="col-md-2">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Own Contribution</mat-label>
+
+                        <input matInput [matDatepicker]="dp3" formControlName="own_contribution_payment_date"
+                            [min]="baseBookingDate()" [max]="ownContributionMaxDate()"
+                            [required]="addBookingForm.get('type_of_payment')?.value == '2'" />
+
+                        <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+                        <mat-datepicker #dp3></mat-datepicker>
+                    </mat-form-field>
+
+                    <div class="date-hint" *ngIf="ownContributionMaxDate()">
+                        <mat-icon>info_outline</mat-icon>
+                        Due: {{ ownContributionMaxDate() | date:'dd MMM yyyy' }}
+                    </div>
+                </div>
+
+                <!-- Agreement -->
+                <div class="col-md-2">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Agreement</mat-label>
+
+                        <input matInput [matDatepicker]="dp4" formControlName="agreement_completion_date"
+                            [min]="baseBookingDate()" [max]="agreementMaxDate()"
+                            [required]="addBookingForm.get('type_of_payment')?.value == '2'" />
+
+                        <mat-datepicker-toggle matSuffix [for]="dp4"></mat-datepicker-toggle>
+                        <mat-datepicker #dp4></mat-datepicker>
+                    </mat-form-field>
+
+                    <div class="date-hint" *ngIf="agreementMaxDate()">
+                        <mat-icon>info_outline</mat-icon>
+                        Due: {{ agreementMaxDate() | date:'dd MMM yyyy' }}
+                    </div>
+                </div>
+
+                <!-- Disbursement -->
+                <div class="col-md-2">
+                    <mat-form-field appearance="outline" class="w-100">
+                        <mat-label>Disbursement</mat-label>
+
+                        <input matInput [matDatepicker]="dp5" formControlName="disbursement_completion_date"
+                            [min]="baseBookingDate()" [max]="disbursementMaxDate()"
+                            [required]="addBookingForm.get('type_of_payment')?.value == '2'" />
+
+                        <mat-datepicker-toggle matSuffix [for]="dp5"></mat-datepicker-toggle>
+                        <mat-datepicker #dp5></mat-datepicker>
+                    </mat-form-field>
+
+                    <div class="date-hint" *ngIf="disbursementMaxDate()">
+                        <mat-icon>info_outline</mat-icon>
+                        Due: {{ disbursementMaxDate() | date:'dd MMM yyyy' }}
+                    </div>
+                </div>
+
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <!-- Payment Details Card -->
+    <mat-card class="mat-elevation-z2 mt-2" [formGroup]="addBookingPaymentForm">
+        <mat-card-header class="border-b border-slate-100 bg-sky-900 px-4 py-3">
+            <mat-card-title class="!m-0">
+                <div class="title-with-line">
+                    <h5 class="text-sm font-bold uppercase tracking-wide text-white">Payment Details</h5>
+                </div>
+            </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="row g-3 mt-1">
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Booking Amount</mat-label>
+                    <input matInput appAmount formControlName="booking_amount" placeholder="Enter booking amount" />
+                    @if (addBookingPaymentForm.get('booking_amount')?.hasError('required') &&
+                    addBookingPaymentForm.get('booking_amount')?.touched) {
+                    <mat-error>Booking amount is required</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Payment Mode</mat-label>
+                    <mat-select formControlName="payment_mode_id">
+                        @for (mode of paymentModes(); track mode.payment_mode_id) {
+                        <mat-option [value]="mode.payment_mode_id">{{ mode.payment_mode }}</mat-option>
+                        }
+                    </mat-select>
+                    @if (addBookingPaymentForm.get('payment_mode_id')?.hasError('required') &&
+                    addBookingPaymentForm.get('payment_mode_id')?.touched) {
+                    <mat-error>Payment mode is required</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Cheque/TRN No.</mat-label>
+                    <input matInput formControlName="cheque_no" placeholder="Enter cheque/TRN number" />
+                    @if (addBookingPaymentForm.get('cheque_no')?.hasError('required') &&
+                    addBookingPaymentForm.get('cheque_no')?.touched) {
+                    <mat-error>Cheque/TRN number is required</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Cheque/TRN Date</mat-label>
+                    <input matInput (click)="checkDate.open()" [matDatepicker]="checkDate" [min]="minPaymentDate()"
+                        [max]="maxPaymentDate()" formControlName="cheque_date" />
+                    <mat-datepicker-toggle matSuffix [for]="checkDate"></mat-datepicker-toggle>
+                    <mat-datepicker #checkDate></mat-datepicker>
+                </mat-form-field>
+
+                <app-autocomplete-reusable-component class="col-md-2" [options]="banks()" formControlName="bank_name_id"
+                    displayKey="preferred_bank" idKey="preferred_bank_id" placeholder="Bank">
+                </app-autocomplete-reusable-component>
+
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Branch Name</mat-label>
+                    <input matInput formControlName="bank_details" placeholder="Enter Branch Name" />
                 </mat-form-field>
             </div>
         </mat-card-content>
     </mat-card>
-    <section class="mt-4 rounded-lg bg-slate-50 px-4 py-3 shadow-inner">
-        <div class="flex items-center justify-end gap-3">
-
+    <mat-card class="mat-elevation-z2 mt-3 mb-4">
+        <mat-card-actions class="!flex flex-wrap items-center justify-end gap-3 px-4 py-3">
             <!-- WARNING BADGE -->
-            <div *ngIf="!isApplicantAdded() || !isPaymentAdded()"
-                class="inline-flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 shadow-sm"
+            <div *ngIf="!isApplicantAdded()"
+                class="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-2 text-sm font-semibold text-amber-700 shadow-sm"
                 role="alert">
-                <mat-icon class="!text-sm text-amber-600">warning_amber</mat-icon>
-                <span class="whitespace-nowrap">
-                    {{
-                    !isApplicantAdded() && !isPaymentAdded()
-                    ? 'Add applicant details & payment details '
-                    : !isApplicantAdded()
-                    ? 'Add applicant details'
-                    : 'Add payment details'
-                    }}
-                </span>
+                <mat-icon class="!text-lg text-amber-500">warning_amber</mat-icon>
+                <span class="whitespace-nowrap">Add applicant details</span>
             </div>
 
             <!-- RESET BUTTON -->
-            <button mat-raised-button color="warn" class="flex items-center gap-2" (click)="resetForm()">
-                <mat-icon>refresh</mat-icon>
+            <button mat-raised-button color="warn" class="!h-11 !rounded-lg !px-6 !font-bold" (click)="resetForm()">
+                <mat-icon class="mr-1">refresh</mat-icon>
                 Reset
             </button>
 
             <!-- ADD BOOKING BUTTON -->
-            <button mat-raised-button color="primary"
-                class="flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                [disabled]="!isApplicantAdded() || !isPaymentAdded() || addBookingForm.invalid"
+            <button mat-raised-button color="primary" class="!h-11 !rounded-lg !px-6 !font-bold"
+                [disabled]="!isApplicantAdded() || addBookingForm.invalid || addBookingPaymentForm.invalid"
                 (click)="submitBooking()">
-                <mat-icon>add_circle</mat-icon>
+                <mat-icon class="mr-1">add_circle</mat-icon>
                 Add Booking
             </button>
-
-        </div>
-    </section>
-
+        </mat-card-actions>
+    </mat-card>
 </form>

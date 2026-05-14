@@ -15,7 +15,6 @@ import { CommonService } from '../../../../Service/common/common.service';
 import { FetchFunctionsService } from '../../../../Service/fetch-functions.service';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { ActionColumnComponent } from '../../../../Common/action-column/action-column.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
@@ -43,8 +42,6 @@ interface BookingColumn {
 
     AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
-
-    ActionColumnComponent,
   ],
   templateUrl: './deleted-receipts-log.html',
   styleUrl: './deleted-receipts-log.scss',

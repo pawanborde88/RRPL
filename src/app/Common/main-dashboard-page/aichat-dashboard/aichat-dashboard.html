@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-[#fafbff] text-indigo-950 flex flex-col relative overflow-x-hidden font-inter">
+    <!-- Dynamic Gradient Background -->
+    <div
+        class="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-100/40 z-0 blur-[120px] rounded-full animate-pulse">
+    </div>
+    <div class="fixed bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-100/40 z-0 blur-[120px] rounded-full animate-pulse"
+        style="animation-delay: 2s"></div>
+
+    <main class="w-full z-10 flex-1">
+        <!-- Controls Section -->
+        <section
+            class="bg-white border border-indigo-50 rounded-3xl p-6 md:p-8 mb-8 shadow-[0_15px_40px_rgba(79,70,229,0.05)] transition-all hover:shadow-[0_20px_50px_rgba(79,70,229,0.08)]">
+            <form [formGroup]="filterForm" (ngSubmit)="generateDashboard()" class="space-y-6">
+                <!-- Main Search Bar -->
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <div class="relative flex-1 group">
+                        <div
+                            class="absolute left-5 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+                            <mat-icon
+                                class="text-indigo-300 group-focus-within:text-indigo-600 transition-all duration-300 transform group-focus-within:scale-110">psychology</mat-icon>
+                        </div>
+                        <input type="text" formControlName="prompt"
+                            class="w-full bg-indigo-50/20 border border-indigo-100 py-4 pl-14 pr-6 rounded-2xl text-indigo-900 text-lg focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all placeholder:text-indigo-300 font-medium shadow-inner"
+                            placeholder="Ask me: 'Leads conversion funnel for last 3 months'...">
+                    </div>
+                    <button type="submit"
+                        class="bg-gradient-to-br from-indigo-600 to-violet-600 hover:to-indigo-700 text-white px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                        [disabled]="loading()">
+                        <mat-icon class="text-xl">insights</mat-icon>
+                        <span>{{ loading() ? 'Analyzing...' : 'Generate' }}</span>
+                    </button>
+                </div>
+
+                <!-- Compact Filters -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-indigo-400 text-[11px] font-black uppercase tracking-widest ml-1">Projects
+                            Scope</label>
+                        <app-autocomplete-reusable-component [options]="projectsList()" formControlName="project_id"
+                            displayKey="property_name" idKey="project_id" placeholder="Select Projects">
+                        </app-autocomplete-reusable-component>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-indigo-400 text-[11px] font-black uppercase tracking-widest ml-1">Data
+                            Domain</label>
+                        <div class="relative group">
+                            <select formControlName="data_type"
+                                class="w-full bg-white border border-indigo-100 p-3.5 rounded-xl text-indigo-900 text-sm focus:outline-none focus:border-indigo-400 transition-all appearance-none cursor-pointer font-semibold pr-10 shadow-sm hover:border-indigo-200">
+                                <option value="presale">Pre-sale Analytics</option>
+                                <option value="sales">Sales Performance</option>
+                                <option value="enquiry_flow">Conversion Funnel</option>
+                                <option value="project_summary">Inventory Summary</option>
+                                <option value="team_performance">Team Analytics</option>
+                            </select>
+                            <mat-icon
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-300 pointer-events-none group-hover:text-indigo-600 transition-colors text-xl">expand_more</mat-icon>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label
+                            class="text-indigo-400 text-[11px] font-black uppercase tracking-widest ml-1">From</label>
+                        <div class="relative group cursor-pointer" (click)="pickerStart.open()">
+                            <input matInput [matDatepicker]="pickerStart" formControlName="start_date" readonly
+                                class="w-full bg-white border border-indigo-100 p-3.5 rounded-xl text-indigo-900 text-sm focus:outline-none focus:border-indigo-400 transition-all font-semibold cursor-pointer shadow-sm hover:border-indigo-200">
+                            <mat-datepicker-toggle matIconSuffix [for]="pickerStart"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-indigo-500 scale-75"></mat-datepicker-toggle>
+                            <mat-datepicker #pickerStart></mat-datepicker>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-indigo-400 text-[11px] font-black uppercase tracking-widest ml-1">To</label>
+                        <div class="relative group cursor-pointer" (click)="pickerEnd.open()">
+                            <input matInput [matDatepicker]="pickerEnd" formControlName="end_date" readonly
+                                class="w-full bg-white border border-indigo-100 p-3.5 rounded-xl text-indigo-900 text-sm focus:outline-none focus:border-indigo-400 transition-all font-semibold cursor-pointer shadow-sm hover:border-indigo-200">
+                            <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 text-indigo-500 scale-75"></mat-datepicker-toggle>
+                            <mat-datepicker #pickerEnd></mat-datepicker>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Insights Panel -->
+        <div *ngIf="insights()"
+            class="bg-sky-800 rounded-3xl p-6 md:p-8 mb-8 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-bl-full blur-3xl"></div>
+            <div class="flex justify-between items-center mb-6 relative z-10">
+                <h3 class="flex items-center gap-3 text-white font-bold text-xl md:text-2xl">
+                    <mat-icon>auto_awesome</mat-icon>
+                    AI Summary
+                </h3>
+                <button (click)="copyInsights()"
+                    class="flex items-center gap-2 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                    <mat-icon class="text-sm scale-90">content_copy</mat-icon>
+                </button>
+            </div>
+            <div
+                class="text-white/90 text-base md:text-lg leading-relaxed whitespace-pre-wrap font-medium relative z-10">
+                {{ insights() }}
+            </div>
+        </div>
+
+        <!-- Chart Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div *ngFor="let chart of chartsData(); let i = index"
+                class="bg-white border border-indigo-50 rounded-3xl p-6 md:p-8 min-h-[480px] flex flex-col hover:border-indigo-200 hover:shadow-xl transition-all duration-500 group shadow-sm">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="flex flex-col gap-1.5">
+                        <h4 class="font-bold text-xl text-indigo-950 group-hover:text-indigo-600 transition-colors">{{
+                            chart.title }}</h4>
+                        <div class="h-1 w-10 bg-indigo-500 rounded-full group-hover:w-20 transition-all duration-500">
+                        </div>
+                    </div>
+                    <span
+                        class="text-[9px] font-black px-3 py-1 bg-indigo-50/50 border border-indigo-100 rounded-full text-indigo-400 uppercase tracking-widest">
+                        {{ chart.chart_type }}
+                    </span>
+                </div>
+                <div class="flex-1 w-full min-h-[320px] chart-container" #chartHost></div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading() && chartsData().length === 0 && !insights()"
+            class="flex flex-col items-center justify-center py-32 text-indigo-200">
+            <div class="w-20 h-20 bg-indigo-50/50 rounded-2xl flex items-center justify-center mb-6">
+                <mat-icon class="text-4xl opacity-30">query_stats</mat-icon>
+            </div>
+            <p class="text-xl font-bold text-indigo-900 mb-2">No Insights Yet</p>
+            <p class="text-sm font-medium text-indigo-300 text-center max-w-xs">Ask a business question above to
+                generate real-time AI visualizations.</p>
+        </div>
+    </main>
+
+    <!-- Loader -->
+    <div *ngIf="loading()"
+        class="fixed inset-0 bg-white/80 backdrop-blur-md flex flex-col items-center justify-center z-[1000] transition-all duration-500">
+        <div class="relative w-24 h-24 mb-6">
+            <div class="absolute inset-0 border-4 border-indigo-50 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-t-indigo-600 rounded-full animate-spin"></div>
+            <mat-icon
+                class="absolute inset-0 flex items-center justify-center text-3xl text-indigo-600 animate-pulse">auto_awesome</mat-icon>
+        </div>
+        <p class="text-indigo-900 font-black text-xl tracking-widest animate-pulse">AI ANALYZING</p>
+    </div>
+</div>

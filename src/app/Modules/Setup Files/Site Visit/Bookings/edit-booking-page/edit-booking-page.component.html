@@ -53,7 +53,7 @@
                 </mat-form-field>
             </div>
 
-            <h4 class="mt-3 mb-2">Booking Calculation</h4>
+            <h5 class="mt-3 mb-2">Booking Calculation</h5>
 
             <div class="row g-3">
                 <mat-form-field appearance="outline" class="col-md-2">
@@ -72,13 +72,11 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly"
-                    *ngIf="!floorUnitField()">
+                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly" *ngIf="!floorUnitField()">
                     <mat-label>Floor</mat-label>
                     <input matInput formControlName="floor_id" readonly placeholder="Enter Floor" />
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly"
-                    *ngIf="!floorUnitField()">
+                <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly" *ngIf="!floorUnitField()">
                     <mat-label>Unit Type</mat-label>
                     <input matInput formControlName="unit_type" readonly placeholder="Enter Unit" />
                 </mat-form-field>
@@ -116,8 +114,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Floor Rise Rate</mat-label>
-                    <input matInput appAmount formControlName="floor_rise_rate"
-                        placeholder="Enter floor rise rate" />
+                    <input matInput appAmount formControlName="floor_rise_rate" placeholder="Enter floor rise rate" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
                     <mat-label>Floor Rise Amt</mat-label>
@@ -126,8 +123,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Market Value</mat-label>
-                    <input matInput appAmount formControlName="market_value"
-                        placeholder="Enter Market Value" />
+                    <input matInput appAmount formControlName="market_value" placeholder="Enter Market Value" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>GST (%) </mat-label>
@@ -143,8 +139,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
                     <mat-label>Basic Cost</mat-label>
-                    <input matInput appAmount readonly formControlName="basic_cost"
-                        placeholder="Enter basic cost" />
+                    <input matInput appAmount readonly formControlName="basic_cost" placeholder="Enter basic cost" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>IDC</mat-label>
@@ -156,8 +151,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Agreement Cost</mat-label>
-                    <input matInput appAmount formControlName="agreement_cost"
-                        placeholder="Enter agreement cost" />
+                    <input matInput appAmount formControlName="agreement_cost" placeholder="Enter agreement cost" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2 full-bg-readonly">
                     <mat-label>GST</mat-label>
@@ -174,8 +168,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Society For.</mat-label>
-                    <input matInput appAmount formControlName="society_for"
-                        placeholder="Enter Society For. charges" />
+                    <input matInput appAmount formControlName="society_for" placeholder="Enter Society For. charges" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Legal </mat-label>
@@ -183,8 +176,7 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Maintenance </mat-label>
-                    <input matInput appAmount formControlName="maintenance"
-                        placeholder="Enter Maintenance " />
+                    <input matInput appAmount formControlName="maintenance" placeholder="Enter Maintenance " />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Maintenance GST</mat-label>
@@ -213,12 +205,21 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Parking Charges</mat-label>
-                    <input matInput appAmount formControlName="parking_charges"
-                        placeholder="Enter Parking Charges" />
+                    <input matInput appAmount formControlName="parking_charges" placeholder="Enter Parking Charges" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Parking No.</mat-label>
                     <input matInput formControlName="parking_no" placeholder="Enter Parking No." />
+                </mat-form-field>
+
+                <div class="col-md-2 d-flex align-items-center">
+                    <mat-checkbox formControlName="is_parking_charges_added">Add to Agreement Cost</mat-checkbox>
+                </div>
+
+                <mat-form-field appearance="outline" class="col-md-2">
+                    <mat-label>Tentative Loan Amount</mat-label>
+                    <input matInput appAmount formControlName="tentative_loan_amount"
+                        placeholder="Enter Tentative Loan Amount" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Source</mat-label>
@@ -239,23 +240,20 @@
                     </mat-select>
                 </mat-form-field>
                 <app-autocomplete-reusable-component [options]="allChannelPartnerList()" class="col-md-2"
-                    *ngIf="(addBookingForm.get('source_id')?.value == '3')"
-                    formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
-                    placeholder="Select Partner Firm" [disabled]="isSourceFieldsDisabled()"
-                    (inputChanged)="onPartnerSearch($event)">
+                    *ngIf="(addBookingForm.get('source_id')?.value == '3')" formControlName="channel_partner_id"
+                    displayKey="full_name" idKey="channel_partner_id" placeholder="Select Partner Firm"
+                    [disabled]="isSourceFieldsDisabled()" (inputChanged)="onPartnerSearch($event)">
                 </app-autocomplete-reusable-component>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Source Info</mat-label>
-                    <input matInput formControlName="source_description"
-                        placeholder="Enter Source description" />
+                    <input matInput formControlName="source_description" placeholder="Enter Source description" />
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="col-md-2">
                     <mat-label>Remark</mat-label>
                     <input matInput formControlName="remark" placeholder="Enter Remark" />
                 </mat-form-field>
                 <app-autocomplete-reusable-component class="col-md-2" [options]="allprojectsPeoples()"
-                    formControlName="closed_by" displayKey="user_name" idKey="user_id"
-                    placeholder="Closed By">
+                    formControlName="closed_by" displayKey="user_name" idKey="user_id" placeholder="Closed By">
                 </app-autocomplete-reusable-component>
                 <div class="col-md-2 d-flex align-items-center">
                     <mat-checkbox formControlName="show_scheme">Scheme Details</mat-checkbox>
@@ -266,13 +264,122 @@
                 </div>
             </div>
 
+            <ng-container *ngIf="roleId === 2">
+                <h4 class="mt-4 mb-2">Milestone Due Dates</h4>
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Type of Payment</mat-label>
+                            <mat-select formControlName="type_of_payment">
+                                <mat-option value="1">Home Loan</mat-option>
+                                <mat-option value="2">Self Fund</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <!-- Home Loan Fields -->
+                    <ng-container *ngIf="addBookingForm.get('type_of_payment')?.value == '1'">
+                        <div class="col-md-2">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Home Loan Amount</mat-label>
+                                <input matInput appAmount formControlName="home_loan_amount"
+                                    placeholder="Enter Home Loan Amount">
+                                <mat-error *ngIf="addBookingForm.get('home_loan_amount')?.hasError('required')">
+                                    Loan amount is required
+                                </mat-error>
+                                <mat-error
+                                    *ngIf="addBookingForm.get('home_loan_amount')?.hasError('amountExceedsAgreement')">
+                                    Cannot exceed Agreement Cost
+                                </mat-error>
+                                <mat-error *ngIf="addBookingForm.get('home_loan_amount')?.hasError('minLoanRequired')">
+                                    Min 11% of Agreement Cost required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="col-md-2">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Home Loan Doc.</mat-label>
+                                <input matInput [matDatepicker]="dp1" formControlName="home_loan_doc_submission_date"
+                                    [min]="baseBookingDate()" [max]="homeLoanMaxDate()" />
+                                <mat-datepicker-toggle matSuffix [for]="dp1"></mat-datepicker-toggle>
+                                <mat-datepicker #dp1></mat-datepicker>
+                            </mat-form-field>
+                            <div class="date-hint" *ngIf="homeLoanMaxDate()">
+                                <mat-icon>info_outline</mat-icon>
+                                Due: {{ homeLoanMaxDate() | date:'dd MMM yyyy' }}
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <!-- Tax Payment -->
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Tax Payment</mat-label>
+                            <input matInput [matDatepicker]="dp2" formControlName="tax_payment_completion_date"
+                                [min]="baseBookingDate()" [max]="taxPaymentMaxDate()" />
+                            <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                            <mat-datepicker #dp2></mat-datepicker>
+                        </mat-form-field>
+                        <div class="date-hint" *ngIf="taxPaymentMaxDate()">
+                            <mat-icon>info_outline</mat-icon>
+                            Due: {{ taxPaymentMaxDate() | date:'dd MMM yyyy' }}
+                        </div>
+                    </div>
+
+                    <!-- Own Contribution -->
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Own Contribution</mat-label>
+                            <input matInput [matDatepicker]="dp3" formControlName="own_contribution_payment_date"
+                                [min]="baseBookingDate()" [max]="ownContributionMaxDate()" />
+                            <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+                            <mat-datepicker #dp3></mat-datepicker>
+                        </mat-form-field>
+                        <div class="date-hint" *ngIf="ownContributionMaxDate()">
+                            <mat-icon>info_outline</mat-icon>
+                            Due: {{ ownContributionMaxDate() | date:'dd MMM yyyy' }}
+                        </div>
+                    </div>
+
+                    <!-- Agreement -->
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Agreement</mat-label>
+                            <input matInput [matDatepicker]="dp4" formControlName="agreement_completion_date"
+                                [min]="baseBookingDate()" [max]="agreementMaxDate()" />
+                            <mat-datepicker-toggle matSuffix [for]="dp4"></mat-datepicker-toggle>
+                            <mat-datepicker #dp4></mat-datepicker>
+                        </mat-form-field>
+                        <div class="date-hint" *ngIf="agreementMaxDate()">
+                            <mat-icon>info_outline</mat-icon>
+                            Due: {{ agreementMaxDate() | date:'dd MMM yyyy' }}
+                        </div>
+                    </div>
+
+                    <!-- Disbursement -->
+                    <div class="col-md-2">
+                        <mat-form-field appearance="outline" class="w-100">
+                            <mat-label>Disbursement</mat-label>
+                            <input matInput [matDatepicker]="dp5" formControlName="disbursement_completion_date"
+                                [min]="baseBookingDate()" [max]="disbursementMaxDate()" />
+                            <mat-datepicker-toggle matSuffix [for]="dp5"></mat-datepicker-toggle>
+                            <mat-datepicker #dp5></mat-datepicker>
+                        </mat-form-field>
+                        <div class="date-hint" *ngIf="disbursementMaxDate()">
+                            <mat-icon>info_outline</mat-icon>
+                            Due: {{ disbursementMaxDate() | date:'dd MMM yyyy' }}
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
             <div *ngIf="addBookingForm.get('show_scheme')?.value" class="mt-2">
                 <h4 class="mb-2">Scheme Details</h4>
                 <div class="row g-3">
                     <mat-form-field appearance="outline" class="col-md-12">
                         <mat-label>Offer Name</mat-label>
-                        <input matInput type="text" formControlName="offer_name"
-                            placeholder="Enter offer Name" />
+                        <input matInput type="text" formControlName="offer_name" placeholder="Enter offer Name" />
                     </mat-form-field>
                 </div>
             </div>

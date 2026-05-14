@@ -14,10 +14,8 @@ import { environment } from '../../../../../../environments/environment';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -33,9 +31,7 @@ import { finalize } from 'rxjs';
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
-    ReusableTableComponent,
     ConfigurableAgGridDataComponent,
   ],
   templateUrl: './all-letter-config-list.component.html',

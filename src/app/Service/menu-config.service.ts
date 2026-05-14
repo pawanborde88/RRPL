@@ -333,6 +333,12 @@ export class MenuConfigService {
                 visible: hasPermission('606'),
               },
               {
+                routerLink: '/salesManagement/bookings/booking-approval-log',
+                label: 'Booking Approval Log',
+                icon: 'check_circle',
+                visible: hasPermission('670'),
+              },
+              {
                 routerLink: '/siteVisitManagement/tokens/GuestBooking',
                 label: 'Guest Entry',
                 icon: 'person_add_alt_1',
@@ -520,12 +526,7 @@ export class MenuConfigService {
             icon: 'bar_chart',
             visible: hasPermission('245'),
             items: [
-              {
-                routerLink: '/after-sales/crm-activity-report',
-                label: 'CRM Activity Report',
-                icon: 'restore_from_trash',
-                visible: hasPermission('234'),
-              },
+
               {
                 routerLink: '/after-sales/deleted-receipts-log',
                 label: 'Deleted Receipts Log',
@@ -833,12 +834,7 @@ export class MenuConfigService {
         icon: 'speed',
         tippy: { id: 'sales-tippy', menuId: 'sales-tippy-menu' },
         items: [
-          {
-            routerLink: '/target-achievement/all-source-wise-targets',
-            label: 'Source Wise Target',
-            icon: 'show_chart',
-            visible: hasPermission('234'),
-          },
+
           {
             routerLink: '/target-achievement/pre-sales/all-presale-target-list',
             label: 'Sales',

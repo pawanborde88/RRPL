@@ -18,6 +18,7 @@ import { AutocompleteReusableComponent } from '../../../../../../Common/autocomp
 import { SuccessDialogComponent } from '../../../../../../Common/success-dialog/success-dialog.component';
 import { ReceiptsService, type Project, type Wing, type Unit } from '../../Recipts/receipts.service';
 import { environment } from '../../../../../../../environments/environment';
+import { ReceiptPreviewDialogComponent } from '../../receipt-preview-dialog/receipt-preview-dialog.component';
 
 export interface AddNewAgreementDialogData {
   booking_id?: number | null;
@@ -321,7 +322,8 @@ export class AddNewAgreementComponent implements OnInit {
     const getValue = (val: any, fallback: any = '') => (val === null || val === undefined || val === '' ? fallback : val);
 
     if (data['index_attachment']) {
-      this.existingAttachment.set(`${this.storageUrl}/${data['index_attachment']}`);
+      const cleanPath = data['index_attachment'].replace(/\\/g, '');
+      this.existingAttachment.set(`${this.storageUrl}/${cleanPath}`);
       this.addUpdateAgreementDetailsForm.get('index_attachment')?.clearValidators();
       this.addUpdateAgreementDetailsForm.get('index_attachment')?.updateValueAndValidity();
 
@@ -426,6 +428,20 @@ export class AddNewAgreementComponent implements OnInit {
     }
 
     return formData;
+  }
+
+  previewExistingAttachment(): void {
+    const url = this.existingAttachment();
+    if (url) {
+      this.dialog.open(ReceiptPreviewDialogComponent, {
+        width: '80%',
+        maxWidth: '900px',
+        data: {
+          title: 'Index Attachment Preview',
+          fileUrl: url,
+        },
+      });
+    }
   }
 
   private showError(message: string): void {

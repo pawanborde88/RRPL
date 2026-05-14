@@ -1,0 +1,110 @@
+<h2 mat-dialog-title>Send for Approval
+  <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+<mat-dialog-content>
+  <form [formGroup]="approvalForm" class="row">
+
+    <!-- Booking Date -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Booking Date</mat-label>
+      <input matInput [matDatepicker]="bookingDatePicker" formControlName="booking_date" id="approval-booking-date" />
+      <mat-datepicker-toggle matSuffix [for]="bookingDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #bookingDatePicker></mat-datepicker>
+      @if (approvalForm.get('booking_date')?.invalid && approvalForm.get('booking_date')?.touched) {
+      <mat-error>Booking date is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Source -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Source</mat-label>
+      <mat-select formControlName="source_id" id="approval-source-id">
+        @for (src of sourcesList(); track src.source_id) {
+        <mat-option [value]="src.source_id">{{ src.source }}</mat-option>
+        }
+      </mat-select>
+      @if (approvalForm.get('source_id')?.invalid && approvalForm.get('source_id')?.touched) {
+      <mat-error>Source is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Source Detail (hidden when Channel Partner source) -->
+    @if (!isChannelPartnerSource()) {
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Source Detail</mat-label>
+      <mat-select formControlName="source_detail_id" id="approval-source-detail-id">
+        @for (det of sourceDetailList(); track det.source_detail_id) {
+        <mat-option [value]="det.source_detail_id">{{ det.source_detail }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    }
+
+    <!-- Channel Partner (shown when source = CP) -->
+    @if (isChannelPartnerSource()) {
+    <app-autocomplete-reusable-component class="col-md-4" [options]="channelPartners()"
+      formControlName="channel_partner_id" displayKey="full_name" idKey="channel_partner_id"
+      placeholder="Select Partner Firm" id="approval-channel-partner-id" (inputChanged)="onPartnerSearch($event)">
+    </app-autocomplete-reusable-component>
+
+    <app-autocomplete-reusable-component class="col-md-4" [options]="allCPExeuctiveList()"
+      formControlName="cp_executive_id" displayKey="full_name" idKey="user_id" placeholder="Select CP Executive"
+      id="approval-cp-executive-id">
+    </app-autocomplete-reusable-component>
+    }
+
+    <!-- Sales Executive -->
+    <app-autocomplete-reusable-component class="col-md-4" [options]="salesExecutives()"
+      formControlName="sales_executive_id" displayKey="user_name" idKey="user_id" placeholder="Sales Executive"
+      id="approval-sales-executive-id">
+    </app-autocomplete-reusable-component>
+
+
+
+    <!-- Source Info / Description -->
+    <mat-form-field appearance="outline" class="col-md-4">
+      <mat-label>Source Info</mat-label>
+      <input matInput formControlName="source_description" id="approval-source-description"
+        placeholder="Enter source description" />
+    </mat-form-field>
+
+
+    <!-- Approval Attachment (triggered by source, detail, or partner changes) -->
+    @if (isSourceChanged()) {
+    <div class="col-md-12 mb-3">
+      <div class="file-upload-container" [class.file-selected]="!!selectedFile()">
+        <label for="approval-attachment" class="file-upload-label">
+          <mat-icon>{{ selectedFile() ? 'check_circle' : 'cloud_upload' }}</mat-icon>
+          <span>{{ selectedFile() ? selectedFile()?.name : 'Upload Approval Attachment *' }}</span>
+        </label>
+        <input type="file" id="approval-attachment" (change)="onFileSelected($event)" accept="image/*,application/pdf"
+          class="hidden-file-input" />
+      </div>
+      <p class="file-hint text-danger" *ngIf="!selectedFile()">
+        Attachment is required due to source-related changes.
+      </p>
+    </div>
+    }
+
+    <!-- Request Remarks -->
+    <mat-form-field appearance="outline" class="col-md-12">
+      <mat-label>Request Remarks </mat-label>
+      <input matInput formControlName="request_remarks" placeholder="e.g. Need approval for booking changes">
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+<!-- ── Actions ─────────────────────────────────────────────────────────── -->
+<mat-dialog-actions align="end">
+
+  <button mat-flat-button color="primary" class="submit-btn" (click)="onSubmit()">
+    @if (isSubmitting()) {
+    <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+    } @else {
+    <mat-icon>send</mat-icon>
+    }
+    {{ isSubmitting() ? 'Sending…' : 'Send for Approval' }}
+  </button>
+</mat-dialog-actions>

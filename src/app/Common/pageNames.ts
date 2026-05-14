@@ -17,9 +17,7 @@ export const ALL_QUATATION_LOG = 'All Quatation Log - Relation Realtech PVT.LTD.
 export const LMS_DASHBOARD = 'LMS Dashboard - Relation Realtech PVT.LTD.';
 export const EVENT_CUSTOMERS_CREDENTIALS = 'Event Customers Credentials - Relation Realtech PVT.LTD.';
 export const ENQUIRY_REVISIT_REPORT = 'Enquiry Revisit Report - Relation Realtech PVT.LTD.';
-export const DIGITAL_ALL_FACEBOOK_ACTIVITY_REPORTS = 'Digital All Facebook Activity Reports - Relation Realtech PVT.LTD.';
-export const ALL_SOURCE_WISE_TARGETS = 'Digital All Facebook Activity Reports - Relation Realtech PVT.LTD.';
-
+export const BOOKING_APPROVAL_LOG = 'Booking Approval Log - Relation Realtech PVT.LTD.';
 // SOP Module
 export const ALL_SOP = 'All SOP - Relation Realtech PVT.LTD.';
 export const ADD_SOP = 'Add SOP - Relation Realtech PVT.LTD.';
@@ -32,15 +30,12 @@ export const LEAD_CALL_LOGS = 'Lead Call Logs - Relation Realtech PVT.LTD.';
 export const ALL_PARKING_UNITS = 'All Parking Units - Relation Realtech PVT.LTD.';
 export const PARKING_INVENTORY_CHART = 'Parking Inventory Chart - Relation Realtech PVT.LTD.';
 export const ALL_EVENTS_USER_LOG = 'All Events User Log - Relation Realtech PVT.LTD.';
-export const ALL_MONTHLY_TARGET = 'All Monthly Targets - Relation Realtech PVT.LTD.';
 export const ALL_TEAMS = 'All Teams - Relation Realtech PVT.LTD.';
 export const DIGITAL_HOARDING_LEADS_REPORT = 'Digital Hoarding Leads Report - Relation Realtech PVT.LTD.';
 export const DELETED_RECEIPTS_LOG = 'Deleted Receipts Log - Relation Realtech PVT.LTD.';
-export const CRM_ACTIVITY_REPORT = 'CRM Activity Report - Relation Realtech PVT.LTD.';
 // Feedback Module
 export const ALL_FEEDBACKS = 'All Feedbacks - Relation Realtech PVT.LTD.';
 export const DIGITAL_LEADS = 'Digital Leads - Relation Realtech PVT.LTD.';
-export const ALL_FACEBOOK_SPEND = 'All Facebook Spend - Relation Realtech PVT.LTD.';
 // City & Location
 export const CITY_SUBREGION = 'City Subregion - Relation Realtech PVT.LTD.';
 export const PREFERRED_LOCATION = 'Preferred Location - Relation Realtech PVT.LTD.';
@@ -48,7 +43,7 @@ export const CP_EXECUTIVE_FOLLOW_UP_REPORT = 'CP Executive Follow-up Report - Re
 // Settings & Dashboard
 export const SETUP_DASHBOARD = 'Setup Dashboard - Relation Realtech PVT.LTD.';
 export const SALES_REPORT_DASHBOARD = 'Sales Report Dashboard - Relation Realtech PVT.LTD.';
-export const ALL_GLOBAL_AMINITIES = 'Global Aminities - Relation Realtech PVT.LTD.';
+
 // Sales Reports
 export const INVENTORY_CHART = 'Inventory Chart - Relation Realtech PVT.LTD.';
 export const ENQUIRY_DISMISS_REPORT = 'Enquiry Dismiss Report - Relation Realtech PVT.LTD.';
@@ -124,7 +119,8 @@ export const CP_DEALS = 'CP Deals - Relation Realtech PVT.LTD.';
 
 // Facebook Setup
 export const FACEBOOK_LIST = 'Facebook List - Relation Realtech PVT.LTD.';
-export const DIGITAL_ALL_FACEBOOK_BUDGET = 'Digital All Facebook Budget - Relation Realtech PVT.LTD.';
+export const FACEBOOK_BUDGET = 'Facebook Budget - Relation Realtech PVT.LTD.';
+
 // Booking Offers
 export const ALL_BOOKING_OFFERS = 'All Booking Offers - Relation Realtech PVT.LTD.';
 
@@ -329,3 +325,12 @@ export const GOALS_FORM = 'Goals Form - Relation Realtech PVT.LTD.';
 export const ALL_ANNGUAL_GOALS = 'All Anngual Goals - Relation Realtech PVT.LTD.';
 export const ANNUAL_GOAL_DASHBOARD = 'Annual Goal Dashboard - Relation Realtech PVT.LTD.';
 export const ALL_STRATEGYS = 'All Strategies - Relation Realtech PVT.LTD.';
+
+// Facebook Digital Module
+export const DIGITAL_ALL_FACEBOOK_BUDGET = 'Digital All Facebook Budget - Relation Realtech PVT.LTD.';
+export const ALL_FACEBOOK_SPEND = 'All Facebook Spend - Relation Realtech PVT.LTD.';
+export const DIGITAL_ALL_FACEBOOK_ACTIVITY_REPORTS = 'Digital All Facebook Activity Reports - Relation Realtech PVT.LTD.';
+
+// Global Amenities & Target Module
+export const ALL_GLOBAL_AMINITIES = 'All Global Aminities - Relation Realtech PVT.LTD.';
+export const ALL_MONTHLY_TARGET = 'All Monthly Target - Relation Realtech PVT.LTD.';

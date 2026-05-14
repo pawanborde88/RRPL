@@ -119,8 +119,7 @@ export class CpDialogStore {
             { key: 'min_budget', label: 'Min Budget', isAmount: true },
             { key: 'max_budget', label: 'Max Budget', isAmount: true },
             { key: 'sales_executive', label: 'Sales Executive' },
-            { key: 'mobile_no', label: 'Mobile No', type: 'sensitive' },
-            { key: 'email_id', label: 'Email ID', type: 'sensitive' },
+
             { key: 'lead_level', label: 'Enquiry Level' },
             { key: 'call_status', label: 'Call Status' },
             { key: 'remark', label: 'Remark', type: 'truncate' },
@@ -132,8 +131,7 @@ export class CpDialogStore {
             { key: 'is_booked', label: 'Booked' },
             { key: 'is_imported', label: 'Imported' },
             { key: 'age_range', label: 'Age Range' },
-            { key: 'alternate_mob_no', label: 'Secondary Mobile No', type: 'sensitive' },
-            { key: 'whatsapp_no', label: 'WhatsApp No', type: 'sensitive' },
+
             { key: 'preferred_location', label: 'Preferred Location' },
             { key: 'current_living_place', label: 'Current Living Place' },
             { key: 'company_name', label: 'Company Name' },
@@ -166,8 +164,6 @@ export class CpDialogStore {
             { key: 'amount_paid', label: 'Pay Till Date' },
             { key: 'booked', label: 'Booking Status' },
 
-            { key: 'mob_no', label: 'Mobile Number', type: 'sensitive' },
-            { key: 'email_id', label: 'Email ID', type: 'sensitive' },
             { key: 'payment_status', label: 'Payment Status' },
             { key: 'sales_executive_name', label: 'Executive' },
             { key: 'source', label: 'Source' },
@@ -194,9 +190,7 @@ export class CpDialogStore {
             { key: 'booking_from', label: 'Booking From' },
             { key: 'token_type', label: 'Token Type' },
             { key: 'project_enq_id', label: 'Enquiry No' },
-            { key: 'applicant_email', label: 'Email ID', type: 'sensitive' },
-            { key: 'applicant_mobile', label: 'Mobile', type: 'sensitive' },
-            { key: 'applicant_alternate_mobile', label: 'Alternate Mobile', type: 'sensitive' },
+
             { key: 'disbursement_status', label: 'Disbursement' },
             { key: 'booking_amount', label: 'Booking Amount', isAmount: true },
             { key: 'transaction_date', label: 'Transaction Date', type: 'mediumDate' },
@@ -245,8 +239,7 @@ export class CpDialogStore {
             { key: 'token_count', label: 'Token Count' },
             { key: 'booking_count', label: 'CP Booking' },
             { key: 'firm_address', label: 'Firm Address' },
-            { key: 'firm_email', label: 'Firm Email', type: 'sensitive' },
-            { key: 'firm_phone', label: 'Firm Mobile', type: 'sensitive' },
+
 
         ] as const;
     }

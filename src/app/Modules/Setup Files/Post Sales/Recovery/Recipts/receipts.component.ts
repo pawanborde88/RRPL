@@ -169,9 +169,7 @@ export class ReceiptsComponent implements OnInit {
     receipt_type_id: new FormControl<number | null>(null, [
       Validators.required,
     ]),
-    received_amount: new FormControl<number | null>(null, [
-      Validators.required,
-    ]),
+    received_amount: new FormControl<number | null>(null),
     split_gst: new FormControl<number>(0),
     reverse_gst: new FormControl<number>(0),
     gst_percentage: new FormControl<number | null>(null),
@@ -185,6 +183,8 @@ export class ReceiptsComponent implements OnInit {
     attachment: new FormControl<File | null>(null),
     bank_details: new FormControl<string>(''),
     remark: new FormControl<string>(''),
+    amount_type: new FormControl<number | null>(null),
+    refund_amount: new FormControl<number | null>(1),
     created_by: new FormControl<number>(this.userId),
   });
   readonly hasPermission = (permission: string): boolean =>
@@ -297,8 +297,37 @@ export class ReceiptsComponent implements OnInit {
     const projectIdControl = this.addProjectsRecipts.get('project_id');
     const wingIdControl = this.addProjectsRecipts.get('wing_id');
     const floorUnitIdControl = this.addProjectsRecipts.get('floor_unit_id');
+    const amountTypeControl = this.addProjectsRecipts.get('amount_type');
+    const refundAmountControl = this.addProjectsRecipts.get('refund_amount');
+    const receivedAmountControl = this.addProjectsRecipts.get('received_amount');
 
     if (!projectIdControl || !wingIdControl || !floorUnitIdControl) return;
+
+    if (amountTypeControl && refundAmountControl && receivedAmountControl) {
+      amountTypeControl.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((value) => {
+          if (value === 1) {
+            // Debit Receipt: refund_amount required, received_amount not required
+            refundAmountControl.setValidators([Validators.required]);
+            receivedAmountControl.clearValidators();
+            receivedAmountControl.reset(null, { emitEvent: false });
+          } else if (value === 0) {
+            // Credit Receipt: received_amount required, refund_amount not required
+            receivedAmountControl.setValidators([Validators.required]);
+            refundAmountControl.clearValidators();
+            refundAmountControl.reset(null, { emitEvent: false });
+          } else {
+            // No selection: clear both
+            receivedAmountControl.clearValidators();
+            refundAmountControl.clearValidators();
+            receivedAmountControl.reset(null, { emitEvent: false });
+            refundAmountControl.reset(null, { emitEvent: false });
+          }
+          refundAmountControl.updateValueAndValidity();
+          receivedAmountControl.updateValueAndValidity();
+        });
+    }
 
     // Project ID changes
     projectIdControl.valueChanges
@@ -553,6 +582,8 @@ export class ReceiptsComponent implements OnInit {
         payment_mode_id: receiptData.payment_mode_id,
         bank_id: receiptData.bank_id ?? null,
         bank_details: receiptData.bank_details ?? '',
+        amount_type: receiptData.amount_type ?? null,
+        refund_amount: receiptData.refund_amount ?? null,
         remark: receiptData.remark ?? '',
       },
       { emitEvent: false }

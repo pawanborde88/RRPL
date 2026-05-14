@@ -16,14 +16,14 @@
                 <!-- Row for Dropdowns and Date Filter -->
                 <div class="row">
                     <div class="col-md-3">
-                        <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                        <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList"
                             displayKey="property_name" idKey="project_id" [isMultiSelect]="true"
                             placeholder="Select Project">
                         </app-autocomplete-reusable-component>
                     </div>
 
-                    <div class="col-md-6">
-                        <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()"
+                    <div class="col-md-3">
+                        <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList"
                             displayKey="source" idKey="source_id" placeholder="Select Source *">
                         </app-autocomplete-reusable-component>
 

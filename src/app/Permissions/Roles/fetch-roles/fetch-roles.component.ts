@@ -8,11 +8,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CommonModule, DatePipe } from '@angular/common';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
-import { ReusableTableComponent } from '../../../Common/Reusable/reusable-table/reusable-table.component';
 import { AngularMaterialModule } from '../../../../angular-material.module';
+import { ReusableTableComponent } from '../../../Common/Reusable/reusable-table/reusable-table.component';
 import { TemplateComponent } from '../../../Common/template/template.component';
 import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../environments/environment';
@@ -41,7 +41,6 @@ interface CredentialForm {
   imports: [
     AngularMaterialModule,
     CommonModule,
-    RouterOutlet,
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,

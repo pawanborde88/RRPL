@@ -1,289 +1,568 @@
-<h2 mat-dialog-title>{{ data.title }}
-    <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
-        <mat-icon>close</mat-icon>
-    </button>
-</h2>
+<app-template>
+    <app-breadcrumb>
+        <li class="breadcrumb-item">Target & Achievement</li>
+        <li class="breadcrumb-item active">{{ isEditMode() ? 'Edit' : 'Add' }} Presale Target</li>
+    </app-breadcrumb>
 
-<mat-dialog-content class="mat-typography !p-0">
-    <form [formGroup]="addTargetForm" class="flex flex-col p-6">
-        <div *ngIf="!isEditMode()">
-            <div class="row">
-                <div class="col-md-4">
-                    <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
-                        displayKey="property_name" idKey="project_id" placeholder="Select Project" class="block w-full">
-                    </app-autocomplete-reusable-component>
-                </div>
-                <div class="col-md-4">
-                    <div class="flex items-center gap-2">
-                        <button mat-icon-button type="button" (click)="shiftMonth(-1)" matTooltip="Previous Month">
-                            <mat-icon>chevron_left</mat-icon>
-                        </button>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic"
-                            class="w-100 !mb-0 subscript-wrapper">
-                            <mat-label>Target Month</mat-label>
-                            <mat-date-range-input [rangePicker]="leadDatePicker">
-                                <input matStartDate formControlName="target_from" placeholder="Start date">
-                                <input matEndDate formControlName="target_to" placeholder="End date">
-                            </mat-date-range-input>
-                            <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
-                            <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
-                        </mat-form-field>
-                        <button mat-icon-button type="button" (click)="shiftMonth(1)" matTooltip="Next Month">
-                            <mat-icon>chevron_right</mat-icon>
-                        </button>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+
+
+        <div class="p-0">
+            <form [formGroup]="addTargetForm" class="flex flex-col p-6">
+                <div *ngIf="!isEditMode()">
+                    <div class="row items-center mb-6">
+                        <div class="col-md-3">
+                            <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
+                                displayKey="property_name" idKey="project_id" placeholder="Select Project"
+                                class="block w-full">
+                            </app-autocomplete-reusable-component>
+                        </div>
+                        <div class="col-md-3">
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic"
+                                class="w-full !mb-0 subscript-wrapper">
+                                <mat-label>Target Month</mat-label>
+                                <mat-date-range-input [rangePicker]="leadDatePicker">
+                                    <input matStartDate formControlName="target_from" placeholder="Start date">
+                                    <input matEndDate formControlName="target_to" placeholder="End date">
+                                </mat-date-range-input>
+                                <mat-datepicker-toggle matIconSuffix [for]="leadDatePicker"></mat-datepicker-toggle>
+                                <mat-date-range-picker #leadDatePicker></mat-date-range-picker>
+                            </mat-form-field>
+                        </div>
+
                     </div>
                 </div>
-            </div>
+
+                <!-- Project Unit Report Section -->
+                <div class="w-full mb-10 animate-row" *ngIf="unitReport()?.data">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1.5 h-8 bg-emerald-500 rounded-full"></div>
+                        <div>
+                            <h5 class="text-base font-bold tracking-tight text-slate-800 m-0">Project Inventory Report
+                            </h5>
+
+                        </div>
+                    </div>
+                    <div class="w-full overflow-x-auto rounded-lg border border-slate-500 shadow-md bg-white">
+                        <table class="min-w-full text-[0.65rem] border-collapse border border-slate-500">
+                            <thead>
+                                <!-- Header Row 1 -->
+                                <tr class="text-slate-900 font-bold uppercase h-8">
+                                    <th class="border border-slate-500 px-1 text-center bg-[#D9E1F2] w-32">PROJECT NAME
+                                    </th>
+                                    <th class="border border-slate-500 px-1 text-center bg-[#92D050]" colspan="3">
+                                        {{ unitReport()?.project_name }}
+                                    </th>
+                                    <th class="border border-slate-500 px-1 text-center bg-[#D9E1F2]"
+                                        [attr.colspan]="(unitTypes().length || 4) + 1">LOCATION</th>
+                                    <th class="border border-slate-500 px-1 text-center bg-[#92D050]">
+                                        {{ unitReport()?.location }}
+                                    </th>
+                                </tr>
+                                <!-- Header Row 2 -->
+                                <tr class="bg-[#D9E1F2] text-slate-900 font-bold uppercase text-center h-10">
+                                    <th class="border border-slate-500 px-1 align-middle w-28" rowspan="2">TOTAL UNTS
+                                        IN<br>PROJECT</th>
+                                    <th class="border border-slate-500 px-1 align-middle w-20" rowspan="2">
+                                        SANCTIONED<br>UNITS</th>
+                                    <th class="border border-slate-500 px-1 align-middle w-28" colspan="2" rowspan="2">
+                                        SOLD UNITS</th>
+                                    <th class="border border-slate-500 px-1 align-middle"
+                                        [attr.colspan]="(unitTypes().length || 4) + 1">AVAILABLE UNITS FOR SALE</th>
+                                    <th class="border border-slate-500 px-1 align-middle w-24" rowspan="2">TOTAL
+                                        UNITS<br>AVAILABLE FOR<br>SALE</th>
+                                </tr>
+                                <!-- Header Row 3 -->
+                                <tr class="bg-[#D9E1F2] text-slate-900 font-bold uppercase text-center h-8">
+                                    <th class="border border-slate-500 px-1 w-16">Type</th>
+                                    <th class="border border-slate-500 px-1 w-10" *ngFor="let type of unitTypes()">{{
+                                        type }}</th>
+                                    <ng-container *ngIf="unitTypes().length === 0">
+                                        <th class="border border-slate-500 px-1 w-10">2 BHK</th>
+                                        <th class="border border-slate-500 px-1 w-10">3BHK</th>
+                                        <th class="border border-slate-500 px-1 w-10">4BHK</th>
+                                        <th class="border border-slate-500 px-1 w-10">Shop</th>
+                                    </ng-container>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let wing of unitReport()?.data">
+                                    <!-- Sub-row 1: Sanctioned -->
+                                    <tr class="h-8">
+                                        <td class="border border-slate-500 px-1 text-center font-bold text-slate-900 bg-white"
+                                            rowspan="3">
+                                            {{ wing.wing_name }}
+                                        </td>
+                                        <td class="border border-slate-500 px-1 text-center font-bold text-slate-900 bg-white"
+                                            rowspan="3">
+                                            {{ wing.sanction_total }}
+                                        </td>
+
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase w-20">
+                                            Sanction</td>
+                                        <td
+                                            class="border border-slate-500 px-1 text-center text-slate-900 font-bold w-10">
+                                            {{ wing.booked_sanctioned || '0' }}
+                                        </td>
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase w-16">
+                                            Sanction</td>
+                                        <td class="border border-slate-500 px-1 text-center text-slate-900 font-bold"
+                                            *ngFor="let type of unitTypes()">
+                                            {{ getUnitCount(wing, type, true) || '' }}
+                                        </td>
+                                        <ng-container *ngIf="unitTypes().length === 0">
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                        </ng-container>
+
+                                        <td class="border border-slate-500 px-1 text-center font-bold text-slate-900 bg-white text-xs"
+                                            rowspan="3">
+                                            {{ wing.available_units }}
+                                        </td>
+                                    </tr>
+                                    <!-- Sub-row 2: Un-sanction -->
+                                    <tr class="h-8">
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase">
+                                            Un-sanction</td>
+                                        <td class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                            {{ wing.booked_unsanctioned || '0' }}
+                                        </td>
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase">
+                                            Un-sanction</td>
+                                        <td class="border border-slate-500 px-1 text-center text-slate-900 font-bold"
+                                            *ngFor="let type of unitTypes()">
+                                            {{ getUnitCount(wing, type, false) || '' }}
+                                        </td>
+                                        <ng-container *ngIf="unitTypes().length === 0">
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                        </ng-container>
+                                    </tr>
+
+                                    <!-- Sub-row 3: Total -->
+                                    <tr class="h-8 bg-slate-50">
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase">
+                                            Total</td>
+                                        <td class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                            {{ (wing.booked_sanctioned || 0) + (wing.booked_unsanctioned || 0) }}
+                                        </td>
+                                        <td
+                                            class="border border-slate-500 px-1 text-center bg-[#FFFF00] text-slate-900 font-bold text-[0.55rem] uppercase">
+                                            Total</td>
+                                        <td class="border border-slate-500 px-1 text-center text-slate-900 font-bold"
+                                            *ngFor="let type of unitTypes()">
+                                            {{ (getUnitCount(wing, type, true) + getUnitCount(wing, type, false)) || '0'
+                                            }}
+                                        </td>
+                                        <ng-container *ngIf="unitTypes().length === 0">
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                            <td
+                                                class="border border-slate-500 px-1 text-center text-slate-900 font-bold">
+                                                0</td>
+                                        </ng-container>
+                                    </tr>
+                                </ng-container>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
 
 
 
-        </div>
+                <!-- CRM Target Section -->
+                <div class="w-full mb-10 animate-row" *ngIf="addTargetForm.get('project_id')?.value && addTargetForm.get('target_from')?.value && addTargetForm.get('target_to')?.value">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-1.5 h-8 bg-purple-500 rounded-full"></div>
+                        <div>
+                            <h5 class="text-base font-bold tracking-tight text-slate-800 m-0">CRM Target Report</h5>
+                        </div>
+                    </div>
+                    <app-crm-activity-report 
+                        [isEmbedded]="true" 
+                        [projectId]="addTargetForm.get('project_id')?.value" 
+                        [targetFrom]="addTargetForm.get('target_from')?.value" 
+                        [targetTo]="addTargetForm.get('target_to')?.value">
+                    </app-crm-activity-report>
+                </div>
 
+                <!-- Source Wise Targets Section -->
+                <div class="w-full mb-8 animate-row" *ngIf="sourceTargetsArray.length > 0">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-8 bg-amber-500 rounded-full shadow-sm shadow-amber-200"></div>
+                            <div>
+                                <h5 class="text-base font-bold tracking-tight text-slate-800 m-0">Source Wise Targets
+                                </h5>
+                            </div>
+                        </div>
+                        <button mat-flat-button color="primary" (click)="openAddEditSourceTargetDialog()">
 
-        <!-- Dynamic Grid for User Targets -->
-        @defer (when userTargetsArray.length > 0) {
-        <div class="w-full" *ngIf="userTargetsArray.length > 0">
-            <div class="grid-container border border-slate-200 rounded-xl overflow-auto shadow-sm bg-white">
-                <table class="grid-table w-full border-collapse" formArrayName="userTargets">
-                    <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
-                        <tr class="text-[0.65rem] uppercase tracking-wider text-slate-500">
-                            <th rowspan="2"
-                                class="sticky-col !bg-slate-50 name-header border border-slate-200 !border-r-2 !z-30 text-center py-1 px-2">
-                                Employee</th>
-                            <th rowspan="2" class="blue-header border border-slate-200 text-center py-1 px-1">
-                                Tgt<br>Bkngs</th>
-                            <th colspan="5"
-                                class="ref-header border border-slate-200 !bg-rose-50/50 !text-rose-700 text-center py-1">
-                                Prev Month Perf.</th>
-                            <th rowspan="2" class="separator-col border-none bg-white"></th>
-                            <th colspan="2"
-                                class="yellow-header border border-slate-200 !bg-amber-100/50 !text-amber-800 text-center py-1">
-                                Current Month</th>
-                            <th colspan="2"
-                                class="blue-header border border-slate-200 !bg-blue-50/50 !text-blue-800 text-center py-1">
-                                Prev Month Tgt</th>
-                        </tr>
-                        <tr class="text-[0.6rem] uppercase tracking-tighter text-slate-400">
-                            <th class="ref-header border border-slate-200 !bg-rose-50/30 text-center py-1 px-1">Visits
-                            </th>
-                            <th class="ref-header border border-slate-200 !bg-rose-50/30 text-center py-1 px-1">Bkngs
-                            </th>
-                            <th class="ref-header border border-slate-200 !bg-rose-50/30 text-center py-1 px-1">
-                                Token<br>Ach</th>
-                            <th
-                                class="ref-header border border-slate-200 !bg-rose-50/30 whitespace-nowrap text-center py-1 px-1">
-                                Conv %</th>
-                            <th class="ref-header border border-slate-200 !bg-rose-50/30 text-center py-1 px-1">Ach %
-                            </th>
-                            <th class="yellow-header border border-slate-200 !bg-amber-50 text-center py-1 px-1">Booking
-                            </th>
-                            <th class="yellow-header border border-slate-200 !bg-amber-50 text-center py-1 px-1">Token
-                            </th>
-                            <th class="blue-header border border-slate-200 !bg-blue-50 text-center py-1 px-1">
-                                Token<br>Tgt</th>
-                            <th class="blue-header border border-slate-200 !bg-blue-50 text-center py-1 px-1">
-                                Token<br>Ach</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <ng-container *ngFor="let target of userTargetsArray.controls; let i = index">
-                            <!-- Role Group Header -->
-                            <tr *ngIf="target.get('is_first_in_role')?.value"
-                                class="role-group-header bg-slate-50/80 border-l-4 border-blue-500">
-                                <td colspan="11" class="py-2 px-3">
-                                    <div class="flex items-center justify-center">
-                                        <div class="flex flex-col text-center">
-                                            <span class="text-xs font-bold text-slate-700 leading-none">{{
-                                                target.get('role_name')?.value }}</span>
+                            Add Source Targets
+                        </button>
+                    </div>
+                    <div class="w-full overflow-x-auto rounded-lg border border-slate-200 shadow-lg bg-white"
+                        formArrayName="sourceTargets">
+                        <table class="min-w-full text-[0.75rem] border-collapse border border-slate-200">
+                            <thead>
+                                <tr
+                                    class="bg-[#D9E1F2] text-slate-900 font-black uppercase tracking-widest text-center h-12">
+                                    <th class="border border-slate-200 p-2 w-12">#</th>
+                                    <th class="border border-slate-200 p-2 text-left min-w-[200px]">Source </th>
+                                    <th class="border border-slate-200 p-2 w-28">Target Visit</th>
+                                    <th class="border border-slate-200 p-2 w-28">Target Lead</th>
+                                    <th class="border border-slate-200 p-2 w-28">Target Booking</th>
+                                    <th class="border border-slate-200 p-2 w-28 bg-emerald-50">Actual Visit</th>
+                                    <th class="border border-slate-200 p-2 w-28 bg-emerald-50">Actual Booking</th>
+                                    <th class="border border-slate-200 p-2 w-28">Conv %</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <tr *ngFor="let group of sourceTargetsArray.controls; let i = index" [formGroupName]="i"
+                                    class="hover:bg-slate-50 transition-colors h-10">
+                                    <td class="border border-slate-200 p-2 text-center text-slate-500 font-bold">
+                                        {{ i + 1 }}
+                                    </td>
+                                    <td class="border border-slate-200 p-2">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                                            <span class="font-black text-slate-900 uppercase tracking-tight">{{
+                                                group.get('source_name')?.value }}</span>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td class="border border-slate-200 p-2 text-center font-black text-slate-700">
+                                        {{ group.get('site_visit_target')?.value }}
+                                    </td>
+                                    <td class="border border-slate-200 p-2 text-center font-black text-slate-700">
+                                        {{ group.get('lead_target')?.value }}
+                                    </td>
+                                    <td class="border border-slate-200 p-2 text-center font-black text-slate-700">
+                                        {{ group.get('booking_target')?.value }}
+                                    </td>
+                                    <td
+                                        class="border border-slate-200 p-2 text-center font-black text-emerald-700 bg-emerald-50/30">
+                                        {{ group.get('site_visit_count')?.value }}
+                                    </td>
+                                    <td
+                                        class="border border-slate-200 p-2 text-center font-black text-emerald-700 bg-emerald-50/30">
+                                        {{ group.get('booking_count')?.value }}
+                                    </td>
+                                    <td class="border border-slate-200 p-2 text-center">
+                                        <span class="font-black text-slate-900">
+                                            {{ calculateRatio(group.get('booking_count')?.value,
+                                            group.get('site_visit_count')?.value) }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr
+                                    class="bg-[#D9E1F2] border-t border-slate-200 font-black text-slate-900 h-12 uppercase">
+                                    <td colspan="2" class="border border-slate-200 px-6 text-right tracking-widest">
+                                        Grand Totals</td>
+                                    <td class="border border-slate-200 text-center text-slate-900">{{
+                                        getSourceTotal('site_visit_target') }}</td>
+                                    <td class="border border-slate-200 text-center text-slate-900">{{
+                                        getSourceTotal('lead_target') }}</td>
+                                    <td class="border border-slate-200 text-center text-slate-900">{{
+                                        getSourceTotal('booking_target') }}</td>
+                                    <td class="border border-slate-200 text-center text-emerald-900 bg-emerald-100/30">
+                                        {{ getSourceTotal('site_visit_count') }}</td>
+                                    <td class="border border-slate-200 text-center text-emerald-900 bg-emerald-100/30">
+                                        {{ getSourceTotal('booking_count') }}</td>
+                                    <td class="border border-slate-200 text-center">
+                                        <span class="px-2 py-1 bg-slate-900 text-white rounded text-[0.65rem]">
+                                            {{ calculateRatio(getSourceTotal('booking_count'),
+                                            getSourceTotal('site_visit_count')) }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
 
-                            <!-- Employee Row -->
-                            <tr [formGroupName]="i" class="hover:bg-slate-50/50 transition-colors group text-xs">
-                                <td
-                                    class="sticky-col employee-name !bg-white group-hover:!bg-slate-50/50 transition-colors border border-slate-200 !border-r-2 !z-10 !py-1.5 !px-3 text-left font-medium text-slate-700">
-                                    {{ target.get('user_name')?.value }}</td>
-                                <td
-                                    class="ref-cell border border-slate-200 !text-slate-600 font-medium whitespace-nowrap !py-1.5 !px-1 text-center">
-                                    {{ target.get('last_month_booking_target')?.value }}</td>
 
-                                <!-- Previous Month Performance -->
-                                <td class="ref-cell border border-slate-200 !text-slate-500 !py-1.5 !px-1 text-center">
-                                    {{
-                                    target.get('last_month_site_visit_achievement')?.value }}</td>
-                                <td class="ref-cell border border-slate-200 !text-slate-500 !py-1.5 !px-1 text-center">
-                                    {{
-                                    target.get('last_month_booking_achievement')?.value }}</td>
-                                <td class="ref-cell border border-slate-200 !text-slate-500 !py-1.5 !px-1 text-center">
-                                    {{
-                                    target.get('last_month_token_achievement')?.value }}</td>
-                                <td class="ref-cell border border-slate-200 !text-slate-500 !py-1.5 !px-1 text-center">
-                                    {{
-                                    target.get('conversion_ratio')?.value }}</td>
-                                <td
-                                    class="ref-cell achievement border border-slate-200 !text-green-600 font-bold !py-1.5 !px-1 text-center">
-                                    {{ target.get('achievement_percent')?.value }}%</td>
 
-                                <!-- Visual Separator -->
-                                <td class="separator-col !w-2 border-none !p-0 bg-white"></td>
+                <!-- Dynamic Grid for User Targets -->
+                @defer (when userTargetsArray.length > 0) {
+                <!-- Employee Targets Section -->
+                <div class="w-full mb-10 animate-row" *ngIf="userTargetsArray.length > 0">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-8 bg-blue-600 rounded-full "></div>
+                            <h5 class="text-base font-bold tracking-tight text-slate-800 m-0">Employee Targets &
+                                Performance</h5>
+                        </div>
 
-                                <!-- This Month Targets (Input) -->
-                                <td
-                                    class="input-cell yellow-cell border border-slate-200 !p-0 !bg-amber-50/30 text-center h-8">
-                                    <input type="number" formControlName="booking_target" placeholder="0"
-                                        class="w-full h-full bg-transparent border-none py-1 px-1 text-center font-bold text-amber-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-amber-400 transition-all rounded-sm text-xs">
-                                </td>
-                                <td
-                                    class="input-cell yellow-cell border border-slate-200 !p-0 !bg-amber-50/30 text-center h-8">
-                                    <input type="number" formControlName="token_target" placeholder="0"
-                                        class="w-full h-full bg-transparent border-none py-1 px-1 text-center font-bold text-amber-900 focus:outline-none focus:bg-white focus:ring-1 focus:ring-amber-400 transition-all rounded-sm text-xs">
-                                </td>
+                        <button mat-raised-button color="primary" type="submit"
+                            [disabled]="!addTargetForm.get('project_id')?.value || isLoading()" (click)="onSubmit()">
+                            {{ submitButtonText()}}
+                        </button>
+                    </div>
+                    <div class="w-full overflow-x-auto rounded-lg border border-slate-200 shadow-lg bg-white">
+                        <table class="min-w-full text-[0.7rem] border-collapse border border-slate-200"
+                            formArrayName="userTargets">
+                            <thead>
+                                <tr
+                                    class="bg-[#D9E1F2] text-slate-900 font-black uppercase tracking-widest text-center h-12">
+                                    <th rowspan="2"
+                                        class="border border-slate-200 p-2 min-w-[150px] sticky left-0 z-50 bg-[#D9E1F2]">
+                                        Employee</th>
+                                    <th colspan="2" class="border border-slate-200 p-2 bg-indigo-100 text-indigo-900">
+                                        Last Month TGT</th>
+                                    <th colspan="6" class="border border-slate-200 p-2 bg-rose-100 text-rose-900">
+                                        Prev Month Performance / Achievements</th>
+                                    <th colspan="2" class="border border-slate-200 p-2 bg-amber-100 text-amber-900">
+                                        Current Month TGT</th>
+                                </tr>
+                                <tr
+                                    class="bg-[#D9E1F2] text-slate-900 font-black uppercase tracking-wider text-center h-10 text-[0.6rem]">
+                                    <!-- Last Month TGT -->
+                                    <th class="border border-slate-200 p-1 bg-indigo-50">Booking/Agr</th>
+                                    <th class="border border-slate-200 p-1 bg-indigo-50">Token/Disb</th>
 
-                                <!-- Previous Month Targets (Ref) -->
-                                <td
-                                    class="ref-cell blue-cell border border-slate-200 !text-blue-600 !py-1.5 !px-1 !bg-blue-50/30 text-center">
-                                    {{ target.get('last_month_site_visit_target')?.value }}</td>
-                                <td
-                                    class="ref-cell blue-cell achievement border border-slate-200 !text-blue-700 font-bold !py-1.5 !px-1 !bg-blue-50/30 text-center">
-                                    {{ target.get('last_month_site_visit_achievement')?.value }}
-                                </td>
-                            </tr>
+                                    <!-- Prev Month Achievements -->
+                                    <th class="border border-slate-200 p-1">Leads</th>
+                                    <th class="border border-slate-200 p-1">Visits</th>
+                                    <th class="border border-slate-200 p-1">Bkngs/Agr</th>
+                                    <th class="border border-slate-200 p-1">Tokens/Disb</th>
+                                    <th class="border border-slate-200 p-1">Conv %</th>
+                                    <th class="border border-slate-200 p-1">Ach %</th>
 
-                            <!-- Role Group Footer Summary (Column-wise Totals) -->
-                            <tr *ngIf="target.get('is_last_in_role')?.value"
-                                class="role-group-footer bg-slate-50 border-y border-slate-200 font-bold text-slate-700 text-xs">
-                                <td
-                                    class="sticky-col !bg-slate-50/80 border-r-2 border-slate-200 py-1.5 px-4 text-right text-[0.6rem] uppercase tracking-widest text-slate-400">
-                                    Total {{ target.get('role_name')?.value }}
-                                </td>
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-blue-700">
-                                    {{ target.get('group_total_last_month_booking_target')?.value }}
-                                </td>
+                                    <!-- Current Month TGT -->
+                                    <th class="border border-slate-200 p-1 bg-amber-50">Booking/Agr</th>
+                                    <th class="border border-slate-200 p-1 bg-amber-50">Token/Disb</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <ng-container *ngFor="let target of userTargetsArray.controls; let i = index">
+                                    <!-- Role Group Header -->
+                                    <tr *ngIf="target.get('is_first_in_role')?.value"
+                                        class="bg-slate-100 text-slate-900 font-black uppercase tracking-[0.2em] h-10">
+                                        <td colspan="11" class="border border-slate-200 px-6">
+                                            <div class="flex items-center gap-2">
+                                                <mat-icon class="!text-[1rem] !w-[1rem] !h-[1rem]">group</mat-icon>
+                                                <span class="text-[0.7rem]">{{ target.get('role_name')?.value }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
 
-                                <!-- Previous Month Perf Totals -->
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-slate-500">
-                                    {{ target.get('group_total_last_month_site_visit_achievement')?.value }}
-                                </td>
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-slate-500">
-                                    {{ target.get('group_total_last_month_booking_achievement')?.value }}
-                                </td>
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-slate-500">
-                                    {{ target.get('group_total_last_month_token_achievement')?.value }}
-                                </td>
-                                <td
-                                    class="border border-slate-200 py-1.5 px-2 text-center text-slate-400 font-normal italic">
-                                    -</td>
-                                <td
-                                    class="border border-slate-200 py-1.5 px-2 text-center text-slate-400 font-normal italic">
-                                    -</td>
+                                    <!-- CRM Specific Sub-Header -->
+                                    <tr *ngIf="target.get('is_first_in_role')?.value && target.get('role_id')?.value === 22"
+                                        class="bg-purple-50/50 text-[0.55rem] font-black uppercase text-purple-900 h-8 text-center italic">
+                                        <td class="border border-slate-200 sticky left-0 z-40 bg-purple-50/50">Employee</td>
+                                        <td class="border border-slate-200">Agr Tgt</td>
+                                        <td class="border border-slate-200">Disb Tgt</td>
+                                        <td class="border border-slate-200">-</td>
+                                        <td class="border border-slate-200">-</td>
+                                        <td class="border border-slate-200">Agr Ach</td>
+                                        <td class="border border-slate-200">Disb Ach</td>
+                                        <td class="border border-slate-200">-</td>
+                                        <td class="border border-slate-200">Ach %</td>
+                                        <td class="border border-slate-200">Agr Tgt</td>
+                                        <td class="border border-slate-200">Disb Tgt</td>
+                                    </tr>
 
-                                <!-- Separator -->
-                                <td class="separator-col border-none bg-white"></td>
+                                    <!-- Employee Row -->
+                                    <tr [formGroupName]="i" class="hover:bg-slate-50 transition-colors h-10">
+                                        <td
+                                            class="border border-slate-200 px-4 font-black text-slate-800 sticky left-0 z-40 bg-white">
+                                            {{ target.get('user_name')?.value }}
+                                        </td>
 
-                                <!-- This Month Target Totals (Dynamic) -->
-                                <td
-                                    class="border border-slate-200 py-1.5 px-2 text-center text-amber-700 bg-amber-50/50">
-                                    {{ getGroupTotal(target.get('role_name')?.value, 'booking_target') }}
-                                </td>
-                                <td
-                                    class="border border-slate-200 py-1.5 px-2 text-center text-amber-700 bg-amber-50/50">
-                                    {{ getGroupTotal(target.get('role_name')?.value, 'site_visit_target') }}
-                                </td>
+                                        <!-- Last Month TGT -->
+                                        <td class="border border-slate-200 text-center font-bold bg-indigo-50/20">
+                                            {{ target.get('role_id')?.value === 22 
+                                                ? target.get('last_month_agreement_target')?.value 
+                                                : target.get('last_month_booking_target')?.value }}
+                                        </td>
+                                        <td class="border border-slate-200 text-center font-bold bg-indigo-50/20">
+                                            {{ target.get('role_id')?.value === 22 
+                                                ? target.get('last_month_disbursement_target')?.value 
+                                                : target.get('last_month_token_target')?.value }}
+                                        </td>
 
-                                <!-- Previous Month Target Totals -->
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-blue-600 bg-blue-50/30">
-                                    {{ target.get('group_total_last_month_site_visit_target')?.value }}
-                                </td>
-                                <td class="border border-slate-200 py-1.5 px-2 text-center text-blue-700 bg-blue-50/30">
-                                    {{ target.get('group_total_last_month_site_visit_achievement')?.value }}
-                                </td>
-                            </tr>
-                        </ng-container>
+                                        <!-- Previous Month Performance Achievements -->
+                                        <td class="border border-slate-200 text-center font-bold">
+                                            {{ target.get('role_id')?.value === 22 ? '-' : (target.get('last_month_lead_achievement')?.value || 0) }}
+                                        </td>
+                                        <td class="border border-slate-200 text-center font-bold">
+                                            {{ target.get('role_id')?.value === 22 ? '-' : (target.get('last_month_site_visit_achievement')?.value || 0) }}
+                                        </td>
+                                        <td class="border border-slate-200 text-center font-bold" [ngClass]="{'bg-purple-50': target.get('role_id')?.value === 22}">
+                                            {{ target.get('role_id')?.value === 22 
+                                                ? (target.get('last_month_agreement_achievement')?.value || 0) 
+                                                : (target.get('last_month_booking_achievement')?.value || 0) }}
+                                        </td>
+                                        <td class="border border-slate-200 text-center font-bold" [ngClass]="{'bg-purple-50': target.get('role_id')?.value === 22}">
+                                            {{ target.get('role_id')?.value === 22 
+                                                ? (target.get('last_month_disbursement_achievement')?.value || 0) 
+                                                : (target.get('last_month_token_achievement')?.value || 0) }}
+                                        </td>
+                                        
+                                        <td class="border border-slate-200 text-center text-[0.65rem] font-bold">
+                                            {{ target.get('role_id')?.value === 22 ? '-' : (target.get('conversion_ratio')?.value + '%') }}
+                                        </td>
+                                        <td class="border border-slate-200 text-center">
+                                            <span class="px-2 py-0.5 rounded font-black text-[0.6rem]" [ngClass]="{
+                                                    'bg-emerald-500 text-white': +target.get('achievement_percent')?.value >= 100,
+                                                    'bg-amber-500 text-white': +target.get('achievement_percent')?.value >= 50 && +target.get('achievement_percent')?.value < 100,
+                                                    'bg-rose-500 text-white': +target.get('achievement_percent')?.value < 50
+                                                }">
+                                                {{ target.get('achievement_percent')?.value }}%
+                                            </span>
+                                        </td>
 
-                        <!-- Grand Total Footer -->
-                        <tr
-                            class="grand-total-footer bg-slate-100/80 font-black text-slate-900 border-t-2 border-slate-300 text-xs">
-                            <td
-                                class="sticky-col !bg-slate-100 border-r-2 border-slate-300 py-2 px-4 text-right text-[0.65rem] uppercase tracking-wider">
-                                Grand Total
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center text-blue-800">
-                                {{ getGrandTotal('last_month_booking_target') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center">
-                                {{ getGrandTotal('last_month_site_visit_achievement') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center">
-                                {{ getGrandTotal('last_month_booking_achievement') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center">
-                                {{ getGrandTotal('last_month_token_achievement') }}
-                            </td>
-                            <td colspan="2"
-                                class="border border-slate-300 py-2 px-2 text-center text-slate-400 font-normal italic">
-                                -</td>
-                            <td class="separator-col border-none bg-white"></td>
-                            <td class="border border-slate-300 py-2 px-2 text-center text-amber-900 bg-amber-100/30">
-                                {{ getGrandTotal('booking_target') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center text-amber-900 bg-amber-100/30">
-                                {{ getGrandTotal('site_visit_target') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center text-blue-800 bg-blue-100/30">
-                                {{ getGrandTotal('last_month_site_visit_target') }}
-                            </td>
-                            <td class="border border-slate-300 py-2 px-2 text-center text-blue-900 bg-blue-100/30">
-                                {{ getGrandTotal('last_month_site_visit_achievement') }}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                        <!-- This Month Targets (Input) -->
+                                        <td class="border border-slate-200 bg-amber-50/50 p-1">
+                                            <input type="number" 
+                                                [formControlName]="target.get('role_id')?.value === 22 ? 'agreement_target' : 'booking_target'"
+                                                class="w-full h-8 border-none bg-transparent text-center font-black text-slate-900 focus:outline-none"
+                                                placeholder="0">
+                                        </td>
+                                        <td class="border border-slate-200 bg-amber-50/50 p-1">
+                                            <input type="number" 
+                                                [formControlName]="target.get('role_id')?.value === 22 ? 'disbursement_target' : 'token_target'"
+                                                class="w-full h-8 border-none bg-transparent text-center font-black text-slate-900 focus:outline-none"
+                                                placeholder="0">
+                                        </td>
+                                    </tr>
+
+                                    <!-- Role Group Footer Summary -->
+                                    <tr *ngIf="target.get('is_last_in_role')?.value"
+                                        class="bg-slate-100 font-black text-slate-900 h-10 uppercase text-[0.65rem]">
+                                        <td class="border border-slate-200 text-right pr-6 tracking-widest">Total {{
+                                            target.get('role_name')?.value }}</td>
+                                        
+                                        <td class="border border-slate-200 text-center">{{
+                                            getGroupTotal(target.get('role_name')?.value, 'last_month_booking_target') }}</td>
+                                        <td class="border border-slate-200 text-center">{{
+                                            getGroupTotal(target.get('role_name')?.value, 'last_month_token_target') }}</td>
+
+                                        <td class="border border-slate-200 text-center">{{
+                                            target.get('role_id')?.value === 22 ? '-' : target.get('group_total_last_month_lead_achievement')?.value }}</td>
+                                        <td class="border border-slate-200 text-center">{{
+                                            target.get('role_id')?.value === 22 ? '-' : target.get('group_total_last_month_site_visit_achievement')?.value }}</td>
+                                        <td class="border border-slate-200 text-center">{{
+                                            target.get('role_id')?.value === 22 
+                                                ? target.get('group_total_last_month_agreement_achievement')?.value 
+                                                : target.get('group_total_last_month_booking_achievement')?.value }}</td>
+                                        <td class="border border-slate-200 text-center">{{
+                                            target.get('role_id')?.value === 22 
+                                                ? target.get('group_total_last_month_disbursement_achievement')?.value 
+                                                : target.get('group_total_last_month_token_achievement')?.value }}</td>
+
+                                        <td class="border border-slate-200 text-center italic">-</td>
+                                        <td class="border border-slate-200 text-center italic">-</td>
+
+                                        <td class="border border-slate-200 text-center">{{
+                                            getGroupTotal(target.get('role_name')?.value, 'booking_target') }}</td>
+                                        <td class="border border-slate-200 text-center">{{
+                                            getGroupTotal(target.get('role_name')?.value, 'token_target') }}</td>
+                                    </tr>
+                                </ng-container>
+
+                                <!-- Grand Total Footer -->
+                                <tr class="bg-[#D9E1F2] font-black text-slate-900 h-14 uppercase tracking-tighter">
+                                    <td class="border border-slate-200 text-right pr-6 text-[0.75rem]">Grand Total</td>
+                                    
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_booking_target') }}</td>
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_token_target') }}</td>
+
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_lead_achievement') }}</td>
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_site_visit_achievement') }}</td>
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_booking_achievement') }}</td>
+                                    <td class="border border-slate-200 text-center">{{
+                                        getGrandTotal('last_month_token_achievement') }}</td>
+
+                                    <td class="border border-slate-200 text-center italic">-</td>
+                                    <td class="border border-slate-200 text-center italic">-</td>
+                                    
+                                    <td class="border border-slate-200 text-center">{{ getGrandTotal('booking_target')
+                                        }}</td>
+                                    <td class="border border-slate-200 text-center">{{ getGrandTotal('token_target') }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                } @placeholder {
+                <div class="w-full h-12 bg-slate-50/50 rounded-lg animate-pulse" *ngIf="isLoading()"></div>
+                } @loading {
+                <div class="w-full flex justify-center py-4">
+                    <mat-spinner diameter="30"></mat-spinner>
+                </div>
+                } @error {
+                <div class="p-4 bg-red-50 text-red-600 rounded-lg">Failed to load grid</div>
+                }
+
+                <div class="w-full flex flex-col items-center justify-center py-12" *ngIf="isLoading()">
+                    <mat-spinner diameter="40" class="!text-blue-600"></mat-spinner>
+                    <p class="mt-4 text-sm font-medium text-slate-500 animate-pulse">Syncing team data & performance...
+                    </p>
+                </div>
+
+                <div class="w-full px-4" *ngIf="!isLoading() && !addTargetForm.get('project_id')?.value">
+                    <div class="flex items-center p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-700">
+                        <mat-icon class="mr-3 !text-amber-500">info</mat-icon>
+                        <span class="text-sm font-medium">Please select a project first to view and set targets for team
+                            members.</span>
+                    </div>
+                </div>
+
+                <div class="w-full"
+                    *ngIf="!isLoading() && userTargetsArray.length === 0 && addTargetForm.get('project_id')?.value">
+                    <div class="flex items-center p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-700">
+                        <mat-icon class="mr-3 !text-blue-500">info</mat-icon>
+                        <span class="text-sm font-medium">No team members identified for the selected project.</span>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- Project Unit Report Stats Table (Excel Style) -->
+
         </div>
-        } @placeholder {
-        <div class="w-full h-12 bg-slate-50/50 rounded-lg animate-pulse" *ngIf="isLoading()"></div>
-        } @loading {
-        <div class="w-full flex justify-center py-4">
-            <mat-spinner diameter="30"></mat-spinner>
-        </div>
-        } @error {
-        <div class="p-4 bg-red-50 text-red-600 rounded-lg">Failed to load grid</div>
-        }
-
-        <div class="w-full flex flex-col items-center justify-center py-12" *ngIf="isLoading()">
-            <mat-spinner diameter="40" class="!text-blue-600"></mat-spinner>
-            <p class="mt-4 text-sm font-medium text-slate-500 animate-pulse">Syncing team data & performance...</p>
-        </div>
-
-        <div class="w-full px-4" *ngIf="!isLoading() && !addTargetForm.get('project_id')?.value">
-            <div class="flex items-center p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-700">
-                <mat-icon class="mr-3 !text-amber-500">info</mat-icon>
-                <span class="text-sm font-medium">Please select a project first to view and set targets for team
-                    members.</span>
-            </div>
-        </div>
-
-        <div class="w-full"
-            *ngIf="!isLoading() && userTargetsArray.length === 0 && addTargetForm.get('project_id')?.value">
-            <div class="flex items-center p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-700">
-                <mat-icon class="mr-3 !text-blue-500">info</mat-icon>
-                <span class="text-sm font-medium">No team members identified for the selected project.</span>
-            </div>
-        </div>
-
-    </form>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-
-    <div class="flex gap-2">
-
-        <button mat-raised-button color="primary" (click)="onSubmit()" type="submit"
-            [disabled]="!addTargetForm.get('project_id')?.value || isLoading()"
-            class="!rounded-lg !px-6 !py-2 !font-bold !text-xs !uppercase !tracking-widest !shadow-blue-200 !shadow-lg hover:!shadow-xl transition-all disabled:!shadow-none">
-            {{ submitButtonText()}}
-        </button>
     </div>
-</mat-dialog-actions>
+</app-template>

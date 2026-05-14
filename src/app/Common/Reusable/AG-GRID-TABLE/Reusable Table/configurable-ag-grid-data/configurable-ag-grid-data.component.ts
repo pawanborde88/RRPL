@@ -86,6 +86,7 @@ import { AuthService } from '../../../../../Service/auth.service';
     ActionCellRendererComponent,
     SensitiveCellRendererComponent,
     PhotoCellRendererComponent,
+
   ],
 
   providers: [AgGridStore, AgGridFacade],
@@ -503,8 +504,10 @@ export class ConfigurableAgGridDataComponent<T extends TableRowData = TableRowDa
   private buildColumnDefs(): ColDef<T>[] {
     let columnsArray = Array.isArray(this.columns()) ? this.columns() : [...this.columns()];
 
-    // Filter out checkbox-related columns
+    // Filter out checkbox-related columns and explicitly disabled columns
     columnsArray = columnsArray.filter(col => {
+      if (col.disabled === true) return false;
+
       const colAny = col as any;
       return col.key !== 'checkbox' &&
         col.key !== '__checkbox__' &&

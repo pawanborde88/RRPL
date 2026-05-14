@@ -29,7 +29,6 @@ import { environment } from '../../../../../environments/environment';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { TableColumn } from '../../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
 import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { BookingInfo } from '../../../../Service/booking.service';
@@ -110,7 +109,6 @@ interface MISReportColumn {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
   ],

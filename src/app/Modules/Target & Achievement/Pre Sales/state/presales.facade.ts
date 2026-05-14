@@ -13,6 +13,9 @@ export interface Project {
 export interface PresalesState {
     projects: Project[];
     lastMonthTargets: any[];
+    sourceTargets: any[];
+    sources: any[];
+    unitReport: any | null;
     isLoading: boolean;
     error: string | null;
 }
@@ -28,12 +31,18 @@ export class PresalesFacade {
     // State Signals
     private readonly _projects = signal<Project[]>([]);
     private readonly _lastMonthTargets = signal<any[]>([]);
+    private readonly _sourceTargets = signal<any[]>([]);
+    private readonly _sources = signal<any[]>([]);
+    private readonly _unitReport = signal<any | null>(null);
     private readonly _isLoading = signal<boolean>(false);
     private readonly _error = signal<string | null>(null);
 
     // Computed Selectors
     readonly projects = computed(() => this._projects());
     readonly lastMonthTargets = computed(() => this._lastMonthTargets());
+    readonly sourceTargets = computed(() => this._sourceTargets());
+    readonly sources = computed(() => this._sources());
+    readonly unitReport = computed(() => this._unitReport());
     readonly isLoading = computed(() => this._isLoading());
     readonly error = computed(() => this._error());
 
@@ -52,6 +61,17 @@ export class PresalesFacade {
             .subscribe();
     }
 
+    loadSources(): void {
+        this.commonService.fetchSources()
+            .pipe(
+                tap(sources => this._sources.set(sources || [])),
+                catchError(err => {
+                    console.error('Error fetching sources:', err);
+                    return of([]);
+                })
+            ).subscribe();
+    }
+
     loadLastMonthTargets(
         projectId: number,
         userId: number | null = null,
@@ -68,6 +88,46 @@ export class PresalesFacade {
                 catchError(err => {
                     console.error('Error fetching targets:', err);
                     this._error.set('Failed to load targets');
+                    return of(null);
+                }),
+                finalize(() => this._isLoading.set(false))
+            )
+            .subscribe();
+    }
+
+    loadSourceTargets(
+        projectId: number,
+        targetFrom: string | null,
+        targetTo: string | null
+    ): void {
+        this._isLoading.set(true);
+        this.commonService.fetchSourceTarget({
+            project_id: projectId,
+            target_from: targetFrom,
+            target_to: targetTo
+        }).pipe(
+            tap(res => {
+                this._sourceTargets.set(res || []);
+            }),
+            catchError(err => {
+                console.error('Error fetching source targets:', err);
+                this._error.set('Failed to load source targets');
+                return of([]);
+            }),
+            finalize(() => this._isLoading.set(false))
+        ).subscribe();
+    }
+
+    loadUnitReport(projectId: number): void {
+        this._isLoading.set(true);
+        this.commonService.fetchUnitReport(projectId)
+            .pipe(
+                tap(res => {
+                    this._unitReport.set(res || null);
+                }),
+                catchError(err => {
+                    console.error('Error fetching unit report:', err);
+                    this._error.set('Failed to load unit report');
                     return of(null);
                 }),
                 finalize(() => this._isLoading.set(false))

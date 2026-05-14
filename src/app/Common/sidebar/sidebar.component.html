@@ -100,8 +100,7 @@
                 <div *ngIf="item.items && isNestedSubmenuExpanded(menuKey, item.label)"
                   class="nested-submenu-wrapper mt-1 mb-2 space-y-0.5 animate-slide-in">
                   <a *ngFor="let nested of getVisibleNestedItems(menuItems()[menuKey].title, item.label, item.items)"
-                    [routerLink]="nested.routerLink"
-                    routerLinkActive="nested-item-active"
+                    [routerLink]="nested.routerLink" routerLinkActive="nested-item-active"
                     class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-slate-500 hover:text-slate-900 hover:bg-slate-50 truncate transition-all duration-200">
                     <div class="w-1.5 h-1.5 rounded-full border-[1.5px] border-current opacity-70"></div>
                     {{ nested.label }}

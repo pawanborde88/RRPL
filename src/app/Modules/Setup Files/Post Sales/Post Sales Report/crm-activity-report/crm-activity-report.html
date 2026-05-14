@@ -1,11 +1,21 @@
-<app-template>
-    <app-breadcrumb>
+<ng-container *ngIf="!isEmbedded">
+    <app-template>
+        <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+    </app-template>
+</ng-container>
+
+<ng-container *ngIf="isEmbedded">
+    <ng-container *ngTemplateOutlet="mainContent"></ng-container>
+</ng-container>
+
+<ng-template #mainContent>
+    <app-breadcrumb *ngIf="!isEmbedded">
         <li class="breadcrumb-item ">After Sales</li>
         <li class="breadcrumb-item ">Reports</li>
         <li class="breadcrumb-item active font-semibold">CRM Activity Report</li>
     </app-breadcrumb>
 
-    <mat-accordion>
+    <mat-accordion *ngIf="!isEmbedded">
         <mat-expansion-panel hideToggle [expanded]="true">
             <mat-expansion-panel-header>
                 <mat-panel-title> Advanced Filters </mat-panel-title>
@@ -40,59 +50,59 @@
         </mat-expansion-panel>
     </mat-accordion>
 
-    <!-- CRM Report Table (Exact colors from image, compact layout) -->
-    <div class="overflow-x-auto border border-gray-400 rounded-sm" *ngIf="crmReportData(); else noData">
-        <table class="w-full text-sm text-center border-collapse border border-gray-400">
+    <!-- CRM Report Table (Premium Dashboard Layout) -->
+    <div class="w-full overflow-x-auto rounded-lg border border-slate-200 shadow-lg bg-white" *ngIf="crmReportData(); else noData">
+        <table class="min-w-full text-[0.75rem] border-collapse border border-slate-200">
             <thead>
-                <!-- Top Title Row -->
-                <tr>
-                    <th colspan="8" class="bg-sky-900 text-white font-bold py-2 text-base border border-gray-400">
+                <!-- Top Title Row (Only show when not embedded) -->
+                <tr *ngIf="!isEmbedded" class="bg-slate-900 text-white font-black uppercase tracking-widest text-center h-12">
+                    <th colspan="8" class="border border-slate-200 p-2">
                         CRM Report
                     </th>
                 </tr>
                 <!-- Sub Header Row -->
-                <tr class="bg-[#D9E1F2] text-black font-bold border border-gray-400">
-                    <th colspan="2" class="py-2 px-4 border border-gray-400 w-1/4">Particular</th>
-                    <th class="py-2 border border-gray-400">Till date</th>
-                    <th class="py-2 border border-gray-400 text-blue-600">Target</th>
-                    <th class="py-2 border border-gray-400 text-purple-600">Current Target</th>
-                    <th class="py-2 border border-gray-400 text-green-700">Achievement</th>
-                    <th class="py-2 border border-gray-400">Achievement in %</th>
-                    <th class="bg-[#F4B084] text-black py-2 px-4 border border-gray-400">
+                <tr class="bg-[#D9E1F2] text-slate-900 font-black uppercase tracking-widest text-center h-12">
+                    <th colspan="2" class="border border-slate-200 p-2 w-1/4">Particular</th>
+                    <th class="border border-slate-200 p-2">Till date</th>
+                    <th class="border border-slate-200 p-2 text-blue-700">Target</th>
+                    <th class="border border-slate-200 p-2 text-purple-700">Current Target</th>
+                    <th class="border border-slate-200 p-2 text-emerald-700">Achievement</th>
+                    <th class="border border-slate-200 p-2">Achievement %</th>
+                    <th class="bg-amber-100 text-amber-900 p-2 border border-slate-200">
                         <div class="flex items-center justify-center gap-2">
-                            <span>{{ crmReportData()?.from_date | date: 'MMM' | uppercase }} Month Target</span>
-                            <mat-icon *ngIf="!editingTarget()" class="text-sm cursor-pointer text-gray-700 hover:text-black" style="font-size: 16px; height: 16px; width: 16px;" (click)="enableTargetEditing()" title="Edit Targets">edit</mat-icon>
+                            <span>{{ crmReportData()?.from_date | date: 'MMM' | uppercase }} TARGET</span>
+                            <mat-icon *ngIf="!editingTarget()" class="text-[1rem] w-4 h-4 cursor-pointer text-amber-700 hover:text-amber-900" (click)="enableTargetEditing()" title="Edit Targets">edit</mat-icon>
                         </div>
                         <div *ngIf="editingTarget()" class="flex justify-center gap-1 mt-1">
-                            <mat-icon class="cursor-pointer text-green-700 hover:text-green-900" style="font-size: 20px; height: 20px; width: 20px;" (click)="saveMonthlyTarget()" title="Save">check_circle</mat-icon>
-                            <mat-icon class="cursor-pointer text-red-600 hover:text-red-800" style="font-size: 20px; height: 20px; width: 20px;" (click)="cancelTargetEditing()" title="Cancel">cancel</mat-icon>
+                            <mat-icon class="cursor-pointer text-emerald-600 hover:text-emerald-800 text-[1.2rem] w-5 h-5" (click)="saveMonthlyTarget()" title="Save">check_circle</mat-icon>
+                            <mat-icon class="cursor-pointer text-rose-600 hover:text-rose-800 text-[1.2rem] w-5 h-5" (click)="cancelTargetEditing()" title="Cancel">cancel</mat-icon>
                         </div>
                     </th>
                 </tr>
             </thead>
-            <tbody class="bg-white">
+            <tbody class="divide-y divide-slate-200 bg-white">
                 <!-- Bookings Row -->
-                <tr class="border border-gray-400">
-                    <td class="bg-[#FCE4D6] font-bold py-3 border border-gray-400 text-gray-800">Bookings</td>
-                    <td class="py-3 border border-gray-400 text-gray-600">Till date Booking</td>
-                    <td class="py-3 border border-gray-400 font-bold text-gray-800">{{
+                <tr class="hover:bg-slate-50 transition-colors h-10">
+                    <td class="bg-orange-50 font-black p-2 border border-slate-200 text-slate-800 text-center uppercase tracking-wider">Bookings</td>
+                    <td class="p-2 border border-slate-200 text-slate-600 font-bold text-center">Till date Booking</td>
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center">{{
                         crmReportData()?.bookings?.till_date }}</td>
-                    <td class="py-3 border border-gray-400 font-bold text-blue-600">{{ crmReportData()?.bookings?.target
+                    <td class="p-2 border border-slate-200 font-black text-blue-700 text-center bg-blue-50/30">{{ crmReportData()?.bookings?.target
                         }}</td>
-                    <td class="py-3 border border-gray-400 font-bold text-purple-600">{{ crmReportData()?.bookings?.current_target
+                    <td class="p-2 border border-slate-200 font-black text-purple-700 text-center bg-purple-50/30">{{ crmReportData()?.bookings?.current_target
                         }}</td>
-                    <td class="py-3 border border-gray-400 font-bold text-green-700">{{
+                    <td class="p-2 border border-slate-200 font-black text-emerald-700 text-center bg-emerald-50/30">{{
                         crmReportData()?.bookings?.achievement }}</td>
-                    <td class="py-3 border border-gray-400 font-bold text-gray-800">{{
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center">{{
                         crmReportData()?.bookings?.achievement_percentage | number: '1.2-2' }}</td>
-                    <td class="bg-[#F4B084] font-bold py-3 text-lg border border-gray-400 text-black cursor-pointer hover:bg-orange-300 transition-colors"
+                    <td class="bg-amber-50 font-black p-2 text-[0.8rem] border border-slate-200 text-amber-900 text-center cursor-pointer hover:bg-amber-100 transition-colors"
                         (dblclick)="enableTargetEditing()" title="Double click to edit">
                         <ng-container *ngIf="!editingTarget()">
                             {{ crmReportData()?.bookings?.month_target }}
                         </ng-container>
                         <ng-container *ngIf="editingTarget()" [formGroup]="targetForm">
                             <input type="number" formControlName="booking_target" 
-                                class="w-20 px-2 py-1 text-center bg-white border border-gray-400 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-normal text-base" 
+                                class="w-full px-2 py-1 text-center bg-white border border-slate-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-black text-[0.8rem]" 
                                 (keydown.enter)="saveMonthlyTarget()" (keydown.escape)="cancelTargetEditing()"
                                 (click)="$event.stopPropagation()">
                         </ng-container>
@@ -100,70 +110,70 @@
                 </tr>
 
                 <!-- Agreement Row -->
-                <tr class="border border-gray-400">
-                    <td rowspan="2" class="bg-[#FCE4D6] font-bold py-3 border border-gray-400 text-gray-800">Agreement
+                <tr class="hover:bg-slate-50 transition-colors h-10">
+                    <td rowspan="2" class="bg-orange-50 font-black p-2 border border-slate-200 text-slate-800 text-center uppercase tracking-wider">Agreement
                     </td>
-                    <td class="py-3 border border-gray-400 text-gray-600 bg-gray-50/30">Done</td>
-                    <td class="py-3 border border-gray-400 font-bold text-gray-800 bg-gray-50/30">{{
+                    <td class="p-2 border border-slate-200 text-slate-600 font-bold text-center bg-slate-50/50">Done</td>
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center bg-slate-50/50">{{
                         crmReportData()?.agreement?.done }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-blue-600 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-blue-700 text-center bg-blue-50/30">{{
                         crmReportData()?.agreement?.target }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-purple-600 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-purple-700 text-center bg-purple-50/30">{{
                         crmReportData()?.agreement?.current_target }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-green-700 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-emerald-700 text-center bg-emerald-50/30">{{
                         crmReportData()?.agreement?.achievement }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-gray-800 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-slate-800 text-center">{{
                         crmReportData()?.agreement?.achievement_percentage | number: '1.2-2' }}</td>
-                    <td rowspan="2" class="bg-[#F4B084] font-bold py-3 text-lg border border-gray-400 text-black cursor-pointer hover:bg-orange-300 transition-colors"
+                    <td rowspan="2" class="bg-amber-50 font-black p-2 text-[0.8rem] border border-slate-200 text-amber-900 text-center cursor-pointer hover:bg-amber-100 transition-colors"
                         (dblclick)="enableTargetEditing()" title="Double click to edit">
                         <ng-container *ngIf="!editingTarget()">
                             {{ crmReportData()?.agreement?.month_target }}
                         </ng-container>
                         <ng-container *ngIf="editingTarget()" [formGroup]="targetForm">
                             <input type="number" formControlName="agreement_target" 
-                                class="w-20 px-2 py-1 text-center bg-white border border-gray-400 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-normal text-base" 
+                                class="w-full px-2 py-1 text-center bg-white border border-slate-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-black text-[0.8rem]" 
                                 (keydown.enter)="saveMonthlyTarget()" (keydown.escape)="cancelTargetEditing()"
                                 (click)="$event.stopPropagation()">
                         </ng-container>
                     </td>
                 </tr>
-                <tr class="border border-gray-400 bg-white">
-                    <td class="py-3 border border-gray-400 text-gray-600 bg-gray-50/30">Pending</td>
-                    <td class="py-3 border-gray-400 font-bold text-gray-800 bg-gray-50/30">{{
+                <tr class="hover:bg-slate-50 transition-colors h-10">
+                    <td class="p-2 border border-slate-200 text-slate-600 font-bold text-center bg-slate-50/50">Pending</td>
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center bg-slate-50/50">{{
                         crmReportData()?.agreement?.pending }}</td>
                 </tr>
 
                 <!-- Disbursement Row -->
-                <tr class="border border-gray-400">
-                    <td rowspan="2" class="bg-[#FCE4D6] font-bold py-3 border border-gray-400 text-gray-800">
+                <tr class="hover:bg-slate-50 transition-colors h-10">
+                    <td rowspan="2" class="bg-orange-50 font-black p-2 border border-slate-200 text-slate-800 text-center uppercase tracking-wider">
                         Disbursement</td>
-                    <td class="py-3 border border-gray-400 text-gray-600 bg-gray-50/30">Done</td>
-                    <td class="py-3 border border-gray-400 font-bold text-gray-800 bg-gray-50/30">{{
+                    <td class="p-2 border border-slate-200 text-slate-600 font-bold text-center bg-slate-50/50">Done</td>
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center bg-slate-50/50">{{
                         crmReportData()?.disbursement?.done }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-blue-600 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-blue-700 text-center bg-blue-50/30">{{
                         crmReportData()?.disbursement?.target }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-purple-600 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-purple-700 text-center bg-purple-50/30">{{
                         crmReportData()?.disbursement?.current_target }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-green-700 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-emerald-700 text-center bg-emerald-50/30">{{
                         crmReportData()?.disbursement?.achievement }}</td>
-                    <td rowspan="2" class="py-3 border border-gray-400 font-bold text-gray-800 bg-white">{{
+                    <td rowspan="2" class="p-2 border border-slate-200 font-black text-slate-800 text-center">{{
                         crmReportData()?.disbursement?.achievement_percentage | number: '1.2-2' }}</td>
-                    <td rowspan="2" class="bg-[#F4B084] font-bold py-3 text-lg border border-gray-400 text-black cursor-pointer hover:bg-orange-300 transition-colors"
+                    <td rowspan="2" class="bg-amber-50 font-black p-2 text-[0.8rem] border border-slate-200 text-amber-900 text-center cursor-pointer hover:bg-amber-100 transition-colors"
                         (dblclick)="enableTargetEditing()" title="Double click to edit">
                         <ng-container *ngIf="!editingTarget()">
                             {{ crmReportData()?.disbursement?.month_target }}
                         </ng-container>
                         <ng-container *ngIf="editingTarget()" [formGroup]="targetForm">
                             <input type="number" formControlName="disbursement_target" 
-                                class="w-20 px-2 py-1 text-center bg-white border border-gray-400 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-normal text-base" 
+                                class="w-full px-2 py-1 text-center bg-white border border-slate-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-black text-[0.8rem]" 
                                 (keydown.enter)="saveMonthlyTarget()" (keydown.escape)="cancelTargetEditing()"
                                 (click)="$event.stopPropagation()">
                         </ng-container>
                     </td>
                 </tr>
-                <tr class="border border-gray-400 bg-white">
-                    <td class="py-3 border border-gray-400 text-gray-600 bg-gray-50/30">Pending</td>
-                    <td class="py-3 border border-gray-400 font-bold text-gray-800 bg-gray-50/30">{{
+                <tr class="hover:bg-slate-50 transition-colors h-10">
+                    <td class="p-2 border border-slate-200 text-slate-600 font-bold text-center bg-slate-50/50">Pending</td>
+                    <td class="p-2 border border-slate-200 font-black text-slate-800 text-center bg-slate-50/50">{{
                         crmReportData()?.disbursement?.pending }}</td>
                 </tr>
             </tbody>
@@ -182,4 +192,4 @@
         </div>
     </ng-template>
 
-</app-template>
+</ng-template>

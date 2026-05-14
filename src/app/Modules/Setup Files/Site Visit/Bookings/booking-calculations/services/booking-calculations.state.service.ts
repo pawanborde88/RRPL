@@ -122,6 +122,8 @@ export class BookingCalculationsStateService {
     this.fetchSingleBooking(bookingId);
     this.fetchAllWings(projectId);
     this.fetchSourcesList();
+    this.fetchBasedOnsList();
+    this.fetchParkingTypes(projectId);
   }
 
   /**
@@ -258,6 +260,17 @@ export class BookingCalculationsStateService {
     this.sourcesCache$.subscribe({
       next: (sources: Array<{ source_id: number; source: string }>) => {
         this._sources.set(sources);
+      }
+    });
+  }
+
+  /**
+   * Fetch based ons list (cached)
+   */
+  fetchBasedOnsList(): void {
+    this.basedOnsCache$.subscribe({
+      next: (basedOns: Array<{ based_on_id: number; based_on: string }>) => {
+        this._basedOns.set(basedOns);
       }
     });
   }

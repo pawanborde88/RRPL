@@ -20,10 +20,15 @@ import {
   Validators,
   FormArray,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
+import { MatDialog } from '@angular/material/dialog';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import { AddEditSourceTarget } from '../../Source Wise Target/add-edit-source-target/add-edit-source-target';
+import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
+import { TemplateComponent } from '../../../../Common/template/template.component';
+import { CrmActivityReport } from '../../../Setup Files/Post Sales/Post Sales Report/crm-activity-report/crm-activity-report';
 import { catchError, tap, of, combineLatest, debounceTime, distinctUntilChanged, startWith } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 
@@ -43,6 +48,7 @@ interface DialogData {
   title: string;
   successMessage: string;
   rowData?: any;
+  apiUrl?: string;
 }
 
 @Component({
@@ -54,6 +60,9 @@ interface DialogData {
     FormsModule,
     ReactiveFormsModule,
     AutocompleteReusableComponent,
+    BreadcrumbComponent,
+    TemplateComponent,
+    CrmActivityReport,
   ],
   templateUrl: './add-presales-target-dialog.component.html',
   styleUrl: './add-presales-target-dialog.component.scss',
@@ -68,8 +77,9 @@ export class AddPresalesTargetDialogComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly datePipe = inject(DatePipe);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly dialogRef = inject(MatDialogRef<AddPresalesTargetDialogComponent>);
-  readonly data = inject<DialogData>(MAT_DIALOG_DATA);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly dialog = inject(MatDialog);
 
   // ============================================================================
   // CONSTANTS
@@ -85,6 +95,10 @@ export class AddPresalesTargetDialogComponent implements OnInit {
   readonly preSaleTargetId = signal<number | null>(null);
   readonly isLoading = this.facade.isLoading;
   readonly lastMonthTargets = this.facade.lastMonthTargets;
+  readonly sourceTargets = this.facade.sourceTargets;
+  readonly sources = this.facade.sources;
+  readonly unitReport = this.facade.unitReport;
+  private rowData: any = null;
 
   // ============================================================================
   // COMPUTED SIGNALS
@@ -93,6 +107,22 @@ export class AddPresalesTargetDialogComponent implements OnInit {
   readonly submitButtonText = computed(() =>
     this.isEditMode() ? ' Update Target' : 'Add Target'
   );
+
+  readonly unitTypes = computed(() => {
+    const report = this.unitReport();
+    if (!report || !report.data) return [];
+    const types = new Set<string>();
+    report.data.forEach((wing: any) => {
+      if (wing.Sanctioned && typeof wing.Sanctioned === 'object' && !Array.isArray(wing.Sanctioned)) {
+        Object.keys(wing.Sanctioned).forEach(t => types.add(t));
+      }
+      if (wing.Unsanctioned && typeof wing.Unsanctioned === 'object' && !Array.isArray(wing.Unsanctioned)) {
+        Object.keys(wing.Unsanctioned).forEach(t => types.add(t));
+      }
+    });
+    // Common order or sorted
+    return Array.from(types).sort();
+  });
 
   // ============================================================================
   // REACTIVE FORM
@@ -105,10 +135,16 @@ export class AddPresalesTargetDialogComponent implements OnInit {
     active_status_id: new FormControl<number>(1),
     created_by: new FormControl<number>(this.userId),
     userTargets: new FormArray<FormGroup>([]),
+    sourceTargets: new FormArray<FormGroup>([]),
   });
 
   constructor() {
-    this.isEditMode.set(!!this.data?.rowData);
+    // Check for data from dialog or route state
+    const navigation = this.router.getCurrentNavigation();
+    const routeData = navigation?.extras.state as DialogData;
+
+    this.rowData = routeData?.rowData;
+    this.isEditMode.set(!!this.rowData);
     this.setupFormReactivity();
 
     // React to facade state changes
@@ -118,15 +154,27 @@ export class AddPresalesTargetDialogComponent implements OnInit {
         this.populateUserTargetsGrid(targets);
       }
     });
+
+    effect(() => {
+      const targets = this.sourceTargets();
+      if (targets && targets.length > 0) {
+        this.populateSourceTargetsGrid(targets);
+      }
+    });
   }
 
   ngOnInit(): void {
     this.initializeForm();
     this.fetchAllProjects();
+    this.facade.loadSources();
   }
 
   get userTargetsArray(): FormArray {
     return this.addTargetForm.get('userTargets') as FormArray;
+  }
+
+  get sourceTargetsArray(): FormArray {
+    return this.addTargetForm.get('sourceTargets') as FormArray;
   }
 
   // ============================================================================
@@ -164,32 +212,74 @@ export class AddPresalesTargetDialogComponent implements OnInit {
     const targetToStr = this.datePipe.transform(target_to, 'yyyy-MM-dd');
 
     // Extract user_id if in edit mode to filter targets for that specific user
-    const editUserId = this.isEditMode() ? this.data?.rowData?.user_id : null;
+    const editUserId = this.isEditMode() ? this.rowData?.user_id : null;
 
-    // Delegate API call to Facade
+    // Delegate API calls to Facade
     this.facade.loadLastMonthTargets(
       project_id,
       editUserId,
       targetFromStr,
       targetToStr
     );
+
+    this.facade.loadSourceTargets(
+      project_id,
+      targetFromStr,
+      targetToStr
+    );
+
+    this.facade.loadUnitReport(project_id);
+  }
+
+  openAddEditSourceTargetDialog(): void {
+    const projectId = this.addTargetForm.get('project_id')?.value;
+    const targetFrom = this.addTargetForm.get('target_from')?.value;
+    const targetTo = this.addTargetForm.get('target_to')?.value;
+
+    const dialogRef = this.dialog.open(AddEditSourceTarget, {
+      width: '60vw',
+      maxWidth: '1000px',
+      data: {
+        editData: projectId ? {
+          project_id: projectId,
+          target_from: targetFrom,
+          target_to: targetTo
+        } : null
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Refresh the grid if targets were updated
+      if (result) {
+        this.refreshUserGrid();
+      }
+    });
   }
 
   private populateUserTargetsGrid(groupedData: any[]): void {
     this.userTargetsArray.clear();
     const isEdit = this.isEditMode();
-    const rowData = this.data?.rowData;
+
+    // Get rowData from dialog or route state
+    const rowData = this.rowData;
 
     groupedData.forEach((group: any) => {
       const roleName = group.role_name;
       const users = group.users || [];
 
-      // Pre-calculate reference totals for footer (handle both field name types)
+       // Pre-calculate reference totals for footer (handle both field name types)
       const lastMonthBookingTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_booking_target || u.booking_target || 0), 0);
-      const lastMonthSiteVisitAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_site_visit_achievement || u.site_visit_achievement || 0), 0);
+      const lastMonthTokenTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_token_target || u.token_target || 0), 0);
+      const lastMonthSiteVisitTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_site_visit_target || u.site_visit_target || 0), 0);
+      const lastMonthAgreementTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_agreement_target || 0), 0);
+      const lastMonthDisbursementTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_disbursement_target || 0), 0);
+
       const lastMonthBookingAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_booking_achievement || u.booking_achievement || 0), 0);
       const lastMonthTokenAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_token_achievement || u.token_achievement || 0), 0);
-      const lastMonthSiteVisitTargetTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_site_visit_target || u.site_visit_target || 0), 0);
+      const lastMonthSiteVisitAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_site_visit_achievement || u.site_visit_achievement || 0), 0);
+      const lastMonthLeadAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_lead_achievement || u.lead_achievement || 0), 0);
+      const lastMonthAgreementAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_agreement_achievement || u.agreement_achievement || 0), 0);
+      const lastMonthDisbursementAchTotal = users.reduce((sum: number, u: any) => sum + (u.last_month_disbursement_achievement || u.disbursement_achievement || 0), 0);
 
       users.forEach((user: any, index: number) => {
         // Resolve achievement/target values (handle both field name types)
@@ -200,12 +290,16 @@ export class AddPresalesTargetDialogComponent implements OnInit {
         const lastTokenAch = user.last_month_token_achievement ?? user.token_achievement ?? 0;
 
         // In edit mode, if this user matches the one we are editing, use targets from rowData
-        let currentBookingTarget = user.current_month_booking_target || null;
-        let currentTokenTarget = user.current_month_token_target || null;
+        let currentBookingTarget = user.current_month_booking_target || user.booking_target || null;
+        let currentTokenTarget = user.current_month_token_target || user.token_target || null;
+        let currentAgreementTarget = user.current_month_agreement_target || user.agreement_target || null;
+        let currentDisbursementTarget = user.current_month_disbursement_target || user.disbursement_target || null;
 
         if (isEdit && rowData && user.user_id === rowData.user_id) {
           currentBookingTarget = rowData.booking_target;
           currentTokenTarget = rowData.token_target;
+          currentAgreementTarget = rowData.agreement_target;
+          currentDisbursementTarget = rowData.disbursement_target;
         }
 
         const userGroup = new FormGroup({
@@ -217,10 +311,17 @@ export class AddPresalesTargetDialogComponent implements OnInit {
 
           // Pre-calculated Static Totals (for footer)
           group_total_last_month_booking_target: new FormControl(lastMonthBookingTargetTotal),
-          group_total_last_month_site_visit_achievement: new FormControl(lastMonthSiteVisitAchTotal),
+          group_total_last_month_token_target: new FormControl(lastMonthTokenTargetTotal),
+          group_total_last_month_site_visit_target: new FormControl(lastMonthSiteVisitTargetTotal),
+          group_total_last_month_agreement_target: new FormControl(lastMonthAgreementTargetTotal),
+          group_total_last_month_disbursement_target: new FormControl(lastMonthDisbursementTargetTotal),
+
           group_total_last_month_booking_achievement: new FormControl(lastMonthBookingAchTotal),
           group_total_last_month_token_achievement: new FormControl(lastMonthTokenAchTotal),
-          group_total_last_month_site_visit_target: new FormControl(lastMonthSiteVisitTargetTotal),
+          group_total_last_month_site_visit_achievement: new FormControl(lastMonthSiteVisitAchTotal),
+          group_total_last_month_lead_achievement: new FormControl(lastMonthLeadAchTotal),
+          group_total_last_month_agreement_achievement: new FormControl(lastMonthAgreementAchTotal),
+          group_total_last_month_disbursement_achievement: new FormControl(lastMonthDisbursementAchTotal),
 
           pre_sale_target_id: new FormControl(user.pre_sale_target_id || null),
           user_id: new FormControl(user.user_id),
@@ -229,23 +330,71 @@ export class AddPresalesTargetDialogComponent implements OnInit {
 
           // Excel Reference Data (Last Month)
           last_month_booking_target: new FormControl(lastTarget),
-          last_month_booking_achievement: new FormControl(lastAch),
+          last_month_token_target: new FormControl(user.last_month_token_target || 0),
           last_month_site_visit_target: new FormControl(lastVisitTarget),
-          last_month_site_visit_achievement: new FormControl(lastVisitAch),
+          last_month_agreement_target: new FormControl(user.last_month_agreement_target || 0),
+          last_month_disbursement_target: new FormControl(user.last_month_disbursement_target || 0),
+
+          last_month_booking_achievement: new FormControl(lastAch),
           last_month_token_achievement: new FormControl(lastTokenAch),
+          last_month_site_visit_achievement: new FormControl(lastVisitAch),
+          last_month_lead_achievement: new FormControl(user.last_month_lead_achievement || 0),
+          last_month_agreement_achievement: new FormControl(user.last_month_agreement_achievement || 0),
+          last_month_disbursement_achievement: new FormControl(user.last_month_disbursement_achievement || 0),
+
+          // Percentages (from API)
+          last_month_booking_percentage: new FormControl(user.last_month_booking_percentage || 0),
+          last_month_token_percentage: new FormControl(user.last_month_token_percentage || 0),
+          last_month_agreement_percentage: new FormControl(user.last_month_agreement_percentage || 0),
+          last_month_disbursement_percentage: new FormControl(user.last_month_disbursement_percentage || 0),
+          last_month_lead_percentage: new FormControl(user.last_month_lead_percentage || 0),
+          last_month_site_visit_percentage: new FormControl(user.last_month_site_visit_percentage || 0),
 
           // Computed Display Metrics (for reference)
-          conversion_ratio: new FormControl(this.calculateRatio(lastAch, lastVisitAch)),
-          achievement_percent: new FormControl(this.calculateRatio(lastAch, lastTarget)),
-          performance_status: new FormControl(this.calculateStatus(lastAch, lastTarget)),
+          conversion_ratio: new FormControl(
+            user.role_id === 22 
+              ? (user.last_month_disbursement_percentage ?? this.calculateRatio(user.last_month_disbursement_achievement, user.last_month_disbursement_target))
+              : this.calculateRatio(lastAch, lastVisitAch)
+          ),
+          achievement_percent: new FormControl(
+            user.role_id === 22 
+              ? (user.last_month_agreement_percentage ?? this.calculateRatio(user.last_month_agreement_achievement, user.last_month_agreement_target))
+              : (user.last_month_booking_percentage ?? this.calculateRatio(lastAch, lastVisitAch))
+          ),
+          disbursement_percent: new FormControl(
+            user.last_month_disbursement_percentage ?? this.calculateRatio(user.last_month_disbursement_achievement, user.last_month_disbursement_target)
+          ),
+          performance_status: new FormControl(
+            user.role_id === 22 
+              ? this.calculateStatus(user.last_month_agreement_achievement, user.last_month_agreement_target)
+              : this.calculateStatus(lastAch, lastTarget)
+          ),
 
           // Input Fields (Current Month)
-          booking_target: new FormControl(currentBookingTarget, [Validators.required, Validators.min(0)]),
+          booking_target: new FormControl(currentBookingTarget, [Validators.min(0)]),
           token_target: new FormControl(currentTokenTarget, [Validators.min(0)]),
+          agreement_target: new FormControl(currentAgreementTarget, [Validators.min(0)]),
+          disbursement_target: new FormControl(currentDisbursementTarget, [Validators.min(0)]),
         });
 
         this.userTargetsArray.push(userGroup);
       });
+    });
+  }
+
+  private populateSourceTargetsGrid(targets: any[]): void {
+    this.sourceTargetsArray.clear();
+    targets.forEach(item => {
+      this.sourceTargetsArray.push(new FormGroup({
+        source_id: new FormControl(item.source_id),
+        source_name: new FormControl(item.source_name || item.source),
+        site_visit_target: new FormControl(item.site_visit_target || 0, [Validators.required, Validators.min(0)]),
+        lead_target: new FormControl(item.lead_target || 0, [Validators.required, Validators.min(0)]),
+        booking_target: new FormControl(item.booking_target || 0, [Validators.required, Validators.min(0)]),
+        site_visit_count: new FormControl(item.site_visit_count || 0),
+        booking_count: new FormControl(item.booking_count || 0),
+        source_target_id: new FormControl(item.source_target_id || null)
+      }));
     });
   }
 
@@ -255,6 +404,29 @@ export class AddPresalesTargetDialogComponent implements OnInit {
   getGroupTotal(roleName: string, controlName: string): number {
     return this.userTargetsArray.controls
       .filter(control => control.get('role_name')?.value === roleName)
+      .reduce((sum, control) => {
+        const roleId = control.get('role_id')?.value;
+        let field = controlName;
+        
+        // Dynamic field mapping for CRM role
+        if (roleId === 22) {
+          if (controlName === 'booking_target') field = 'agreement_target';
+          else if (controlName === 'token_target') field = 'disbursement_target';
+          else if (controlName === 'last_month_booking_target') field = 'last_month_agreement_target';
+          else if (controlName === 'last_month_token_target') field = 'last_month_disbursement_target';
+          else if (controlName === 'last_month_booking_achievement') field = 'last_month_agreement_achievement';
+          else if (controlName === 'last_month_token_achievement') field = 'last_month_disbursement_achievement';
+        }
+        
+        return sum + (control.get(field)?.value || 0);
+      }, 0);
+  }
+
+  /**
+   * Calculates group totals for source targets input fields
+   */
+  getSourceTotal(controlName: string): number {
+    return this.sourceTargetsArray.controls
       .reduce((sum, control) => sum + (control.get(controlName)?.value || 0), 0);
   }
 
@@ -263,10 +435,23 @@ export class AddPresalesTargetDialogComponent implements OnInit {
    */
   getGrandTotal(controlName: string): number {
     return this.userTargetsArray.controls
-      .reduce((sum, control) => sum + (control.get(controlName)?.value || 0), 0);
+      .reduce((sum, control) => {
+        const roleId = control.get('role_id')?.value;
+        let field = controlName;
+
+        // Dynamic field mapping for CRM role
+        if (roleId === 22) {
+          if (controlName === 'booking_target') field = 'agreement_target';
+          else if (controlName === 'token_target') field = 'disbursement_target';
+          else if (controlName === 'last_month_booking_target') field = 'last_month_agreement_target';
+          else if (controlName === 'last_month_token_target') field = 'last_month_disbursement_target';
+        }
+
+        return sum + (control.get(field)?.value || 0);
+      }, 0);
   }
 
-  private calculateRatio(numerator: any, denominator: any): string {
+  calculateRatio(numerator: any, denominator: any): string {
     const n = parseFloat(numerator) || 0;
     const d = parseFloat(denominator) || 0;
     if (d === 0) return '0.00';
@@ -283,12 +468,28 @@ export class AddPresalesTargetDialogComponent implements OnInit {
     return 'Struggler';
   }
 
+  calculateSoldPercentage(): string {
+    const report = this.unitReport();
+    if (!report || !report.total_units) return '0';
+    const total = Number(report.total_units) || 0;
+    const booked = Number(report.total_booked) || 0;
+    if (total === 0) return '0';
+    return ((booked / total) * 100).toFixed(1);
+  }
+
+  getUnitCount(wing: any, type: string, isSanctioned: boolean): number {
+    const data = isSanctioned ? wing.Sanctioned : wing.Unsanctioned;
+    if (!data || Array.isArray(data)) return 0;
+    return data[type] || 0;
+  }
+
   // ============================================================================
   // INITIALIZATION
   // ============================================================================
   private initializeForm(): void {
     if (this.isEditMode()) {
-      const rowData = this.data.rowData;
+      const rowData = this.rowData;
+
       this.preSaleTargetId.set(rowData.pre_sale_target_id);
 
       // Patch the main form with project and dates
@@ -338,6 +539,10 @@ export class AddPresalesTargetDialogComponent implements OnInit {
     });
   }
 
+  goBack(): void {
+    this.router.navigate(['/target-achievement/pre-sales/all-presale-target-list']);
+  }
+
   // ============================================================================
   // FORM SUBMISSION
   // ============================================================================
@@ -361,7 +566,6 @@ export class AddPresalesTargetDialogComponent implements OnInit {
     this.facade.saveTarget(apiEndpoint, formDataList)
       .pipe(
         tap((res) => {
-          this.dialogRef.close(true);
           this.showSnackBar(res.message || 'Targets updated successfully');
         }),
         catchError((error) => {
@@ -387,22 +591,58 @@ export class AddPresalesTargetDialogComponent implements OnInit {
       ? this.datePipe.transform(formValue.target_to, 'yyyy-MM-dd')!
       : null;
 
-    // Filter to only include records that have at least one numeric target > 0
-    return targets
-      .filter((t: any) => (t.booking_target || 0) > 0 || (t.site_visit_target || 0) > 0)
+    const userTargetsData = targets
+      .filter((t: any) => 
+        (t.booking_target || 0) > 0 || 
+        (t.token_target || 0) > 0 || 
+        (t.agreement_target || 0) > 0 || 
+        (t.disbursement_target || 0) > 0 ||
+        t.pre_sale_target_id
+      )
       .map((t: any) => ({
         project_id: formValue.project_id,
         role_id: t.role_id,
         user_id: t.user_id,
         target_from: targetFrom,
         target_to: targetTo,
-        token_target: t.token_target || 0,
-        booking_target: t.booking_target || 0,
+        token_target: t.role_id === 22 ? (Number(t.disbursement_target) || 0) : (Number(t.token_target) || 0),
+        booking_target: t.role_id === 22 ? (Number(t.agreement_target) || 0) : (Number(t.booking_target) || 0),
+        agreement_target: Number(t.agreement_target) || 0,
+        disbursement_target: Number(t.disbursement_target) || 0,
         created_by: formValue.created_by,
-        ...(this.isEditMode() && {
+        remark: formValue.remark,
+        active_status_id: formValue.active_status_id,
+        ...(t.pre_sale_target_id && {
           pre_sale_target_id: t.pre_sale_target_id,
+          updated_by: this.userId
         }),
       }));
+
+    const sourceTargetsData = (formValue.sourceTargets || [])
+      .filter((st: any) => 
+        (st.site_visit_target || 0) > 0 || 
+        (st.lead_target || 0) > 0 || 
+        (st.booking_target || 0) > 0 ||
+        st.source_target_id
+      )
+      .map((st: any) => ({
+        project_id: formValue.project_id,
+        source_id: st.source_id,
+        target_from: targetFrom,
+        target_to: targetTo,
+        site_visit_target: Number(st.site_visit_target) || 0,
+        lead_target: Number(st.lead_target) || 0,
+        booking_target: Number(st.booking_target) || 0,
+        created_by: formValue.created_by,
+        remark: formValue.remark,
+        active_status_id: formValue.active_status_id,
+        ...(st.source_target_id && { 
+          source_target_id: st.source_target_id, 
+          updated_by: this.userId 
+        })
+      }));
+
+    return [...userTargetsData, ...sourceTargetsData];
   }
 
   // ============================================================================

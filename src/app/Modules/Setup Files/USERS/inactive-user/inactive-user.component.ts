@@ -62,7 +62,8 @@ export class InactiveUserComponent implements OnInit {
       user_id: this.data.userId[0].user_id,
       reason: this.inactiveForm.value.reason,
       active_status_id: this.inactiveForm.value.active_status_id,
-      created_by: this.userId
+      created_by: this.userId,
+      approve_status_id: this.inactiveForm.value.active_status_id,
     };
 
     this.http.post(`${this.baseUrl}/inactive_user`, payload).subscribe({

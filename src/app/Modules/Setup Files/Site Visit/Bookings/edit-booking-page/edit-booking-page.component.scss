@@ -1,6 +1,48 @@
 ::ng-deep .full-bg-readonly .mat-mdc-text-field-wrapper {
     width: 100%;
     z-index: 0;
-    background-color: #e9ecef !important;
+    background-color: #f8fafc !important;
     cursor: not-allowed;
+}
+
+.date-hint {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: -6px;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 500;
+    color: #64748b;
+
+    mat-icon {
+        font-size: 12px !important;
+        width: 12px !important;
+        height: 12px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 2px;
+        color: #94a3b8;
+    }
+}
+
+.title-with-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 18px;
+        background: #8b5cf6;
+        border-radius: 10px;
+    }
+
+    h5 {
+        margin: 0 !important;
+    }
 }

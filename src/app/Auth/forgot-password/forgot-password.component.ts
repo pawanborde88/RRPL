@@ -242,6 +242,37 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  getPasswordStrengthScore(): number {
+    const control = this.passwordForm.get('new_password');
+    if (!control || !control.value) return 0;
+    const value = control.value;
+    let score = 0;
+    if (value.length >= 8) score += 20;
+    if (/[A-Z]/.test(value)) score += 20;
+    if (/[a-z]/.test(value)) score += 20;
+    if (/[0-9]/.test(value)) score += 20;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value)) score += 20;
+    return score;
+  }
+
+  getPasswordStrengthText(): string {
+    const score = this.getPasswordStrengthScore();
+    if (score === 0) return 'None';
+    if (score <= 40) return 'Weak';
+    if (score <= 60) return 'Fair';
+    if (score <= 80) return 'Good';
+    return 'Strong';
+  }
+
+  getPasswordStrengthColor(): string {
+    const score = this.getPasswordStrengthScore();
+    if (score === 0) return '#e5e7eb'; // gray-200
+    if (score <= 40) return '#ef4444'; // red-500
+    if (score <= 60) return '#f97316'; // orange-500
+    if (score <= 80) return '#3b82f6'; // blue-500
+    return '#22c55e'; // green-500
+  }
+
   // Handle OTP input with auto-focus to next field
   onOtpInput(event: any, index: number): void {
     const input = event.target;

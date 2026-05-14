@@ -11,14 +11,13 @@ import { MatTableDataSource } from '@angular/material/table';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { catchError, of, finalize } from 'rxjs';
 import { AngularMaterialModule } from '../../../../angular-material.module';
+import { TemplateComponent } from '../../../Common/template/template.component';
+import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { environment } from '../../../../environments/environment';
 import { AutocompleteReusableComponent } from '../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { BreadcrumbComponent } from '../../../Common/breadcrumb/breadcrumb.component';
 import { ConfigurableAgGridDataComponent } from '../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TableColumn } from '../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
-import { TemplateComponent } from '../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
-import { TruncatePipe } from '../../../Pipes/truncate.pipe';
 import { AuthService } from '../../../Service/auth.service';
 import { CommonService } from '../../../Service/common/common.service';
 import { FetchFunctionsService } from '../../../Service/fetch-functions.service';
@@ -38,7 +37,6 @@ interface EnquiryFilterForm {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
 
@@ -141,7 +139,6 @@ export class AllmonthlyTargets {
       color: 'primary',
       disabled: () => false,
       action: () => this.openAddMonthlyTargetDialog(),
-      show: () => this.hasPermission('630'),
     },
   ];
   // Computed signal for AG Grid payload

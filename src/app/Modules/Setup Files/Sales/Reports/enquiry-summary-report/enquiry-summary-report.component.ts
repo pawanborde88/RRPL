@@ -42,7 +42,6 @@ import { AutocompleteReusableComponent } from '../../../../../Common/autocomplet
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { CostomLoadingComponent } from '../../../../../Common/Reusable/coustom Loader/costom-loading/costom-loading.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { CommentLogService } from '../../../comment-log/comment-log.service';
 import { LeadLevel, CallStatus } from '../../../comment-log/comment-log.models';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -115,7 +114,6 @@ interface EnquirySummary {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     AutocompleteReusableComponent,
     CostomLoadingComponent,
     AgGridAngular

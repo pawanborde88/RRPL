@@ -143,10 +143,10 @@
 
           @if (existingAttachment()) {
           <div class="mt-2">
-            <a [href]="existingAttachment()" target="_blank" class="text-decoration-none">
-              <mat-icon class="align-middle" style="font-size: 18px; width: 18px; height: 18px;">attachment</mat-icon>
-              View Existing Attachment
-            </a>
+            <button type="button" mat-button color="primary" (click)="previewExistingAttachment()" class="p-0">
+              <mat-icon class="align-middle" style="font-size: 18px; width: 18px; height: 18px;">visibility</mat-icon>
+              Preview Existing Attachment
+            </button>
           </div>
           }
         </div>

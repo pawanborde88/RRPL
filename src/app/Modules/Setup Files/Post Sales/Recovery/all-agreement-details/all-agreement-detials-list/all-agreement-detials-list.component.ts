@@ -149,18 +149,25 @@ export class AllAgreementDetialsListComponent implements OnInit {
 
     },
     {
-      action: 'downloadAttachment',
-      icon: 'download',
-      tooltip: 'Download Attachment',
-      color: 'primary',
-      disabled: (row: any) => !row.index_attachment,
+      action: 'viewAttachment',
+      icon: 'attach_file',
+      tooltip: 'View Attachment',
+      color: 'accent',
+      show: (row: any) => !!row.attachment,
     },
     {
       action: 'attachmentReceipt',
       icon: 'file_present',
       tooltip: 'View Index Attachment',
       color: 'primary',
-      disabled: false,
+      show: (row: any) => !!row.index_attachment,
+    },
+    {
+      action: 'downloadAttachment',
+      icon: 'download',
+      tooltip: 'Download Attachment',
+      color: 'primary',
+      show: (row: any) => !!row.index_attachment || !!row.attachment,
     },
 
   ];
@@ -169,43 +176,50 @@ export class AllAgreementDetialsListComponent implements OnInit {
       this.editBooking(row.booking_id);
     }
     if (action === 'attachmentReceipt') {
-      this.openReceiptDialog(row);
+      this.openPreviewDialog(row, 'index_attachment', 'Index Attachment');
+    }
+    if (action === 'viewAttachment') {
+      this.openPreviewDialog(row, 'attachment', 'Attachment');
     }
     if (action === 'downloadAttachment') {
-      this.downloadAttachment(row);
+      this.downloadAnyAttachment(row);
     }
   }
 
-  downloadAttachment(row: any): void {
-    if (!row.index_attachment) {
+  downloadAnyAttachment(row: any): void {
+    const attachment = row.index_attachment || row.attachment;
+    if (!attachment) {
       this.showError('No attachment found to download.');
       return;
     }
-    const fileUrl = `${this.storageUrl}/${row.index_attachment}`;
+    const cleanPath = attachment.replace(/\\/g, '');
+    const fileUrl = `${this.storageUrl}/${cleanPath}`;
     const link = document.createElement('a');
     link.href = fileUrl;
     link.target = '_blank';
-    link.download = row.index_attachment.split('/').pop() || 'attachment';
+    link.download = cleanPath.split('/').pop() || 'attachment';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
 
-  openReceiptDialog(receiptData: any): void {
-    if (!receiptData?.index_attachment) {
-      this.snackBar.open('Receipt attachment not found', 'Close', {
+  openPreviewDialog(receiptData: any, field: string = 'index_attachment', title: string = 'Attachment Details'): void {
+    const attachment = receiptData?.[field];
+    if (!attachment) {
+      this.snackBar.open(`${title} not found`, 'Close', {
         duration: 3000,
       });
       return;
     }
 
-    const fileUrl = `${this.storageUrl}/${receiptData.index_attachment}`;
+    const cleanPath = attachment.replace(/\\/g, '');
+    const fileUrl = `${this.storageUrl}/${cleanPath}`;
 
     this.dialog.open(ReceiptPreviewDialogComponent, {
       width: '80%',
       maxWidth: '900px',
       data: {
-        title: 'Receipt Details',
+        title: title,
         fileUrl: fileUrl,
       },
     });

@@ -13,8 +13,6 @@ import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { ConfirmDialogComponent } from '../../../../../Dialogs/Common/confirm-dialog/confirm-dialog.component';
 import { FetchFunctionsService } from '../../../../../Service/fetch-functions.service';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
-import { LoaderComponent } from '../../../../../Common/laoder/loader/loader.component';
 import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 
 @Component({
@@ -28,8 +26,6 @@ import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    LoaderComponent,
     ReusableTableComponent, // Add the pipe here
   ],
 

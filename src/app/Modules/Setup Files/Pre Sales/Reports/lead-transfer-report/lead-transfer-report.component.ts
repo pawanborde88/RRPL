@@ -163,6 +163,17 @@ export class LeadTransferReportComponent implements OnInit {
           this.allTelecallerlist.set([]);
         }
       });
+
+    // Watch for form changes to keep formValues signal in sync for apiPayload
+    this.leadForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((formValue) => {
+        this.formValues.set({
+          project_id: formValue.project_id && formValue.project_id.length > 0 ? formValue.project_id : null,
+          transfer_to: formValue.transfer_to && formValue.transfer_to.length > 0 ? formValue.transfer_to : null,
+          transfer_from: formValue.transfer_from && formValue.transfer_from.length > 0 ? formValue.transfer_from : null,
+        });
+      });
   }
 
   /**
@@ -174,17 +185,11 @@ export class LeadTransferReportComponent implements OnInit {
       return;
     }
 
-    const formValue = this.leadForm.value;
-
-    // Update formValues signal with current form values
-    this.formValues.set({
-      project_id: formValue.project_id && formValue.project_id.length > 0 ? formValue.project_id : null,
-      transfer_to: formValue.transfer_to && formValue.transfer_to.length > 0 ? formValue.transfer_to : null,
-      transfer_from: formValue.transfer_from && formValue.transfer_from.length > 0 ? formValue.transfer_from : null,
-    });
-
-    // Refresh AG Grid data
-    this.refreshAgGridData();
+    // Refresh AG Grid data asynchronously to allow Angular's change detection
+    // to propagate the updated agGridPayload to the child component first.
+    setTimeout(() => {
+      this.refreshAgGridData();
+    }, 0);
   }
 
   /**
@@ -289,7 +294,9 @@ export class LeadTransferReportComponent implements OnInit {
 
     // Project ID filter
     if (formValues.project_id && formValues.project_id.length > 0) {
-      filters['project_id'] = formValues.project_id;
+      filters['project_id'] = Array.isArray(formValues.project_id)
+        ? formValues.project_id.map(id => Number(id))
+        : [Number(formValues.project_id)];
     }
 
     // Transfer to filter - handle role-based logic
@@ -297,12 +304,16 @@ export class LeadTransferReportComponent implements OnInit {
     if (transferToValue) {
       filters['transfer_to'] = transferToValue;
     } else if (formValues.transfer_to && formValues.transfer_to.length > 0) {
-      filters['transfer_to'] = formValues.transfer_to;
+      filters['transfer_to'] = Array.isArray(formValues.transfer_to)
+        ? formValues.transfer_to.map(id => Number(id))
+        : [Number(formValues.transfer_to)];
     }
 
     // Transfer from filter
     if (formValues.transfer_from && formValues.transfer_from.length > 0) {
-      filters['transfer_from'] = formValues.transfer_from;
+      filters['transfer_from'] = Array.isArray(formValues.transfer_from)
+        ? formValues.transfer_from.map(id => Number(id))
+        : [Number(formValues.transfer_from)];
     }
 
     return filters;
@@ -325,7 +336,9 @@ export class LeadTransferReportComponent implements OnInit {
 
     // Default case: return transfer_to from form if specified
     if (formValues.transfer_to?.length) {
-      return formValues.transfer_to;
+      return Array.isArray(formValues.transfer_to)
+        ? formValues.transfer_to.map(id => Number(id))
+        : [Number(formValues.transfer_to)];
     }
 
     return null;

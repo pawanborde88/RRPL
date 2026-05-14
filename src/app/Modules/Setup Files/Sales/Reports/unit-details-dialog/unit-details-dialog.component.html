@@ -15,57 +15,57 @@
                     <tbody>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Wing</td>
-                            <td class="p-2">{{ unitDetails()?.wing_name || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().wing_name || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Unit No
                             </td>
-                            <td class="p-2">{{ unitDetails()?.floor_unit || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().floor_unit || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Unit Type
                             </td>
-                            <td class="p-2">{{ unitDetails()?.unit_type || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().unit_type || '-' }}</td>
                         </tr>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Flat Type
                             </td>
-                            <td class="p-2">{{ unitDetails()?.flat_type || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().flat_type || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Floor</td>
-                            <td class="p-2">{{ unitDetails()?.floor_order || unitDetails()?.floor_no || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().floor_order || unitDetails().floor_no || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Floor
                                 Status</td>
-                            <td class="p-2">{{ unitDetails()?.floor_sanctioned_status || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().floor_sanctioned_status || '-' }}</td>
                         </tr>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Booking
                                 Status</td>
-                            <td class="p-2">{{ unitDetails()?.booking_status || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().booking_status || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Ownership
                             </td>
-                            <td class="p-2">{{ unitDetails()?.ownership || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().ownership || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Landowner
                             </td>
-                            <td class="p-2">{{ unitDetails()?.landowner_name || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().landowner_name || '-' }}</td>
                         </tr>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Unit ID
                             </td>
-                            <td class="p-2">{{ unitDetails()?.unit_id || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().unit_id || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Carpet Area
                             </td>
-                            <td class="p-2">{{ formatArea(unitDetails()?.carpet_sqft, unitDetails()?.carpet_sqm) }}</td>
+                            <td class="p-2">{{ formatArea(unitDetails().carpet_sqft, unitDetails().carpet_sqm) }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Balcony
                             </td>
-                            <td class="p-2">{{ formatArea(unitDetails()?.balcony_sqft, unitDetails()?.balcony_sqm) }}
+                            <td class="p-2">{{ formatArea(unitDetails().balcony_sqft, unitDetails().balcony_sqm) }}
                             </td>
                         </tr>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Total Area
                             </td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">
-                                {{ unitDetails()?.total_carpet_area_sqft || 0 }} SqFt / {{
-                                unitDetails()?.total_carpet_area_sqm || 0 }} Sqm
+                                {{ unitDetails().total_carpet_area_sqft || 0 }} SqFt / {{
+                                unitDetails().total_carpet_area_sqm || 0 }} Sqm
                             </td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Parking
                             </td>
-                            <td class="p-2">{{ unitDetails()?.parking_avail || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().parking_avail || '-' }}</td>
                         </tr>
 
                     </tbody>
@@ -91,29 +91,29 @@
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Booking
                                 Date</td>
-                            <td class="p-2">{{ unitDetails()?.booking_details?.booking_date | date:'mediumDate' }}</td>
+                            <td class="p-2">{{ unitDetails().booking_details?.booking_date | date:'mediumDate' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Booking
                                 Amount</td>
                             <td class="p-2 font-semibold">{{
-                                formatCurrency(unitDetails()?.booking_details?.booking_amount) }}</td>
+                                formatCurrency(unitDetails().booking_details?.booking_amount) }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Sales
                                 Executive</td>
-                            <td class="p-2">{{ unitDetails()?.booking_details?.sales_executive_name || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().booking_details?.sales_executive_name || '-' }}</td>
                         </tr>
                         <tr class="border-b border-slate-100">
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Payment
                                 Mode</td>
-                            <td class="p-2">{{ unitDetails()?.booking_details?.payment_mode || '-' }}</td>
+                            <td class="p-2">{{ unitDetails().booking_details?.payment_mode || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Transaction
                                 No</td>
-                            <td class="p-2 font-mono">{{ unitDetails()?.booking_details?.transaction_no || '-' }}</td>
+                            <td class="p-2 font-mono">{{ unitDetails().booking_details?.transaction_no || '-' }}</td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Transaction
                                 Date</td>
-                            <td class="p-2">{{ unitDetails()?.booking_details?.transaction_date | date:'mediumDate' }}
+                            <td class="p-2">{{ unitDetails().booking_details?.transaction_date | date:'mediumDate' }}
                             </td>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Basic Cost
                             </td>
-                            <td class="p-2">{{ formatCurrency(unitDetails()?.booking_details?.basic_cost) }}</td>
+                            <td class="p-2">{{ formatCurrency(unitDetails().booking_details?.basic_cost) }}</td>
                         </tr>
                         <tr>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Applicant 1
@@ -128,7 +128,7 @@
                         </tr>
                         <tr>
                             <td class="p-2 font-medium text-slate-600 bg-slate-50 border-r border-slate-100">Remark</td>
-                            <td class="p-2 " colspan="5">{{ unitDetails()?.booking_details?.remark || '-' }}</td>
+                            <td class="p-2 " colspan="5">{{ unitDetails().booking_details?.remark || '-' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -149,18 +149,18 @@
         <div class="grid grid-cols-3 gap-4">
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="text-xs font-medium text-slate-500 mb-1">Package Total</div>
-                <div class="text-lg font-semibold text-slate-800">{{ formatCurrency(unitDetails()?.package_total) }}
+                <div class="text-lg font-semibold text-slate-800">{{ formatCurrency(unitDetails().package_total) }}
                 </div>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="text-xs font-medium text-slate-500 mb-1">Received</div>
                 <div class="text-lg font-semibold text-emerald-600">{{
-                    formatCurrency(unitDetails()?.recovery_deatils?.installment_received) }}</div>
+                    formatCurrency(unitDetails().recovery_deatils?.installment_received) }}</div>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div class="text-xs font-medium text-slate-500 mb-1">Pending</div>
                 <div class="text-lg font-semibold text-amber-600">{{
-                    formatCurrency(unitDetails()?.recovery_deatils?.installment_pending) }}</div>
+                    formatCurrency(unitDetails().recovery_deatils?.installment_pending) }}</div>
             </div>
         </div>
     </section>
@@ -179,20 +179,20 @@
             <div class="grid grid-cols-3 gap-4">
                 <div>
                     <div class="text-xs font-medium text-slate-500 mb-1">Token No</div>
-                    <div class="text-sm font-semibold text-slate-800">{{ unitDetails()?.token_deatils?.token_no || '-'
+                    <div class="text-sm font-semibold text-slate-800">{{ unitDetails().token_deatils?.token_no || '-'
                         }}</div>
                 </div>
                 <div>
                     <div class="text-xs font-medium text-slate-500 mb-1">Token Type</div>
-                    <div class="text-sm font-semibold text-slate-800">{{ unitDetails()?.token_deatils?.token_type || '-'
+                    <div class="text-sm font-semibold text-slate-800">{{ unitDetails().token_deatils?.token_type || '-'
                         }}</div>
                 </div>
                 <div>
                     <div class="text-xs font-medium text-slate-500 mb-1">Sales Executive</div>
                     <div class="text-sm font-semibold text-slate-800">{{
-                        unitDetails()?.token_deatils?.sales_executive_name || '-' }}</div>
+                        unitDetails().token_deatils?.sales_executive_name || '-' }}</div>
                 </div>
             </div>
         </div>
     </section>
-</mat-dialog-content>
+</mat-dialog-content>

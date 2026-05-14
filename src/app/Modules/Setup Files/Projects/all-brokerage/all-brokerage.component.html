@@ -4,16 +4,25 @@
   </app-breadcrumb>
 
 
-  <form [formGroup]="myForm" class="row ">
-    <app-autocomplete-reusable-component class="col-md-4" [options]="projectsList" formControlName="project_id"
-      displayKey="property_name" idKey="project_id" placeholder="Select Project">
-    </app-autocomplete-reusable-component>
-  </form>
+  <mat-accordion>
+    <mat-expansion-panel hideToggle [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Advanced Filters</mat-panel-title>
+      </mat-expansion-panel-header>
 
 
-  <app-reusable-custom-table [loading]="loading" [dataSource]="dataSource" [displayedColumns]="displayedColumns"
+      <form [formGroup]="myForm" class="row ">
+        <app-autocomplete-reusable-component class="col-md-4" [options]="projectsList()" formControlName="project_id"
+          displayKey="property_name" idKey="project_id" placeholder="Select Project">
+        </app-autocomplete-reusable-component>
+      </form>
+
+    </mat-expansion-panel>
+  </mat-accordion>
+
+  <app-reusable-custom-table [loading]="loading()" [dataSource]="dataSource()" [displayedColumns]="displayedColumns"
     [actions]="projectActions" [showFooter]="true" (actionClick)="onProjectAction($event.action, $event.row)"
-    [headerButtons]="headerButtons">
+    [headerButtons]="headerButtons()">
   </app-reusable-custom-table>
 
 

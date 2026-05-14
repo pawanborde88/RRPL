@@ -45,7 +45,8 @@ export class ReraApproveDialog {
     }
 
     this.form = this.fb.group({
-      rera_approvel_id: [initialStatus, Validators.required]
+      rera_approvel_id: [initialStatus, Validators.required],
+      rera_comment: ['', Validators.required]
     });
   }
 
@@ -56,6 +57,7 @@ export class ReraApproveDialog {
     const payload = {
       channel_partner_id: this.data.data.channel_partner_id,
       rera_approvel_id: this.form.value.rera_approvel_id,
+      rera_comment: this.form.value.rera_comment,
       approved_by: this.userId,
     };
 

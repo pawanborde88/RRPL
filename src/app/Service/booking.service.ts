@@ -526,6 +526,15 @@ export class BookingService {
     return this.banksCache$;
   }
 
+  sendBookingForApproval(payload: any): Observable<ApiResponse<unknown>> {
+    return this.http.post<ApiResponse<unknown>>(
+      `${this.baseUrl}/send_booking_for_approval`,
+      payload
+    ).pipe(
+      catchError(() => of({ success: false, message: 'Failed to send booking for approval' } as ApiResponse<unknown>))
+    );
+  }
+
   fetchAgreementPercentage(bookingId: number): Observable<ApiResponse<{ sd_percentage: number }>> {
     return this.http.post<ApiResponse<{ sd_percentage: number }>>(
       `${this.baseUrl}/fetch_agreement_percentage`,

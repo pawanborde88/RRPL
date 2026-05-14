@@ -97,13 +97,11 @@ export class PlaceholderReplacerService {
         replacements['#RERA# '] = this.getReraNo(bookingData, dialogType);
         replacements['#BookingDate#'] = this.formatDate(bookingData.booking_date, currentDate);
 
-        // Booking TAT dates
-        const tat = bookingData?.booking_tat;
-        replacements['#SecondDayOfBooking#'] = tat?.second_booking_day || '';
-        replacements['#10thDayOfBooking#'] = tat?.['10_booking_day'] || '';
-        replacements['#15thDayOfBooking#'] = tat?.['15_booking_day'] || '';
-        replacements['#20thDayOfBooking#'] = tat?.['20_booking_day'] || '';
-        replacements['#30thDayOfBooking#'] = tat?.['30_booking_day'] || '';
+        replacements['#HomeLoanDocuments#'] = this.formatDateInMonth(bookingData.home_loan_doc_submission_date);
+        replacements['#TaxSubmitionDates#'] = this.formatDateInMonth(bookingData.tax_payment_completion_date);
+        replacements['#OwnContributionDates#'] = this.formatDateInMonth(bookingData.own_contribution_payment_date);
+        replacements['#AgreementExecutionDates#'] = this.formatDateInMonth(bookingData.agreement_completion_date);
+        replacements['#DisubustmentDates#'] = this.formatDateInMonth(bookingData.disbursement_completion_date);
 
         // TDS (1% of agreement cost)
         replacements['#1%TDS#'] = this.formatCurrency(bookingData.tds || 0);
@@ -134,6 +132,42 @@ export class PlaceholderReplacerService {
         } else {
             // Single merged cell with "NOT AVAILABLE" centered for the whole 2nd applicant column
             replacements['__applicant2MergeBlock__'] =
+                '<td rowspan="9" style="text-align:center;vertical-align:middle">NOT AVAILABLE</td>';
+        }
+
+        // Applicant 3 - similar logic for 3rd applicant
+        const applicant3Name = (bookingData as any).applicant_name3 || (bookingData as any).applicant3_name || '';
+        const isThirdApplicantAvailable = !!(applicant3Name && String(applicant3Name).trim());
+        if (isThirdApplicantAvailable) {
+            replacements['#Applicant3#'] = applicant3Name;
+            replacements['#Applicant3Address#'] = (bookingData as any).applicant3_current_address || (bookingData as any).applicant_current_address3 || '';
+            replacements['#Applicant3DOB#'] = this.formatDate((bookingData as any).applicant3_dob || (bookingData as any).applicant_dob3);
+            replacements['#Applicant3PAN#'] = (bookingData as any).applicant3_pan_no || (bookingData as any).applicant_pan_no3 || '';
+            replacements['#Applicant3Aadhar#'] = (bookingData as any).applicant3_aadhar_no || (bookingData as any).applicant_aadhar_no3 || '';
+            replacements['#Applicant3Email#'] = (bookingData as any).applicant3_email || (bookingData as any).applicant_email3 || '';
+            replacements['#Applicant3MobileNo#'] = (bookingData as any).applicant3_mobile || (bookingData as any).applicant_mobile3 || '';
+            replacements['#Applicant3Occupation#'] = (bookingData as any).applicant3_occupation || (bookingData as any).applicant_occupation3 || '';
+            replacements['#Applicant3Age#'] = (bookingData as any).applicant3_age || (bookingData as any).applicant_age3 || '';
+        } else {
+            replacements['__applicant3MergeBlock__'] =
+                '<td rowspan="9" style="text-align:center;vertical-align:middle">NOT AVAILABLE</td>';
+        }
+
+        // Applicant 4 - similar logic for 4th applicant
+        const applicant4Name = (bookingData as any).applicant_name4 || (bookingData as any).applicant4_name || '';
+        const isFourthApplicantAvailable = !!(applicant4Name && String(applicant4Name).trim());
+        if (isFourthApplicantAvailable) {
+            replacements['#Applicant4#'] = applicant4Name;
+            replacements['#Applicant4Address#'] = (bookingData as any).applicant4_current_address || (bookingData as any).applicant_current_address4 || '';
+            replacements['#Applicant4DOB#'] = this.formatDate((bookingData as any).applicant4_dob || (bookingData as any).applicant_dob4);
+            replacements['#Applicant4PAN#'] = (bookingData as any).applicant4_pan_no || (bookingData as any).applicant_pan_no4 || '';
+            replacements['#Applicant4Aadhar#'] = (bookingData as any).applicant4_aadhar_no || (bookingData as any).applicant_aadhar_no4 || '';
+            replacements['#Applicant4Email#'] = (bookingData as any).applicant4_email || (bookingData as any).applicant_email4 || '';
+            replacements['#Applicant4MobileNo#'] = (bookingData as any).applicant4_mobile || (bookingData as any).applicant_mobile4 || '';
+            replacements['#Applicant4Occupation#'] = (bookingData as any).applicant4_occupation || (bookingData as any).applicant_occupation4 || '';
+            replacements['#Applicant4Age#'] = (bookingData as any).applicant4_age || (bookingData as any).applicant_age4 || '';
+        } else {
+            replacements['__applicant4MergeBlock__'] =
                 '<td rowspan="9" style="text-align:center;vertical-align:middle">NOT AVAILABLE</td>';
         }
 
@@ -420,6 +454,8 @@ export class PlaceholderReplacerService {
 
         replacements['#Applicant1#'] = letterData.applicant1_name || '';
         replacements['#Applicant2#'] = letterData.coapplicant_name || '';
+        replacements['#Applicant3#'] = letterData.applicant3_name || '';
+        replacements['#Applicant4#'] = letterData.applicant4_name || '';
         replacements['#CustomerInfo#'] = letterData.all_applicant || '';
         replacements['#MobileNo#'] = letterData.applicant_mobile || '';
         replacements['#AgreementNo#'] = letterData.agreement_no || 'N/A';
@@ -783,6 +819,21 @@ export class PlaceholderReplacerService {
         if (!date) return fallback || '';
         try {
             return new Date(date).toLocaleDateString('en-IN');
+        } catch {
+            return fallback || '';
+        }
+    }
+
+    private formatDateInMonth(date?: string, fallback?: string): string {
+        if (!date) return fallback || '';
+        try {
+            const d = new Date(date);
+            if (isNaN(d.getTime())) return date;
+            return d.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
         } catch {
             return fallback || '';
         }

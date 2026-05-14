@@ -157,6 +157,8 @@ export class AllEnquirysComponent implements OnInit {
     { key: 'is_booked', label: 'Booked', claimedOnly: true },
     { key: 'source', label: 'Visit Source' },
     { key: 'firm_name', label: 'Channel Partner' },
+    { key: 'cp_executive', label: 'CP Executive' },
+
     { key: 'source_description', label: 'Source Description' },
     { key: 'source_detail', label: 'Source Type' },
     { key: 'remark', label: 'Remark', type: 'truncate' },
@@ -166,6 +168,8 @@ export class AllEnquirysComponent implements OnInit {
     { key: 'age_range', label: 'Age Range' },
     { key: 'alternate_mob_no', label: 'Secondary Mobile No', type: 'sensitive' },
     { key: 'whatsapp_no', label: 'WhatsApp No', type: 'sensitive' },
+    { key: 'firm_phone', label: 'Firm Phone', type: 'sensitive' },
+
     { key: 'preferred_location', label: 'Preferred Location' },
     { key: 'current_living_place', label: 'Current Living Place' },
     { key: 'company_name', label: 'Company Name' },
@@ -575,7 +579,7 @@ export class AllEnquirysComponent implements OnInit {
     const dialogRef = this.dialog.open(CommentLogComponent, {
       minWidth: '40vw', maxWidth: '50vw', maxHeight: '100vh',
       data: {
-        title: `Add Comment to ${data?.project_name || 'Project'}`,
+        title: `Add Comment to ${data?.project_name || ''} - ${data?.full_name || ''}`,
         payload: 'enquiry_id',
         request: data?.project_enq_id,
         apiUrl: 'add_comment',

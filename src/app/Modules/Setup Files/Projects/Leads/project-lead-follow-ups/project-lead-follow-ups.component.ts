@@ -103,7 +103,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
   private readonly baseUrl = environment.API_URL;
   readonly storageUrl = environment.STORAGE_URL;
   readonly RETRY_ATTEMPTS = 2;
-  
+
   // Session data - computed signals for reactive access
   readonly roleId = computed(() => Number(sessionStorage.getItem('role_id')) || 0);
   readonly userId = computed(() => Number(sessionStorage.getItem('session_id')) || 0);
@@ -128,7 +128,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
   readonly pendingCount = signal(0);
   readonly todayCount = signal(0);
   readonly upcomingCount = signal(0);
-  
+
   // Observable properties for dropdowns (like comment-log component)
   leadLevels$: Observable<LeadLevel[]> = of([]);
   callStatus$: Observable<CallStatus[]> = of([]);
@@ -183,12 +183,12 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     const bufferSize = this.bufferSize;
     const currentData = this.getCurrentTabData();
     const dataSize = currentData.length;
-    
+
     // Calculate buffer based on viewport height for better performance
     // Adaptive buffer size based on dataset size and device performance
     const viewportHeight = isPlatformBrowser(this.platformId) ? window.innerHeight : 800;
     const itemsPerViewport = Math.ceil(viewportHeight / itemSize);
-    
+
     // Dynamic buffer sizing:
     // - Small datasets (< 500): 1.5x viewport for smooth scrolling
     // - Medium datasets (500-5000): 1.2x viewport for balance
@@ -199,12 +199,12 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     } else if (dataSize > 5000) {
       multiplier = 1.0;
     }
-    
+
     const minBufferItems = Math.max(
-      bufferSize, 
+      bufferSize,
       Math.ceil(itemsPerViewport * multiplier)
     );
-    
+
     return minBufferItems * itemSize;
   });
 
@@ -213,12 +213,12 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     const bufferSize = this.bufferSize;
     const currentData = this.getCurrentTabData();
     const dataSize = currentData.length;
-    
+
     // Max buffer should be 3-4 viewport heights for smooth scrolling
     // Optimized: Adaptive buffer based on data size and performance
     const viewportHeight = isPlatformBrowser(this.platformId) ? window.innerHeight : 800;
     const itemsPerViewport = Math.ceil(viewportHeight / itemSize);
-    
+
     // Adjust multiplier based on complexity:
     // - More rows = smaller buffer (memory constraints)
     let multiplier = 3.0;
@@ -227,12 +227,12 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     } else if (dataSize > 5000) {
       multiplier = 2.5;
     }
-    
+
     const maxBufferItems = Math.max(
-      bufferSize * 2, 
+      bufferSize * 2,
       Math.ceil(itemsPerViewport * multiplier)
     );
-    
+
     // Cap max buffer to prevent excessive memory usage
     // Reduced cap for large datasets: 30KB instead of 50KB
     const maxBufferCap = dataSize > 10000 ? 30000 : 50000;
@@ -329,7 +329,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     // Load initial data in parallel
     this.fetchAllProjects();
     this.fetchallLeadLevels();
-    
+
     // Initialize lead levels observable from service (like comment-log component)
     this.leadLevels$ = this.commentLogService.fetchLeadLevels().pipe(
       catchError((error) => {
@@ -406,7 +406,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
         this.fetchallLeadLevels();
       });
   }
-  
+
   private setupLeadLevelListener(): void {
     this.leadForm
       .get('lead_level_id')
@@ -429,7 +429,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
       .subscribe((callStatuses: CallStatus[]) => {
         this.callStatus$ = of(callStatuses);
       });
-      
+
     // Reset call status when lead level is cleared
     this.leadForm
       .get('lead_level_id')
@@ -442,7 +442,7 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
         this.leadForm.get('call_status_id')?.reset();
       });
   }
-  
+
   // TrackBy functions for dropdowns (like comment-log component)
   trackByLeadLevelId(index: number, level: LeadLevel): number {
     return level.lead_level_id;
@@ -721,8 +721,8 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     }
   }
 
-  sendWhatsApp(): void {}
-  sendEmail(): void {}
+  sendWhatsApp(): void { }
+  sendEmail(): void { }
 
   // ====== API Fetch Methods (Optimized with shareReplay and error handling) ======
   fetchallLeadLevels(): void {
@@ -823,23 +823,23 @@ export class ProjectLeadFollowUpsComponent implements OnInit {
     const isEnquiry = this.isEnquiryMode();
     const dialogConfig = isEnquiry
       ? {
-          title: `Add Comment to ${data?.project_name || 'Project'}`,
-          payload: 'enquiry_id',
-          request: data?.enquiry_id,
-          apiUrl: 'add_comment',
-          successMessage: 'Follow-up Added Successfully...',
-          rowData: data,
-          for: 'Enquiries',
-        }
+        title: `Add Comment to ${data?.project_name || ''} - ${data?.customer_name || ''}`,
+        payload: 'enquiry_id',
+        request: data?.enquiry_id,
+        apiUrl: 'add_comment',
+        successMessage: 'Follow-up Added Successfully...',
+        rowData: data,
+        for: 'Enquiries',
+      }
       : {
-          title: `Add FollowUp`,
-          payload: 'project_lead_id',
-          request: data?.project_lead_id,
-          apiUrl: 'add_lead_follow_up',
-          successMessage: 'Follow-up Added Successfully...',
-          rowData: data,
-          for: 'lead-followUp',
-        };
+        title: `Add Comment to ${data?.project_name || ''} - ${data?.customer_name || ''}`,
+        payload: 'project_lead_id',
+        request: data?.project_lead_id,
+        apiUrl: 'add_lead_follow_up',
+        successMessage: 'Follow-up Added Successfully...',
+        rowData: data,
+        for: 'lead-followUp',
+      };
 
     const dialogRef = this.dialog.open(CommentLogComponent, {
       minWidth: isEnquiry ? '40vw' : '60vw',

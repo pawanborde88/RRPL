@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort } from '@angular/material/sort';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
 
@@ -52,6 +52,7 @@ export class AllPresaleTargetListComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly fetch = inject(FetchFunctionsService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   baseUrl = environment.API_URL;
   loading = signal<boolean>(false); // Use signal for loading
@@ -265,21 +266,12 @@ export class AllPresaleTargetListComponent implements OnInit {
     });
   }
   openAddEditSorceDialog(action: string, row?: any): void {
-    const dialogRef = this.dialog.open(AddPresalesTargetDialogComponent, {
-      minWidth: '70vw',
-      maxWidth: '70vw',
-      data: {
+    this.router.navigate(['/target-achievement/pre-sales/add-presale-target'], {
+      state: {
         title: action === 'add' ? 'Add Target' : 'Edit Target',
         apiUrl: action === 'add' ? 'add_pre_sale_target' : 'edit_source',
-
-        rowData: row, // Pass row data if editing
+        rowData: row,
       },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.fetchAllPresalesTargets(); // Refresh the list if data was modified
-      }
     });
   }
   fetchAllProjects(): void {

@@ -25,6 +25,7 @@ export class AssignSourceExecutivesDialog implements OnInit {
 
   readonly form = new FormGroup({
     project_id: new FormControl<number>(0, { nonNullable: true, validators: [Validators.required] }),
+    sales_executive_id: new FormControl<number[]>([], { nonNullable: true, validators: [Validators.required] }),
     source_executive_id: new FormControl<number[]>([], { nonNullable: true, validators: [Validators.required] }),
     created_by: new FormControl(this.userId),
   });
@@ -35,15 +36,20 @@ export class AssignSourceExecutivesDialog implements OnInit {
 
     this.form.get('project_id')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
       const projectId = value ?? 0;
-      this.store.fetchSalesExecutives([18], projectId ? [projectId] : []);
+      if (projectId) {
+        this.store.fetchSalesExecutives(projectId);
+        this.store.fetchSourceExecutives([18], [projectId]);
+      } else {
+        this.store.patchState({ salesExecutives: [], executives: [] });
+      }
     });
   }
 
   onAssign(): void {
     if (this.form.invalid) return;
 
-    const { source_executive_id, project_id, created_by } = this.form.getRawValue();
-    this.store.assignExecutives(source_executive_id, project_id, created_by!).subscribe({
+    const { sales_executive_id, source_executive_id, project_id, created_by } = this.form.getRawValue();
+    this.store.assignExecutives(sales_executive_id, source_executive_id, project_id, created_by!).subscribe({
       next: (res: any) => {
         if (res !== null) {
           this.dialogRef.close(true);

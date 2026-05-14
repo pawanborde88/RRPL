@@ -246,10 +246,9 @@ export class CommonService {
    */
   fetchSources(): Observable<Array<{ source_id: number; source: string }>> {
     return this.http
-      .get<Array<{ source_id: number; source: string }>>(
-        `${this.baseUrl}/source_dropdown`
-      )
+      .get<any>(`${this.baseUrl}/source_dropdown`)
       .pipe(
+        map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : [])),
         catchError((error) => {
           console.error('Error fetching sources dropdown:', error);
           return of([]);
@@ -301,6 +300,91 @@ export class CommonService {
         catchError((error) => {
           console.error('Error fetching booking status:', error);
           return of({ data: [] });
+        })
+      );
+  }
+
+  /**
+   * Fetch phases for a project
+   * @param projectId - Project ID or array of Project IDs
+   * @returns Observable of phases array
+   */
+  fetchPhases(projectId: number | number[]): Observable<any[]> {
+    const payload = {
+      project_id: projectId,
+    };
+
+    return this.http
+      .post<any[]>(`${this.baseUrl}/fetch_phases`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching phases:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Fetch configuration dropdown for a project
+   * @param projectId - Project ID or array of Project IDs
+   * @returns Observable of configurations array
+   */
+  fetchConfigDropdown(projectId: number | number[]): Observable<any[]> {
+    const payload = {
+      project_id: projectId,
+    };
+
+    return this.http
+      .post<any[]>(`${this.baseUrl}/config_dropdown`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching configuration dropdown:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Fetch CP types dropdown
+   * @returns Observable of CP types array
+   */
+  fetchCpTypes(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/cp_type_dropdown`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching CP types dropdown:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Fetch brokerage value unit dropdown
+   * @returns Observable of units array
+   */
+  fetchBrokerageValueUnits(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/brokerage_value_unit_dropdown`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching brokerage value unit dropdown:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Fetch brokerage unit dropdown
+   * @returns Observable of units array
+   */
+  fetchBrokerageUnits(): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/brokerage_unit_dropdown`)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching brokerage unit dropdown:', error);
+          return of([]);
         })
       );
   }
@@ -439,12 +523,11 @@ export class CommonService {
 
   /**
    * Add project budget (Meta/Facebook budget per source)
-   * @param payload - Budget data
+   * @param payload - Budget data with array of source budgets
    */
   addProjectBudget(payload: {
-    source_id: number;
     project_id: number;
-    budget: number;
+    source_budget: { source_id: number; budget: number }[];
     created_by: number;
     updated_by: number;
   }): Observable<{ success: boolean; message: string }> {
@@ -460,13 +543,12 @@ export class CommonService {
 
   /**
    * Edit project budget (Meta/Facebook budget per source)
-   * @param payload - Budget data including project_budget_setup_id
+   * @param payload - Budget data with array of source budgets
    */
   editProjectBudget(payload: {
     project_budget_setup_id: number;
-    source_id: number;
     project_id: number;
-    budget: number;
+    source_budget: { source_id: number; budget: number }[];
     created_by: number;
     updated_by: number;
   }): Observable<{ success: boolean; message: string }> {
@@ -648,6 +730,36 @@ export class CommonService {
         catchError((error) => {
           console.error('Error fetching bookings:', error);
           return of([]);
+        })
+      );
+  }
+
+  /**
+   * Reject booking changes
+   * @param payload - { approval_log_id, approved_by, approval_remarks }
+   */
+  rejectBookingChanges(payload: { approval_log_id: number; approved_by: number; approval_remarks: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http
+      .post<{ success: boolean; message?: string }>(`${this.baseUrl}/reject_booking_changes`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error rejecting booking changes:', error);
+          return of({ success: false, message: 'Failed to reject booking changes' });
+        })
+      );
+  }
+
+  /**
+   * Approve booking changes
+   * @param payload - { approval_log_id, approved_by, approval_remarks }
+   */
+  approveBookingChanges(payload: { approval_log_id: number; approved_by: number; approval_remarks: string }): Observable<{ success: boolean; message?: string }> {
+    return this.http
+      .post<{ success: boolean; message?: string }>(`${this.baseUrl}/approve_booking_changes`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error approving booking changes:', error);
+          return of({ success: false, message: 'Failed to approve booking changes' });
         })
       );
   }
@@ -1323,6 +1435,33 @@ export class CommonService {
   }
 
   /**
+   * Bulk add/update source targets
+   * @param payload - Bulk payload with source_budget array
+   */
+  bulkAddSourceTarget(payload: {
+    project_id: number;
+    source_budget: Array<{
+      source_id: number;
+      site_visit_target: number;
+      lead_target: number;
+      booking_target: number;
+      target_from?: string;
+      target_to?: string;
+    }>;
+    created_by: number;
+    updated_by: number;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(`${this.baseUrl}/add_source_target`, payload)
+      .pipe(
+        catchError((error) => {
+          console.error('Error in bulk source target operation:', error);
+          throw error;
+        })
+      );
+  }
+
+  /**
    * Edit source target
    * @param payload - Source target data including source_target_id
    */
@@ -1343,6 +1482,67 @@ export class CommonService {
         catchError((error) => {
           console.error('Error editing source target:', error);
           throw error;
+        })
+      );
+  }
+
+  /**
+   * Fetch source wise targets for a project and period
+   * @param payload - Filter payload containing project_id, target_from, target_to
+   * @returns Observable of source targets array
+   */
+  fetchSourceTarget(payload: {
+    project_id: number;
+    target_from: string | null;
+    target_to: string | null;
+  }): Observable<any[]> {
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_source_target`, payload)
+      .pipe(
+        map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : [])),
+        catchError((error) => {
+          console.error('Error fetching source targets:', error);
+          return of([]);
+        })
+      );
+  }
+
+  /**
+   * Fetch unit report for a project
+   * @param projectId - Project ID
+   * @returns Observable of unit report data
+   */
+  fetchUnitReport(projectId: number): Observable<any> {
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_unit_report`, { project_id: projectId })
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching unit report:', error);
+          return of(null);
+        })
+      );
+  }
+
+  /**
+   * Fetch budgets for a project and period
+   * @param payload - Filter payload containing project_id, year, month
+   * @returns Observable of budgets array
+   */
+  fetchBudget(payload: {
+    project_id: number[];
+    source_id?: number[];
+    source_detail_id?: number[];
+    channel_partner_id?: number[];
+    year?: string;
+    month?: string;
+  }): Observable<any[]> {
+    return this.http
+      .post<any>(`${this.baseUrl}/fetch_budget`, payload)
+      .pipe(
+        map((res: any) => (res && res.data) ? res.data : (Array.isArray(res) ? res : [])),
+        catchError((error) => {
+          console.error('Error fetching budgets:', error);
+          return of([]);
         })
       );
   }

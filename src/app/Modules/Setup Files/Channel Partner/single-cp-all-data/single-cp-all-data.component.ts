@@ -141,6 +141,7 @@ export class SingleCPAllDataComponent implements OnInit {
           this.isLoading.set(false);
           if (res) {
             this.channelPartnerData.set(res);
+            this.onReportTypeChange('site_visit');
           }
         },
         error: (err) => {

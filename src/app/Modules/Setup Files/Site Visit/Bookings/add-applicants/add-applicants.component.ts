@@ -33,8 +33,6 @@ import { ActivatedRoute } from '@angular/router';
 import { combineLatest, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { AadharcardNoformatDirective } from '../../../../../Common/directives/Aadhar/aadharcard-noformat.directive';
 import { PANNoDirective } from '../../../../../Common/directives/panno.directive';
 import { BookingService, Applicant, BookingInfo, ApiResponse } from '../../../../../Service/booking.service';
@@ -45,7 +43,7 @@ import { SuccessDialogComponent } from '../../../../../Common/success-dialog/suc
 const MAX_APPLICANTS = 4;
 const MOBILE_PATTERN = /^\d{10}$/;
 const EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in)$/;
-const PAN_PATTERN = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+const PAN_PATTERN = /^[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}$/;
 
 interface ApplicantFormValue {
   salutation_id: number | null;
@@ -72,11 +70,9 @@ interface ApplicantFormValue {
   imports: [
     CommonModule,
     RouterModule,
-    BreadcrumbComponent,
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
     AadharcardNoformatDirective,
     PANNoDirective
   ],
@@ -208,7 +204,7 @@ export class AddApplicantsComponent implements OnInit {
   // ============================================================================
   private createApplicantForm(): FormGroup {
     return new FormGroup({
-      salutation_id: new FormControl<number | null>(null),
+      salutation_id: new FormControl<number | null>(null, Validators.required),
       gender: new FormControl<number | null>(null, Validators.required),
       first_name: new FormControl<string>('', Validators.required),
       middle_name: new FormControl<string>(''),
@@ -230,7 +226,7 @@ export class AddApplicantsComponent implements OnInit {
           Validators.required,
           Validators.pattern(/^\d{4}-\d{4}-\d{4}$/)
         ]
-      ), dob: new FormControl<string | Date | null>(null),
+      ), dob: new FormControl<string | Date | null>(null, Validators.required),
       anniversary_date: new FormControl<string | Date | null>(null),
       current_address: new FormControl<string>('', Validators.required),
       permanent_address: new FormControl<string>(''),
@@ -532,7 +528,7 @@ export class AddApplicantsComponent implements OnInit {
   // Error & Success Handlers
   // ============================================================================
   private handleSuccess(index: number): void {
-    this.snackBar.open(`Applicant ${index + 1} details saved successfully!`, 'Close', {
+    this.snackBar.open(`${index === 0 ? 'Applicant' : 'Applicant ' + (index + 1)} details saved successfully!`, 'Close', {
       duration: 3000,
       panelClass: ['success-snackbar']
     });

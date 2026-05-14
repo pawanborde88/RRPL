@@ -1,4 +1,4 @@
-﻿<h6 mat-dialog-title>
+<h6 mat-dialog-title>
     {{ isEditMode() ? 'Edit' : 'Add' }} Facebook Budget
     <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
         <mat-icon>close</mat-icon>
@@ -6,40 +6,63 @@
 </h6>
 
 <mat-dialog-content class="mat-typography">
-    <form [formGroup]="budgetForm" class="container row mt-2 g-3">
+    <form [formGroup]="budgetForm" class="container row  g-3">
 
         <!-- Project -->
-        <div class="col-md-6">
+        <div class="col-md-12">
             <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
-                displayKey="property_name" idKey="project_id" placeholder="Select Project *">
+                displayKey="property_name" idKey="project_id" placeholder="Select Project">
             </app-autocomplete-reusable-component>
             <mat-error *ngIf="budgetForm.get('project_id')?.invalid && budgetForm.get('project_id')?.touched">
                 Project is required
             </mat-error>
         </div>
 
-        <!-- Source -->
-        <div class="col-md-6">
-            <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()"
-                displayKey="source" idKey="source_id" placeholder="Select Source *">
-            </app-autocomplete-reusable-component>
-            <mat-error *ngIf="budgetForm.get('source_id')?.invalid && budgetForm.get('source_id')?.touched">
-                Source is required
-            </mat-error>
+        <!-- Source Budget Table -->
+        <div class="col-md-12 mt-3" *ngIf="sourcesList().length > 0">
+            <div class="overflow-hidden rounded-lg border border-gray-200">
+                <table class="w-full border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-700 text-white">
+                            <th class="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider w-8">
+                                #
+                            </th>
+                            <th class="px-3 py-2 text-left font-semibold text-xs uppercase tracking-wider">
+                                Source
+                            </th>
+                            <th class="px-3 py-2 text-right font-semibold text-xs uppercase tracking-wider w-40">
+                                Budget (₹)
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody formArrayName="sourceBudgets">
+                        <tr *ngFor="let ctrl of sourceBudgetsArray.controls; let i = index" [formGroupName]="i"
+                            class="border-b border-gray-100 hover:bg-blue-50/50 transition-colors duration-150"
+                            [class.bg-gray-50]="i % 2 !== 0">
+                            <td class="px-3 py-1.5 text-gray-400 text-xs font-mono">
+                                {{ i + 1 }}
+                            </td>
+                            <td class="px-3 py-1.5 text-gray-700 font-medium text-xs">
+                                {{ sourcesList()[i]?.source }}
+                            </td>
+                            <td class="px-3 py-1.5">
+                                <input type="number" formControlName="budget" min="0" placeholder="0" class="w-full text-right text-xs px-2 py-1 rounded border border-gray-300
+                                           focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none
+                                           transition-all duration-150 bg-white" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-400 mt-1.5 text-right">
+                Total: <span class="font-semibold text-gray-700">₹ {{ totalBudget() | number }}</span>
+            </p>
         </div>
 
-        <!-- Budget -->
-        <div class="col-md-12">
-            <mat-form-field appearance="outline" class="w-100">
-                <mat-label>Budget (₹)</mat-label>
-                <input matInput type="number" formControlName="budget" placeholder="e.g. 100000" min="0">
-                <mat-error *ngIf="budgetForm.get('budget')?.hasError('required') && budgetForm.get('budget')?.touched">
-                    Budget is required
-                </mat-error>
-                <mat-error *ngIf="budgetForm.get('budget')?.hasError('min')">
-                    Budget must be 0 or greater
-                </mat-error>
-            </mat-form-field>
+        <!-- Loading indicator when sources haven't loaded -->
+        <div class="col-md-12 text-center py-4" *ngIf="sourcesList().length === 0">
+            <mat-spinner diameter="24" style="margin: 0 auto;"></mat-spinner>
+            <p class="text-xs text-gray-400 mt-2">Loading sources…</p>
         </div>
 
     </form>
@@ -50,6 +73,6 @@
         <span *ngIf="isSubmitting()" class="spinner-container">
             <mat-spinner diameter="16" style="display: inline-block; margin-right: 8px;"></mat-spinner>
         </span>
-        {{ isSubmitting() ? 'Saving...' : 'Save' }}
+        {{ isSubmitting() ? 'Saving...' : 'Submit Source Budget' }}
     </button>
 </mat-dialog-actions>

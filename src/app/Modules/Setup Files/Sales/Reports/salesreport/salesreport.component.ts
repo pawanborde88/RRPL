@@ -6,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 
 @Component({
   selector: 'app-salesreport',
@@ -19,7 +18,6 @@ import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
      AngularMaterialModule,
      FormsModule,
      ReactiveFormsModule,
-     TruncatePipe,
      
    ],
   templateUrl: './salesreport.component.html',

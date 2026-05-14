@@ -55,6 +55,8 @@ import { ColumnDynamicColorService } from '../../../../../Service/Column-Colors/
 import { CommonService } from '../../../../../Service/common/common.service';
 import { BookingFilterService } from './services/booking-filter.service';
 import { BookingUpdatedLogDialogComponent } from '../booking-updated-log-dialog/booking-updated-log-dialog.component';
+import { AddFollowUpDialog } from '../../../Channel Partner/add-follow-up-dialog/add-follow-up-dialog';
+import { BookingApprovalDialog } from '../booking-approval-dialog/booking-approval-dialog';
 
 // ==================== TYPE DEFINITIONS ====================
 
@@ -274,7 +276,7 @@ export class AllBookingsComponent implements OnInit {
         { key: 'applicant_name', label: 'Client Name' },
         { key: 'sales_executive', label: 'Executive' },
         { key: 'closed_by_name', label: 'Closed By' },
-
+        { key: 'latest_follow_up', label: 'Latest Follow Up', type: 'truncate' },
         {
             key: 'agreement_status',
             label: 'Agreement Status',
@@ -306,6 +308,12 @@ export class AllBookingsComponent implements OnInit {
         { key: 'booking_amount', label: 'Booking Amount', isAmount: true },
         { key: 'transaction_date', label: 'Transaction Date', type: 'mediumDate' },
         { key: 'transaction_no', label: 'Transaction No' },
+        { key: 'home_loan_doc_submission_date', label: 'Home Loan Doc Submission Date', type: 'mediumDate' },
+        { key: 'tax_payment_completion_date', label: 'Tax Payment Completion Date', type: 'mediumDate' },
+        { key: 'own_contribution_payment_date', label: 'Own Contribution Payment Date', type: 'mediumDate' },
+        { key: 'agreement_completion_date', label: 'Agreement Completion Date', type: 'mediumDate' },
+        { key: 'disbursement_completion_date', label: 'Disbursement Completion Date', type: 'mediumDate' },
+        { key: 'home_loan_amount', label: 'Home Loan Amount', isAmount: true },
         { key: 'carpet', label: 'Carpet' },
         { key: 'balcony', label: 'Balcony' },
         { key: 'terrace', label: 'Terrace' },
@@ -339,6 +347,7 @@ export class AllBookingsComponent implements OnInit {
         { key: 'source', label: 'Source' },
         { key: 'source_detail', label: 'Source Type' },
         { key: 'firm_name', label: 'Channel Partner' },
+        { key: 'cp_executive', label: 'CP Executive' },
         { key: 'source_description', label: 'Source Info', type: 'truncate' },
         { key: 'remark', label: 'Comment', type: 'truncate' },
         { key: 'offer_name', label: 'Offer Name', type: 'truncate' },
@@ -350,12 +359,28 @@ export class AllBookingsComponent implements OnInit {
 
     readonly bookingActions: BookingAction[] = [
         {
+            action: 'addFollowUpBooking',
+            icon: 'add_comment',
+            tooltip: 'Add Follow Up',
+            color: 'primary',
+            disabled: false,
+            show: () => this.hasPermission('668'),
+        },
+        {
             action: 'editBooking',
             icon: 'edit_note',
             tooltip: 'Edit Booking',
             color: 'primary',
             disabled: false,
             show: () => this.hasPermission('489'),
+        },
+        {
+            action: 'sendForApproval',
+            icon: 'add_task',
+            tooltip: 'Send for Approval',
+            color: 'primary',
+            disabled: false,
+            show: () => this.hasPermission('669'),
         },
         {
             action: 'viewBookingeditLog',
@@ -650,12 +675,13 @@ export class AllBookingsComponent implements OnInit {
 
     onBookingAction(action: string, row: BookingInfo): void {
         const actionMap: Record<string, (row: BookingInfo) => void> = {
-
             'deleteBooking': (r) => this.deleteBookings(r.booking_id!),
             'editBooking': (r) => this.editBooking(r),
+            'sendForApproval': (r) => this.sendForApproval(r),
             'cancelBooking': (r) => this.cancelBooking(r),
             'viewBookingeditLog': (r) => this.viewBookingeditLog(r),
             'shareOnWhatsApp': (r) => this.shareOnWhatsApp(r),
+            'addFollowUpBooking': (r) => this.addFollowUpBooking(r),
         };
 
         const handler = actionMap[action];
@@ -730,6 +756,28 @@ export class AllBookingsComponent implements OnInit {
             window.open(whatsappUrl, '_blank');
         }
     }
+    addFollowUpBooking(row: Record<string, unknown>): void {
+        const bookingId = Number(row['booking_id']);
+        if (!bookingId) {
+            this.showError('Invalid booking.');
+            return;
+        }
+        const dialogRef = this.dialog.open(AddFollowUpDialog, {
+            width: '40vw',
+            maxWidth: '50vw',
+            data: {
+                booking_id: bookingId,
+                title: 'Add Follow Up' + ' - ' + (row['applicant_name'] ?? undefined),
+                addApi: 'add_booking_followup',
+                fetchApi: 'fetch_booking_followup',
+                showProspectCount: false
+            },
+        });
+        dialogRef.afterClosed().subscribe((result) => {
+            this.fetchAllBookings();
+
+        });
+    }
     cancelBooking(row: BookingInfo): void {
         const dialogRef = this.dialog.open(CancelTokenDialogComponent, {
             width: 'auto',
@@ -786,7 +834,30 @@ export class AllBookingsComponent implements OnInit {
                 this.fetchAllBookings();
             });
     }
+    sendForApproval(row: BookingInfo): void {
+        if (!row.booking_id) {
+            this.showError('Invalid booking.');
+            return;
+        }
 
+        const dialogRef = this.dialog.open(BookingApprovalDialog, {
+            width: '700px',
+            maxWidth: '95vw',
+            disableClose: true,
+            data: {
+                booking_id: row.booking_id,
+                project_id: row['project_id'] ?? null,
+                source_id: row['source_id'] ?? null,
+                closed_by: row['closed_by'] ?? null,
+                source_detail_id: row['source_detail_id'] ?? null,
+                source_executive_id: row['source_executive_id'] ?? null,
+                channel_partner_id: row['channel_partner_id'] ?? null,
+                sales_executive_id: row['sales_executive_id'] ?? null,
+                booking_date: row['booking_date'] ?? null,
+                source_description: row['source_description'] ?? null,
+            },
+        });
+    }
     deleteBookings(bookingId: number): void {
         const dialogRef = this.dialog.open(ConfirmDialogComponent, {
             minWidth: '25vw',

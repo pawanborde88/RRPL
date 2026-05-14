@@ -11,7 +11,6 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../../angular-material.module';
 import { environment } from '../../../../../../../environments/environment';
 import { ReusableTableComponent } from '../../../../../../Common/Reusable/reusable-table/reusable-table.component';
-import { TruncatePipe } from '../../../../../../Pipes/truncate.pipe';
 import { TemplateComponent } from '../../../../../../Common/template/template.component';
 import { BreadcrumbComponent } from '../../../../../../Common/breadcrumb/breadcrumb.component';
 
@@ -25,7 +24,6 @@ import { BreadcrumbComponent } from '../../../../../../Common/breadcrumb/breadcr
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     TemplateComponent,
     BreadcrumbComponent
   ],

@@ -8,12 +8,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 
-import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
-import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
+import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 
 @Component({
   selector: 'app-pay-token-manually',
@@ -25,12 +22,8 @@ import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb
     FormsModule,
     ReactiveFormsModule,
 
-    AddTokenPaymentComponent,
-    AmountDirective,
-    SuccessDialogComponent,
     AutocompleteReusableComponent,
-    TemplateComponent,
-    BreadcrumbComponent
+    AmountDirective
   ],
   templateUrl: './pay-token-manually.component.html',
   styleUrl: './pay-token-manually.component.scss'

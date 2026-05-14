@@ -76,8 +76,8 @@ export class AddChannelPartnerComponent implements OnInit {
     user_id: new FormControl(this.userId),
     created_by: new FormControl(this.userId),
     firm_name: new FormControl('', [Validators.required]),
-    firm_address: new FormControl(''),
-    firm_city: new FormControl(''),
+    firm_address: new FormControl('', [Validators.required]),
+    firm_city: new FormControl('', [Validators.required]),
     state: new FormControl('Maharashtra'),
     country: new FormControl('India'),
     gst: new FormControl('', [
@@ -89,21 +89,23 @@ export class AddChannelPartnerComponent implements OnInit {
       Validators.pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/),
       Validators.required,
     ]),
-    bank_name: new FormControl(''),
+    bank_name: new FormControl('', [Validators.required]),
     active_status_id: new FormControl(1),
     team_size: new FormControl(0, [Validators.min(0)]),
     firm_email: new FormControl('', [
       Validators.email,
       Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|in)$/),
+      Validators.required
     ]),
     updated_by: new FormControl(this.userId),
     firm_phone: new FormControl('', [
+      Validators.required,
       Validators.pattern(/^\d{10}$/),
       Validators.minLength(10),
       Validators.maxLength(10),
     ]),
     firm_website: new FormControl(''),
-    bank_account_no: new FormControl(''),
+    bank_account_no: new FormControl('', [Validators.required, Validators.pattern(/^\d{9,18}$/)]),
     bank_type_id: new FormControl(1),
     pin_code: new FormControl('', [
       Validators.pattern(/^[0-9]{6}$/)
@@ -112,9 +114,9 @@ export class AddChannelPartnerComponent implements OnInit {
     passbook_photo: new FormControl<string | null>(null),
     rera_certificate: new FormControl<string | null>(null),
     rera_expiry_date: new FormControl<Date | null>(null),
-    branch_name: new FormControl(''),
-    bank_account_name: new FormControl(''),
-    ifsc_code: new FormControl(''),
+    branch_name: new FormControl('', [Validators.required]),
+    bank_account_name: new FormControl('', [Validators.required]),
+    ifsc_code: new FormControl('', [Validators.required, Validators.pattern(/^[A-Z]{4}0[A-Z0-9]{6}$/)]),
     rera: new FormControl('', [Validators.required]),
     channel_partner_id: new FormControl(''),
   });
@@ -223,6 +225,7 @@ export class AddChannelPartnerComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.addChannelPartnerForm.markAllAsTouched();
     if (this.addChannelPartnerForm.invalid) {
       this.snackBar.open('Please fill all required fields correctly', 'Close', {
         duration: 3000,

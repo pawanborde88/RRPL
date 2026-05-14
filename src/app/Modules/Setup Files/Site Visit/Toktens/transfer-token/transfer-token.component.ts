@@ -9,7 +9,6 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
@@ -23,7 +22,6 @@ import { AutocompleteReusableComponent } from '../../../../../Common/autocomplet
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    AddTokenPaymentComponent,
     TemplateComponent,
     BreadcrumbComponent,
     AutocompleteReusableComponent

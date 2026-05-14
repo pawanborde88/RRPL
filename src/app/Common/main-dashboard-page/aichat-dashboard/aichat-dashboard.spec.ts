@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AllSourceWiseTargets } from './all-source-wise-targets';
+import { AIChatDashboard } from './aichat-dashboard';
 
-describe('AllSourceWiseTargets', () => {
-  let component: AllSourceWiseTargets;
-  let fixture: ComponentFixture<AllSourceWiseTargets>;
+describe('AIChatDashboard', () => {
+  let component: AIChatDashboard;
+  let fixture: ComponentFixture<AIChatDashboard>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AllSourceWiseTargets]
+      imports: [AIChatDashboard]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AllSourceWiseTargets);
+    fixture = TestBed.createComponent(AIChatDashboard);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

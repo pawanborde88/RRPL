@@ -39,6 +39,19 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+        <mat-form-field appearance="outline" class="col-md-4">
+          <mat-label>Amount Type</mat-label>
+          <mat-select formControlName="amount_type">
+            <mat-option [value]="0">Credit Receipt</mat-option>
+            <mat-option [value]="1">Debit Receipt</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-md-4"
+          *ngIf="addProjectsRecipts.get('amount_type')?.value === 1">
+          <mat-label>Refund Amount</mat-label>
+          <input matInput formControlName="refund_amount" appAmount>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="col-md-4">
           <mat-label>Receipt Date</mat-label>
@@ -60,7 +73,7 @@
         </mat-form-field>
 
         <!-- Amount Details -->
-        <mat-form-field appearance="outline" class="col-md-4">
+        <mat-form-field appearance="outline" class="col-md-4" *ngIf="addProjectsRecipts.get('amount_type')?.value === 0">
           <mat-label>Received Amount</mat-label>
           <input matInput formControlName="received_amount" appAmount>
         </mat-form-field>
@@ -87,9 +100,9 @@
 
 
         <!-- Remarks -->
-        <mat-form-field appearance="outline" class="col-md-4">
-          <mat-label>Remarks</mat-label>
-          <input matInput type="text" formControlName="remark">
+        <mat-form-field appearance="outline" class="col-md-12">
+          <mat-label>Receipt Remarks</mat-label>
+          <input matInput type="text" formControlName="remark" placeholder="Add Receipt Remarks">
         </mat-form-field>
         <!-- File Upload -->
         <div class="col-md-5">

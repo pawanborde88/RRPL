@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -26,7 +25,6 @@ import { FetchFunctionsService } from '../../../../Service/fetch-functions.servi
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
   ],
   templateUrl: './whatsapp-message-logs.component.html',
   styleUrl: './whatsapp-message-logs.component.scss'

@@ -261,7 +261,8 @@ export class AgGridColumnService {
       return PhotoCellRendererComponent;
     } else if (col.type === 'sensitive') {
       return SensitiveCellRendererComponent;
-    } else if (col.clickable === true) {
+    }
+    else if (col.clickable === true) {
       return ClickableCellRendererComponent;
     }
     return undefined;
@@ -450,6 +451,9 @@ export class AgGridColumnService {
     }
     if (col.type === 'actions') {
       return { actions, onActionClick };
+    }
+    if (col.type === 'changes' || col.type === 'existing_value' || col.type === 'requested_value') {
+      return { changeType: col.type, column: col };
     }
     if (col.clickable === true) {
       return { column: col };

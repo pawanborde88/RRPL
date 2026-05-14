@@ -415,6 +415,8 @@ export class UnifiedDocumentDialogStore {
 
         if ([DocumentDialogType.BOOKING_FORM, DocumentDialogType.BOOKING_COST_SHEET, DocumentDialogType.ALLOTMENT_LETTER].includes(type)) {
             processed = this.handleApplicant2ColumnReplacement(processed, replacements);
+            processed = this.handleApplicant3ColumnReplacement(processed, replacements);
+            processed = this.handleApplicant4ColumnReplacement(processed, replacements);
             processed = this.handleBookingSpecialReplacements(processed, replacements);
         }
 
@@ -491,6 +493,30 @@ export class UnifiedDocumentDialogStore {
         const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         let res = html.replace(/<td[^>]*>#Applicant2#\s*<\/td>/, mergedBlock);
         const toRemove = ['#Applicant2Address#', '#Applicant2DOB#', '#Applicant2PAN#', '#Applicant2Aadhar#', '#Applicant2Email#', '#Applicant2MobileNo#', '#Applicant2Occupation#', '#Applicant2Age#'];
+        toRemove.forEach(ph => {
+            res = res.replace(new RegExp('<td[^>]*>\\s*' + esc(ph) + '\\s*<\\/td>', 'g'), '');
+        });
+        return res;
+    }
+
+    private handleApplicant3ColumnReplacement(html: string, replacements: Record<string, string>): string {
+        const mergedBlock = replacements['__applicant3MergeBlock__'];
+        if (!mergedBlock) return html;
+        const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let res = html.replace(/<td[^>]*>#Applicant3#\s*<\/td>/, mergedBlock);
+        const toRemove = ['#Applicant3Address#', '#Applicant3DOB#', '#Applicant3PAN#', '#Applicant3Aadhar#', '#Applicant3Email#', '#Applicant3MobileNo#', '#Applicant3Occupation#', '#Applicant3Age#'];
+        toRemove.forEach(ph => {
+            res = res.replace(new RegExp('<td[^>]*>\\s*' + esc(ph) + '\\s*<\\/td>', 'g'), '');
+        });
+        return res;
+    }
+
+    private handleApplicant4ColumnReplacement(html: string, replacements: Record<string, string>): string {
+        const mergedBlock = replacements['__applicant4MergeBlock__'];
+        if (!mergedBlock) return html;
+        const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let res = html.replace(/<td[^>]*>#Applicant4#\s*<\/td>/, mergedBlock);
+        const toRemove = ['#Applicant4Address#', '#Applicant4DOB#', '#Applicant4PAN#', '#Applicant4Aadhar#', '#Applicant4Email#', '#Applicant4MobileNo#', '#Applicant4Occupation#', '#Applicant4Age#'];
         toRemove.forEach(ph => {
             res = res.replace(new RegExp('<td[^>]*>\\s*' + esc(ph) + '\\s*<\\/td>', 'g'), '');
         });

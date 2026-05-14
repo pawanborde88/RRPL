@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, signal, ViewChild } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal, ViewChild, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -35,7 +35,7 @@ interface EnquiryFilterForm {
   templateUrl: './crm-activity-report.html',
   styleUrl: './crm-activity-report.scss',
 })
-export class CrmActivityReport {
+export class CrmActivityReport implements OnChanges {
   // Dependency Injection
   private readonly commonService = inject(CommonService);
   private readonly snackBar = inject(MatSnackBar);
@@ -94,6 +94,46 @@ export class CrmActivityReport {
   private readonly roleData = computed(() => {
     return sessionStorage.getItem('role_id');
   });
+
+  @Input() isEmbedded: boolean = false;
+  @Input() projectId: any;
+  @Input() targetFrom: any;
+  @Input() targetTo: any;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.isEmbedded) {
+      const patchValues: any = {};
+      let shouldFetch = false;
+
+      if (changes['projectId'] && changes['projectId'].currentValue) {
+        patchValues.project_id = [changes['projectId'].currentValue];
+        shouldFetch = true;
+      }
+      if (changes['targetFrom'] && changes['targetFrom'].currentValue) {
+        patchValues.start_date = new Date(changes['targetFrom'].currentValue);
+        shouldFetch = true;
+      }
+      if (changes['targetTo'] && changes['targetTo'].currentValue) {
+        patchValues.end_date = new Date(changes['targetTo'].currentValue);
+        shouldFetch = true;
+      }
+
+      if (shouldFetch && Object.keys(patchValues).length > 0) {
+        this.enquiryFilterForm.patchValue(patchValues, { emitEvent: false });
+        
+        this.formValues.set({
+          project_id: this.enquiryFilterForm.value.project_id ?? null,
+          start_date: this.enquiryFilterForm.value.start_date ?? null,
+          end_date: this.enquiryFilterForm.value.end_date ?? null,
+          ignore_date_filters: this.enquiryFilterForm.value.ignore_date_filters ?? false,
+        });
+
+        if (this.projectId && this.targetFrom && this.targetTo) {
+          this.fetchCrmReport();
+        }
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.fetchAllProjects();

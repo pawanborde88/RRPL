@@ -11,7 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { environment } from '../../../../../../environments/environment';
 
-import { ReusableTableComponent } from '../../../../../Common/Reusable/reusable-table/reusable-table.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
@@ -59,7 +58,6 @@ interface BookingBill {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    ReusableTableComponent,
     TemplateComponent,
     BreadcrumbComponent,
     ConfigurableAgGridDataComponent,

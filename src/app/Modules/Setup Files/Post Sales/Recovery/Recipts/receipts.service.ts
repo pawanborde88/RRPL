@@ -81,6 +81,8 @@ export interface Receipt extends TableRowData {
   gst_percentage?: number | null;
   gst?: number | null;
   amount?: number | null;
+  amount_type?: number | null;
+  refund_amount?: number | null;
   is_deleted?: number;
 }
 

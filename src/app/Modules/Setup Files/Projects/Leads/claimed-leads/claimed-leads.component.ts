@@ -563,12 +563,17 @@ export class ClaimedLeadsComponent implements OnInit {
   }
 
   openWhatsAppChattingDialog(data: any): void {
-    this.dialog.open(WhatAppChattingDialogComponent, {
-      minWidth: '40vw',
-      maxWidth: '40vw',
-      maxHeight: '80vh',
-      data: { chattingData: data },
-    });
+    // this.dialog.open(WhatAppChattingDialogComponent, {
+    //   minWidth: '40vw',
+    //   maxWidth: '40vw',
+    //   maxHeight: '80vh',
+    //   data: { chattingData: data },
+    // });
+
+    const phone = (data?.whatsapp_no || data?.mobile_no)?.toString().replace(/\D/g, '');
+    if (phone) {
+      window.open(`https://wa.me/${phone}`, '_blank');
+    }
   }
 
   openCallLeadDialog(data: any): void {
@@ -615,6 +620,8 @@ export class ClaimedLeadsComponent implements OnInit {
       { key: 're_enquiry', label: 'Re-enquiry' },
       { key: 'integration_name', label: 'Campaign Name' },
       { key: 'ai_lead_level', label: 'AI Lead Level' },
+      { key: 're_enquiry_count', label: 'Re-enquiry Count' },
+
       {
         key: 'imported',
         label: 'Imported',

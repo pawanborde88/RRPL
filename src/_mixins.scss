@@ -31,9 +31,12 @@
   // Firefox support
   @if $width < 10px {
     scrollbar-width: thin;
-  } @else {
+  }
+
+  @else {
     scrollbar-width: auto;
   }
+
   scrollbar-color: $thumb-color $track-color;
 }
 
@@ -70,7 +73,7 @@
     left: 12px !important;
     transform: translateY(-50%);
     font-size: vars.$font-size-base;
-    
+
     &.mdc-floating-label--float-above {
       transform: translateY(-26px) scale(0.85) !important; // Adjusted for 40px height
       background: #ffffff;

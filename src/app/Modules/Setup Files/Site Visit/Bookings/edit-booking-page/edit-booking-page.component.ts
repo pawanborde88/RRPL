@@ -21,6 +21,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
+import {
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
+} from '@angular/forms';
 
 
 
@@ -187,7 +192,44 @@ export class EditBookingPageComponent {
     updated_by: new FormControl(this.userId),
     show_scheme: new FormControl(false),
     is_parking_charges_added: new FormControl(false),
+    tentative_loan_amount: new FormControl(''),
+    type_of_payment: new FormControl<string | null>(null),
+    home_loan_amount: new FormControl<string | null>(null),
+    home_loan_doc_submission_date: new FormControl<Date | null>(null),
+    tax_payment_completion_date: new FormControl<Date | null>(null),
+    own_contribution_payment_date: new FormControl<Date | null>(null),
+    agreement_completion_date: new FormControl<Date | null>(null),
+    disbursement_completion_date: new FormControl<Date | null>(null),
   });
+
+  // ⚡ Milestone Date Constraints
+  private readonly bookingDateSignal = toSignal(
+    this.addBookingForm.get('booking_date')!.valueChanges.pipe(
+      startWith(this.addBookingForm.get('booking_date')?.value)
+    ),
+    { initialValue: this.addBookingForm.get('booking_date')?.value }
+  );
+
+  readonly baseBookingDate = computed(() => {
+    const dateValue = this.bookingDateSignal();
+    if (!dateValue) return null;
+    const date = new Date(dateValue);
+    return isNaN(date.getTime()) ? null : date;
+  });
+
+  readonly homeLoanMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 5));
+  readonly taxPaymentMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 15));
+  readonly ownContributionMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 15));
+  readonly agreementMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 25));
+  readonly disbursementMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 45));
+
+  private calculateOffsetDate(base: Date | null, days: number): Date | null {
+    if (!base) return null;
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
 
   // ⚡ Reactive form validation state - tracks both status and value changes for better reactivity
   private readonly formValid = toSignal(
@@ -197,9 +239,9 @@ export class EditBookingPageComponent {
     ).pipe(
       map(() => this.addBookingForm.valid),
       distinctUntilChanged(),
-
+      startWith(this.addBookingForm.valid)
     ),
-
+    { initialValue: this.addBookingForm.valid }
   );
 
   // ⚡ Computed signal for submit button state
@@ -209,6 +251,8 @@ export class EditBookingPageComponent {
     this.setupFormCalculations();
     this.initializeComponent();
     this.setupReactiveControlStates();
+    this.setupDateCalculations();
+    this.setupPaymentTypeValidation();
   }
 
   /**
@@ -234,6 +278,150 @@ export class EditBookingPageComponent {
         hasFloorUnits() ? floorUnitControl.enable({ emitEvent: false }) : floorUnitControl.disable({ emitEvent: false });
       }
     }, { allowSignalWrites: true });
+  }
+
+  /**
+   * Setup date calculations from booking date
+   */
+  private setupDateCalculations(): void {
+    // Re-calculate dates when booking_date changes
+    this.addBookingForm.get('booking_date')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      distinctUntilChanged()
+    ).subscribe((bookingDateStr) => {
+      if (bookingDateStr && !this.isPatchingFromBooking) {
+        const baseDate = new Date(bookingDateStr);
+        if (!isNaN(baseDate.getTime())) {
+          const addDays = (date: Date, days: number): Date => {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+          };
+
+          this.addBookingForm.patchValue({
+            home_loan_doc_submission_date: addDays(baseDate, 5),
+            tax_payment_completion_date: addDays(baseDate, 15),
+            own_contribution_payment_date: addDays(baseDate, 15),
+            agreement_completion_date: addDays(baseDate, 25),
+            disbursement_completion_date: addDays(baseDate, 45)
+          }, { emitEvent: false });
+        }
+      }
+    });
+  }
+
+  /**
+   * Setup initial payment type validation and subscription
+   */
+  private setupPaymentTypeValidation(): void {
+    this.addBookingForm.get('type_of_payment')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      distinctUntilChanged()
+    ).subscribe((type) => {
+      this.updatePaymentValidators(type);
+    });
+
+    // Initial check
+    this.updatePaymentValidators(this.addBookingForm.get('type_of_payment')?.value);
+  }
+
+  /**
+   * Update payment-related validators based on payment type
+   */
+  private updatePaymentValidators(type: string | null | undefined): void {
+    const typeOfPayment = this.addBookingForm.get('type_of_payment');
+    const loanAmount = this.addBookingForm.get('home_loan_amount');
+    const loanDate = this.addBookingForm.get('home_loan_doc_submission_date');
+    const taxDate = this.addBookingForm.get('tax_payment_completion_date');
+    const ownDate = this.addBookingForm.get('own_contribution_payment_date');
+    const agreementDate = this.addBookingForm.get('agreement_completion_date');
+    const disbursementDate = this.addBookingForm.get('disbursement_completion_date');
+
+    const milestoneFields = [taxDate, ownDate, agreementDate, disbursementDate];
+    const loanFields = [loanAmount, loanDate];
+
+    // ⚡ If not admin, clear all validators and exit
+    if (this.roleId !== 2) {
+      typeOfPayment?.clearValidators();
+      typeOfPayment?.updateValueAndValidity({ emitEvent: false });
+      loanFields.concat(milestoneFields).forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity({ emitEvent: false });
+      });
+      return;
+    }
+
+    // ⚡ Admin only logic
+    typeOfPayment?.setValidators(Validators.required);
+    typeOfPayment?.updateValueAndValidity({ emitEvent: false });
+
+    const typeValue = type ? String(type) : null;
+
+    if (typeValue === '1') {
+      loanAmount?.setValidators([Validators.required, this.homeLoanAmountValidator()]);
+      loanDate?.setValidators(Validators.required);
+      loanFields.forEach(f => f?.updateValueAndValidity({ emitEvent: false }));
+      milestoneFields.forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity({ emitEvent: false });
+      });
+    } else if (typeValue === '2') {
+      loanFields.forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity({ emitEvent: false });
+      });
+      milestoneFields.forEach(f => {
+        f?.setValidators(Validators.required);
+        f?.updateValueAndValidity({ emitEvent: false });
+      });
+    } else {
+      loanFields.concat(milestoneFields).forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity({ emitEvent: false });
+      });
+    }
+  }
+
+  /**
+   * Custom validator for Home Loan Amount
+   */
+  private homeLoanAmountValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+
+      const amount = this.parseNumber(control.value);
+      const agreementCost = this.parseNumber(this.addBookingForm.get('agreement_cost')?.value);
+
+      if (!agreementCost) return null;
+
+      if (amount > agreementCost) {
+        return { amountExceedsAgreement: true };
+      }
+
+      const minAllowed = agreementCost * 0.11;
+      if (amount < minAllowed) {
+        return { minLoanRequired: true };
+      }
+
+      return null;
+    };
+  }
+
+  /**
+   * Helper to parse number from string (handling commas)
+   */
+  private parseNumber(value: any): number {
+    if (value === null || value === undefined || value === '') return 0;
+    if (typeof value === 'number') return value;
+    return Number(value.toString().replace(/,/g, ''));
+  }
+
+  /**
+   * Helper to format date for API
+   */
+  private formatDate(date: any): string | null {
+    if (!date) return null;
+    return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
 
   /**
@@ -617,7 +805,21 @@ export class EditBookingPageComponent {
               booking_amount: bookingData.booking_amount ?? null,
               floor_unit: bookingData.floor_unit ?? null,
               applicant_name: bookingData.applicant_name ?? null,
+              tentative_loan_amount: bookingData.tentative_loan_amount ?? null,
+              type_of_payment: bookingData.type_of_payment ? String(bookingData.type_of_payment) : null,
+              home_loan_amount: bookingData.home_loan_amount ?? null,
+              home_loan_doc_submission_date: bookingData.home_loan_doc_submission_date ? new Date(bookingData.home_loan_doc_submission_date) : null,
+              tax_payment_completion_date: bookingData.tax_payment_completion_date ? new Date(bookingData.tax_payment_completion_date) : null,
+              own_contribution_payment_date: bookingData.own_contribution_payment_date ? new Date(bookingData.own_contribution_payment_date) : null,
+              agreement_completion_date: bookingData.agreement_completion_date ? new Date(bookingData.agreement_completion_date) : null,
+              disbursement_completion_date: bookingData.disbursement_completion_date ? new Date(bookingData.disbursement_completion_date) : null,
             }, { emitEvent: false });
+
+            // Trigger updates for signals and validators
+            this.addBookingForm.get('booking_date')?.updateValueAndValidity({ emitEvent: true });
+            this.addBookingForm.get('type_of_payment')?.updateValueAndValidity({ emitEvent: true });
+
+            this.isPatchingFromBooking = false;
 
             // Load source details if source_id exists
             if (patchSourceId !== null) {
@@ -1116,15 +1318,13 @@ export class EditBookingPageComponent {
     return agreementCost * (gstPercent / 100);
   }
 
-  /**
-   * Calculate stamp duty
-   */
   private calculateStampDuty(agreementCost: number): number {
     const sdPercent = this.getFormValueAsNumber('sd_per') || 0;
     const duty = agreementCost * (sdPercent / 100);
-    return Math.ceil(duty / 100) * 100;
+    // Use Math.round(duty) to avoid floating point precision issues that can cause 
+    // Math.ceil to jump to the next 100 (e.g., 700000.0000001 becoming 700100)
+    return Math.ceil(Math.round(duty) / 100) * 100;
   }
-
   /**
    * Calculate registration fee
    */
@@ -1318,10 +1518,17 @@ export class EditBookingPageComponent {
       enter_package: formValue.enter_package,
       offer_name: formValue.offer_name,
       parking_charges: formValue.parking_charges,
+      is_parking_charges_added: formValue.is_parking_charges_added === true ? 1 : 0,
+      tentative_loan_amount: formValue.tentative_loan_amount,
       updated_by: this.userId,
-      booking_date: formValue.booking_date
-        ? this.datePipe.transform(formValue.booking_date as unknown as string | number | Date, 'yyyy-MM-dd')
-        : null,
+      booking_date: this.formatDate(formValue.booking_date),
+      home_loan_doc_submission_date: this.formatDate(formValue.home_loan_doc_submission_date),
+      tax_payment_completion_date: this.formatDate(formValue.tax_payment_completion_date),
+      own_contribution_payment_date: this.formatDate(formValue.own_contribution_payment_date),
+      agreement_completion_date: this.formatDate(formValue.agreement_completion_date),
+      disbursement_completion_date: this.formatDate(formValue.disbursement_completion_date),
+      type_of_payment: formValue.type_of_payment,
+      home_loan_amount: formValue.home_loan_amount,
     };
 
     this.bookingService

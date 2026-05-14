@@ -17,9 +17,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { environment } from '../../../../../environments/environment';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -34,8 +31,6 @@ import {
   ScrollState
 } from './preview-images.models';
 import {
-  ResolveImagePipe,
-  IsImageSelectedPipe,
   ImageUrlPipe
 } from './preview-images.pipes';
 
@@ -55,14 +50,9 @@ import {
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    ResolveImagePipe,
-    IsImageSelectedPipe,
     ImageUrlPipe,
   ],
   templateUrl: './preview-images.component.html',

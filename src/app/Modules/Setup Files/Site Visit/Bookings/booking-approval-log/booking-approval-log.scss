@@ -1,0 +1,68 @@
+::ng-deep {
+
+    // Modern Color Palette for Log Categories
+    .log-bg-blue {
+        background-color: #e0f2fe !important; // Blue 100
+
+    }
+
+    .log-bg-orange {
+        background-color: #fff7ed !important; // Orange 50
+
+    }
+
+    .log-bg-emerald {
+        background-color: #ecfdf5 !important; // Emerald 50
+
+    }
+
+    .log-bg-purple {
+        background-color: #f5f3ff !important; // Violet 50
+
+    }
+
+    // Comparison States
+    .log-bg-previous {
+        background-color: #f3f4f6 !important; // Gray 100
+        color: #4b5563 !important;
+        font-style: italic !important;
+    }
+
+    .log-bg-requested {
+        background-color: #fefce8 !important; // Yellow 50 (Pending/Request)
+        font-weight: 500 !important;
+    }
+
+    // Legacy Support (Mapping old names to new styles)
+    .bg-project-info {
+        background-color: #e0f2fe !important;
+
+    }
+
+    .bg-gov-taxes {
+        background-color: #fff7ed !important;
+
+    }
+
+    .bg-additional-charges {
+        background-color: #ecfdf5 !important;
+
+    }
+
+    .bg-other-summary {
+        background-color: #f5f3ff !important;
+
+    }
+
+    // Table Header Aesthetics
+    .ag-header-group-cell {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .ag-header-group-center .ag-header-group-cell-label {
+        justify-content: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+}

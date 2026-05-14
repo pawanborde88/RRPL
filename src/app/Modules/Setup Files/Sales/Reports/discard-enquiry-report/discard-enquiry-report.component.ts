@@ -12,12 +12,10 @@ import { Router } from '@angular/router';
 import { catchError, of, finalize } from 'rxjs';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
 import { CommonService } from '../../../../../Service/common/common.service';
-import { ActionColumnComponent } from '../../../../../Common/action-column/action-column.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
 
 import { TemplateComponent } from '../../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../../Pipes/truncate.pipe';
 import { CommentLogComponent } from '../../../comment-log/comment-log.component';
 import { ConfigurableAgGridDataComponent } from '../../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
 import { TableColumn } from '../../../../../Common/Reusable/reusable-table/reusable-table-refactored.types';
@@ -48,8 +46,6 @@ interface PaginationConfig {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
-    ActionColumnComponent,
     AutocompleteReusableComponent,
     ConfigurableAgGridDataComponent,
   ],

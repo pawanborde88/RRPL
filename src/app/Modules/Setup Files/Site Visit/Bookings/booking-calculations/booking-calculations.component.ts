@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -7,14 +7,18 @@ import {
   inject,
   DestroyRef,
   input,
+  ChangeDetectorRef,
 } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../../angular-material.module';
@@ -24,9 +28,9 @@ import { AutocompleteReusableComponent } from '../../../../../Common/autocomplet
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
-import { combineLatest, filter, distinctUntilChanged } from 'rxjs';
+import { catchError, combineLatest, distinctUntilChanged, EMPTY, filter } from 'rxjs';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
-import { BookingService } from '../../../../../Service/booking.service';
+import { BookingService, AddBookingPaymentPayload, PaymentMode, Bank } from '../../../../../Service/booking.service';
 import { BookingCalculationsStateService } from './services/booking-calculations.state.service';
 import { effect } from '@angular/core';
 
@@ -69,6 +73,8 @@ export class BookingCalculationsComponent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly datePipe = new DatePipe('en-US');
 
   // ⚡ Inputs
   readonly BookingData = input<any>();
@@ -95,6 +101,31 @@ export class BookingCalculationsComponent {
   readonly confiList = this.stateService.unitTypes;
   readonly UnitNo = this.stateService.floorUnits;
   readonly projects = this.stateService.projects;
+  readonly allParkingTypeList = this.stateService.parkingTypes;
+
+  // ⚡ Payment signals
+  private readonly isSubmittingPayment = signal<boolean>(false);
+  readonly hasPaymentBeenAdded = signal<boolean>(false);
+
+  readonly paymentModes = toSignal(
+    this.bookingService.fetchPaymentModes().pipe(
+      catchError(() => { this.snackBar.open('Failed to load payment modes', 'Close', { duration: 3000 }); return EMPTY; })
+    ),
+    { initialValue: [] as PaymentMode[] }
+  )!;
+
+  readonly banks = toSignal(
+    this.bookingService.fetchBanks().pipe(
+      catchError(() => { this.snackBar.open('Failed to load banks', 'Close', { duration: 3000 }); return EMPTY; })
+    ),
+    { initialValue: [] as Bank[] }
+  )!;
+
+  readonly isAddPaymentDisabled = computed(() => this.isSubmittingPayment() || this.hasPaymentBeenAdded());
+  readonly paymentButtonText = computed(() => this.hasPaymentBeenAdded() ? 'Payment Added' : 'Add Payment');
+  readonly paymentButtonIcon = computed(() => this.hasPaymentBeenAdded() ? 'check_circle' : 'payments');
+  readonly minPaymentDate = computed(() => { const d = new Date(); d.setDate(d.getDate() - 7); return d; });
+  readonly maxPaymentDate = computed(() => new Date());
 
   // ⚡ Computed values
   readonly canSubmit = computed(() =>
@@ -106,6 +137,27 @@ export class BookingCalculationsComponent {
   readonly stampDucyPercentage = computed(() =>
     this.stateService.agreementPercentage()?.sd_percentage || null
   );
+
+  // ⚡ Milestone Date Constraints
+  readonly baseBookingDate = computed(() => {
+    const info = this.stateService.bookingInfo();
+    if (!info?.booking_date) return null;
+    const date = new Date(info.booking_date);
+    return isNaN(date.getTime()) ? null : date;
+  });
+
+  readonly homeLoanMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 5));
+  readonly taxPaymentMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 15));
+  readonly ownContributionMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 15));
+  readonly agreementMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 25));
+  readonly disbursementMaxDate = computed(() => this.calculateOffsetDate(this.baseBookingDate(), 45));
+
+  private calculateOffsetDate(base: Date | null, days: number): Date | null {
+    if (!base) return null;
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return d;
+  }
 
   // ⚡ Form Group
   readonly addBookingForm = new FormGroup({
@@ -122,6 +174,8 @@ export class BookingCalculationsComponent {
     remark: new FormControl(''),
     wing_id: new FormControl('', Validators.required),
     floor_id: new FormControl(''),
+    parking_type_id: new FormControl(''),
+
     floor_unit: new FormControl(''),
     unit_type_id: new FormControl(''),
     unit_no: new FormControl(),
@@ -165,6 +219,39 @@ export class BookingCalculationsComponent {
     show_scheme: new FormControl(false),
     is_parking_charges_added: new FormControl(false),
     tentative_loan_amount: new FormControl(''),
+    home_loan_doc_submission_date: new FormControl<Date | null>(null),
+    tax_payment_completion_date: new FormControl<Date | null>(null),
+    own_contribution_payment_date: new FormControl<Date | null>(null),
+    agreement_completion_date: new FormControl<Date | null>(null),
+    disbursement_completion_date: new FormControl<Date | null>(null),
+    type_of_payment: new FormControl<string | null>(null, Validators.required),
+    home_loan_amount: new FormControl<string | null>(null),
+
+  });
+
+  // ⚡ Payment Form (separate form group for booking payment details)
+  readonly addBookingPaymentForm = new FormGroup<{
+    booking_date: FormControl<string | null>;
+    booking_amount: FormControl<string | null>;
+    bank_details: FormControl<string | null>;
+    payment_mode_id: FormControl<number | null>;
+    cheque_date: FormControl<string | null>;
+    cheque_no: FormControl<string | null>;
+    bank_name_id: FormControl<number | null>;
+    created_by: FormControl<number | null>;
+    booking_id: FormControl<number | null>;
+    updated_by: FormControl<number | null>;
+  }>({
+    booking_date: new FormControl(this.getFormattedDate(new Date())),
+    booking_amount: new FormControl<string | null>(null, Validators.required),
+    bank_details: new FormControl<string | null>(null),
+    payment_mode_id: new FormControl<number | null>(null, Validators.required),
+    cheque_date: new FormControl(this.getFormattedDate(new Date())),
+    cheque_no: new FormControl<string | null>(null, Validators.required),
+    bank_name_id: new FormControl<number | null>(null),
+    created_by: new FormControl<number | null>(null),
+    booking_id: new FormControl<number | null>(null),
+    updated_by: new FormControl<number | null>(this.userId),
   });
 
   constructor() {
@@ -174,6 +261,37 @@ export class BookingCalculationsComponent {
     this.setupSourceValidation();
     this.setupAgreementPercentageSubscription();
     this.setupFloorUnitControlEnabling();
+    this.setupDateCalculations();
+    this.setupPaymentTypeValidation();
+  }
+
+  /**
+   * Setup date calculations from booking date
+   */
+  private setupDateCalculations(): void {
+    effect(() => {
+      const info = this.stateService.bookingInfo();
+      if (info?.booking_date) {
+        const bookingDateStr = info.booking_date;
+        // Parse the booking date (assumes standard format like YYYY-MM-DD or valid date string)
+        const baseDate = new Date(bookingDateStr);
+        if (!isNaN(baseDate.getTime())) {
+          const addDays = (date: Date, days: number): Date => {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+          };
+
+          this.addBookingForm.patchValue({
+            home_loan_doc_submission_date: addDays(baseDate, 5),
+            tax_payment_completion_date: addDays(baseDate, 15),
+            own_contribution_payment_date: addDays(baseDate, 15),
+            agreement_completion_date: addDays(baseDate, 25),
+            disbursement_completion_date: addDays(baseDate, 45)
+          }, { emitEvent: false });
+        }
+      }
+    });
   }
 
   /**
@@ -245,6 +363,10 @@ export class BookingCalculationsComponent {
     this.stateService.fetchAgreementPercentage(data.booking_id);
     this.stateService.fetchAssignedProjects(data.project_id);
     this.stateService.fetchSalesExecutives(data.project_id);
+
+    // Patch booking_id into payment form and load existing payment details
+    this.addBookingPaymentForm.patchValue({ booking_id: data.booking_id });
+    this.loadBookingPaymentDetails(data.booking_id);
 
     // Fetch booking info and handle enquiry if exists
     this.bookingService
@@ -336,6 +458,128 @@ export class BookingCalculationsComponent {
         this.stateService.fetchSourceDetails(sourceId);
         this.updateSourceValidators(sourceId);
       });
+
+    // Agreement cost changes -> Re-validate home loan amount
+    this.addBookingForm.get('agreement_cost')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      const loanCtrl = this.addBookingForm.get('home_loan_amount');
+      loanCtrl?.updateValueAndValidity();
+      if (loanCtrl?.invalid) {
+        loanCtrl.markAsTouched();
+      }
+      this.cdr.markForCheck();
+    });
+
+    // Payment type selection -> Update validators
+    this.addBookingForm
+      .get('type_of_payment')
+      ?.valueChanges.pipe(
+        takeUntilDestroyed(this.destroyRef),
+        distinctUntilChanged()
+      )
+      .subscribe((type) => {
+        this.updatePaymentValidators(type);
+        const loanCtrl = this.addBookingForm.get('home_loan_amount');
+        if (loanCtrl?.invalid) {
+          loanCtrl.markAsTouched();
+        }
+        this.cdr.markForCheck();
+      });
+  }
+
+  /**
+   * Setup initial payment type validation
+   */
+  private setupPaymentTypeValidation(): void {
+    const type = this.addBookingForm.get('type_of_payment')?.value;
+    this.updatePaymentValidators(type);
+  }
+
+  /**
+   * Update payment-related validators based on payment type
+   */
+  private updatePaymentValidators(type: string | null | undefined): void {
+    const loanAmount = this.addBookingForm.get('home_loan_amount');
+    const loanDate = this.addBookingForm.get('home_loan_doc_submission_date');
+    const taxDate = this.addBookingForm.get('tax_payment_completion_date');
+    const ownDate = this.addBookingForm.get('own_contribution_payment_date');
+    const agreementDate = this.addBookingForm.get('agreement_completion_date');
+    const disbursementDate = this.addBookingForm.get('disbursement_completion_date');
+
+    const milestoneFields = [taxDate, ownDate, agreementDate, disbursementDate];
+    const loanFields = [loanAmount, loanDate];
+
+    // Convert type to string for consistent comparison
+    const typeValue = type ? String(type) : null;
+
+    if (typeValue === '1') {
+      // Home Loan: Only loan fields are required
+      loanAmount?.setValidators([Validators.required, this.homeLoanAmountValidator()]);
+      loanDate?.setValidators(Validators.required);
+      loanFields.forEach(f => {
+        f?.updateValueAndValidity();
+      });
+      milestoneFields.forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity();
+      });
+    } else if (typeValue === '2') {
+      // Self Fund: Milestone fields are required, loan fields are not
+      loanFields.forEach(f => {
+        f?.clearValidators();
+        f?.setValue(null);
+        f?.updateValueAndValidity();
+      });
+      milestoneFields.forEach(f => {
+        f?.setValidators(Validators.required);
+        f?.updateValueAndValidity();
+      });
+    } else {
+      // No selection: Clear all
+      loanFields.concat(milestoneFields).forEach(f => {
+        f?.clearValidators();
+        f?.updateValueAndValidity();
+      });
+    }
+
+    // Force change detection to update UI (asterisks in labels)
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Custom validator for Home Loan Amount
+   */
+  private homeLoanAmountValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+
+      const amount = this.parseNumber(control.value);
+      const agreementCost = this.parseNumber(this.addBookingForm.get('agreement_cost')?.value);
+
+      if (!agreementCost) return null;
+
+      if (amount > agreementCost) {
+        return { amountExceedsAgreement: true };
+      }
+
+      const minAllowed = agreementCost * 0.11;
+      if (amount < minAllowed) {
+        return { minLoanRequired: true };
+      }
+
+      return null;
+    };
+  }
+
+  /**
+   * Helper to parse number from string (handling commas)
+   */
+  private parseNumber(value: any): number {
+    if (value === null || value === undefined || value === '') return 0;
+    if (typeof value === 'number') return value;
+    return Number(value.toString().replace(/,/g, ''));
   }
 
   /**
@@ -878,7 +1122,9 @@ export class BookingCalculationsComponent {
   private calculateStampDuty(agreementCost: number): number {
     const sdPercent = this.getFormValueAsNumber('sd_per') || 0;
     const duty = agreementCost * (sdPercent / 100);
-    return Math.ceil(duty / 100) * 100;
+    // Use Math.round(duty) to avoid floating point precision issues that can cause 
+    // Math.ceil to jump to the next 100 (e.g., 700000.0000001 becoming 700100)
+    return Math.ceil(Math.round(duty) / 100) * 100;
   }
 
   /**
@@ -918,7 +1164,6 @@ export class BookingCalculationsComponent {
     this.calculationsDisabled.set(true);
     this.addBookingForm.patchValue(
       {
-        carpet: null,
         rate: null,
         market_value: null,
         idc: null,
@@ -970,6 +1215,16 @@ export class BookingCalculationsComponent {
     const formValue = this.addBookingForm.getRawValue();
     const bookingData = this.BookingData();
 
+    const formatDate = (date: any) => {
+      if (!date) return null;
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return null;
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
     const payload = {
       booking_id: bookingData?.booking_id,
       user_id: this.userId,
@@ -982,6 +1237,7 @@ export class BookingCalculationsComponent {
       source_description: formValue.source_description,
       remark: formValue.remark,
       wing_id: formValue.wing_id,
+      parking_type_id: formValue.parking_type_id,
       floor_id: formValue.floor_id,
       unit_type_id: formValue.unit_type_id,
       unit_id: formValue.unit_id,
@@ -1020,6 +1276,14 @@ export class BookingCalculationsComponent {
       offer_name: formValue.offer_name,
       parking_charges: formValue.parking_charges,
       tentative_loan_amount: formValue.tentative_loan_amount,
+      home_loan_doc_submission_date: formatDate(formValue.home_loan_doc_submission_date),
+      tax_payment_completion_date: formatDate(formValue.tax_payment_completion_date),
+      own_contribution_payment_date: formatDate(formValue.own_contribution_payment_date),
+      agreement_completion_date: formatDate(formValue.agreement_completion_date),
+      disbursement_completion_date: formatDate(formValue.disbursement_completion_date),
+      type_of_payment: formValue.type_of_payment,
+
+      home_loan_amount: formValue.home_loan_amount,
       created_by: this.userId,
     };
 
@@ -1028,6 +1292,9 @@ export class BookingCalculationsComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res: any) => {
+          // Automatically add payment after booking is updated
+          this.addPayment();
+
           this.dialog
             .open(SuccessDialogComponent, {
               data: { message: res.message },
@@ -1043,6 +1310,7 @@ export class BookingCalculationsComponent {
             });
 
           this.addBookingForm.reset();
+          this.addBookingPaymentForm.reset();
         },
         error: () => {
           this.snackBar.open('Failed to process booking.', 'Close', {
@@ -1053,6 +1321,85 @@ export class BookingCalculationsComponent {
   }
   fetchAssignedProjects(projectId: number | string): void {
     this.stateService.fetchAssignedProjects(projectId);
+  }
+
+  /**
+   * Add payment for the booking
+   */
+  addPayment(): void {
+    if (this.addBookingPaymentForm.invalid || this.isSubmittingPayment()) return;
+
+    const bookingId = this.BookingData()?.booking_id;
+    if (!bookingId) {
+      this.snackBar.open('Booking ID is required', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.isSubmittingPayment.set(true);
+    const fv = this.addBookingPaymentForm.getRawValue();
+
+    const payload: AddBookingPaymentPayload = {
+      booking_amount: fv.booking_amount?.toString() || '0',
+      payment_mode: fv.payment_mode_id ?? null,
+      transaction_no: fv.cheque_no || '',
+      transaction_date: fv.cheque_date
+        ? this.datePipe.transform(fv.cheque_date, 'yyyy-MM-dd') || null
+        : null,
+      booking_id: bookingId,
+      bank_id: fv.bank_name_id ?? null,
+      created_by: this.userId,
+      bank_details: fv.bank_details || null,
+    };
+
+    this.bookingService
+      .addBookingPayment(payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          if (response.success || response.message) {
+            this.hasPaymentBeenAdded.set(true);
+          }
+          this.isSubmittingPayment.set(false);
+        },
+        error: () => {
+          this.snackBar.open('Failed to add payment', 'Close', { duration: 3000 });
+          this.isSubmittingPayment.set(false);
+        },
+      });
+  }
+
+  /**
+   * Load existing payment details for this booking
+   */
+  private loadBookingPaymentDetails(bookingId: number): void {
+    this.bookingService
+      .fetchBookingPaymentDetails(bookingId)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError(() => {
+          this.snackBar.open('Failed to load payment details', 'Close', { duration: 3000 });
+          return EMPTY;
+        })
+      )
+      .subscribe((payments: any[]) => {
+        if (payments && payments.length > 0) {
+          const latest = payments.sort((a: any, b: any) => b.payment_deatil_id - a.payment_deatil_id)[0];
+          this.addBookingPaymentForm.patchValue({
+            booking_amount: latest.booking_amount?.toString() || null,
+            payment_mode_id: latest.payment_mode,
+            cheque_no: latest.transaction_no,
+            cheque_date: latest.transaction_date,
+            bank_name_id: latest.bank_id,
+            created_by: latest.created_by,
+            bank_details: latest.bank_details,
+          });
+          this.hasPaymentBeenAdded.set(true);
+        }
+      });
+  }
+
+  private getFormattedDate(date: Date): string {
+    return this.datePipe.transform(date, 'yyyy-MM-dd') || '';
   }
 
 }

@@ -10,8 +10,8 @@
   
   <!-- Add this section for cancel_remark when bookingForm is present -->
   <mat-form-field *ngIf="data?.for" appearance="outline" style="width: 100%; margin-top: 16px;">
-    <mat-label>Cancel Remark</mat-label>
-    <input matInput [(ngModel)]="cancelRemark" required placeholder="Please enter reason for cancellation">
+    <mat-label>{{ data?.label || 'Cancel Remark' }}</mat-label>
+    <input matInput [(ngModel)]="cancelRemark" required [placeholder]="data?.placeholder || 'Please enter reason for cancellation'">
   </mat-form-field>
 </mat-dialog-content>
 

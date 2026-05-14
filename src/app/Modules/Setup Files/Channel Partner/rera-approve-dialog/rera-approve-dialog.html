@@ -50,6 +50,15 @@
                 class="text-xs">
                 Please select a status
             </mat-error>
+
+            <mat-form-field appearance="outline" class="w-full mt-2">
+                <mat-label>Remark</mat-label>
+                <input matInput formControlName="rera_comment" placeholder="Enter Approver Comment..." />
+                <mat-error *ngIf="form.get('rera_comment')?.touched && form.get('rera_comment')?.hasError('required')"
+                    class="text-xs">
+                    Please enter a Approver Comment
+                </mat-error>
+            </mat-form-field>
         </form>
     </div>
 </mat-dialog-content>

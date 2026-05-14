@@ -12,10 +12,7 @@
             <div
                 class="bg-[#0d4678] p-3 rounded-lg shadow-sm flex items-center justify-between border-b-4 border-[#ff9800]/20">
                 <div class="flex items-center gap-3">
-                    <div
-                        class="w-12 h-12 rounded bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                        <mat-icon class="text-white !text-2xl">business</mat-icon>
-                    </div>
+
                     <div class="flex flex-col">
                         <h5 class="text-base md:text-lg font-black text-white leading-none mb-1 tracking-tight">{{
                             data.firm_name }}</h5>
@@ -227,14 +224,17 @@
                                     <mat-icon class="!text-base">person</mat-icon>
                                 </div>
                                 <div class="flex flex-col min-w-0">
-                                    <span class="text-[11px] font-bold text-slate-700 truncate">{{ exec.first_name }} {{ exec.last_name }}</span>
-                                    <span class="text-[9px] text-slate-500 font-medium">{{ exec.user_phone || 'N/A' }}</span>
+                                    <span class="text-[11px] font-bold text-slate-700 truncate">{{ exec.first_name }} {{
+                                        exec.last_name }}</span>
+                                    <span class="text-[9px] text-slate-500 font-medium">{{ exec.user_phone || 'N/A'
+                                        }}</span>
                                 </div>
                             </div>
                             <div *ngIf="cpExecutives().length === 0 && !isLoadingExecutives()"
                                 class="text-center py-4 bg-slate-25 rounded border border-dashed border-slate-200">
                                 <mat-icon class="text-slate-300 !text-2xl mb-1">group_off</mat-icon>
-                                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">No Executives</div>
+                                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">No Executives
+                                </div>
                             </div>
                             <div *ngIf="isLoadingExecutives()" class="flex justify-center py-3">
                                 <mat-spinner diameter="20" color="primary"></mat-spinner>

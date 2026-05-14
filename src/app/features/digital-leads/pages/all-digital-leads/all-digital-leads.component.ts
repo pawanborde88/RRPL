@@ -7,7 +7,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { environment } from '../../../../../environments/environment';
-import { ActionColumnComponent } from '../../../../Common/action-column/action-column.component';
 import { AutocompleteReusableComponent } from '../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
 import { ConfigurableAgGridDataComponent } from '../../../../Common/Reusable/AG-GRID-TABLE/Reusable Table/configurable-ag-grid-data/configurable-ag-grid-data.component';
@@ -29,7 +28,6 @@ import { DigitalLeadsStore } from '../../store/digital-leads.store';
         ReactiveFormsModule,
         AutocompleteReusableComponent,
         ConfigurableAgGridDataComponent,
-        ActionColumnComponent,
     ],
     templateUrl: './all-digital-leads.component.html',
     styleUrl: './all-digital-leads.component.scss',

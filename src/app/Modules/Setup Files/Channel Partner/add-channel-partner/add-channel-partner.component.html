@@ -22,12 +22,18 @@
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Firm Address</mat-label>
-            <input matInput formControlName="firm_address" placeholder="Firm address" />
+            <input matInput formControlName="firm_address" placeholder="Firm address" required />
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_address')?.hasError('required')">
+              Firm address is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>City</mat-label>
-            <input matInput formControlName="firm_city" placeholder="Firm city" />
+            <input matInput formControlName="firm_city" placeholder="Firm city" required />
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_city')?.hasError('required')">
+              City is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
@@ -76,21 +82,36 @@
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>RERA Expiry Date</mat-label>
             <input matInput [matDatepicker]="eventDate" [min]="minDate" formControlName="rera_expiry_date"
-              placeholder="Firm expiry date" />
+              placeholder="Firm expiry date" required />
             <mat-datepicker-toggle matSuffix [for]="eventDate"></mat-datepicker-toggle>
             <mat-datepicker #eventDate></mat-datepicker>
+            <mat-error *ngIf="addChannelPartnerForm.get('rera_expiry_date')?.hasError('required')">
+              RERA expiry date is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Firm Email</mat-label>
-            <input matInput formControlName="firm_email" placeholder="Firm Email" type="email">
+            <input matInput formControlName="firm_email" placeholder="Firm Email" type="email" required>
             <mat-icon matSuffix>email</mat-icon>
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_email')?.hasError('email') || addChannelPartnerForm.get('firm_email')?.hasError('pattern')">
+              Enter a valid email address
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Firm Phone</mat-label>
-            <input matInput formControlName="firm_phone" placeholder="Firm Mobile NO" type="tel">
+            <input matInput formControlName="firm_phone" placeholder="Firm Mobile NO" type="tel" required maxlength="10">
             <mat-icon matSuffix>phone</mat-icon>
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_phone')?.hasError('required')">
+              Phone number is required
+            </mat-error>
+            <mat-error *ngIf="addChannelPartnerForm.get('firm_phone')?.hasError('pattern')">
+              Enter a valid 10-digit phone number
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
@@ -120,28 +141,49 @@
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Account Number</mat-label>
-            <input matInput formControlName="bank_account_no" placeholder="Enter account number" />
+            <input matInput formControlName="bank_account_no" placeholder="Enter account number" required />
             <mat-icon matSuffix>credit_card</mat-icon>
+            <mat-error *ngIf="addChannelPartnerForm.get('bank_account_no')?.hasError('required')">
+              Account number is required
+            </mat-error>
+            <mat-error *ngIf="addChannelPartnerForm.get('bank_account_no')?.hasError('pattern')">
+              Enter a valid account number (9-18 digits)
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Account Holder Name</mat-label>
-            <input matInput formControlName="bank_account_name" placeholder="As per bank records" />
+            <input matInput formControlName="bank_account_name" placeholder="As per bank records" required />
+            <mat-error *ngIf="addChannelPartnerForm.get('bank_account_name')?.hasError('required')">
+              Account holder name is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Bank Name</mat-label>
-            <input matInput formControlName="bank_name" placeholder="Name of bank" />
+            <input matInput formControlName="bank_name" placeholder="Name of bank" required />
+            <mat-error *ngIf="addChannelPartnerForm.get('bank_name')?.hasError('required')">
+              Bank name is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>Branch Name</mat-label>
-            <input matInput formControlName="branch_name" placeholder="Branch location" />
+            <input matInput formControlName="branch_name" placeholder="Branch location" required />
+            <mat-error *ngIf="addChannelPartnerForm.get('branch_name')?.hasError('required')">
+              Branch name is required
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">
             <mat-label>IFSC Code</mat-label>
-            <input matInput formControlName="ifsc_code" placeholder="IFSC" />
+            <input matInput formControlName="ifsc_code" placeholder="IFSC" required style="text-transform: uppercase" />
+            <mat-error *ngIf="addChannelPartnerForm.get('ifsc_code')?.hasError('required')">
+              IFSC code is required
+            </mat-error>
+            <mat-error *ngIf="addChannelPartnerForm.get('ifsc_code')?.hasError('pattern')">
+              Enter a valid IFSC code (e.g. SBIN0001234)
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="col-md-3">

@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
 import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
@@ -29,7 +28,6 @@ import { ReusableTableComponent } from '../../../../Common/Reusable/reusable-tab
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe,
     ReusableTableComponent,
   ],
   templateUrl: './all-sopcategory.component.html',

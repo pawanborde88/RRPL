@@ -37,10 +37,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { BreadcrumbComponent } from '../../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../../Common/template/template.component';
 import { AutocompleteReusableComponent } from '../../../../../Common/autocomplete-reusable-component/autocomplete-reusable-component.component';
-import { AddTokenPaymentComponent } from '../Token Payment/add-token-payment/add-token-payment.component';
 import { SuccessDialogComponent } from '../../../../../Common/success-dialog/success-dialog.component';
 import { AmountDirective } from '../../../../../Common/Amount Direcitve/amount.directive';
 import {
@@ -111,11 +108,8 @@ interface WebConfigWithFeet extends WebConfigDropdownResponse {
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TemplateComponent,
-    BreadcrumbComponent,
     AutocompleteReusableComponent,
     AmountDirective,
-    AddTokenPaymentComponent,
   ],
   templateUrl: './add-tokens.component.html',
   styleUrl: './add-tokens.component.scss',
@@ -762,7 +756,7 @@ export class AddTokensComponent {
       unitTypeControl?.clearValidators();
       floorUnitIdControl?.clearValidators();
       configControl?.setValidators(Validators.required);
-      
+
       // Reset values if not highest
       wingIdControl?.reset();
       floorIdControl?.reset();
@@ -775,7 +769,7 @@ export class AddTokensComponent {
     unitTypeControl?.updateValueAndValidity();
     floorUnitIdControl?.updateValueAndValidity();
     configControl?.updateValueAndValidity();
-    
+
     this.cdr.markForCheck();
     this.cdr.detectChanges();
   }
@@ -795,7 +789,7 @@ export class AddTokensComponent {
 
     const formData = {
       ...this.addTokenForm.getRawValue(),
-      user_id: this.userId(),
+      user_id: Number(sessionStorage.getItem('session_id')),
       is_agreed: this.addTokenForm.getRawValue().is_agreed ? 1 : 0,
       token_date: this.pipe.transform(
         this.addTokenForm.get('token_date')?.value,

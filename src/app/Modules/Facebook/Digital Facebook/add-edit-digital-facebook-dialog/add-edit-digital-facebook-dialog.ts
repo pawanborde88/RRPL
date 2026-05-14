@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, of, finalize } from 'rxjs';
@@ -69,10 +69,16 @@ export class AddEditDigitalFacebookDialog implements OnInit {
   // Form
   readonly budgetForm = new FormGroup({
     project_id: new FormControl<number | null>(null, Validators.required),
-    source_id: new FormControl<number | null>(null, Validators.required),
-    budget: new FormControl<number | null>(null, [Validators.required, Validators.min(0)]),
-
+    sourceBudgets: new FormArray<FormGroup>([]),
   });
+
+  /** Convenience getter for the FormArray */
+  get sourceBudgetsArray(): FormArray<FormGroup> {
+    return this.budgetForm.get('sourceBudgets') as FormArray<FormGroup>;
+  }
+
+  /** Computed total budget across all sources */
+  readonly totalBudget = signal<number>(0);
 
   // Lifecycle
   ngOnInit(): void {
@@ -104,19 +110,60 @@ export class AddEditDigitalFacebookDialog implements OnInit {
         catchError(err => { console.error('Error fetching sources:', err); return of([]); }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe({ next: res => this.sourcesList.set(res ?? []) });
+      .subscribe({
+        next: res => {
+          const sources = res ?? [];
+          this.sourcesList.set(sources);
+          this.buildSourceBudgetRows(sources);
+        },
+      });
   }
 
   // Form helpers
+
+  /** Build one row per source in the FormArray */
+  private buildSourceBudgetRows(sources: SourceOption[]): void {
+    this.sourceBudgetsArray.clear();
+    sources.forEach(src => {
+      const group = new FormGroup({
+        source_id: new FormControl<number>(src.source_id),
+        budget: new FormControl<number | null>(null, [Validators.min(0)]),
+      });
+
+      // Listen for budget changes to update total
+      group.get('budget')?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.recalcTotal());
+
+      this.sourceBudgetsArray.push(group);
+    });
+  }
+
+  /** Recalculate total budget */
+  private recalcTotal(): void {
+    const total = this.sourceBudgetsArray.controls.reduce((sum, ctrl) => {
+      const val = ctrl.get('budget')?.value;
+      return sum + (val ? Number(val) : 0);
+    }, 0);
+    this.totalBudget.set(total);
+  }
 
   private patchFormValues(): void {
     const d = this.dialogData.editData;
     if (!d) return;
     this.budgetForm.patchValue({
       project_id: d.project_id,
-      source_id: d.source_id,
-      budget: d.budget,
     });
+    // Patch the matching source row budget after sources load
+    // (handled via subscription timing — sources load first, then patch)
+    setTimeout(() => {
+      const idx = this.sourceBudgetsArray.controls.findIndex(
+        ctrl => ctrl.get('source_id')?.value === d.source_id
+      );
+      if (idx >= 0) {
+        this.sourceBudgetsArray.at(idx).patchValue({ budget: d.budget });
+      }
+    }, 500);
   }
 
   // Submit
@@ -127,25 +174,39 @@ export class AddEditDigitalFacebookDialog implements OnInit {
       return;
     }
 
-    this.isSubmitting.set(true);
-    const { project_id, source_id, budget } = this.budgetForm.value;
+    const projectId = this.budgetForm.get('project_id')?.value;
+    if (!projectId) return;
 
+    // Build source_budget array: collect rows that have a budget value > 0
+    const sourceBudget = this.sourceBudgetsArray.controls
+      .map(ctrl => ({
+        source_id: ctrl.get('source_id')?.value as number,
+        budget: Number(ctrl.get('budget')?.value) || 0,
+      }))
+      .filter(r => r.budget > 0);
+
+    if (sourceBudget.length === 0) {
+      this.snackBar.open('Please enter budget for at least one source', 'OK', { duration: 3000 });
+      return;
+    }
+
+    this.isSubmitting.set(true);
+
+    // Single API call with source_budget array
     const apiCall = this.projectBudgetSetupId()
       ? this.commonService.editProjectBudget({
-        project_budget_setup_id: this.projectBudgetSetupId()!,
-        source_id: source_id!,
-        project_id: project_id!,
-        budget: budget!,
-        created_by: this.dialogData.editData?.created_by ?? this.userId,
-        updated_by: this.userId,
-      })
+          project_budget_setup_id: this.projectBudgetSetupId()!,
+          project_id: projectId,
+          source_budget: sourceBudget,
+          created_by: this.dialogData.editData?.created_by ?? this.userId,
+          updated_by: this.userId,
+        })
       : this.commonService.addProjectBudget({
-        source_id: source_id!,
-        project_id: project_id!,
-        budget: budget!,
-        created_by: this.userId,
-        updated_by: this.userId,
-      });
+          project_id: projectId,
+          source_budget: sourceBudget,
+          created_by: this.userId,
+          updated_by: this.userId,
+        });
 
     apiCall
       .pipe(

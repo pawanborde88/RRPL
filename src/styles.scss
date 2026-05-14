@@ -189,13 +189,42 @@ table,
 /* ==================== MATERIAL FORM FIELD STYLES ==================== */
 .mat-mdc-form-field {
   @include mix.mat-form-field-compact;
-  margin-bottom: 8px; // Increased margin for better separation
+  margin-bottom: 14px; // Increased margin for absolute error message
   transition: all 0.2s ease;
+  position: relative !important;
+  overflow: visible !important;
 
   .mat-mdc-form-field-subscript-wrapper {
-    display: none !important;
-    height: 0 !important;
-    overflow: hidden !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    padding: 0 12px !important;
+    pointer-events: none;
+    box-sizing: border-box;
+
+    // Use visibility/opacity instead of display:none to avoid layout jumps
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease, visibility 0.2s;
+  }
+
+  &.mat-form-field-invalid,
+  &.mat-focused {
+    .mat-mdc-form-field-subscript-wrapper {
+      visibility: visible;
+      opacity: 1;
+
+      mat-error {
+        font-size: 10px !important;
+        line-height: 1.2;
+        display: block;
+        margin-top: 1px; // Small gap below the field border
+        color: #ef4444;
+        text-align: left !important;
+      }
+    }
   }
 
   &:hover {

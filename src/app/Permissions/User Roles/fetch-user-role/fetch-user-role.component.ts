@@ -10,7 +10,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CommonModule, DatePipe } from '@angular/common';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MainPermissionComponent } from '../../main-permission/main-permission.component';
 import { AngularMaterialModule } from '../../../../angular-material.module';
@@ -38,7 +38,6 @@ interface moduleListForm {
   imports: [
     AngularMaterialModule,
     CommonModule,
-    RouterOutlet,
     TemplateComponent,
     BreadcrumbComponent,
     ReactiveFormsModule,

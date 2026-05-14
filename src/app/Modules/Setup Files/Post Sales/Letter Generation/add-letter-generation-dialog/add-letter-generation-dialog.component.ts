@@ -63,7 +63,7 @@ export class AddLetterGenerationDialogComponent {
     floor_unit_id: new FormControl<number | null>(null, Validators.required),
     letter_type_id: new FormControl<number | null>(null, Validators.required),
     letter_date: new FormControl<Date | null>(null, Validators.required),
-    remark: new FormControl<string>('', Validators.required),
+    remark: new FormControl<string>(''),
     created_by: new FormControl<number>(this.userId),
   });
 
@@ -89,7 +89,7 @@ export class AddLetterGenerationDialogComponent {
   private initializeData(): void {
     // Load initial data
     this.loading.set(true);
-    
+
     combineLatest([
       this.receiptsService.fetchUserProjects(this.userId).pipe(
         catchError(() => {
@@ -219,7 +219,7 @@ export class AddLetterGenerationDialogComponent {
       .subscribe({
         next: (response: any) => {
           this.loading.set(false);
-  
+
           if (response.success) {
             this.form.reset({ created_by: this.userId });
             this.dialog.open(SuccessDialogComponent, {

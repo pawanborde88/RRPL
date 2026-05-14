@@ -65,32 +65,48 @@ export class ReceiptPreviewDialogComponent implements OnInit {
 
   checkFileType(): void {
     try {
-      const url = this.data.fileUrl.toLowerCase();
+      let url = this.data.fileUrl || '';
 
-      // Check if it's PDF
-      if (url.endsWith('.pdf')) {
+      // Fix escaped slashes
+      url = url.replace(/\\/g, '');
+
+      // Convert to lowercase
+      url = url.toLowerCase();
+
+      // Remove query params if any
+      const cleanUrl = url.split('?')[0];
+
+      // Reset flags
+      this.isPdf = false;
+      this.isImage = false;
+
+      // Check PDF
+      if (cleanUrl.endsWith('.pdf')) {
         this.isPdf = true;
-        this.showDownloadButton = true; // Show download button for PDFs
+        this.showDownloadButton = true;
         this.isLoading = false;
         return;
       }
 
-      // Check if it's an image
-      const isImage = this.imageExtensions.some(ext => url.endsWith(`.${ext}`));
+      // Check Image
+      const isImage = this.imageExtensions.some(ext =>
+        cleanUrl.endsWith(`.${ext}`)
+      );
+
       if (isImage) {
         this.isImage = true;
-        this.showDownloadButton = true; // Show download button for images
+        this.showDownloadButton = true;
         this.isLoading = false;
         return;
       }
 
-      // If neither PDF nor image
+      // Default case
       this.isLoading = false;
+
     } catch (error) {
       this.handleError('Failed to determine file type');
     }
   }
-
   zoomIn(): void {
     this.zoomLevel += 0.2;
   }

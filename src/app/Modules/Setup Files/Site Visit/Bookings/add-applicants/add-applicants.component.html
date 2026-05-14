@@ -1,211 +1,228 @@
-<mat-card-header class="py-0">
-    <mat-card-title>
-        <h4>Add Applicant</h4>
-    </mat-card-title>
-</mat-card-header>
+<mat-card>
 
-<div class="custom-tabs-container">
-    <!-- Tabs Header -->
-    <div class="tabs-header">
-        <button *ngFor="let applicant of applicants.controls; let i = index" class="tab-btn"
-            [class.active]="selectedTabIndex() === i" (click)="selectedTabIndex.set(i)" type="button">
-            <mat-icon class="compact-icon" [ngClass]="{'text-success': savedApplicants()[i]}">
-                {{ savedApplicants()[i] ? 'check_circle' : 'account_circle' }}
-            </mat-icon>
-            Applicant {{ i + 1 }}
-        </button>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="tab-content">
-        <ng-container *ngFor="let applicant of applicants.controls; let i = index">
-            <div *ngIf="selectedTabIndex() === i">
-                <form [formGroup]="applicant" class="mt-1">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>Salutation</mat-label>
-                                <mat-select formControlName="salutation_id">
-                                    <mat-option *ngFor="let salutation of salutationDropdown()"
-                                        [value]="salutation.salution_id">
-                                        {{ salutation.salution }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>Gender</mat-label>
-                                <mat-select formControlName="gender">
-                                    <mat-option [value]="1">Male</mat-option>
-                                    <mat-option [value]="2">Female</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>First Name</mat-label>
-                                <input matInput formControlName="first_name" placeholder="First name" />
-                                <mat-error
-                                    *ngIf="applicant.get('first_name')?.hasError('required')">Required</mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>Middle Name</mat-label>
-                                <input matInput formControlName="middle_name" placeholder="Middle name" />
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>Last Name</mat-label>
-                                <input matInput formControlName="last_name" placeholder="Last name" />
-                                <mat-error *ngIf="applicant.get('last_name')?.hasError('required')">Required</mat-error>
-                            </mat-form-field>
-                        </div>
+    <mat-card-header class="border-b border-slate-100 bg-sky-900 px-4 py-3">
+        <mat-card-title>
 
 
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Mobile</mat-label>
-                                <input type="tel" matInput formControlName="mobile_no" maxlength="10" autocomplete="tel"
-                                    (input)="sanitizeMobileInput($event, i)" />
-                                <mat-error
-                                    *ngIf="applicant.get('mobile_no')?.hasError('required') && applicant.get('mobile_no')?.touched">
-                                    Required
-                                </mat-error>
-                                <mat-error
-                                    *ngIf="applicant.get('mobile_no')?.hasError('pattern') && applicant.get('mobile_no')?.touched">
-                                    Invalid number
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-
-                        <div class="col-md-3 col-6">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>WhatsApp</mat-label>
-                                <input matInput formControlName="whatsapp_no" maxlength="10" autocomplete="tel"
-                                    placeholder="WhatsApp number" />
-                                <mat-error
-                                    *ngIf="applicant.get('whatsapp_no')?.hasError('pattern') && applicant.get('whatsapp_no')?.touched">
-                                    Invalid number
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Email</mat-label>
-                                <input matInput formControlName="email" placeholder="Email" />
-                                <mat-error *ngIf="applicant.get('email')?.hasError('required')">Required</mat-error>
-                                <mat-error
-                                    *ngIf="applicant.get('email')?.hasError('email') || applicant.get('email')?.hasError('pattern')">
-                                    Invalid email
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Aadhar</mat-label>
-                                <input matInput formControlName="aadhar_no" placeholder="Aadhar no"
-                                    appAadharcardNoformat maxlength="14" inputmode="numeric" />
-                                <mat-error *ngIf="applicant.get('aadhar_no')?.hasError('required')">
-                                    Aadhar No is required
-                                </mat-error>
-
-                                <mat-error *ngIf="applicant.get('aadhar_no')?.hasError('pattern')">
-                                    Incorrect Aadhar
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3 col-6">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>PAN</mat-label>
-                                <input matInput formControlName="pan_no" placeholder="PAN no"
-                                    style="text-transform: uppercase" maxlength="10" appPANNo />
-                                <mat-error *ngIf="applicant.get('pan_no')?.hasError('pattern')">
-                                    Invalid PAN
-                                </mat-error>
-                                <mat-error *ngIf="applicant.get('pan_no')?.hasError('required')">
-                                    PAN is required
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100" appearance="outline">
-                                <mat-label>Occupation</mat-label>
-                                <mat-select formControlName="occupation_id">
-                                    <mat-option *ngFor="let occ of allOccupations()" [value]="occ.occupation_id">
-                                        {{ occ.occupation }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Date of Birth</mat-label>
-                                <input matInput [matDatepicker]="dobPicker" formControlName="dob" />
-                                <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
-                                <mat-datepicker #dobPicker></mat-datepicker>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Anniversary</mat-label>
-                                <input matInput [matDatepicker]="anniversaryPicker"
-                                    formControlName="anniversary_date" />
-                                <mat-datepicker-toggle matSuffix [for]="anniversaryPicker"></mat-datepicker-toggle>
-                                <mat-datepicker #anniversaryPicker></mat-datepicker>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Current Address</mat-label>
-                                <input matInput formControlName="current_address" placeholder="Current address" />
-                                <mat-error *ngIf="applicant.get('current_address')?.hasError('required')">
-                                    Current Address is required
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3">
-                            <mat-form-field appearance="outline" class="w-100">
-                                <mat-label>Permanent Address</mat-label>
-                                <input matInput formControlName="permanent_address" placeholder="Permanent address" />
-                            </mat-form-field>
-                        </div>
-
-                        <div class="col-md-3 d-flex align-items-center">
-                            <button matTooltip="Copy Current Address" mat-button color="primary" type="button"
-                                (click)="copyCurrentToPermanent(i)">
-                                <mat-icon class="compact-icon">content_copy</mat-icon>
-
-                            </button>
-                        </div>
-
-                        <div class="col-12 mt-1 d-flex justify-content-end">
-                            <button [disabled]="savedApplicants()[i] || applicant.invalid || isLoading()"
-                                mat-raised-button [color]="savedApplicants()[i] ? 'accent' : 'primary'"
-                                (click)="bookApplicant(i)" class="add-button py-1">
-                                <mat-icon class="compact-icon">{{ savedApplicants()[i] ? 'check_circle' : 'save'
-                                    }}</mat-icon>
-                                <span>{{ savedApplicants()[i] ? 'Saved Applicant' : (isLoading() ? 'Saving...' :
-                                    'Save')
-                                    }}</span>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+            <div class="title-with-line">
+                <h5 class="text-sm font-bold uppercase tracking-wide text-white">Applicant Details</h5>
             </div>
-        </ng-container>
-    </div>
-</div>
+
+        </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+        <!-- Tabs Header -->
+        <div class="tabs-header">
+            <button *ngFor="let applicant of applicants.controls; let i = index" class="tab-btn"
+                [class.active]="selectedTabIndex() === i" (click)="selectedTabIndex.set(i)" type="button">
+                <mat-icon class="compact-icon" [ngClass]="{'text-white': savedApplicants()[i]}">
+                    {{ savedApplicants()[i] ? 'check_circle' : 'account_circle' }}
+                </mat-icon>
+                {{ i === 0 ? 'Applicant' : 'Applicant ' + (i + 1) }}
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-1">
+            <ng-container *ngFor="let applicant of applicants.controls; let i = index">
+                <div *ngIf="selectedTabIndex() === i">
+                    <form [formGroup]="applicant" class="mt-1">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Salutation</mat-label>
+                                    <mat-select formControlName="salutation_id">
+                                        <mat-option *ngFor="let salutation of salutationDropdown()"
+                                            [value]="salutation.salution_id">
+                                            {{ salutation.salution }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="applicant.get('salutation_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Gender</mat-label>
+                                    <mat-select formControlName="gender">
+                                        <mat-option [value]="1">Male</mat-option>
+                                        <mat-option [value]="2">Female</mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="applicant.get('gender')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>First Name</mat-label>
+                                    <input matInput formControlName="first_name" placeholder="First name" />
+                                    <mat-error
+                                        *ngIf="applicant.get('first_name')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Middle Name</mat-label>
+                                    <input matInput formControlName="middle_name" placeholder="Middle name" />
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Last Name</mat-label>
+                                    <input matInput formControlName="last_name" placeholder="Last name" />
+                                    <mat-error
+                                        *ngIf="applicant.get('last_name')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Mobile</mat-label>
+                                    <input type="tel" matInput formControlName="mobile_no" maxlength="10"
+                                        autocomplete="tel" (input)="sanitizeMobileInput($event, i)" />
+                                    <mat-error *ngIf="applicant.get('mobile_no')?.hasError('required')">
+                                        Required
+                                    </mat-error>
+                                    <mat-error
+                                        *ngIf="applicant.get('mobile_no')?.hasError('pattern') || applicant.get('mobile_no')?.hasError('maxlength')">
+                                        Invalid number (10 digits required)
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+
+                            <div class="col-md-2 col-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>WhatsApp</mat-label>
+                                    <input matInput formControlName="whatsapp_no" maxlength="10" autocomplete="tel"
+                                        placeholder="WhatsApp number" />
+                                    <mat-error *ngIf="applicant.get('whatsapp_no')?.hasError('pattern')">
+                                        Invalid number
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2 col-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Email</mat-label>
+                                    <input matInput formControlName="email" placeholder="Email" />
+                                    <mat-error *ngIf="applicant.get('email')?.hasError('required')">Required</mat-error>
+                                    <mat-error
+                                        *ngIf="applicant.get('email')?.hasError('email') || applicant.get('email')?.hasError('pattern')">
+                                        Invalid email
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2 col-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Aadhar</mat-label>
+                                    <input matInput formControlName="aadhar_no" placeholder="Aadhar no"
+                                        appAadharcardNoformat maxlength="14" inputmode="numeric" />
+                                    <mat-error *ngIf="applicant.get('aadhar_no')?.hasError('required')">
+                                        Aadhar No is required
+                                    </mat-error>
+
+                                    <mat-error *ngIf="applicant.get('aadhar_no')?.hasError('pattern')">
+                                        Incorrect Aadhar
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2 col-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>PAN</mat-label>
+                                    <input matInput formControlName="pan_no" placeholder="PAN no"
+                                        style="text-transform: uppercase" maxlength="10" appPANNo />
+                                    <mat-error *ngIf="applicant.get('pan_no')?.hasError('pattern')">
+                                        Invalid PAN
+                                    </mat-error>
+                                    <mat-error *ngIf="applicant.get('pan_no')?.hasError('required')">
+                                        PAN is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Occupation</mat-label>
+                                    <mat-select formControlName="occupation_id">
+                                        <mat-option *ngFor="let occ of allOccupations()" [value]="occ.occupation_id">
+                                            {{ occ.occupation }}
+                                        </mat-option>
+                                    </mat-select>
+                                    <mat-error
+                                        *ngIf="applicant.get('occupation_id')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Date of Birth</mat-label>
+                                    <input matInput [matDatepicker]="dobPicker" formControlName="dob" />
+                                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #dobPicker></mat-datepicker>
+                                    <mat-error *ngIf="applicant.get('dob')?.hasError('required')">Required</mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Anniversary</mat-label>
+                                    <input matInput [matDatepicker]="anniversaryPicker"
+                                        formControlName="anniversary_date" />
+                                    <mat-datepicker-toggle matSuffix [for]="anniversaryPicker"></mat-datepicker-toggle>
+                                    <mat-datepicker #anniversaryPicker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Current Address</mat-label>
+                                    <input matInput formControlName="current_address" placeholder="Current address" />
+                                    <mat-error *ngIf="applicant.get('current_address')?.hasError('required')">
+                                        Current Address is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Permanent Address</mat-label>
+                                    <input matInput formControlName="permanent_address"
+                                        placeholder="Permanent address" />
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-center">
+                                <button matTooltip="Copy Current Address" mat-button color="primary" type="button"
+                                    (click)="copyCurrentToPermanent(i)">
+                                    <mat-icon class="compact-icon">content_copy</mat-icon>
+                                    <span>Copy Address</span>
+                                </button>
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end justify-content-end">
+                                <button
+                                    [disabled]="savedApplicants()[i] || applicant.invalid || isLoading() || !bookingId()"
+                                    mat-raised-button [color]="savedApplicants()[i] ? 'accent' : 'primary'"
+                                    (click)="bookApplicant(i)" class="w-100 py-1">
+                                    <mat-icon class="compact-icon">{{ savedApplicants()[i] ? 'check_circle' : 'save'
+                                        }}</mat-icon>
+                                    <span>{{ savedApplicants()[i] ? 'Saved Applicant' : (isLoading() ? 'Saving...' :
+                                        'Save Applicant')
+                                        }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </ng-container>
+        </div>
+    </mat-card-content>
+
+</mat-card>

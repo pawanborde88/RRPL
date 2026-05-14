@@ -7,9 +7,6 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AngularMaterialModule } from '../../../../../angular-material.module';
-import { BreadcrumbComponent } from '../../../../Common/breadcrumb/breadcrumb.component';
-import { TemplateComponent } from '../../../../Common/template/template.component';
-import { TruncatePipe } from '../../../../Pipes/truncate.pipe';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
@@ -18,12 +15,9 @@ import { environment } from '../../../../../environments/environment';
   imports: [
     CommonModule,
     RouterModule,
-    TemplateComponent,
-    BreadcrumbComponent,
     AngularMaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    TruncatePipe, // Add the pipe here
   ],
   templateUrl: './add-vendor.component.html',
   styleUrl: './add-vendor.component.scss'

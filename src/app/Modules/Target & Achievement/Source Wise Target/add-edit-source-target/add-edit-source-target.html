@@ -1,96 +1,86 @@
-<h2 mat-dialog-title> {{ isEditMode ? 'Edit' : 'Add' }} Source Wise Target
+<h2 mat-dialog-title>Add Source Wise Target
   <button mat-icon-button mat-dialog-close style="position: absolute; top: 10px; right: 12px;">
     <mat-icon>close</mat-icon>
   </button>
 </h2>
 
+
+
 <mat-dialog-content>
-  <form [formGroup]="targetForm" class="mt-3">
-    <div class="row">
-      <!-- Project Selection -->
-      <div class="col-md-6 mb-3">
-        <app-autocomplete-reusable-component formControlName="project_id" [options]="projectsList()"
-          [idKey]="'project_id'" [displayKey]="'property_name'"
-          placeholder="Select Project"></app-autocomplete-reusable-component>
+  <form [formGroup]="targetForm" class="flex flex-col h-full">
+
+    <!-- Table Area -->
+    <div class="flex-grow overflow-auto">
+      <!-- Targets Section -->
+      <div class="mb-8">
+
+        <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm" formArrayName="sourceTargets">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-sky-800 text-white">
+              <tr>
+                <th scope="col"
+                  class="px-3 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-12">#</th>
+                <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-white uppercase tracking-wider">
+                  Source</th>
+                <th scope="col"
+                  class="px-4 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-32">Site
+                  Visit</th>
+                <th scope="col"
+                  class="px-4 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-32">Lead
+                  Target</th>
+                <th scope="col"
+                  class="px-4 py-2 text-center text-xs font-medium text-white uppercase tracking-wider w-32">Booking
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+              <tr *ngFor="let group of sourceTargets.controls; let i = index; trackBy: trackBySource"
+                [formGroupName]="i" class="hover:bg-slate-50 transition-colors duration-150">
+                <input type="hidden" formControlName="source_id">
+                <input type="hidden" formControlName="source_target_id">
+
+                <td class="px-3 py-1.5 whitespace-nowrap text-center text-sm text-slate-500 font-medium">
+                  {{ i + 1 }}
+                </td>
+
+                <td class="px-4 py-1.5 whitespace-nowrap">
+                  <span class="text-sm font-semibold text-slate-700 uppercase">{{ group.get('source_name')?.value
+                    }}</span>
+                </td>
+
+                <td class="px-4 py-1.5 whitespace-nowrap">
+                  <input type="number" formControlName="site_visit_target"
+                    class="w-full h-8 px-2 text-center text-sm border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    min="0">
+                </td>
+
+                <td class="px-4 py-1.5 whitespace-nowrap">
+                  <input type="number" formControlName="lead_target"
+                    class="w-full h-8 px-2 text-center text-sm border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    min="0">
+                </td>
+
+                <td class="px-4 py-1.5 whitespace-nowrap">
+                  <input type="number" formControlName="booking_target"
+                    class="w-full h-8 px-2 text-center text-sm border border-slate-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    min="0">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <!-- Source Selection -->
-      <div class="col-md-6 mb-3">
-        <app-autocomplete-reusable-component formControlName="source_id" [options]="sourcesList()" [idKey]="'source_id'"
-          [displayKey]="'source'" placeholder="Select Source "></app-autocomplete-reusable-component>
-      </div>
-    </div>
 
-    <div class="row">
-      <!-- Target From Date -->
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Target From </mat-label>
-          <input matInput [matDatepicker]="fromPicker" formControlName="target_from">
-          <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle matIconSuffix [for]="fromPicker"></mat-datepicker-toggle>
-          <mat-datepicker #fromPicker></mat-datepicker>
-          <mat-error *ngIf="targetForm.get('target_from')?.hasError('required')">
-            Target From is required
-          </mat-error>
-        </mat-form-field>
-      </div>
-
-      <!-- Target To Date -->
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Target To</mat-label>
-          <input matInput [matDatepicker]="toPicker" formControlName="target_to">
-          <mat-hint>MM/DD/YYYY</mat-hint>
-          <mat-datepicker-toggle matIconSuffix [for]="toPicker"></mat-datepicker-toggle>
-          <mat-datepicker #toPicker></mat-datepicker>
-          <mat-error *ngIf="targetForm.get('target_to')?.hasError('required')">
-            Target To is required
-          </mat-error>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <div class="row">
-      <!-- Site Visit Target -->
-      <div class="col-md-4 mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Site Visit Target </mat-label>
-          <input matInput type="number" formControlName="site_visit_target" min="0">
-          <mat-error *ngIf="targetForm.get('site_visit_target')?.hasError('required')">
-            Site Visit Target is required
-          </mat-error>
-        </mat-form-field>
-      </div>
-
-      <!-- Lead Target -->
-      <div class="col-md-4 mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Lead Target </mat-label>
-          <input matInput type="number" formControlName="lead_target" min="0">
-          <mat-error *ngIf="targetForm.get('lead_target')?.hasError('required')">
-            Lead Target is required
-          </mat-error>
-        </mat-form-field>
-      </div>
-
-      <!-- Booking Target -->
-      <div class="col-md-4 mb-3">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Booking Target </mat-label>
-          <input matInput type="number" formControlName="booking_target" min="0">
-          <mat-error *ngIf="targetForm.get('booking_target')?.hasError('required')">
-            Booking Target is required
-          </mat-error>
-        </mat-form-field>
-      </div>
     </div>
   </form>
 </mat-dialog-content>
 
+<!-- Actions -->
 <mat-dialog-actions align="end">
+
   <button mat-raised-button color="primary" (click)="onSave()" [disabled]="targetForm.invalid || loading()">
-    <mat-spinner diameter="20" *ngIf="loading()" class="me-2 d-inline-block"></mat-spinner>
-    {{ isEditMode ? 'Update' : 'Save' }}
+    <mat-spinner diameter="16" *ngIf="loading()" class="mr-2"></mat-spinner>
+    {{ isEditMode ? 'Update Targets' : 'Save Targets' }}
   </button>
 </mat-dialog-actions>
