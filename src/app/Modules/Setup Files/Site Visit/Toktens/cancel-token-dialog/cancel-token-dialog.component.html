@@ -7,14 +7,11 @@
 
 <mat-dialog-content>
   <p>{{ data?.message || 'Are you sure you want to cancel this token?' }}</p>
-  
-  <!-- Add this section for cancel_remark when bookingForm is present -->
-  <mat-form-field *ngIf="data?.for" appearance="outline" style="width: 100%; margin-top: 16px;">
+    <mat-form-field *ngIf="data?.for" appearance="outline" style="width: 100%; margin-top: 16px;">
     <mat-label>{{ data?.label || 'Cancel Remark' }}</mat-label>
     <input matInput [(ngModel)]="cancelRemark" required [placeholder]="data?.placeholder || 'Please enter reason for cancellation'">
   </mat-form-field>
 </mat-dialog-content>
-
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>No</button>
   <button mat-raised-button color="primary" (click)="onConfirm()" [disabled]="data?.for && !cancelRemark">Yes</button>
